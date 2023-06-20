@@ -60,7 +60,6 @@ return "swagger generated";
         Artisan::call('migrate:fresh');
         Artisan::call('migrate', ['--path' => 'vendor/laravel/passport/database/migrations']);
         Artisan::call('passport:install');
-        Artisan::call('db:seed --class AutomobileCarSeeder');
         Artisan::call('l5-swagger:generate');
 
 
@@ -206,9 +205,6 @@ return "swagger generated";
 
     public function roleRefresh(Request $request)
     {
-
-
-
 
 
 
