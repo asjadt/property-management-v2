@@ -28,6 +28,7 @@ use App\Http\Controllers\GarageServicePriceController;
 use App\Http\Controllers\GarageTimesController;
 use App\Http\Controllers\JobBidController;
 use App\Http\Controllers\JobController;
+use App\Http\Controllers\LandlordController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\NotificationTemplateController;
 use App\Http\Controllers\PaymentTypeController;
@@ -118,6 +119,38 @@ Route::middleware(['auth:api'])->group(function () {
     Route::patch('/auth/changepassword', [AuthController::class, "changePassword"]);
 
     Route::put('/v1.0/update-user-info', [AuthController::class, "updateUserInfo"]);
+
+
+
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// Landlord management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Route::post('/v1.0/landlord-image', [LandlordController::class, "createLandlordImage"]);
+Route::post('/v1.0/landlords', [LandlordController::class, "createLandlord"]);
+Route::put('/v1.0/landlords', [LandlordController::class, "updateLandlord"]);
+Route::get('/v1.0/landlords/{perPage}', [LandlordController::class, "getLandlords"]);
+Route::get('/v1.0/landlords/get/single/{id}', [LandlordController::class, "getLandlordById"]);
+Route::delete('/v1.0/landlords/{id}', [LandlordController::class, "deleteLandlordById"]);
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+// Landlord management section
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+// Landlord management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Route::post('/v1.0/tenant-image', [TenantControllerController::class, "createTenantImage"]);
+Route::post('/v1.0/tenants', [TenantControllerController::class, "createTenant"]);
+Route::put('/v1.0/tenants', [TenantControllerController::class, "updateTenant"]);
+Route::get('/v1.0/tenants/{perPage}', [TenantControllerController::class, "getTenants"]);
+Route::get('/v1.0/tenants/get/single/{id}', [TenantControllerController::class, "getTenantById"]);
+Route::delete('/v1.0/tenants/{id}', [TenantControllerController::class, "deleteTenantById"]);
+
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+// Landlord management section
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
 
 
 

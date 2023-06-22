@@ -14,7 +14,7 @@
     },
     "servers": [
         {
-            "url": "http://127.0.0.1:8000/api",
+            "url": "https://britanniagreen.co.uk/property-management/api",
             "description": "Demo API Server"
         }
     ],
@@ -39,6 +39,239 @@
                                         "description": "image to upload",
                                         "type": "file",
                                         "collectionFormat": "multi"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/landlords": {
+            "put": {
+                "tags": [
+                    "affiliation_management"
+                ],
+                "summary": "This method is to update landlord",
+                "description": "This method is to update landlord",
+                "operationId": "updateLandlord",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id",
+                                    "name",
+                                    "description",
+                                    "logo"
+                                ],
+                                "properties": {
+                                    "first_Name": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "Rifat"
+                                    },
+                                    "last_Name": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "Al"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "rifatalashwad0@gmail.com"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "format": "boolean",
+                                        "example": "01771034383"
+                                    },
+                                    "address_line_1": {
+                                        "type": "string",
+                                        "format": "boolean",
+                                        "example": "dhaka"
+                                    },
+                                    "address_line_2": {
+                                        "type": "string",
+                                        "format": "boolean",
+                                        "example": "dinajpur"
+                                    },
+                                    "country": {
+                                        "type": "string",
+                                        "format": "boolean",
+                                        "example": "Bangladesh"
+                                    },
+                                    "city": {
+                                        "type": "string",
+                                        "format": "boolean",
+                                        "example": "Dhaka"
+                                    },
+                                    "postcode": {
+                                        "type": "string",
+                                        "format": "boolean",
+                                        "example": "1207"
+                                    },
+                                    "lat": {
+                                        "type": "string",
+                                        "format": "boolean",
+                                        "example": "1207"
+                                    },
+                                    "long": {
+                                        "type": "string",
+                                        "format": "boolean",
+                                        "example": "1207"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "affiliation_management"
+                ],
+                "summary": "This method is to store landlord",
+                "description": "This method is to store landlord",
+                "operationId": "createAffiliation",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "description",
+                                    "logo"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "car"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "format": "number",
+                                        "example": "description"
+                                    },
+                                    "logo": {
+                                        "type": "string",
+                                        "format": "number",
+                                        "example": "https://images.unsplash.com/photo-1671410714831-969877d103b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80"
                                     }
                                 },
                                 "type": "object"
@@ -209,9 +442,9 @@
                 "tags": [
                     "affiliation_management"
                 ],
-                "summary": "This method is to store affiliation",
-                "description": "This method is to store affiliation",
-                "operationId": "createAffiliation",
+                "summary": "This method is to store landlord",
+                "description": "This method is to store landlord",
+                "operationId": "createLandlord",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -223,20 +456,60 @@
                                     "logo"
                                 ],
                                 "properties": {
-                                    "name": {
+                                    "first_Name": {
                                         "type": "string",
                                         "format": "string",
-                                        "example": "car"
+                                        "example": "Rifat"
                                     },
-                                    "description": {
+                                    "last_Name": {
                                         "type": "string",
-                                        "format": "number",
-                                        "example": "description"
+                                        "format": "string",
+                                        "example": "Al"
                                     },
-                                    "logo": {
+                                    "email": {
                                         "type": "string",
-                                        "format": "number",
-                                        "example": "https://images.unsplash.com/photo-1671410714831-969877d103b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80"
+                                        "format": "string",
+                                        "example": "rifatalashwad0@gmail.com"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "format": "boolean",
+                                        "example": "01771034383"
+                                    },
+                                    "address_line_1": {
+                                        "type": "string",
+                                        "format": "boolean",
+                                        "example": "dhaka"
+                                    },
+                                    "address_line_2": {
+                                        "type": "string",
+                                        "format": "boolean",
+                                        "example": "dinajpur"
+                                    },
+                                    "country": {
+                                        "type": "string",
+                                        "format": "boolean",
+                                        "example": "Bangladesh"
+                                    },
+                                    "city": {
+                                        "type": "string",
+                                        "format": "boolean",
+                                        "example": "Dhaka"
+                                    },
+                                    "postcode": {
+                                        "type": "string",
+                                        "format": "boolean",
+                                        "example": "1207"
+                                    },
+                                    "lat": {
+                                        "type": "string",
+                                        "format": "boolean",
+                                        "example": "1207"
+                                    },
+                                    "long": {
+                                        "type": "string",
+                                        "format": "boolean",
+                                        "example": "1207"
                                     }
                                 },
                                 "type": "object"
@@ -548,6 +821,16 @@
                                         "example": "dhaka"
                                     },
                                     "postcode": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "1207"
+                                    },
+                                    "lat": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "1207"
+                                    },
+                                    "long": {
                                         "type": "string",
                                         "format": "string",
                                         "example": "1207"
@@ -1037,7 +1320,9 @@
                                             "address_line_2": "Dinajpur",
                                             "country": "Bangladesh",
                                             "city": "Dhaka",
-                                            "postcode": "Dinajpur"
+                                            "postcode": "Dinajpur",
+                                            "lat": "10",
+                                            "long": "Din10ajpur"
                                         }
                                     },
                                     "garage": {
@@ -1056,6 +1341,7 @@
                                             "long": "90.44707059805279",
                                             "country": "Bangladesh",
                                             "city": "Dhaka",
+                                            "currency": "BDT",
                                             "postcode": "Dinajpur",
                                             "logo": "https://images.unsplash.com/photo-1671410714831-969877d103b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
                                             "image": "https://images.unsplash.com/photo-1671410714831-969877d103b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
@@ -1460,6 +1746,16 @@
                                         "example": "1"
                                     },
                                     "postcode": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "1"
+                                    },
+                                    "lat": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "1"
+                                    },
+                                    "long": {
                                         "type": "string",
                                         "format": "string",
                                         "example": "1"
@@ -2516,101 +2812,6 @@
                 ]
             }
         },
-        "/v1.0/automobile-models-all": {
-            "get": {
-                "tags": [
-                    "basics"
-                ],
-                "summary": "This method is to get all automobile models by make ids",
-                "description": "This method is to get all automobile models by make ids",
-                "operationId": "getAutomobileModelsAll",
-                "parameters": [
-                    {
-                        "name": "start_date",
-                        "in": "query",
-                        "description": "start_date",
-                        "required": true,
-                        "example": "2019-06-29"
-                    },
-                    {
-                        "name": "end_date",
-                        "in": "query",
-                        "description": "end_date",
-                        "required": true,
-                        "example": "2019-06-29"
-                    },
-                    {
-                        "name": "search_key",
-                        "in": "query",
-                        "description": "search_key",
-                        "required": true,
-                        "example": "search_key"
-                    },
-                    {
-                        "name": "automobile_make_ids[]",
-                        "in": "query",
-                        "description": "automobile_make_id",
-                        "required": true,
-                        "example": "1,2"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocesseble Content",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "not found",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
         "/v1.0/automobile-makes/single/get/{id}": {
             "get": {
                 "tags": [
@@ -3068,6 +3269,101 @@
                         "description": "id",
                         "required": true,
                         "example": "6"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/automobile-models-all": {
+            "get": {
+                "tags": [
+                    "basics"
+                ],
+                "summary": "This method is to get all automobile models by make ids",
+                "description": "This method is to get all automobile models by make ids",
+                "operationId": "getAutomobileModelsAll",
+                "parameters": [
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "start_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "end_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "search_key",
+                        "required": true,
+                        "example": "search_key"
+                    },
+                    {
+                        "name": "automobile_make_ids[]",
+                        "in": "query",
+                        "description": "automobile_make_id",
+                        "required": true,
+                        "example": "1,2"
                     }
                 ],
                 "responses": {
@@ -11068,7 +11364,9 @@
                                             "address_line_2": "Dinajpur",
                                             "country": "Bangladesh",
                                             "city": "Dhaka",
-                                            "postcode": "Dinajpur"
+                                            "postcode": "Dinajpur",
+                                            "lat": "12",
+                                            "long": "12"
                                         }
                                     },
                                     "garage": {
@@ -11087,6 +11385,7 @@
                                             "long": "90.44707059805279",
                                             "country": "Bangladesh",
                                             "city": "Dhaka",
+                                            "currency": "BDT",
                                             "postcode": "Dinajpur",
                                             "logo": "https://images.unsplash.com/photo-1671410714831-969877d103b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
                                             "image": "https://images.unsplash.com/photo-1671410714831-969877d103b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
@@ -11239,7 +11538,9 @@
                                             "address_line_2": "Dinajpur",
                                             "country": "Bangladesh",
                                             "city": "Dhaka",
-                                            "postcode": "Dinajpur"
+                                            "postcode": "Dinajpur",
+                                            "lat": "12",
+                                            "long": "12"
                                         }
                                     },
                                     "garage": {
@@ -11412,6 +11713,13 @@
                         "description": "country_code",
                         "required": true,
                         "example": "country_code"
+                    },
+                    {
+                        "name": "address",
+                        "in": "query",
+                        "description": "address",
+                        "required": true,
+                        "example": "address"
                     },
                     {
                         "name": "city",
@@ -13509,6 +13817,90 @@
                 ]
             }
         },
+        "/v1.0/landlord-image": {
+            "post": {
+                "tags": [
+                    "property_management.landlord_management"
+                ],
+                "summary": "This method is to store landlord logo",
+                "description": "This method is to store landlord logo",
+                "operationId": "createLandlordImage",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "image"
+                                ],
+                                "properties": {
+                                    "image": {
+                                        "description": "image to upload",
+                                        "type": "file",
+                                        "collectionFormat": "multi"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/v1.0/notifications/{perPage}": {
             "get": {
                 "tags": [
@@ -13593,11 +13985,184 @@
                 "operationId": "getNotificationsByGarageId",
                 "parameters": [
                     {
+                        "name": "garage_id",
+                        "in": "path",
+                        "description": "garage_id",
+                        "required": true,
+                        "example": "6"
+                    },
+                    {
                         "name": "perPage",
                         "in": "path",
                         "description": "perPage",
                         "required": true,
                         "example": "6"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/notifications/change-status": {
+            "put": {
+                "tags": [
+                    "notification_management"
+                ],
+                "summary": "This method is to update notification status",
+                "description": "This method is to update notification status",
+                "operationId": "updateNotificationStatus",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "notification_ids"
+                                ],
+                                "properties": {
+                                    "notification_ids": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/notifications/{id}": {
+            "delete": {
+                "tags": [
+                    "notification_management"
+                ],
+                "summary": "This method is to delete notification by id",
+                "description": "This method is to delete notification by id",
+                "operationId": "deleteNotificationById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "id",
+                        "required": true,
+                        "example": "1"
                     }
                 ],
                 "responses": {
@@ -19526,7 +20091,9 @@
                                             "address_line_2": "Dinajpur",
                                             "country": "Bangladesh",
                                             "city": "Dhaka",
-                                            "postcode": "Dinajpur"
+                                            "postcode": "Dinajpur",
+                                            "lat": "12",
+                                            "long": "12"
                                         }
                                     },
                                     "shop": {
@@ -19656,7 +20223,9 @@
                                             "address_line_2": "Dinajpur",
                                             "country": "Bangladesh",
                                             "city": "Dhaka",
-                                            "postcode": "Dinajpur"
+                                            "postcode": "Dinajpur",
+                                            "lat": "12",
+                                            "long": "12"
                                         }
                                     },
                                     "shop": {
@@ -19782,6 +20351,13 @@
                         "description": "search_key",
                         "required": true,
                         "example": "search_key"
+                    },
+                    {
+                        "name": "address",
+                        "in": "query",
+                        "description": "address",
+                        "required": true,
+                        "example": "address"
                     },
                     {
                         "name": "country_code",
@@ -20431,6 +21007,16 @@
                                         "format": "boolean",
                                         "example": "1"
                                     },
+                                    "lat": {
+                                        "type": "string",
+                                        "format": "boolean",
+                                        "example": "1207"
+                                    },
+                                    "long": {
+                                        "type": "string",
+                                        "format": "boolean",
+                                        "example": "1207"
+                                    },
                                     "role": {
                                         "type": "boolean",
                                         "format": "boolean",
@@ -20576,6 +21162,16 @@
                                         "example": "Dhaka"
                                     },
                                     "postcode": {
+                                        "type": "string",
+                                        "format": "boolean",
+                                        "example": "1207"
+                                    },
+                                    "lat": {
+                                        "type": "string",
+                                        "format": "boolean",
+                                        "example": "1207"
+                                    },
+                                    "long": {
                                         "type": "string",
                                         "format": "boolean",
                                         "example": "1207"
@@ -20920,6 +21516,13 @@
                         "description": "country_code",
                         "required": true,
                         "example": "country_code"
+                    },
+                    {
+                        "name": "address",
+                        "in": "query",
+                        "description": "address",
+                        "required": true,
+                        "example": "address"
                     },
                     {
                         "name": "city",
@@ -22830,36 +23433,6 @@
                                             3,
                                             4
                                         ]
-                                    },
-                                    "country": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "country"
-                                    },
-                                    "city": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "city"
-                                    },
-                                    "postcode": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "postcode"
-                                    },
-                                    "address": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "address"
-                                    },
-                                    "lat": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "23.704263332849386"
-                                    },
-                                    "long": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "90.44707059805279"
                                     }
                                 },
                                 "type": "object"
