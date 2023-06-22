@@ -27,7 +27,7 @@ class LandlordCreateRequest extends FormRequest
 
             'first_Name' => 'required|string|max:255',
             'last_Name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:landlords',
+            'email' => 'required|string|email|max:255|unique:landlords,email',
             'phone' => 'required|string',
             'image' => 'nullable|string',
             'address_line_1' => 'nullable|string',
@@ -35,8 +35,8 @@ class LandlordCreateRequest extends FormRequest
             'country' => 'required|string',
             'city' => 'required|string',
             'postcode' => 'required|string',
-            'lat' => 'required|string',
-            'long' => 'required|string',
+            'lat' => 'nullable|string',
+            'long' => 'nullable|string',
 
         ];
     }

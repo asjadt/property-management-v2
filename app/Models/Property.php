@@ -6,23 +6,24 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Landlord extends Model
+class Property extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory, SoftDeletes;
     protected $fillable = [
-        'first_Name',
-        'last_Name',
-        'phone',
+        'name',
         'image',
-        'address_line_1',
-        'address_line_2',
+        'address',
         'country',
         'city',
         'postcode',
         "lat",
         "long",
-        'email',
+        'type',
+        'size',
+        'amenities',
+        'reference_no',
+        'landlord_id',
         "created_by",
-         'is_active'
+        'is_active',
     ];
 }

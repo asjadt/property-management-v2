@@ -3,29 +3,29 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ImageUploadRequest;
-use App\Http\Requests\TenantCreateRequest;
-use App\Http\Requests\TenantUpdateRequest;
+use App\Http\Requests\PropertyCreateRequest;
+use App\Http\Requests\PropertyUpdateRequest;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
-use App\Models\Tenant;
+use App\Models\Property;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class TenantController extends Controller
+class PropertyController extends Controller
 {
     use ErrorUtil, UserActivityUtil;
     /**
     *
  * @OA\Post(
- *      path="/v1.0/tenant-image",
- *      operationId="createTenantImage",
- *      tags={"property_management.tenant_management"},
+ *      path="/v1.0/property-image",
+ *      operationId="createPropertyImage",
+ *      tags={"property_management.property_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
- *      summary="This method is to store tenant logo",
- *      description="This method is to store tenant logo",
+ *      summary="This method is to store property logo",
+ *      description="This method is to store property logo",
  *
 *  @OA\RequestBody(
     *   * @OA\MediaType(
@@ -78,14 +78,14 @@ class TenantController extends Controller
  *     )
  */
 
-public function createTenantImage(ImageUploadRequest $request)
+public function createPropertyImage(ImageUploadRequest $request)
 {
     try{
         $this->storeActivity($request,"");
 
         $insertableData = $request->validated();
 
-        $location =  config("setup-config.tenant_image");
+        $location =  config("setup-config.property_image");
 
         $new_file_name = time() . '_' . $insertableData["image"]->getClientOriginalName();
 
@@ -105,31 +105,34 @@ public function createTenantImage(ImageUploadRequest $request)
 /**
  *
  * @OA\Post(
- *      path="/v1.0/tenants",
- *      operationId="createTenant",
- *      tags={"property_management.tenant_management"},
+ *      path="/v1.0/properties",
+ *      operationId="createProperty",
+ *      tags={"property_management.property_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
- *      summary="This method is to store tenant",
- *      description="This method is to store tenant",
+ *      summary="This method is to store property",
+ *      description="This method is to store property",
  *
  *  @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
  *            required={"name","description","logo"},
  *  *             @OA\Property(property="image", type="string", format="string",example="image.jpg"),
-  *             @OA\Property(property="first_Name", type="string", format="string",example="Rifat"),
+  *             @OA\Property(property="name", type="string", format="string",example="Rifat"),
  *            @OA\Property(property="last_Name", type="string", format="string",example="Al"),
- *            @OA\Property(property="email", type="string", format="string",example="rifatalashwad0@gmail.com"),
- *  * *  @OA\Property(property="phone", type="string", format="boolean",example="01771034383"),
- *  * *  @OA\Property(property="address_line_1", type="string", format="boolean",example="dhaka"),
- *  * *  @OA\Property(property="address_line_2", type="string", format="boolean",example="dinajpur"),
- *  * *  @OA\Property(property="country", type="string", format="boolean",example="Bangladesh"),
- *  * *  @OA\Property(property="city", type="string", format="boolean",example="Dhaka"),
- *  * *  @OA\Property(property="postcode", type="string", format="boolean",example="1207"),
- *     *  * *  @OA\Property(property="lat", type="string", format="boolean",example="1207"),
- *     *  * *  @OA\Property(property="long", type="string", format="boolean",example="1207"),
+ *            @OA\Property(property="address", type="string", format="string",example="address"),
+ *  * *  @OA\Property(property="country", type="string", format="string",example="country"),
+ *  * *  @OA\Property(property="city", type="string", format="string",example="Dhaka"),
+ *  * *  @OA\Property(property="postcode", type="string", format="string",example="1207"),
+ *     *  * *  @OA\Property(property="lat", type="string", format="string",example="1207"),
+ *     *  * *  @OA\Property(property="long", type="string", format="string",example="1207"),
+ *  *     *  * *  @OA\Property(property="type", type="string", format="string",example="type"),
+ *  *     *  * *  @OA\Property(property="size", type="string", format="string",example="size"),
+ *  *     *  * *  @OA\Property(property="amenities", type="string", format="string",example="amenities"),
+ *  *     *  * *  @OA\Property(property="reference_no", type="string", format="string",example="reference_no"),
+ *  *     *  * *  @OA\Property(property="landlord_id", type="string", format="string",example="1"),
+
  *
  *         ),
  *      ),
@@ -167,7 +170,7 @@ public function createTenantImage(ImageUploadRequest $request)
  *     )
  */
 
-public function createTenant(TenantCreateRequest $request)
+public function createProperty(PropertyCreateRequest $request)
 {
     try {
         $this->storeActivity($request,"");
@@ -177,11 +180,11 @@ public function createTenant(TenantCreateRequest $request)
 
             $insertableData = $request->validated();
             $insertableData["created_by"] = $request->user()->id;
-            $tenant =  Tenant::create($insertableData);
+            $property =  Property::create($insertableData);
 
 
 
-            return response($tenant, 201);
+            return response($property, 201);
 
 
 
@@ -201,32 +204,34 @@ public function createTenant(TenantCreateRequest $request)
 /**
  *
  * @OA\Put(
- *      path="/v1.0/tenants",
- *      operationId="updateTenant",
- *      tags={"property_management.tenant_management"},
+ *      path="/v1.0/properties",
+ *      operationId="updateProperty",
+ *      tags={"property_management.property_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
- *      summary="This method is to update tenant",
- *      description="This method is to update tenant",
+ *      summary="This method is to update property",
+ *      description="This method is to update property",
  *
  *  @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
  *            required={"id","name","description","logo"},
  *     *             @OA\Property(property="id", type="number", format="number",example="1"),
- *      *  *             @OA\Property(property="image", type="string", format="string",example="image.jpg"),
- *             @OA\Property(property="first_Name", type="string", format="string",example="Rifat"),
+ *  *             @OA\Property(property="image", type="string", format="string",example="image.jpg"),
+  *             @OA\Property(property="name", type="string", format="string",example="Rifat"),
  *            @OA\Property(property="last_Name", type="string", format="string",example="Al"),
- *            @OA\Property(property="email", type="string", format="string",example="rifatalashwad0@gmail.com"),
- *  * *  @OA\Property(property="phone", type="string", format="boolean",example="01771034383"),
- *  * *  @OA\Property(property="address_line_1", type="string", format="boolean",example="dhaka"),
- *  * *  @OA\Property(property="address_line_2", type="string", format="boolean",example="dinajpur"),
- *  * *  @OA\Property(property="country", type="string", format="boolean",example="Bangladesh"),
- *  * *  @OA\Property(property="city", type="string", format="boolean",example="Dhaka"),
- *  * *  @OA\Property(property="postcode", type="string", format="boolean",example="1207"),
- *     *  * *  @OA\Property(property="lat", type="string", format="boolean",example="1207"),
- *     *  * *  @OA\Property(property="long", type="string", format="boolean",example="1207"),
+ *            @OA\Property(property="address", type="string", format="string",example="address"),
+ *  * *  @OA\Property(property="country", type="string", format="string",example="country"),
+ *  * *  @OA\Property(property="city", type="string", format="string",example="Dhaka"),
+ *  * *  @OA\Property(property="postcode", type="string", format="string",example="1207"),
+ *     *  * *  @OA\Property(property="lat", type="string", format="string",example="1207"),
+ *     *  * *  @OA\Property(property="long", type="string", format="string",example="1207"),
+ *  *     *  * *  @OA\Property(property="type", type="string", format="string",example="type"),
+ *  *     *  * *  @OA\Property(property="size", type="string", format="string",example="size"),
+ *  *     *  * *  @OA\Property(property="amenities", type="string", format="string",example="amenities"),
+ *  *     *  * *  @OA\Property(property="reference_no", type="string", format="string",example="reference_no"),
+ *  *     *  * *  @OA\Property(property="landlord_id", type="string", format="string",example="1"),
  *
  *         ),
  *      ),
@@ -264,34 +269,20 @@ public function createTenant(TenantCreateRequest $request)
  *     )
  */
 
-public function updateTenant(TenantUpdateRequest $request)
+public function updateProperty(PropertyUpdateRequest $request)
 {
     try {
         $this->storeActivity($request,"");
+
         return  DB::transaction(function () use ($request) {
 
             $updatableData = $request->validated();
 
-            // $affiliationPrev = Tenants::where([
-            //     "id" => $updatableData["id"]
-            //    ]);
-
-            //    if(!$request->user()->hasRole('superadmin')) {
-            //     $affiliationPrev =    $affiliationPrev->where([
-            //         "created_by" =>$request->user()->id
-            //     ]);
-            // }
-            // $affiliationPrev = $affiliationPrev->first();
-            //  if(!$affiliationPrev) {
-            //         return response()->json([
-            //            "message" => "you did not create this affiliation."
-            //         ],404);
-            //  }
 
 
 
 
-            $tenant  =  tap(Tenant::where(["id" => $updatableData["id"]]))->update(
+            $property  =  tap(Property::where(["id" => $updatableData["id"]]))->update(
                 collect($updatableData)->only([
                     'first_Name',
         'last_Name',
@@ -310,8 +301,14 @@ public function updateTenant(TenantUpdateRequest $request)
                 // ->with("somthing")
 
                 ->first();
+                if(!$property) {
+                    return response()->json([
+                        "message" => "no property found"
+                        ],404);
 
-            return response($tenant, 200);
+                }
+
+            return response($property, 200);
         });
     } catch (Exception $e) {
         error_log($e->getMessage());
@@ -321,9 +318,9 @@ public function updateTenant(TenantUpdateRequest $request)
 /**
  *
  * @OA\Get(
- *      path="/v1.0/tenants/{perPage}",
- *      operationId="getTenants",
- *      tags={"property_management.tenant_management"},
+ *      path="/v1.0/properties/{perPage}",
+ *      operationId="getProperties",
+ *      tags={"property_management.property_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
@@ -356,8 +353,8 @@ public function updateTenant(TenantUpdateRequest $request)
 * required=true,
 * example="search_key"
 * ),
- *      summary="This method is to get tenants ",
- *      description="This method is to get tenants",
+ *      summary="This method is to get properties ",
+ *      description="This method is to get properties",
  *
 
  *      @OA\Response(
@@ -394,32 +391,32 @@ public function updateTenant(TenantUpdateRequest $request)
  *     )
  */
 
-public function getTenants($perPage, Request $request)
+public function getProperties($perPage, Request $request)
 {
     try {
         $this->storeActivity($request,"");
 
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $tenantQuery = new Tenant();
+        $propertyQuery = new Property();
 
         if (!empty($request->search_key)) {
-            $tenantQuery = $tenantQuery->where(function ($query) use ($request) {
+            $propertyQuery = $propertyQuery->where(function ($query) use ($request) {
                 $term = $request->search_key;
                 $query->where("name", "like", "%" . $term . "%");
             });
         }
 
         if (!empty($request->start_date)) {
-            $tenantQuery = $tenantQuery->where('created_at', ">=", $request->start_date);
+            $propertyQuery = $propertyQuery->where('created_at', ">=", $request->start_date);
         }
         if (!empty($request->end_date)) {
-            $tenantQuery = $tenantQuery->where('created_at', "<=", $request->end_date);
+            $propertyQuery = $propertyQuery->where('created_at', "<=", $request->end_date);
         }
 
-        $tenants = $tenantQuery->orderByDesc("id")->paginate($perPage);
+        $properties = $propertyQuery->orderByDesc("id")->paginate($perPage);
 
-        return response()->json($tenants, 200);
+        return response()->json($properties, 200);
     } catch (Exception $e) {
 
         return $this->sendError($e, 500,$request);
@@ -431,9 +428,9 @@ public function getTenants($perPage, Request $request)
 /**
  *
  * @OA\Get(
- *      path="/v1.0/tenants/get/single/{id}",
- *      operationId="getTenantById",
- *      tags={"property_management.tenant_management"},
+ *      path="/v1.0/properties/get/single/{id}",
+ *      operationId="getPropertyById",
+ *      tags={"property_management.property_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
@@ -446,8 +443,8 @@ public function getTenants($perPage, Request $request)
  *  example="1"
  *      ),
 
- *      summary="This method is to get tenant by id",
- *      description="This method is to get tenant by id",
+ *      summary="This method is to get property by id",
+ *      description="This method is to get property by id",
  *
 
  *      @OA\Response(
@@ -484,25 +481,25 @@ public function getTenants($perPage, Request $request)
  *     )
  */
 
-public function getTenantById($id, Request $request)
+public function getPropertyById($id, Request $request)
 {
     try {
         $this->storeActivity($request,"");
 
 
-        $tenant = Tenant::where([
+        $property = Property::where([
             "id" => $id
         ])
         ->first();
 
-        if(!$tenant) {
+        if(!$property) {
      return response()->json([
-"message" => "no tenant found"
+"message" => "no property found"
 ],404);
         }
 
 
-        return response()->json($tenant, 200);
+        return response()->json($property, 200);
     } catch (Exception $e) {
 
         return $this->sendError($e, 500,$request);
@@ -521,9 +518,9 @@ public function getTenantById($id, Request $request)
 /**
  *
  *     @OA\Delete(
- *      path="/v1.0/tenants/{id}",
- *      operationId="deleteTenantById",
- *      tags={"property_management.tenant_management"},
+ *      path="/v1.0/properties/{id}",
+ *      operationId="deletePropertyById",
+ *      tags={"property_management.property_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
@@ -534,8 +531,8 @@ public function getTenantById($id, Request $request)
  *         required=true,
  *  example="1"
  *      ),
- *      summary="This method is to delete tenant by id",
- *      description="This method is to delete tenant by id",
+ *      summary="This method is to delete property by id",
+ *      description="This method is to delete property by id",
  *
 
  *      @OA\Response(
@@ -572,7 +569,7 @@ public function getTenantById($id, Request $request)
  *     )
  */
 
-public function deleteTenantById($id, Request $request)
+public function deletePropertyById($id, Request $request)
 {
 
     try {
@@ -580,17 +577,18 @@ public function deleteTenantById($id, Request $request)
 
 
 
-        $tenant = Tenant::where([
+
+        $property = Property::where([
             "id" => $id
         ])
         ->first();
 
-        if(!$tenant) {
+        if(!$property) {
      return response()->json([
-"message" => "no tenant found"
+"message" => "no property found"
 ],404);
         }
-        $tenant->delete();
+        $property->delete();
 
         return response()->json(["ok" => true], 200);
     } catch (Exception $e) {

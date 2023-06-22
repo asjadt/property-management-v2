@@ -293,9 +293,18 @@ class LandlordController extends Controller
 
                 $landlord  =  tap(Landlord::where(["id" => $updatableData["id"]]))->update(
                     collect($updatableData)->only([
-                        "name",
-                        "description",
-                        "logo"
+                        'first_Name',
+        'last_Name',
+        'phone',
+        'image',
+        'address_line_1',
+        'address_line_2',
+        'country',
+        'city',
+        'postcode',
+        "lat",
+        "long",
+        'email'
                     ])->toArray()
                 )
                     // ->with("somthing")
@@ -489,7 +498,7 @@ class LandlordController extends Controller
             if(!$landlord) {
          return response()->json([
 "message" => "no landlord found"
-]);
+],404);
             }
 
 
@@ -571,18 +580,17 @@ class LandlordController extends Controller
 
 
 
-                $landlordQuery =   Landlord::where([
-                    "id" => $id
-                   ]);
-                   if(!$request->user()->hasRole('superadmin')) {
-                    $landlordQuery =    $landlordQuery->where([
-                        "created_by" =>$request->user()->id
-                    ]);
-                }
+            $landlord = Landlord::where([
+                "id" => $id
+            ])
+            ->first();
 
-                $landlord = $landlordQuery->first();
-
-                $landlord->delete();
+            if(!$landlord) {
+         return response()->json([
+"message" => "no landlord found"
+],404);
+            }
+            $landlord->delete();
 
             return response()->json(["ok" => true], 200);
         } catch (Exception $e) {

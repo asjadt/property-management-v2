@@ -34,11 +34,13 @@ use App\Http\Controllers\NotificationTemplateController;
 use App\Http\Controllers\PaymentTypeController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ShopGalleryController;
 use App\Http\Controllers\ShopsController;
+use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UserManagementController;
 use App\Models\GaragePackage;
 use App\Models\JobBid;
@@ -136,17 +138,33 @@ Route::delete('/v1.0/landlords/{id}', [LandlordController::class, "deleteLandlor
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-// Landlord management section
+// Tenant management section
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-Route::post('/v1.0/tenant-image', [TenantControllerController::class, "createTenantImage"]);
-Route::post('/v1.0/tenants', [TenantControllerController::class, "createTenant"]);
-Route::put('/v1.0/tenants', [TenantControllerController::class, "updateTenant"]);
-Route::get('/v1.0/tenants/{perPage}', [TenantControllerController::class, "getTenants"]);
-Route::get('/v1.0/tenants/get/single/{id}', [TenantControllerController::class, "getTenantById"]);
-Route::delete('/v1.0/tenants/{id}', [TenantControllerController::class, "deleteTenantById"]);
+Route::post('/v1.0/tenant-image', [TenantController::class, "createTenantImage"]);
+Route::post('/v1.0/tenants', [TenantController::class, "createTenant"]);
+Route::put('/v1.0/tenants', [TenantController::class, "updateTenant"]);
+Route::get('/v1.0/tenants/{perPage}', [TenantController::class, "getTenants"]);
+Route::get('/v1.0/tenants/get/single/{id}', [TenantController::class, "getTenantById"]);
+Route::delete('/v1.0/tenants/{id}', [TenantController::class, "deleteTenantById"]);
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-// Landlord management section
+// Tenant management section
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// Property management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Route::post('/v1.0/property-image', [PropertyController::class, "createPropertyImage"]);
+Route::post('/v1.0/properties', [PropertyController::class, "createProperty"]);
+Route::put('/v1.0/properties', [PropertyController::class, "updateProperty"]);
+Route::get('/v1.0/properties/{perPage}', [PropertyController::class, "getProperties"]);
+Route::get('/v1.0/properties/get/single/{id}', [PropertyController::class, "getPropertyById"]);
+Route::delete('/v1.0/properties/{id}', [PropertyController::class, "deletePropertyById"]);
+
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+// Property management section
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 

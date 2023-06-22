@@ -27,7 +27,7 @@ return [
 
     "user_image_location" => "user_image",
     "landlord_image" => "landlord_image",
-    "tenant_image" => "tenant_image"
-
+    "tenant_image" => "tenant_image",
+    "property_image" => "property_image"
 
 ];
