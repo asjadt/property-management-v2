@@ -35,6 +35,7 @@ use App\Http\Controllers\PaymentTypeController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\RepairController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\ServiceController;
@@ -168,6 +169,24 @@ Route::delete('/v1.0/properties/{id}', [PropertyController::class, "deleteProper
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// Repair management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Route::post('/v1.0/repair-images/multiple', [RepairController::class, "createRepairImageMultiple"]);
+
+Route::post('/v1.0/repair-receipts-file', [RepairController::class, "createRepairReceiptFile"]);
+
+Route::post('/v1.0/repairs', [RepairController::class, "createRepair"]);
+Route::put('/v1.0/repairs', [RepairController::class, "updateRepair"]);
+Route::get('/v1.0/repairs/{perPage}', [RepairController::class, "getRepairs"]);
+Route::get('/v1.0/repairs/get/single/{id}', [RepairController::class, "getRepairById"]);
+Route::delete('/v1.0/repairs/{id}', [RepairController::class, "deleteRepairById"]);
+
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+// Repair management section
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 

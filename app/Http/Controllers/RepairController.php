@@ -2,39 +2,41 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ImageUploadRequest;
-use App\Http\Requests\PropertyCreateRequest;
-use App\Http\Requests\PropertyUpdateRequest;
+use App\Http\Requests\FileUploadRequest;
+use App\Http\Requests\MultipleImageUploadRequest;
+use App\Http\Requests\RepairCreateRequest;
+use App\Http\Requests\RepairUpdateRequest;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
-use App\Models\Property;
+use App\Models\Repair;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class PropertyController extends Controller
+class RepairController extends Controller
 {
     use ErrorUtil, UserActivityUtil;
-    /**
+
+  /**
     *
  * @OA\Post(
- *      path="/v1.0/property-image",
- *      operationId="createPropertyImage",
- *      tags={"property_management.property_management"},
+ *      path="/v1.0/repair-receipts-file",
+ *      operationId="createRepairReceiptFile",
+ *      tags={"property_management.repair_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
- *      summary="This method is to store property logo",
- *      description="This method is to store property logo",
+ *      summary="This method is to store reciept image",
+ *      description="This method is to store reciept image",
  *
 *  @OA\RequestBody(
     *   * @OA\MediaType(
 *     mediaType="multipart/form-data",
 *     @OA\Schema(
-*         required={"image"},
+*         required={"file"},
 *         @OA\Property(
 *             description="image to upload",
-*             property="image",
+*             property="file",
 *             type="file",
 *             collectionFormat="multi",
 *         )
@@ -78,21 +80,21 @@ class PropertyController extends Controller
  *     )
  */
 
-public function createPropertyImage(ImageUploadRequest $request)
+public function createRepairReceiptFile(FileUploadRequest $request)
 {
     try{
         $this->storeActivity($request,"");
 
         $insertableData = $request->validated();
 
-        $location =  config("setup-config.property_image");
+        $location =  config("setup-config.repair_receipt_file");
 
-        $new_file_name = time() . '_' . $insertableData["image"]->getClientOriginalName();
+        $new_file_name = time() . '_' . $insertableData["file"]->getClientOriginalName();
 
-        $insertableData["image"]->move(public_path($location), $new_file_name);
+        $insertableData["file"]->move(public_path($location), $new_file_name);
 
 
-        return response()->json(["image" => $new_file_name,"location" => $location,"full_location"=>("/".$location."/".$new_file_name)], 200);
+        return response()->json(["file" => $new_file_name,"location" => $location,"full_location"=>("/".$location."/".$new_file_name)], 200);
 
 
     } catch(Exception $e){
@@ -101,37 +103,126 @@ public function createPropertyImage(ImageUploadRequest $request)
     }
 }
 
+ /**
+        *
+     * @OA\Post(
+     *      path="/v1.0/repair-images/multiple",
+     *      operationId="createRepairImageMultiple",
+     *      tags={"property_management.repair_management"},
+     *       security={
+     *           {"bearerAuth": {}}
+     *       },
 
+     *      summary="This method is to store multiple repair request",
+     *      description="This method is to store multiple repair request",
+     *
+   *  @OA\RequestBody(
+        *   * @OA\MediaType(
+*     mediaType="multipart/form-data",
+*     @OA\Schema(
+*         required={"images[]"},
+*         @OA\Property(
+*             description="array of images to upload",
+*             property="images[]",
+*             type="array",
+*             @OA\Items(
+*                 type="file"
+*             ),
+*             collectionFormat="multi",
+*         )
+*     )
+* )
+
+
+
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       @OA\JsonContent(),
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     * @OA\JsonContent(),
+     *      ),
+     *        @OA\Response(
+     *          response=422,
+     *          description="Unprocesseble Content",
+     *    @OA\JsonContent(),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *   @OA\JsonContent()
+     * ),
+     *  * @OA\Response(
+     *      response=400,
+     *      description="Bad Request",
+     *   *@OA\JsonContent()
+     *   ),
+     * @OA\Response(
+     *      response=404,
+     *      description="not found",
+     *   *@OA\JsonContent()
+     *   )
+     *      )
+     *     )
+     */
+
+    public function createRepairImageMultiple(MultipleImageUploadRequest $request)
+    {
+        try{
+            $this->storeActivity($request,"");
+
+            $insertableData = $request->validated();
+
+            $location =  config("setup-config.repair_image");
+
+            $images = [];
+            if(!empty($insertableData["images"])) {
+                foreach($insertableData["images"] as $image){
+                    $new_file_name = time() . '_' . $image->getClientOriginalName();
+                    $image->move(public_path($location), $new_file_name);
+
+                    array_push($images,("/".$location."/".$new_file_name));
+
+
+                }
+            }
+
+
+            return response()->json(["images" => $images], 201);
+
+
+        } catch(Exception $e){
+            error_log($e->getMessage());
+        return $this->sendError($e,500,$request);
+        }
+    }
 /**
  *
  * @OA\Post(
- *      path="/v1.0/properties",
- *      operationId="createProperty",
- *      tags={"property_management.property_management"},
+ *      path="/v1.0/repairs",
+ *      operationId="createRepair",
+ *      tags={"property_management.repair_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
- *      summary="This method is to store property",
- *      description="This method is to store property",
+ *      summary="This method is to store repair",
+ *      description="This method is to store repair",
  *
  *  @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
  *            required={"name","description","logo"},
- *  *             @OA\Property(property="image", type="string", format="string",example="image.jpg"),
-  *             @OA\Property(property="name", type="string", format="string",example="Rifat"),
- *            @OA\Property(property="last_Name", type="string", format="string",example="Al"),
- *            @OA\Property(property="address", type="string", format="string",example="address"),
- *  * *  @OA\Property(property="country", type="string", format="string",example="country"),
- *  * *  @OA\Property(property="city", type="string", format="string",example="Dhaka"),
- *  * *  @OA\Property(property="postcode", type="string", format="string",example="1207"),
- *     *  * *  @OA\Property(property="lat", type="string", format="string",example="1207"),
- *     *  * *  @OA\Property(property="long", type="string", format="string",example="1207"),
- *  *     *  * *  @OA\Property(property="type", type="string", format="string",example="type"),
- *  *     *  * *  @OA\Property(property="size", type="string", format="string",example="size"),
- *  *     *  * *  @OA\Property(property="amenities", type="string", format="string",example="amenities"),
- *  *     *  * *  @OA\Property(property="reference_no", type="string", format="string",example="reference_no"),
- *  *     *  * *  @OA\Property(property="landlord_id", type="string", format="string",example="1"),
+ *  *             @OA\Property(property="property_id", type="number", format="number",example="1"),
+  *             @OA\Property(property="repair_category", type="string", format="string",example="repair_category"),
+ *            @OA\Property(property="item_description", type="string", format="string",example="item_description"),
+ *            @OA\Property(property="receipt", type="string", format="string",example="receipt"),
+ *  * *  @OA\Property(property="price", type="string", format="string",example="10"),
+ *  * *  @OA\Property(property="create_date", type="string", format="string",example="12/12/2012"),
+ *  * *  @OA\Property(property="images", type="string", format="array",example="{"a.jpg","b.jpg","c.jpg"}"),
 
  *
  *         ),
@@ -170,7 +261,7 @@ public function createPropertyImage(ImageUploadRequest $request)
  *     )
  */
 
-public function createProperty(PropertyCreateRequest $request)
+public function createRepair(RepairCreateRequest $request)
 {
     try {
         $this->storeActivity($request,"");
@@ -180,13 +271,13 @@ public function createProperty(PropertyCreateRequest $request)
 
             $insertableData = $request->validated();
             $insertableData["created_by"] = $request->user()->id;
-            $property =  Property::create($insertableData);
+            $repair =  Repair::create($insertableData);
 
             $insertableData['tenant_ids'];
-            $property->property_tenants()->sync($insertableData['tenant_ids'],[]);
+            $repair->property_tenants()->sync($insertableData['tenant_ids'],[]);
 
 
-            return response($property, 201);
+            return response($repair, 201);
 
 
 
@@ -206,34 +297,28 @@ public function createProperty(PropertyCreateRequest $request)
 /**
  *
  * @OA\Put(
- *      path="/v1.0/properties",
- *      operationId="updateProperty",
- *      tags={"property_management.property_management"},
+ *      path="/v1.0/repairs",
+ *      operationId="updateRepair",
+ *      tags={"property_management.repair_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
- *      summary="This method is to update property",
- *      description="This method is to update property",
+ *      summary="This method is to update repair",
+ *      description="This method is to update repair",
  *
  *  @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
  *            required={"id","name","description","logo"},
  *     *             @OA\Property(property="id", type="number", format="number",example="1"),
- *  *             @OA\Property(property="image", type="string", format="string",example="image.jpg"),
-  *             @OA\Property(property="name", type="string", format="string",example="Rifat"),
- *            @OA\Property(property="last_Name", type="string", format="string",example="Al"),
- *            @OA\Property(property="address", type="string", format="string",example="address"),
- *  * *  @OA\Property(property="country", type="string", format="string",example="country"),
- *  * *  @OA\Property(property="city", type="string", format="string",example="Dhaka"),
- *  * *  @OA\Property(property="postcode", type="string", format="string",example="1207"),
- *     *  * *  @OA\Property(property="lat", type="string", format="string",example="1207"),
- *     *  * *  @OA\Property(property="long", type="string", format="string",example="1207"),
- *  *     *  * *  @OA\Property(property="type", type="string", format="string",example="type"),
- *  *     *  * *  @OA\Property(property="size", type="string", format="string",example="size"),
- *  *     *  * *  @OA\Property(property="amenities", type="string", format="string",example="amenities"),
- *  *     *  * *  @OA\Property(property="reference_no", type="string", format="string",example="reference_no"),
- *  *     *  * *  @OA\Property(property="landlord_id", type="string", format="string",example="1"),
+ *  *             @OA\Property(property="property_id", type="number", format="number",example="1"),
+  *             @OA\Property(property="repair_category", type="string", format="string",example="repair_category"),
+ *            @OA\Property(property="item_description", type="string", format="string",example="item_description"),
+ *            @OA\Property(property="receipt", type="string", format="string",example="receipt"),
+ *  * *  @OA\Property(property="price", type="string", format="string",example="10"),
+ *  * *  @OA\Property(property="create_date", type="string", format="string",example="12/12/2012"),
+ *  * *  @OA\Property(property="images", type="string", format="array",example="{"a.jpg","b.jpg","c.jpg"}"),
+
  *
  *         ),
  *      ),
@@ -271,7 +356,7 @@ public function createProperty(PropertyCreateRequest $request)
  *     )
  */
 
-public function updateProperty(PropertyUpdateRequest $request)
+public function updateProperty(RepairUpdateRequest $request)
 {
     try {
         $this->storeActivity($request,"");
@@ -284,34 +369,35 @@ public function updateProperty(PropertyUpdateRequest $request)
 
 
 
-            $property  =  tap(Property::where(["id" => $updatableData["id"]]))->update(
+            $repair  =  tap(Repair::where(["id" => $updatableData["id"]]))->update(
                 collect($updatableData)->only([
-                    'first_Name',
-        'last_Name',
-        'phone',
-        'image',
-        'address_line_1',
-        'address_line_2',
-        'country',
-        'city',
-        'postcode',
-        "lat",
-        "long",
-        'email',
+                    'property_id',
+                    'repair_category',
+                    'item_description',
+                    'receipt',
+                    'price',
+                    'create_date',
                 ])->toArray()
             )
                 // ->with("somthing")
 
                 ->first();
-                if(!$property) {
-                    return response()->json([
-                        "message" => "no property found"
-                        ],404);
 
+                if(!$repair) {
+                    throw new Exception("something went wrong");
                 }
-                $property->property_tenants()->sync($updatableData['tenant_ids'],[]);
 
-            return response($property, 200);
+                $repair->repair_images()->createMany(
+                    collect($updatableData["images"])->map(function ($image) {
+                        return [
+                            'image' => $image,
+                        ];
+                    })
+                );
+
+
+
+            return response($repair, 200);
         });
     } catch (Exception $e) {
         error_log($e->getMessage());
@@ -321,9 +407,9 @@ public function updateProperty(PropertyUpdateRequest $request)
 /**
  *
  * @OA\Get(
- *      path="/v1.0/properties/{perPage}",
- *      operationId="getProperties",
- *      tags={"property_management.property_management"},
+ *      path="/v1.0/repairs/{perPage}",
+ *      operationId="getRepairs",
+ *      tags={"property_management.repair_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
@@ -356,8 +442,8 @@ public function updateProperty(PropertyUpdateRequest $request)
 * required=true,
 * example="search_key"
 * ),
- *      summary="This method is to get properties ",
- *      description="This method is to get properties",
+ *      summary="This method is to get repairs ",
+ *      description="This method is to get repairs",
  *
 
  *      @OA\Response(
@@ -394,32 +480,32 @@ public function updateProperty(PropertyUpdateRequest $request)
  *     )
  */
 
-public function getProperties($perPage, Request $request)
+public function getRepairs($perPage, Request $request)
 {
     try {
         $this->storeActivity($request,"");
 
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $propertyQuery = new Property();
+        $repairQuery = new Repair();
 
         if (!empty($request->search_key)) {
-            $propertyQuery = $propertyQuery->where(function ($query) use ($request) {
+            $repairQuery = $repairQuery->where(function ($query) use ($request) {
                 $term = $request->search_key;
                 $query->where("name", "like", "%" . $term . "%");
             });
         }
 
         if (!empty($request->start_date)) {
-            $propertyQuery = $propertyQuery->where('created_at', ">=", $request->start_date);
+            $repairQuery = $repairQuery->where('created_at', ">=", $request->start_date);
         }
         if (!empty($request->end_date)) {
-            $propertyQuery = $propertyQuery->where('created_at', "<=", $request->end_date);
+            $repairQuery = $repairQuery->where('created_at', "<=", $request->end_date);
         }
 
-        $properties = $propertyQuery->orderByDesc("id")->paginate($perPage);
+        $repairs = $repairQuery->orderByDesc("id")->paginate($perPage);
 
-        return response()->json($properties, 200);
+        return response()->json($repairs, 200);
     } catch (Exception $e) {
 
         return $this->sendError($e, 500,$request);
@@ -431,9 +517,9 @@ public function getProperties($perPage, Request $request)
 /**
  *
  * @OA\Get(
- *      path="/v1.0/properties/get/single/{id}",
- *      operationId="getPropertyById",
- *      tags={"property_management.property_management"},
+ *      path="/v1.0/repairs/get/single/{id}",
+ *      operationId="getRepairById",
+ *      tags={"property_management.repair_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
@@ -446,8 +532,8 @@ public function getProperties($perPage, Request $request)
  *  example="1"
  *      ),
 
- *      summary="This method is to get property by id",
- *      description="This method is to get property by id",
+ *      summary="This method is to get repair by id",
+ *      description="This method is to get repair by id",
  *
 
  *      @OA\Response(
@@ -484,25 +570,25 @@ public function getProperties($perPage, Request $request)
  *     )
  */
 
-public function getPropertyById($id, Request $request)
+public function getRepairById($id, Request $request)
 {
     try {
         $this->storeActivity($request,"");
 
 
-        $property = Property::where([
+        $repair = Repair::where([
             "id" => $id
         ])
         ->first();
 
-        if(!$property) {
+        if(!$repair) {
      return response()->json([
-"message" => "no property found"
+"message" => "no repair found"
 ],404);
         }
 
 
-        return response()->json($property, 200);
+        return response()->json($repair, 200);
     } catch (Exception $e) {
 
         return $this->sendError($e, 500,$request);
@@ -521,9 +607,9 @@ public function getPropertyById($id, Request $request)
 /**
  *
  *     @OA\Delete(
- *      path="/v1.0/properties/{id}",
- *      operationId="deletePropertyById",
- *      tags={"property_management.property_management"},
+ *      path="/v1.0/repairs/{id}",
+ *      operationId="deleteRepairById",
+ *      tags={"property_management.repair_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
@@ -534,8 +620,8 @@ public function getPropertyById($id, Request $request)
  *         required=true,
  *  example="1"
  *      ),
- *      summary="This method is to delete property by id",
- *      description="This method is to delete property by id",
+ *      summary="This method is to delete repair by id",
+ *      description="This method is to delete repair by id",
  *
 
  *      @OA\Response(
@@ -572,7 +658,7 @@ public function getPropertyById($id, Request $request)
  *     )
  */
 
-public function deletePropertyById($id, Request $request)
+public function deleteRepairById($id, Request $request)
 {
 
     try {
@@ -581,17 +667,17 @@ public function deletePropertyById($id, Request $request)
 
 
 
-        $property = Property::where([
+        $repair = Repair::where([
             "id" => $id
         ])
         ->first();
 
-        if(!$property) {
+        if(!$repair) {
      return response()->json([
-"message" => "no property found"
+"message" => "no repair found"
 ],404);
         }
-        $property->delete();
+        $repair->delete();
 
         return response()->json(["ok" => true], 200);
     } catch (Exception $e) {
@@ -599,4 +685,5 @@ public function deletePropertyById($id, Request $request)
         return $this->sendError($e, 500,$request);
     }
 }
+
 }

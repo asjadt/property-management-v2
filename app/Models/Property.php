@@ -26,4 +26,7 @@ class Property extends Model
         "created_by",
         'is_active',
     ];
+    public function property_tenants() {
+        return $this->hasMany(PropertyTenant::class,'property_id','id');
+    }
 }
