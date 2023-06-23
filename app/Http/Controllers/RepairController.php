@@ -35,7 +35,7 @@ class RepairController extends Controller
 *     @OA\Schema(
 *         required={"file"},
 *         @OA\Property(
-*             description="image to upload",
+*             description="file to upload",
 *             property="file",
 *             type="file",
 *             collectionFormat="multi",
@@ -222,7 +222,7 @@ public function createRepairReceiptFile(FileUploadRequest $request)
  *            @OA\Property(property="receipt", type="string", format="string",example="receipt"),
  *  * *  @OA\Property(property="price", type="string", format="string",example="10"),
  *  * *  @OA\Property(property="create_date", type="string", format="string",example="12/12/2012"),
- *  * *  @OA\Property(property="images", type="string", format="array",example="{"a.jpg","b.jpg","c.jpg"}"),
+ *  * *  @OA\Property(property="images", type="string", format="array",example={"a.jpg","b.jpg","c.jpg"}),
 
  *
  *         ),
@@ -273,8 +273,17 @@ public function createRepair(RepairCreateRequest $request)
             $insertableData["created_by"] = $request->user()->id;
             $repair =  Repair::create($insertableData);
 
-            $insertableData['tenant_ids'];
-            $repair->property_tenants()->sync($insertableData['tenant_ids'],[]);
+            if(!$repair) {
+                throw new Exception("something went wrong");
+            }
+
+            $repair->repair_images()->createMany(
+                collect($insertableData["images"])->map(function ($image) {
+                    return [
+                        'image' => $image,
+                    ];
+                })
+            );
 
 
             return response($repair, 201);
@@ -317,7 +326,7 @@ public function createRepair(RepairCreateRequest $request)
  *            @OA\Property(property="receipt", type="string", format="string",example="receipt"),
  *  * *  @OA\Property(property="price", type="string", format="string",example="10"),
  *  * *  @OA\Property(property="create_date", type="string", format="string",example="12/12/2012"),
- *  * *  @OA\Property(property="images", type="string", format="array",example="{"a.jpg","b.jpg","c.jpg"}"),
+ *  * *  @OA\Property(property="images", type="string", format="array",example={"a.jpg","b.jpg","c.jpg"}),
 
  *
  *         ),
@@ -356,7 +365,7 @@ public function createRepair(RepairCreateRequest $request)
  *     )
  */
 
-public function updateProperty(RepairUpdateRequest $request)
+public function updateRepair(RepairUpdateRequest $request)
 {
     try {
         $this->storeActivity($request,"");

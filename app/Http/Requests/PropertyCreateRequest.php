@@ -38,8 +38,9 @@ class PropertyCreateRequest extends FormRequest
             'reference_no' => 'required|string|max:255|unique:properties,reference_no',
 
             'landlord_id' => "nullable|numeric|exists:landlords,id",
+
             'tenant_ids' => 'nullable|array',
-            'tenant_ids.*' => 'exists:tenants,id',
+            'tenant_ids.*' => 'nullable|exists:tenants,id',
 
         ];
     }

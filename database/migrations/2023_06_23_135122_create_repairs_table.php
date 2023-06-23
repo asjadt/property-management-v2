@@ -20,7 +20,7 @@ class CreateRepairsTable extends Migration
             $table->foreign('property_id')->references('id')->on('properties')->onDelete('cascade');
 
             $table->string('repair_category');
-            $table->string('item_description');
+            $table->string('item_description')->nullable();
             $table->string('receipt');
             $table->float('price');
             $table->date('create_date');

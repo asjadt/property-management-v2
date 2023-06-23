@@ -132,6 +132,7 @@ public function createPropertyImage(ImageUploadRequest $request)
  *  *     *  * *  @OA\Property(property="amenities", type="string", format="string",example="amenities"),
  *  *     *  * *  @OA\Property(property="reference_no", type="string", format="string",example="reference_no"),
  *  *     *  * *  @OA\Property(property="landlord_id", type="string", format="string",example="1"),
+ *  *  *  *     *  * *  @OA\Property(property="tenant_ids", type="string", format="array",example={1,2,3}),
 
  *
  *         ),
@@ -182,8 +183,11 @@ public function createProperty(PropertyCreateRequest $request)
             $insertableData["created_by"] = $request->user()->id;
             $property =  Property::create($insertableData);
 
-            $insertableData['tenant_ids'];
-            $property->property_tenants()->sync($insertableData['tenant_ids'],[]);
+
+            if(!empty($insertableData['tenant_ids'])) {
+                $property->property_tenants()->sync($insertableData['tenant_ids'],[]);
+            }
+
 
 
             return response($property, 201);
@@ -234,6 +238,7 @@ public function createProperty(PropertyCreateRequest $request)
  *  *     *  * *  @OA\Property(property="amenities", type="string", format="string",example="amenities"),
  *  *     *  * *  @OA\Property(property="reference_no", type="string", format="string",example="reference_no"),
  *  *     *  * *  @OA\Property(property="landlord_id", type="string", format="string",example="1"),
+ *  *  *     *  * *  @OA\Property(property="tenant_ids", type="string", format="array",example={1,2,3}),
  *
  *         ),
  *      ),
@@ -303,13 +308,16 @@ public function updateProperty(PropertyUpdateRequest $request)
                 // ->with("somthing")
 
                 ->first();
+
                 if(!$property) {
                     return response()->json([
                         "message" => "no property found"
                         ],404);
 
                 }
-                $property->property_tenants()->sync($updatableData['tenant_ids'],[]);
+                if(!empty($updatableData['tenant_ids'])) {
+                    $property->property_tenants()->sync($updatableData['tenant_ids'],[]);
+                }
 
             return response($property, 200);
         });

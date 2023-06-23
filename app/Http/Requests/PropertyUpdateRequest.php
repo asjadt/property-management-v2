@@ -24,7 +24,7 @@ class PropertyUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'id' => "required|numeric",
+            'id' => "required|numeric|exists:properties,id",
             'name'=>"nullable|string",
             'image'=>"nullable|string",
             'address'=>"nullable|string",
@@ -39,7 +39,7 @@ class PropertyUpdateRequest extends FormRequest
             'reference_no' => 'required|string|max:255|unique:properties,reference_no',
             'landlord_id' => "nullable|numeric|exists:landlords,id",
             'tenant_ids' => 'nullable|array',
-            'tenant_ids.*' => 'exists:tenants,id',
+            'tenant_ids.*' => 'nullable|exists:tenants,id',
         ];
     }
 }

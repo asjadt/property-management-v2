@@ -24,7 +24,7 @@ class TenantUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'id' => 'required|numeric',
+            'id' => "required|numeric|exists:tenants,id",
             'first_Name' => 'required|string|max:255',
             'last_Name' => 'required|string|max:255',
             'email' =>'required|string|unique:tenants,email,' . $this->id . ',id',
