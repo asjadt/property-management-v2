@@ -291,18 +291,19 @@ public function updateProperty(PropertyUpdateRequest $request)
 
             $property  =  tap(Property::where(["id" => $updatableData["id"]]))->update(
                 collect($updatableData)->only([
-                    'first_Name',
-        'last_Name',
-        'phone',
+                'name',
         'image',
-        'address_line_1',
-        'address_line_2',
+        'address',
         'country',
         'city',
         'postcode',
         "lat",
         "long",
-        'email',
+        'type',
+        'size',
+        'amenities',
+        'reference_no',
+        'landlord_id',
                 ])->toArray()
             )
                 // ->with("somthing")

@@ -15,7 +15,7 @@ class PropertyTenant extends Model
         'tenant_id'
 
     ];
-    public function property_tenants() {
+    public function tenants() {
         return $this->hasOne(Tenant::class,'id','tenant_id');
     }
 

@@ -28,6 +28,8 @@ class InvoiceUpdateRequest extends FormRequest
             "logo"=>"nullable|string",
             "invoice_title"=>"required|string",
             "invoice_summary"=>"nullable|string",
+
+            'invoice_number' => 'required|string|unique:invoices,invoice_number,' . $this->id . ',id',
             "business_name"=>"required|string",
             "business_address"=>"required|string",
             "invoice_payment_due"=>"required|numeric",
@@ -67,7 +69,7 @@ class InvoiceUpdateRequest extends FormRequest
             ],
 
             "invoice_items" => "nullable|array",
-            "invoice_items.*.id" => "required|numeric|exists:invoice_items,id",
+            "invoice_items.*.id" => "nullable|numeric|exists:invoice_items,id",
             "invoice_items.*.name" => "required|string",
             "invoice_items.*.description" => "nullable|string",
             "invoice_items.*.quantity" => "required|numeric",

@@ -24,6 +24,8 @@ class CreateInvoicesTable extends Migration
             $table->string("invoice_payment_due")->default(0);
             $table->date("invoice_date");
             $table->string("footer_text")->nullable();
+            $table->string("invoice_number")->unique();
+
 
             $table->unsignedBigInteger("property_id")->nullable();
             $table->foreign('property_id')->references('id')->on('properties')->onDelete('cascade');
@@ -31,7 +33,7 @@ class CreateInvoicesTable extends Migration
             $table->unsignedBigInteger("landlord_id")->nullable();
             $table->foreign('landlord_id')->references('id')->on('landlords')->onDelete('cascade');
 
-            $table->unsignedBigInteger("tenant_id");
+            $table->unsignedBigInteger("tenant_id")->nullable();
             $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('cascade');
 
             $table->timestamps();

@@ -24,10 +24,11 @@ class InvoiceCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            "id" => "required|numeric|exists:invoices,id",
+
             "logo"=>"nullable|string",
             "invoice_title"=>"required|string",
             "invoice_summary"=>"nullable|string",
+            "invoice_number" => "required|string|unique:invoices,invoice_number",
             "business_name"=>"required|string",
             "business_address"=>"required|string",
             "invoice_payment_due"=>"required|numeric",

@@ -124,9 +124,12 @@ public function createInvoiceImage(ImageUploadRequest $request)
  *            @OA\Property(property="invoice_summary", type="string", format="string",example="invoice_summary"),
  *            @OA\Property(property="business_name", type="string", format="string",example="business_name"),
  *  * *  @OA\Property(property="business_address", type="string", format="string",example="business_address"),
- *  * *  @OA\Property(property="invoice_payment_due", type="number", format="number",example="invoice_payment_due"),
- *  * *  @OA\Property(property="invoice_date", type="string", format="string",example="invoice_date"),
+ *  * *  @OA\Property(property="invoice_payment_due", type="number", format="number",example="1"),
+ *  * *  @OA\Property(property="invoice_date", type="string", format="string",example="12/12/2012"),
+ *  *  * *  @OA\Property(property="invoice_number", type="string", format="string",example="57856465"),
+ *
  *  * *  @OA\Property(property="footer_text", type="string", format="string",example="footer_text"),
+ *  *  * *  @OA\Property(property="landlord_id", type="number", format="number",example="1"),
  *  * *  @OA\Property(property="property_id", type="number", format="number",example="1"),
  *  * *  @OA\Property(property="tenant_id", type="number", format="number",example="1"),
  *     *  * *  @OA\Property(property="number", type="number", format="string",example="1"),
@@ -186,9 +189,8 @@ public function createInvoice(InvoiceCreateRequest $request)
                 throw new Exception("something went wrong");
             }
 
-            $invoiceItemsData = collect($insertableData["invoice_items"])->map(function ($item) {
+            $invoiceItems = collect($insertableData["invoice_items"])->map(function ($item) {
                 return [
-                    "id" => $item["id"],
                     "name" => $item["name"],
                     "description" => $item["description"],
                     "quantity" => $item["quantity"],
@@ -198,9 +200,9 @@ public function createInvoice(InvoiceCreateRequest $request)
                 ];
             });
 
-            $invoice->invoice_items()->upsert($invoiceItemsData->all(), ['id'], ['name', 'description', 'quantity', 'price', 'tax', 'amount']);
+            $invoice->invoice_items()->createMany($invoiceItems->all());
 
-
+            $invoice->load("invoice_items");
             return response($invoice, 201);
 
 
@@ -240,10 +242,12 @@ public function createInvoice(InvoiceCreateRequest $request)
  *            @OA\Property(property="invoice_summary", type="string", format="string",example="invoice_summary"),
  *            @OA\Property(property="business_name", type="string", format="string",example="business_name"),
  *  * *  @OA\Property(property="business_address", type="string", format="string",example="business_address"),
- *  * *  @OA\Property(property="invoice_payment_due", type="number", format="number",example="invoice_payment_due"),
- *  * *  @OA\Property(property="invoice_date", type="string", format="string",example="invoice_date"),
+ *  * *  @OA\Property(property="invoice_payment_due", type="number", format="number",example="1"),
+ *  * *  @OA\Property(property="invoice_date", type="string", format="string",example="12/12/2012"),
+ *  *  *  * *  @OA\Property(property="invoice_number", type="string", format="string",example="57856465"),
  *  * *  @OA\Property(property="footer_text", type="string", format="string",example="footer_text"),
  *  * *  @OA\Property(property="property_id", type="number", format="number",example="1"),
+ *  *  *  * *  @OA\Property(property="landlord_id", type="number", format="number",example="1"),
  *  * *  @OA\Property(property="tenant_id", type="number", format="number",example="1"),
  *     *  * *  @OA\Property(property="number", type="number", format="string",example="1"),
  *     *  * *  @OA\Property(property="invoice_items", type="string", format="array",example={
@@ -300,24 +304,42 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 
             $invoice  =  tap(Invoice::where(["id" => $updatableData["id"]]))->update(
                 collect($updatableData)->only([
-                    'first_Name',
-        'last_Name',
-        'phone',
-        'image',
-        'address_line_1',
-        'address_line_2',
-        'country',
-        'city',
-        'postcode',
-        "lat",
-        "long",
-        'email',
+                    "logo",
+                    "invoice_title",
+                    "invoice_summary",
+                    "business_name",
+                    "business_address",
+                    "invoice_payment_due",
+                    "invoice_date",
+                    "footer_text",
+                    "property_id",
+                    "landlord_id",
+                    "tenant_id",
                 ])->toArray()
             )
-                // ->with("somthing")
+
 
                 ->first();
+                if(!$invoice) {
+                    throw new Exception("something went wrong");
+                }
+                $invoiceItemsData = collect($updatableData["invoice_items"])->map(function ($item)use ($invoice) {
+                    return [
+                        "id" => $item["id"],
+                        "name" => $item["name"],
+                        "description" => $item["description"],
+                        "quantity" => $item["quantity"],
+                        "price" => $item["price"],
+                        "tax" => $item["tax"],
+                        "amount" => $item["amount"],
+                        "invoice_id" => $invoice->id
+                    ];
+                });
 
+
+                $invoice->invoice_items()->upsert($invoiceItemsData->all(), ['id',"invoice_id"], ['name', 'description', 'quantity', 'price', 'tax', 'amount',"invoice_id"]);
+
+                $invoice->load("invoice_items");
             return response($invoice, 200);
         });
     } catch (Exception $e) {
@@ -498,7 +520,8 @@ public function getInvoiceById($id, Request $request)
         $this->storeActivity($request,"");
 
 
-        $invoice = Invoice::where([
+        $invoice = Invoice::with("invoice_items")
+        ->where([
             "id" => $id
         ])
         ->first();
