@@ -190,6 +190,19 @@ Route::delete('/v1.0/repairs/{id}', [RepairController::class, "deleteRepairById"
 
 
 
+// Invoice management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Route::post('/v1.0/invoice-image', [InvoiceController::class, "createInvoiceImage"]);
+Route::post('/v1.0/invoices', [InvoiceController::class, "createInvoice"]);
+Route::put('/v1.0/invoices', [InvoiceController::class, "updateInvoice"]);
+Route::get('/v1.0/invoices/{perPage}', [InvoiceController::class, "getInvoices"]);
+Route::get('/v1.0/invoices/get/single/{id}', [InvoiceController::class, "getInvoiceById"]);
+Route::delete('/v1.0/invoices/{id}', [InvoiceController::class, "deleteInvoiceById"]);
+
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+// Invoice management section
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // notification management section

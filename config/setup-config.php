@@ -30,6 +30,7 @@ return [
     "tenant_image" => "tenant_image",
     "property_image" => "property_image",
     "repair_image" => "repair_image",
-    "repair_receipt_file" => "repair_receipt_file"
+    "repair_receipt_file" => "repair_receipt_file",
+    "invoice_image" => "invoice_image"
 
 ];
