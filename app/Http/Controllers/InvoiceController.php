@@ -9,6 +9,7 @@ use App\Http\Requests\InvoiceUpdateRequest;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Invoice;
+use App\Models\InvoiceItem;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -129,7 +130,11 @@ public function createInvoiceImage(ImageUploadRequest $request)
  *  * *  @OA\Property(property="property_id", type="number", format="number",example="1"),
  *  * *  @OA\Property(property="tenant_id", type="number", format="number",example="1"),
  *     *  * *  @OA\Property(property="number", type="number", format="string",example="1"),
- *     *  * *  @OA\Property(property="long", type="string", format="string",example="1207"),
+ *     *  * *  @OA\Property(property="invoice_items", type="string", format="array",example={
+ *{"name":"name","description":"description","quantity":"1","price":"1.1","tax":"20","amount":"300"},
+  *{"name":"name","description":"description","quantity":"1","price":"1.1","tax":"20","amount":"300"}
+ *
+ * }),
  *
  *         ),
  *      ),
@@ -181,14 +186,19 @@ public function createInvoice(InvoiceCreateRequest $request)
                 throw new Exception("something went wrong");
             }
 
-            $invoice->invoice_items()->createMany(
-                collect($insertableData["images"])->map(function ($image) {
-                    return [
-                        'image' => $image,
-                    ];
-                })
-            );
+            $invoiceItemsData = collect($insertableData["invoice_items"])->map(function ($item) {
+                return [
+                    "id" => $item["id"],
+                    "name" => $item["name"],
+                    "description" => $item["description"],
+                    "quantity" => $item["quantity"],
+                    "price" => $item["price"],
+                    "tax" => $item["tax"],
+                    "amount" => $item["amount"],
+                ];
+            });
 
+            $invoice->invoice_items()->upsert($invoiceItemsData->all(), ['id'], ['name', 'description', 'quantity', 'price', 'tax', 'amount']);
 
 
             return response($invoice, 201);
@@ -225,18 +235,22 @@ public function createInvoice(InvoiceCreateRequest $request)
  *         @OA\JsonContent(
  *            required={"id","name","description","logo"},
  *     *             @OA\Property(property="id", type="number", format="number",example="1"),
- *      *  *             @OA\Property(property="image", type="string", format="string",example="image.jpg"),
- *             @OA\Property(property="first_Name", type="string", format="string",example="Rifat"),
- *            @OA\Property(property="last_Name", type="string", format="string",example="Al"),
- *            @OA\Property(property="email", type="string", format="string",example="rifatalashwad0@gmail.com"),
- *  * *  @OA\Property(property="phone", type="string", format="boolean",example="01771034383"),
- *  * *  @OA\Property(property="address_line_1", type="string", format="boolean",example="dhaka"),
- *  * *  @OA\Property(property="address_line_2", type="string", format="boolean",example="dinajpur"),
- *  * *  @OA\Property(property="country", type="string", format="boolean",example="Bangladesh"),
- *  * *  @OA\Property(property="city", type="string", format="boolean",example="Dhaka"),
- *  * *  @OA\Property(property="postcode", type="string", format="boolean",example="1207"),
- *     *  * *  @OA\Property(property="lat", type="string", format="boolean",example="1207"),
- *     *  * *  @OA\Property(property="long", type="string", format="boolean",example="1207"),
+  *  *             @OA\Property(property="logo", type="string", format="string",example="image.jpg"),
+  *             @OA\Property(property="invoice_title", type="string", format="string",example="invoice_title"),
+ *            @OA\Property(property="invoice_summary", type="string", format="string",example="invoice_summary"),
+ *            @OA\Property(property="business_name", type="string", format="string",example="business_name"),
+ *  * *  @OA\Property(property="business_address", type="string", format="string",example="business_address"),
+ *  * *  @OA\Property(property="invoice_payment_due", type="number", format="number",example="invoice_payment_due"),
+ *  * *  @OA\Property(property="invoice_date", type="string", format="string",example="invoice_date"),
+ *  * *  @OA\Property(property="footer_text", type="string", format="string",example="footer_text"),
+ *  * *  @OA\Property(property="property_id", type="number", format="number",example="1"),
+ *  * *  @OA\Property(property="tenant_id", type="number", format="number",example="1"),
+ *     *  * *  @OA\Property(property="number", type="number", format="string",example="1"),
+ *     *  * *  @OA\Property(property="invoice_items", type="string", format="array",example={
+ *{"id":"1","name":"name","description":"description","quantity":"1","price":"1.1","tax":"20","amount":"300"},
+  *{"id":"","name":"name","description":"description","quantity":"1","price":"1.1","tax":"20","amount":"300"}
+ *
+ * }),
  *
  *         ),
  *      ),
@@ -592,4 +606,96 @@ public function deleteInvoiceById($id, Request $request)
         return $this->sendError($e, 500,$request);
     }
 }
+
+/**
+ *
+ *     @OA\Delete(
+ *      path="/v1.0/invoice-items/{invoice_id}/{id}",
+ *      operationId="deleteInvoiceItemById",
+ *      tags={"property_management.invoice_management"},
+ *       security={
+ *           {"bearerAuth": {}}
+ *       },
+ *  *              @OA\Parameter(
+ *         name="invoice_id",
+ *         in="path",
+ *         description="invoice_id",
+ *         required=true,
+ *  example="1"
+ *      ),
+ *              @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         description="id",
+ *         required=true,
+ *  example="1"
+ *      ),
+ *      summary="This method is to delete invoice item by id",
+ *      description="This method is to delete invoice item by id",
+ *
+
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *       @OA\JsonContent(),
+ *       ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ * @OA\JsonContent(),
+ *      ),
+ *        @OA\Response(
+ *          response=422,
+ *          description="Unprocesseble Content",
+ *    @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *   @OA\JsonContent()
+ * ),
+ *  * @OA\Response(
+ *      response=400,
+ *      description="Bad Request",
+ *   *@OA\JsonContent()
+ *   ),
+ * @OA\Response(
+ *      response=404,
+ *      description="not found",
+ *   *@OA\JsonContent()
+ *   )
+ *      )
+ *     )
+ */
+
+public function deleteInvoiceItemById($invoice_id,$id, Request $request)
+{
+
+    try {
+        $this->storeActivity($request,"");
+
+
+
+        $invoice_item = InvoiceItem::where([
+            "invoice_id" => $invoice_id,
+            "id" => $id
+        ])
+        ->first();
+
+        if(!$invoice_id) {
+     return response()->json([
+"message" => "no invoice item found"
+],404);
+        }
+        $invoice_id->delete();
+
+        return response()->json(["ok" => true], 200);
+    } catch (Exception $e) {
+
+        return $this->sendError($e, 500,$request);
+    }
+}
+
+
+
 }

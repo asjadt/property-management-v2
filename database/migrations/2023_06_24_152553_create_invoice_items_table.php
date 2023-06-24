@@ -18,10 +18,10 @@ class CreateInvoiceItemsTable extends Migration
             $table->string("name");
             $table->string("description")->nullable();
 
-            $table->integer("quantity");
-            $table->double("price");
-            $table->double("tax");
-            $table->double("amount");
+            $table->integer("quantity")->default(0);
+            $table->double("price")->default(0);
+            $table->double("tax")->default(0);
+            $table->double("amount")->default(0);
 
             $table->unsignedBigInteger("invoice_id");
             $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');

@@ -22,7 +22,7 @@ class CreateRepairsTable extends Migration
             $table->string('repair_category');
             $table->string('item_description')->nullable();
             $table->string('receipt');
-            $table->double('price');
+            $table->double('price')->default(0);;
             $table->date('create_date');
 
 

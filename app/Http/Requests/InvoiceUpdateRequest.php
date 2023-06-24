@@ -66,6 +66,14 @@ class InvoiceUpdateRequest extends FormRequest
                 },
             ],
 
+            "invoice_items" => "nullable|array",
+            "invoice_items.*.id" => "required|numeric|exists:invoice_items,id",
+            "invoice_items.*.name" => "required|string",
+            "invoice_items.*.description" => "nullable|string",
+            "invoice_items.*.quantity" => "required|numeric",
+            "invoice_items.*.price" => "required|numeric",
+            "invoice_items.*.tax" => "required|numeric",
+            "invoice_items.*.amount" => "required|numeric",
 
         ];
     }

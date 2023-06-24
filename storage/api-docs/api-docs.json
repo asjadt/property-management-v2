@@ -12025,65 +12025,84 @@
                                         "format": "number",
                                         "example": "1"
                                     },
-                                    "image": {
+                                    "logo": {
                                         "type": "string",
                                         "format": "string",
                                         "example": "image.jpg"
                                     },
-                                    "first_Name": {
+                                    "invoice_title": {
                                         "type": "string",
                                         "format": "string",
-                                        "example": "Rifat"
+                                        "example": "invoice_title"
                                     },
-                                    "last_Name": {
+                                    "invoice_summary": {
                                         "type": "string",
                                         "format": "string",
-                                        "example": "Al"
+                                        "example": "invoice_summary"
                                     },
-                                    "email": {
+                                    "business_name": {
                                         "type": "string",
                                         "format": "string",
-                                        "example": "rifatalashwad0@gmail.com"
+                                        "example": "business_name"
                                     },
-                                    "phone": {
+                                    "business_address": {
                                         "type": "string",
-                                        "format": "boolean",
-                                        "example": "01771034383"
+                                        "format": "string",
+                                        "example": "business_address"
                                     },
-                                    "address_line_1": {
-                                        "type": "string",
-                                        "format": "boolean",
-                                        "example": "dhaka"
+                                    "invoice_payment_due": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "invoice_payment_due"
                                     },
-                                    "address_line_2": {
+                                    "invoice_date": {
                                         "type": "string",
-                                        "format": "boolean",
-                                        "example": "dinajpur"
+                                        "format": "string",
+                                        "example": "invoice_date"
                                     },
-                                    "country": {
+                                    "footer_text": {
                                         "type": "string",
-                                        "format": "boolean",
-                                        "example": "Bangladesh"
+                                        "format": "string",
+                                        "example": "footer_text"
                                     },
-                                    "city": {
-                                        "type": "string",
-                                        "format": "boolean",
-                                        "example": "Dhaka"
+                                    "property_id": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "1"
                                     },
-                                    "postcode": {
-                                        "type": "string",
-                                        "format": "boolean",
-                                        "example": "1207"
+                                    "tenant_id": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "1"
                                     },
-                                    "lat": {
-                                        "type": "string",
-                                        "format": "boolean",
-                                        "example": "1207"
+                                    "number": {
+                                        "type": "number",
+                                        "format": "string",
+                                        "example": "1"
                                     },
-                                    "long": {
+                                    "invoice_items": {
                                         "type": "string",
-                                        "format": "boolean",
-                                        "example": "1207"
+                                        "format": "array",
+                                        "example": [
+                                            {
+                                                "id": "1",
+                                                "name": "name",
+                                                "description": "description",
+                                                "quantity": "1",
+                                                "price": "1.1",
+                                                "tax": "20",
+                                                "amount": "300"
+                                            },
+                                            {
+                                                "id": "",
+                                                "name": "name",
+                                                "description": "description",
+                                                "quantity": "1",
+                                                "price": "1.1",
+                                                "tax": "20",
+                                                "amount": "300"
+                                            }
+                                        ]
                                     }
                                 },
                                 "type": "object"
@@ -12220,10 +12239,27 @@
                                         "format": "string",
                                         "example": "1"
                                     },
-                                    "long": {
+                                    "invoice_items": {
                                         "type": "string",
-                                        "format": "string",
-                                        "example": "1207"
+                                        "format": "array",
+                                        "example": [
+                                            {
+                                                "name": "name",
+                                                "description": "description",
+                                                "quantity": "1",
+                                                "price": "1.1",
+                                                "tax": "20",
+                                                "amount": "300"
+                                            },
+                                            {
+                                                "name": "name",
+                                                "description": "description",
+                                                "quantity": "1",
+                                                "price": "1.1",
+                                                "tax": "20",
+                                                "amount": "300"
+                                            }
+                                        ]
                                     }
                                 },
                                 "type": "object"
@@ -12466,6 +12502,87 @@
                 "description": "This method is to delete invoice by id",
                 "operationId": "deleteInvoiceById",
                 "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "id",
+                        "required": true,
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/invoice-items/{invoice_id}/{id}": {
+            "delete": {
+                "tags": [
+                    "property_management.invoice_management"
+                ],
+                "summary": "This method is to delete invoice item by id",
+                "description": "This method is to delete invoice item by id",
+                "operationId": "deleteInvoiceItemById",
+                "parameters": [
+                    {
+                        "name": "invoice_id",
+                        "in": "path",
+                        "description": "invoice_id",
+                        "required": true,
+                        "example": "1"
+                    },
                     {
                         "name": "id",
                         "in": "path",
