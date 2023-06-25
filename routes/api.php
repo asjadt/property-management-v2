@@ -27,6 +27,7 @@ use App\Http\Controllers\GarageServiceController;
 use App\Http\Controllers\GarageServicePriceController;
 use App\Http\Controllers\GarageTimesController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\InvoicePaymentController;
 use App\Http\Controllers\JobBidController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\LandlordController;
@@ -203,6 +204,21 @@ Route::delete('/v1.0/invoice-items/{invoice_id}/{id}', [InvoiceController::class
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // Invoice management section
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// invoice payment management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Route::post('/v1.0/invoice-payments', [InvoicePaymentController::class, "createInvoicePayment"]);
+Route::put('/v1.0/invoice-payments', [InvoicePaymentController::class, "updateInvoicePayment"]);
+Route::get('/v1.0/invoice-payments/{perPage}', [InvoicePaymentController::class, "getInvoicePayments"]);
+Route::get('/v1.0/invoice-payments/get/single/{id}', [InvoicePaymentController::class, "getInvoicePaymentById"]);
+Route::delete('/v1.0/invoice-payments/{id}', [InvoicePaymentController::class, "deleteInvoicePaymentById"]);
+
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+// invoice payment management section
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 

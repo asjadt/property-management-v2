@@ -2,134 +2,42 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ImageUploadRequest;
-use App\Http\Requests\TenantCreateRequest;
-use App\Http\Requests\TenantUpdateRequest;
+use App\Http\Requests\InvoicePaymentCreateRequest;
+use App\Http\Requests\InvoicePaymentUpdateRequest;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
-use App\Models\Tenant;
+use App\Models\InvoicePayment;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class TenantController extends Controller
+class InvoicePaymentController extends Controller
 {
     use ErrorUtil, UserActivityUtil;
-    /**
-    *
- * @OA\Post(
- *      path="/v1.0/tenant-image",
- *      operationId="createTenantImage",
- *      tags={"property_management.tenant_management"},
- *       security={
- *           {"bearerAuth": {}}
- *       },
- *      summary="This method is to store tenant logo",
- *      description="This method is to store tenant logo",
- *
-*  @OA\RequestBody(
-    *   * @OA\MediaType(
-*     mediaType="multipart/form-data",
-*     @OA\Schema(
-*         required={"image"},
-*         @OA\Property(
-*             description="image to upload",
-*             property="image",
-*             type="file",
-*             collectionFormat="multi",
-*         )
-*     )
-* )
 
-
-
- *      ),
- *      @OA\Response(
- *          response=200,
- *          description="Successful operation",
- *       @OA\JsonContent(),
- *       ),
- *      @OA\Response(
- *          response=401,
- *          description="Unauthenticated",
- * @OA\JsonContent(),
- *      ),
- *        @OA\Response(
- *          response=422,
- *          description="Unprocesseble Content",
- *    @OA\JsonContent(),
- *      ),
- *      @OA\Response(
- *          response=403,
- *          description="Forbidden",
- *   @OA\JsonContent()
- * ),
- *  * @OA\Response(
- *      response=400,
- *      description="Bad Request",
- *   *@OA\JsonContent()
- *   ),
- * @OA\Response(
- *      response=404,
- *      description="not found",
- *   *@OA\JsonContent()
- *   )
- *      )
- *     )
- */
-
-public function createTenantImage(ImageUploadRequest $request)
-{
-    try{
-        $this->storeActivity($request,"");
-
-        $insertableData = $request->validated();
-
-        $location =  config("setup-config.tenant_image");
-
-        $new_file_name = time() . '_' . $insertableData["image"]->getClientOriginalName();
-
-        $insertableData["image"]->move(public_path($location), $new_file_name);
-
-
-        return response()->json(["image" => $new_file_name,"location" => $location,"full_location"=>("/".$location."/".$new_file_name)], 200);
-
-
-    } catch(Exception $e){
-
-        return $this->sendError($e,500,$request);
-    }
-}
 
 
 /**
  *
  * @OA\Post(
- *      path="/v1.0/tenants",
- *      operationId="createTenant",
- *      tags={"property_management.tenant_management"},
+ *      path="/v1.0/invoice-payments",
+ *      operationId="createInvoicePayment",
+ *      tags={"property_management.invoice_payment_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
- *      summary="This method is to store tenant",
- *      description="This method is to store tenant",
+ *      summary="This method is to store invoice",
+ *      description="This method is to store invoice",
  *
  *  @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
  *            required={"name","description","logo"},
- *  *             @OA\Property(property="image", type="string", format="string",example="image.jpg"),
-  *             @OA\Property(property="first_Name", type="string", format="string",example="Rifat"),
- *            @OA\Property(property="last_Name", type="string", format="string",example="Al"),
- *            @OA\Property(property="email", type="string", format="string",example="rifatalashwad0@gmail.com"),
- *  * *  @OA\Property(property="phone", type="string", format="boolean",example="01771034383"),
- *  * *  @OA\Property(property="address_line_1", type="string", format="boolean",example="dhaka"),
- *  * *  @OA\Property(property="address_line_2", type="string", format="boolean",example="dinajpur"),
- *  * *  @OA\Property(property="country", type="string", format="boolean",example="Bangladesh"),
- *  * *  @OA\Property(property="city", type="string", format="boolean",example="Dhaka"),
- *  * *  @OA\Property(property="postcode", type="string", format="boolean",example="1207"),
- *     *  * *  @OA\Property(property="lat", type="string", format="boolean",example="1207"),
- *     *  * *  @OA\Property(property="long", type="string", format="boolean",example="1207"),
+ *  *             @OA\Property(property="amount", type="number", format="number",example="10"),
+  *             @OA\Property(property="payment_method", type="string", format="string",example="bkash"),
+ *            @OA\Property(property="payment_date", type="string", format="string",example="12/12/2012"),
+ *            @OA\Property(property="invoice_id", type="number", format="number",example="1"),
+
  *
  *         ),
  *      ),
@@ -167,7 +75,7 @@ public function createTenantImage(ImageUploadRequest $request)
  *     )
  */
 
-public function createTenant(TenantCreateRequest $request)
+public function createInvoicePayment(InvoicePaymentCreateRequest $request)
 {
     try {
         $this->storeActivity($request,"");
@@ -177,11 +85,11 @@ public function createTenant(TenantCreateRequest $request)
 
             $insertableData = $request->validated();
             $insertableData["created_by"] = $request->user()->id;
-            $tenant =  Tenant::create($insertableData);
+            $invoice_payment =  InvoicePayment::create($insertableData);
 
 
 
-            return response($tenant, 201);
+            return response($invoice_payment, 201);
 
 
 
@@ -201,32 +109,24 @@ public function createTenant(TenantCreateRequest $request)
 /**
  *
  * @OA\Put(
- *      path="/v1.0/tenants",
- *      operationId="updateTenant",
- *      tags={"property_management.tenant_management"},
+ *      path="/v1.0/invoice-payments",
+ *      operationId="updateInvoicePayment",
+ *      tags={"property_management.invoice_payment_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
- *      summary="This method is to update tenant",
- *      description="This method is to update tenant",
+ *      summary="This method is to update invoice",
+ *      description="This method is to update invoice",
  *
  *  @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
  *            required={"id","name","description","logo"},
  *     *             @OA\Property(property="id", type="number", format="number",example="1"),
- *      *  *             @OA\Property(property="image", type="string", format="string",example="image.jpg"),
- *             @OA\Property(property="first_Name", type="string", format="string",example="Rifat"),
- *            @OA\Property(property="last_Name", type="string", format="string",example="Al"),
- *            @OA\Property(property="email", type="string", format="string",example="rifatalashwad0@gmail.com"),
- *  * *  @OA\Property(property="phone", type="string", format="boolean",example="01771034383"),
- *  * *  @OA\Property(property="address_line_1", type="string", format="boolean",example="dhaka"),
- *  * *  @OA\Property(property="address_line_2", type="string", format="boolean",example="dinajpur"),
- *  * *  @OA\Property(property="country", type="string", format="boolean",example="Bangladesh"),
- *  * *  @OA\Property(property="city", type="string", format="boolean",example="Dhaka"),
- *  * *  @OA\Property(property="postcode", type="string", format="boolean",example="1207"),
- *     *  * *  @OA\Property(property="lat", type="string", format="boolean",example="1207"),
- *     *  * *  @OA\Property(property="long", type="string", format="boolean",example="1207"),
+ *  *             @OA\Property(property="amount", type="number", format="number",example="10"),
+  *             @OA\Property(property="payment_method", type="string", format="string",example="bkash"),
+ *            @OA\Property(property="payment_date", type="string", format="string",example="12/12/2012"),
+ *            @OA\Property(property="invoice_id", type="number", format="number",example="1"),
  *
  *         ),
  *      ),
@@ -264,7 +164,7 @@ public function createTenant(TenantCreateRequest $request)
  *     )
  */
 
-public function updateTenant(TenantUpdateRequest $request)
+public function updateInvoicePayment(InvoicePaymentUpdateRequest $request)
 {
     try {
         $this->storeActivity($request,"");
@@ -272,7 +172,7 @@ public function updateTenant(TenantUpdateRequest $request)
 
             $updatableData = $request->validated();
 
-            // $affiliationPrev = Tenants::where([
+            // $affiliationPrev = InvoicePayments::where([
             //     "id" => $updatableData["id"]
             //    ]);
 
@@ -291,27 +191,19 @@ public function updateTenant(TenantUpdateRequest $request)
 
 
 
-            $tenant  =  tap(Tenant::where(["id" => $updatableData["id"]]))->update(
+            $invoice_payment  =  tap(InvoicePayment::where(["id" => $updatableData["id"]]))->update(
                 collect($updatableData)->only([
-                    'first_Name',
-        'last_Name',
-        'phone',
-        'image',
-        'address_line_1',
-        'address_line_2',
-        'country',
-        'city',
-        'postcode',
-        "lat",
-        "long",
-        'email',
+                    "amount",
+                    "payment_method",
+                    "payment_date",
+                    "invoice_id",
                 ])->toArray()
             )
                 // ->with("somthing")
 
                 ->first();
 
-            return response($tenant, 200);
+            return response($invoice_payment, 200);
         });
     } catch (Exception $e) {
         error_log($e->getMessage());
@@ -321,9 +213,9 @@ public function updateTenant(TenantUpdateRequest $request)
 /**
  *
  * @OA\Get(
- *      path="/v1.0/tenants/{perPage}",
- *      operationId="getTenants",
- *      tags={"property_management.tenant_management"},
+ *      path="/v1.0/invoice-payments/{perPage}",
+ *      operationId="getInvoicePayments",
+ *      tags={"property_management.invoice_payment_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
@@ -356,8 +248,8 @@ public function updateTenant(TenantUpdateRequest $request)
 * required=true,
 * example="search_key"
 * ),
- *      summary="This method is to get tenants ",
- *      description="This method is to get tenants",
+ *      summary="This method is to get invoice-payments ",
+ *      description="This method is to get invoice-payments",
  *
 
  *      @OA\Response(
@@ -394,32 +286,32 @@ public function updateTenant(TenantUpdateRequest $request)
  *     )
  */
 
-public function getTenants($perPage, Request $request)
+public function getInvoicePayments($perPage, Request $request)
 {
     try {
         $this->storeActivity($request,"");
 
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $tenantQuery = new Tenant();
+        $invoice_paymentQuery = new InvoicePayment();
 
         if (!empty($request->search_key)) {
-            $tenantQuery = $tenantQuery->where(function ($query) use ($request) {
+            $invoice_paymentQuery = $invoice_paymentQuery->where(function ($query) use ($request) {
                 $term = $request->search_key;
                 $query->where("name", "like", "%" . $term . "%");
             });
         }
 
         if (!empty($request->start_date)) {
-            $tenantQuery = $tenantQuery->where('created_at', ">=", $request->start_date);
+            $invoice_paymentQuery = $invoice_paymentQuery->where('created_at', ">=", $request->start_date);
         }
         if (!empty($request->end_date)) {
-            $tenantQuery = $tenantQuery->where('created_at', "<=", $request->end_date);
+            $invoice_paymentQuery = $invoice_paymentQuery->where('created_at', "<=", $request->end_date);
         }
 
-        $tenants = $tenantQuery->orderByDesc("id")->paginate($perPage);
+        $invoice_payments = $invoice_paymentQuery->orderByDesc("id")->paginate($perPage);
 
-        return response()->json($tenants, 200);
+        return response()->json($invoice_payments, 200);
     } catch (Exception $e) {
 
         return $this->sendError($e, 500,$request);
@@ -431,9 +323,9 @@ public function getTenants($perPage, Request $request)
 /**
  *
  * @OA\Get(
- *      path="/v1.0/tenants/get/single/{id}",
- *      operationId="getTenantById",
- *      tags={"property_management.tenant_management"},
+ *      path="/v1.0/invoice-payments/get/single/{id}",
+ *      operationId="getInvoicePaymentById",
+ *      tags={"property_management.invoice_payment_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
@@ -446,8 +338,8 @@ public function getTenants($perPage, Request $request)
  *  example="1"
  *      ),
 
- *      summary="This method is to get tenant by id",
- *      description="This method is to get tenant by id",
+ *      summary="This method is to get invoice by id",
+ *      description="This method is to get invoice by id",
  *
 
  *      @OA\Response(
@@ -484,25 +376,25 @@ public function getTenants($perPage, Request $request)
  *     )
  */
 
-public function getTenantById($id, Request $request)
+public function getInvoicePaymentById($id, Request $request)
 {
     try {
         $this->storeActivity($request,"");
 
 
-        $tenant = Tenant::where([
+        $invoice_payment = InvoicePayment::where([
             "id" => $id
         ])
         ->first();
 
-        if(!$tenant) {
+        if(!$invoice_payment) {
      return response()->json([
-"message" => "no tenant found"
+"message" => "no invoice found"
 ],404);
         }
 
 
-        return response()->json($tenant, 200);
+        return response()->json($invoice_payment, 200);
     } catch (Exception $e) {
 
         return $this->sendError($e, 500,$request);
@@ -521,9 +413,9 @@ public function getTenantById($id, Request $request)
 /**
  *
  *     @OA\Delete(
- *      path="/v1.0/tenants/{id}",
- *      operationId="deleteTenantById",
- *      tags={"property_management.tenant_management"},
+ *      path="/v1.0/invoice-payments/{id}",
+ *      operationId="deleteInvoicePaymentById",
+ *      tags={"property_management.invoice_payment_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
@@ -534,8 +426,8 @@ public function getTenantById($id, Request $request)
  *         required=true,
  *  example="1"
  *      ),
- *      summary="This method is to delete tenant by id",
- *      description="This method is to delete tenant by id",
+ *      summary="This method is to delete invoice by id",
+ *      description="This method is to delete invoice by id",
  *
 
  *      @OA\Response(
@@ -572,23 +464,23 @@ public function getTenantById($id, Request $request)
  *     )
  */
 
-public function deleteTenantById($id, Request $request)
+public function deleteInvoicePaymentById($id, Request $request)
 {
 
     try {
         $this->storeActivity($request,"");
 
-        $tenant = Tenant::where([
+        $invoice_payment = InvoicePayment::where([
             "id" => $id
         ])
         ->first();
 
-        if(!$tenant) {
+        if(!$invoice_payment) {
      return response()->json([
-"message" => "no tenant found"
+"message" => "no invoice found"
 ],404);
         }
-        $tenant->delete();
+        $invoice_payment->delete();
 
         return response()->json(["ok" => true], 200);
     } catch (Exception $e) {
@@ -596,14 +488,6 @@ public function deleteTenantById($id, Request $request)
         return $this->sendError($e, 500,$request);
     }
 }
-
-
-
-
-
-
-
-
 
 
 
