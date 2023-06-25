@@ -17,7 +17,7 @@ class CreateInvoicePaymentsTable extends Migration
             $table->id();
             $table->double("amount")->default(0);
             $table->string("payment_method");
-            $table->date("payment_date")();
+            $table->date("payment_date");
             $table->unsignedBigInteger("invoice_id");
             $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
             $table->timestamps();

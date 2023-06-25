@@ -95,7 +95,7 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
                 throw new Exception("something went wrong");
             }
 
-            $sum_payment_amounts = $invoice->invoice_items()->sum('amount');
+            $sum_payment_amounts = $invoice->invoice_payments()->sum('amount');
             $invoice_due = $invoice->total_amount - $sum_payment_amounts;
 
 
@@ -234,7 +234,7 @@ public function updateInvoicePayment(InvoicePaymentUpdateRequest $request)
                 throw new Exception("something went wrong");
             }
 
-            $sum_payment_amounts = $invoice->invoice_items()->where('id', '!=', $updatableData["id"])->sum('amount');
+            $sum_payment_amounts = $invoice->invoice_payments()->where('id', '!=', $updatableData["id"])->sum('amount');
 
             $invoice_due = $invoice->total_amount - $sum_payment_amounts;
 
@@ -291,6 +291,13 @@ public function updateInvoicePayment(InvoicePaymentUpdateRequest $request)
  *         required=true,
  *  example="6"
  *      ),
+ *  *      * *  @OA\Parameter(
+* name="invoice_id",
+* in="query",
+* description="invoice_id",
+* required=true,
+* example="1"
+* ),
  *      * *  @OA\Parameter(
 * name="start_date",
 * in="query",
@@ -359,6 +366,11 @@ public function getInvoicePayments($perPage, Request $request)
 
         $invoice_paymentQuery = new InvoicePayment();
 
+
+        if (!empty($request->invoice_id)) {
+            $invoice_paymentQuery = $invoice_paymentQuery->where('invoice_id',  $request->invoice_id);
+        }
+
         if (!empty($request->search_key)) {
             $invoice_paymentQuery = $invoice_paymentQuery->where(function ($query) use ($request) {
                 $term = $request->search_key;
@@ -387,13 +399,19 @@ public function getInvoicePayments($perPage, Request $request)
 /**
  *
  * @OA\Get(
- *      path="/v1.0/invoice-payments/get/single/{id}",
+ *      path="/v1.0/invoice-payments/get/single/{invoice_id}/{id}",
  *      operationId="getInvoicePaymentById",
  *      tags={"property_management.invoice_payment_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
-
+*              @OA\Parameter(
+ *         name="invoice_id",
+ *         in="path",
+ *         description="invoice_id",
+ *         required=true,
+ *  example="1"
+ *      ),
  *              @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -440,20 +458,21 @@ public function getInvoicePayments($perPage, Request $request)
  *     )
  */
 
-public function getInvoicePaymentById($id, Request $request)
+public function getInvoicePaymentById($invoice_id,$id, Request $request)
 {
     try {
         $this->storeActivity($request,"");
 
 
         $invoice_payment = InvoicePayment::where([
-            "id" => $id
+            "id" => $id,
+            "invoice_id" => $invoice_id
         ])
         ->first();
 
         if(!$invoice_payment) {
      return response()->json([
-"message" => "no invoice found"
+"message" => "no invoice payment found"
 ],404);
         }
 
@@ -477,12 +496,19 @@ public function getInvoicePaymentById($id, Request $request)
 /**
  *
  *     @OA\Delete(
- *      path="/v1.0/invoice-payments/{id}",
+ *      path="/v1.0/invoice-payments/{invoice_id}/{id}",
  *      operationId="deleteInvoicePaymentById",
  *      tags={"property_management.invoice_payment_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
+ * *              @OA\Parameter(
+ *         name="invoice_id",
+ *         in="path",
+ *         description="invoice_id",
+ *         required=true,
+ *  example="1"
+ *      ),
  *              @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -528,20 +554,21 @@ public function getInvoicePaymentById($id, Request $request)
  *     )
  */
 
-public function deleteInvoicePaymentById($id, Request $request)
+public function deleteInvoicePaymentById($invoice_id,$id, Request $request)
 {
 
     try {
         $this->storeActivity($request,"");
 
         $invoice_payment = InvoicePayment::where([
-            "id" => $id
+            "id" => $id,
+            "invoice_id" => $invoice_id
         ])
         ->first();
 
         if(!$invoice_payment) {
      return response()->json([
-"message" => "no invoice found"
+"message" => "no invoice payment found"
 ],404);
         }
         $invoice_payment->delete();

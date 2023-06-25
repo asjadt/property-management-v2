@@ -12050,15 +12050,20 @@
                                         "format": "string",
                                         "example": "business_address"
                                     },
-                                    "invoice_payment_due": {
+                                    "total_amount": {
                                         "type": "number",
                                         "format": "number",
-                                        "example": "invoice_payment_due"
+                                        "example": "900"
                                     },
                                     "invoice_date": {
                                         "type": "string",
                                         "format": "string",
-                                        "example": "invoice_date"
+                                        "example": "12/12/2012"
+                                    },
+                                    "invoice_number": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "57856465"
                                     },
                                     "footer_text": {
                                         "type": "string",
@@ -12066,6 +12071,11 @@
                                         "example": "footer_text"
                                     },
                                     "property_id": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "1"
+                                    },
+                                    "landlord_id": {
                                         "type": "number",
                                         "format": "number",
                                         "example": "1"
@@ -12101,6 +12111,24 @@
                                                 "price": "1.1",
                                                 "tax": "20",
                                                 "amount": "300"
+                                            }
+                                        ]
+                                    },
+                                    "invoice_payments": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            {
+                                                "id": "1",
+                                                "amount": "10",
+                                                "payment_method": "payment_method",
+                                                "payment_date": "12/12/2012"
+                                            },
+                                            {
+                                                "id": "",
+                                                "amount": "10",
+                                                "payment_method": "payment_method",
+                                                "payment_date": "12/12/2012"
                                             }
                                         ]
                                     }
@@ -12209,20 +12237,30 @@
                                         "format": "string",
                                         "example": "business_address"
                                     },
-                                    "invoice_payment_due": {
+                                    "total_amount": {
                                         "type": "number",
                                         "format": "number",
-                                        "example": "invoice_payment_due"
+                                        "example": "900"
                                     },
                                     "invoice_date": {
                                         "type": "string",
                                         "format": "string",
-                                        "example": "invoice_date"
+                                        "example": "12/12/2012"
+                                    },
+                                    "invoice_number": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "57856465"
                                     },
                                     "footer_text": {
                                         "type": "string",
                                         "format": "string",
                                         "example": "footer_text"
+                                    },
+                                    "landlord_id": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "1"
                                     },
                                     "property_id": {
                                         "type": "number",
@@ -12258,6 +12296,22 @@
                                                 "price": "1.1",
                                                 "tax": "20",
                                                 "amount": "300"
+                                            }
+                                        ]
+                                    },
+                                    "invoice_payments": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            {
+                                                "amount": "10",
+                                                "payment_method": "payment_method",
+                                                "payment_date": "12/12/2012"
+                                            },
+                                            {
+                                                "amount": "10",
+                                                "payment_method": "payment_method",
+                                                "payment_date": "12/12/2012"
                                             }
                                         ]
                                     }
@@ -12575,6 +12629,478 @@
                 "summary": "This method is to delete invoice item by id",
                 "description": "This method is to delete invoice item by id",
                 "operationId": "deleteInvoiceItemById",
+                "parameters": [
+                    {
+                        "name": "invoice_id",
+                        "in": "path",
+                        "description": "invoice_id",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "id",
+                        "required": true,
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/invoice-payments": {
+            "put": {
+                "tags": [
+                    "property_management.invoice_payment_management"
+                ],
+                "summary": "This method is to update invoice",
+                "description": "This method is to update invoice",
+                "operationId": "updateInvoicePayment",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id",
+                                    "name",
+                                    "description",
+                                    "logo"
+                                ],
+                                "properties": {
+                                    "id": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "1"
+                                    },
+                                    "amount": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "10"
+                                    },
+                                    "payment_method": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "bkash"
+                                    },
+                                    "payment_date": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "12/12/2012"
+                                    },
+                                    "invoice_id": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "property_management.invoice_payment_management"
+                ],
+                "summary": "This method is to store invoice",
+                "description": "This method is to store invoice",
+                "operationId": "createInvoicePayment",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "description",
+                                    "logo"
+                                ],
+                                "properties": {
+                                    "amount": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "10"
+                                    },
+                                    "payment_method": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "bkash"
+                                    },
+                                    "payment_date": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "12/12/2012"
+                                    },
+                                    "invoice_id": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/invoice-payments/{perPage}": {
+            "get": {
+                "tags": [
+                    "property_management.invoice_payment_management"
+                ],
+                "summary": "This method is to get invoice-payments ",
+                "description": "This method is to get invoice-payments",
+                "operationId": "getInvoicePayments",
+                "parameters": [
+                    {
+                        "name": "perPage",
+                        "in": "path",
+                        "description": "perPage",
+                        "required": true,
+                        "example": "6"
+                    },
+                    {
+                        "name": "invoice_id",
+                        "in": "query",
+                        "description": "invoice_id",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "start_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "end_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "search_key",
+                        "required": true,
+                        "example": "search_key"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/invoice-payments/get/single/{invoice_id}/{id}": {
+            "get": {
+                "tags": [
+                    "property_management.invoice_payment_management"
+                ],
+                "summary": "This method is to get invoice by id",
+                "description": "This method is to get invoice by id",
+                "operationId": "getInvoicePaymentById",
+                "parameters": [
+                    {
+                        "name": "invoice_id",
+                        "in": "path",
+                        "description": "invoice_id",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "id",
+                        "required": true,
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/invoice-payments/{invoice_id}/{id}": {
+            "delete": {
+                "tags": [
+                    "property_management.invoice_payment_management"
+                ],
+                "summary": "This method is to delete invoice by id",
+                "description": "This method is to delete invoice by id",
+                "operationId": "deleteInvoicePaymentById",
                 "parameters": [
                     {
                         "name": "invoice_id",
@@ -17309,11 +17835,6 @@
                                         "format": "string",
                                         "example": "Rifat"
                                     },
-                                    "last_Name": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "Al"
-                                    },
                                     "address": {
                                         "type": "string",
                                         "format": "string",
@@ -17467,11 +17988,6 @@
                                         "type": "string",
                                         "format": "string",
                                         "example": "Rifat"
-                                    },
-                                    "last_Name": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "Al"
                                     },
                                     "address": {
                                         "type": "string",

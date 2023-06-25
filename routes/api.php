@@ -214,8 +214,8 @@ Route::delete('/v1.0/invoice-items/{invoice_id}/{id}', [InvoiceController::class
 Route::post('/v1.0/invoice-payments', [InvoicePaymentController::class, "createInvoicePayment"]);
 Route::put('/v1.0/invoice-payments', [InvoicePaymentController::class, "updateInvoicePayment"]);
 Route::get('/v1.0/invoice-payments/{perPage}', [InvoicePaymentController::class, "getInvoicePayments"]);
-Route::get('/v1.0/invoice-payments/get/single/{id}', [InvoicePaymentController::class, "getInvoicePaymentById"]);
-Route::delete('/v1.0/invoice-payments/{id}', [InvoicePaymentController::class, "deleteInvoicePaymentById"]);
+Route::get('/v1.0/invoice-payments/get/single/{invoice_id}/{id}', [InvoicePaymentController::class, "getInvoicePaymentById"]);
+Route::delete('/v1.0/invoice-payments/{invoice_id}/{id}', [InvoicePaymentController::class, "deleteInvoicePaymentById"]);
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // invoice payment management section

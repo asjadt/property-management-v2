@@ -124,7 +124,7 @@ public function createInvoiceImage(ImageUploadRequest $request)
  *            @OA\Property(property="invoice_summary", type="string", format="string",example="invoice_summary"),
  *            @OA\Property(property="business_name", type="string", format="string",example="business_name"),
  *  * *  @OA\Property(property="business_address", type="string", format="string",example="business_address"),
- *  * *  @OA\Property(property="total_amount", type="number", format="number",example="1"),
+ *  * *  @OA\Property(property="total_amount", type="number", format="number",example="900"),
  *  * *  @OA\Property(property="invoice_date", type="string", format="string",example="12/12/2012"),
  *  *  * *  @OA\Property(property="invoice_number", type="string", format="string",example="57856465"),
  *
@@ -281,7 +281,7 @@ public function createInvoice(InvoiceCreateRequest $request)
  *            @OA\Property(property="invoice_summary", type="string", format="string",example="invoice_summary"),
  *            @OA\Property(property="business_name", type="string", format="string",example="business_name"),
  *  * *  @OA\Property(property="business_address", type="string", format="string",example="business_address"),
- *  * *  @OA\Property(property="total_amount", type="number", format="number",example="1"),
+ *  * *  @OA\Property(property="total_amount", type="number", format="number",example="900"),
  *  * *  @OA\Property(property="invoice_date", type="string", format="string",example="12/12/2012"),
  *  *  *  * *  @OA\Property(property="invoice_number", type="string", format="string",example="57856465"),
  *  * *  @OA\Property(property="footer_text", type="string", format="string",example="footer_text"),
@@ -602,7 +602,7 @@ public function getInvoiceById($id, Request $request)
         $this->storeActivity($request,"");
 
 
-        $invoice = Invoice::with("invoice_items")
+        $invoice = Invoice::with("invoice_items","invoice_payments")
         ->where([
             "id" => $id
         ])
