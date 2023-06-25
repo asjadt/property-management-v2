@@ -22,7 +22,7 @@ class Invoice extends Model
         "invoice_summary",
         "business_name",
         "business_address",
-        "invoice_payment_due",
+        "total_amount",
         "invoice_date",
         "footer_text",
         "property_id",

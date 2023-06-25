@@ -120,7 +120,7 @@ public function createPropertyImage(ImageUploadRequest $request)
  *            required={"name","description","logo"},
  *  *             @OA\Property(property="image", type="string", format="string",example="image.jpg"),
   *             @OA\Property(property="name", type="string", format="string",example="Rifat"),
- *            @OA\Property(property="last_Name", type="string", format="string",example="Al"),
+
  *            @OA\Property(property="address", type="string", format="string",example="address"),
  *  * *  @OA\Property(property="country", type="string", format="string",example="country"),
  *  * *  @OA\Property(property="city", type="string", format="string",example="Dhaka"),
@@ -226,7 +226,7 @@ public function createProperty(PropertyCreateRequest $request)
  *     *             @OA\Property(property="id", type="number", format="number",example="1"),
  *  *             @OA\Property(property="image", type="string", format="string",example="image.jpg"),
   *             @OA\Property(property="name", type="string", format="string",example="Rifat"),
- *            @OA\Property(property="last_Name", type="string", format="string",example="Al"),
+
  *            @OA\Property(property="address", type="string", format="string",example="address"),
  *  * *  @OA\Property(property="country", type="string", format="string",example="country"),
  *  * *  @OA\Property(property="city", type="string", format="string",example="Dhaka"),
