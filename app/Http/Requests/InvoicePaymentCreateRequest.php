@@ -29,5 +29,14 @@ class InvoicePaymentCreateRequest extends FormRequest
             "payment_date"=>"required|date",
             "invoice_id"=>"required|numeric|exists:invoices,id",
         ];
+
+        // return [
+        //     "invoice_id"=>"required|numeric|exists:invoices,id",
+        //     "invoice_payments"=>"nullable|array",
+        //     "invoice_payments.*.id"=>"nullable|numeric|exists:invoice_payments,id",
+        //     "invoice_payments.*.amount"=>"required|numeric",
+        //     "invoice_payments.*.payment_method"=>"required|string",
+        //     "invoice_payments.*.payment_date"=>"required|date",
+        // ];
     }
 }

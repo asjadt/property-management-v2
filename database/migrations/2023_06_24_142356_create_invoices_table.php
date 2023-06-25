@@ -22,6 +22,7 @@ class CreateInvoicesTable extends Migration
             $table->string("business_name");
             $table->string("business_address");
             $table->string("invoice_payment_due")->default(0);
+            $table->string("invoice_total_amount")->nullable()->default(0);
             $table->date("invoice_date");
             $table->string("footer_text")->nullable();
             $table->string("invoice_number")->unique();

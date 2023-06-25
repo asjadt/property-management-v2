@@ -33,6 +33,9 @@ class Invoice extends Model
     public function invoice_items(){
         return $this->hasMany(InvoiceItem::class,'invoice_id', 'id');
     }
+    public function invoice_payments(){
+        return $this->hasMany(InvoicePayment::class,'invoice_id', 'id');
+    }
 
     public function tenant(){
         return $this->belongsTo(Tenant::class,'tenant_id', 'id');

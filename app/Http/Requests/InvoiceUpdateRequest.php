@@ -32,7 +32,6 @@ class InvoiceUpdateRequest extends FormRequest
             'invoice_number' => 'required|string|unique:invoices,invoice_number,' . $this->id . ',id',
             "business_name"=>"required|string",
             "business_address"=>"required|string",
-            "invoice_payment_due"=>"required|numeric",
             "invoice_date"=>"required|date",
             "footer_text"=>"required|string",
             "property_id"=>"required|numeric|exists:properties,id",
@@ -76,6 +75,16 @@ class InvoiceUpdateRequest extends FormRequest
             "invoice_items.*.price" => "required|numeric",
             "invoice_items.*.tax" => "required|numeric",
             "invoice_items.*.amount" => "required|numeric",
+
+
+
+            "total_amount"=>"required|numeric",
+            "invoice_payments"=>"nullable|array",
+            "invoice_payments.*.id"=>"nullable|numeric|exists:invoice_payments,id",
+            "invoice_payments.*.amount"=>"required|numeric",
+            "invoice_payments.*.payment_method"=>"required|string",
+            "invoice_payments.*.payment_date"=>"required|date",
+
 
         ];
     }

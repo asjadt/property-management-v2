@@ -6,6 +6,7 @@ use App\Http\Requests\InvoicePaymentCreateRequest;
 use App\Http\Requests\InvoicePaymentUpdateRequest;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
+use App\Models\Invoice;
 use App\Models\InvoicePayment;
 use Exception;
 use Illuminate\Http\Request;
@@ -85,7 +86,43 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
 
             $insertableData = $request->validated();
             $insertableData["created_by"] = $request->user()->id;
+
+            $invoice = Invoice::where([
+                "id" => $insertableData["invoice_id"]
+            ])
+            ->first();
+            if(!$invoice) {
+                throw new Exception("something went wrong");
+            }
+
+            $sum_payment_amounts = $invoice->invoice_items()->sum('amount');
+            $invoice_due = $invoice->total_amount - $sum_payment_amounts;
+
+
+
+            if($invoice_due < $insertableData["amount"]) {
+                $error =  [
+                    "message" => "The given data was invalid.",
+                    "errors" => ["amount"=>["amount is more than total amount"]]
+             ];
+                throw new Exception(json_encode($error),422);
+            }
+           else if($invoice_due == $insertableData["amount"]) {
+               $invoice->payment_status = "paid";
+               $invoice->save();
+            }
+            else {
+                $invoice->payment_status = "due";
+                $invoice->save();
+             }
+
+
+
             $invoice_payment =  InvoicePayment::create($insertableData);
+
+            if(!$invoice_payment) {
+                throw new Exception("something went wrong");
+            }
 
 
 
@@ -189,7 +226,34 @@ public function updateInvoicePayment(InvoicePaymentUpdateRequest $request)
             //  }
 
 
+            $invoice = Invoice::where([
+                "id" => $updatableData["invoice_id"]
+            ])
+            ->first();
+            if(!$invoice) {
+                throw new Exception("something went wrong");
+            }
 
+            $sum_payment_amounts = $invoice->invoice_items()->where('id', '!=', $updatableData["id"])->sum('amount');
+
+            $invoice_due = $invoice->total_amount - $sum_payment_amounts;
+
+
+            if($invoice_due < $updatableData["amount"]) {
+                $error =  [
+                    "message" => "The given data was invalid.",
+                    "errors" => ["amount"=>["amount is more than total amount"]]
+             ];
+                throw new Exception(json_encode($error),422);
+            }
+           else if($invoice_due == $updatableData["amount"]) {
+               $invoice->payment_status = "paid";
+               $invoice->save();
+            }
+            else {
+                $invoice->payment_status = "due";
+                $invoice->save();
+             }
 
             $invoice_payment  =  tap(InvoicePayment::where(["id" => $updatableData["id"]]))->update(
                 collect($updatableData)->only([

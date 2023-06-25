@@ -139,6 +139,13 @@ public function createInvoiceImage(ImageUploadRequest $request)
  *
  * }),
  *
+ *  *     *  * *  @OA\Property(property="invoice_payments", type="string", format="array",example={
+ *{"amount":"10","payment_method":"payment_method","payment_date":"12/12/2012"},
+ *{"amount":"10","payment_method":"payment_method","payment_date":"12/12/2012"}
+ *
+ * }),
+ *
+ *
  *         ),
  *      ),
  *      @OA\Response(
@@ -202,7 +209,39 @@ public function createInvoice(InvoiceCreateRequest $request)
 
             $invoice->invoice_items()->createMany($invoiceItems->all());
 
-            $invoice->load("invoice_items");
+
+            $invoicePayments = collect($insertableData["invoice_payments"])->map(function ($item) {
+                return [
+                    "amount" => $item["amount"],
+                    "payment_method" => $item["payment_method"],
+                    "payment_date" => $item["payment_date"],
+                ];
+            });
+            $sum_payment_amounts = $invoicePayments->sum('amount');
+
+            if($sum_payment_amounts > $invoice->total_amount) {
+                $error =  [
+                    "message" => "The given data was invalid.",
+                    "errors" => ["invoice_payments"=>["payment is more than total amount"]]
+             ];
+                throw new Exception(json_encode($error),422);
+            }
+
+
+
+            $invoice->invoice_payments()->createMany($invoicePayments->all());
+
+            if($sum_payment_amounts == $invoice->total_amount) {
+                $invoice->payment_status = "paid";
+                $invoice->save();
+             }
+             else {
+                $invoice->payment_status = "due";
+                $invoice->save();
+             }
+
+
+            $invoice->load(["invoice_items","invoice_payments"]);
             return response($invoice, 201);
 
 
@@ -253,6 +292,13 @@ public function createInvoice(InvoiceCreateRequest $request)
  *     *  * *  @OA\Property(property="invoice_items", type="string", format="array",example={
  *{"id":"1","name":"name","description":"description","quantity":"1","price":"1.1","tax":"20","amount":"300"},
   *{"id":"","name":"name","description":"description","quantity":"1","price":"1.1","tax":"20","amount":"300"}
+ *
+ * }),
+ *
+ *
+ *  *  *     *  * *  @OA\Property(property="invoice_payments", type="string", format="array",example={
+ *{"id":"1","amount":"10","payment_method":"payment_method","payment_date":"12/12/2012"},
+ *{"id":"","amount":"10","payment_method":"payment_method","payment_date":"12/12/2012"}
  *
  * }),
  *
@@ -317,9 +363,8 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                     "tenant_id",
                 ])->toArray()
             )
-
-
                 ->first();
+
                 if(!$invoice) {
                     throw new Exception("something went wrong");
                 }
@@ -339,7 +384,44 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 
                 $invoice->invoice_items()->upsert($invoiceItemsData->all(), ['id',"invoice_id"], ['name', 'description', 'quantity', 'price', 'tax', 'amount',"invoice_id"]);
 
-                $invoice->load("invoice_items");
+
+                $invoicePayments = collect($updatableData["invoice_payments"])->map(function ($item)use ($invoice) {
+                    return [
+                        "id" => $item["id"],
+                        "amount" => $item["amount"],
+                        "payment_method" => $item["payment_method"],
+                        "payment_date" => $item["payment_date"],
+                        "invoice_id" => $invoice->id
+                    ];
+                });
+                $sum_payment_amounts = $invoicePayments->sum('amount');
+
+                if($sum_payment_amounts > $invoice->total_amount) {
+                    $error =  [
+                        "message" => "The given data was invalid.",
+                        "errors" => ["invoice_payments"=>["payment is more than total amount"]]
+                 ];
+                    throw new Exception(json_encode($error),422);
+                }
+
+
+                $invoice->invoice_items()->upsert($invoicePayments->all(), ['id',"invoice_id"], ['amount', 'payment_method', 'payment_date', 'invoice_id']);
+
+
+                if($sum_payment_amounts == $invoice->total_amount) {
+                   $invoice->payment_status = "paid";
+                   $invoice->save();
+                }
+                else {
+                    $invoice->payment_status = "due";
+                    $invoice->save();
+                 }
+
+
+
+
+                $invoice->load(["invoice_items","invoice_payments"]);
+
             return response($invoice, 200);
         });
     } catch (Exception $e) {

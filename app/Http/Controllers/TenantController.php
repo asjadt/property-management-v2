@@ -178,6 +178,9 @@ public function createTenant(TenantCreateRequest $request)
             $insertableData = $request->validated();
             $insertableData["created_by"] = $request->user()->id;
             $tenant =  Tenant::create($insertableData);
+            if(!$tenant) {
+                throw new Exception("something went wrong");
+            }
 
 
 
@@ -310,6 +313,10 @@ public function updateTenant(TenantUpdateRequest $request)
                 // ->with("somthing")
 
                 ->first();
+                if(!$tenant) {
+                    throw new Exception("something went wrong");
+                }
+
 
             return response($tenant, 200);
         });
