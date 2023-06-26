@@ -221,6 +221,20 @@ Route::delete('/v1.0/invoice-payments/{invoice_id}/{id}', [InvoicePaymentControl
 // invoice payment management section
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// invoice reminder management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Route::post('/v1.0/invoice-reminders', [InvoiceReminderController::class, "createInvoiceReminder"]);
+Route::put('/v1.0/invoice-reminders', [InvoiceReminderController::class, "updateInvoiceReminder"]);
+Route::get('/v1.0/invoice-reminders/{perPage}', [InvoiceReminderController::class, "getInvoiceReminders"]);
+Route::get('/v1.0/invoice-reminders/get/single/{id}', [InvoiceReminderController::class, "getInvoiceReminderById"]);
+Route::delete('/v1.0/invoice-reminders/{id}', [InvoiceReminderController::class, "deleteInvoiceReminderById"]);
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+// invoice reminder management section
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // notification management section

@@ -408,23 +408,37 @@ public function getTenants($perPage, Request $request)
 
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $tenantQuery = new Tenant();
+        $tenantQuery =  Tenant::leftJoin('property_tenants', 'tenants.id', '=', 'property_tenants.tenant_id')
+        ->leftJoin('properties', 'property_tenants.property_id', '=', 'properties.id');
 
         if (!empty($request->search_key)) {
             $tenantQuery = $tenantQuery->where(function ($query) use ($request) {
                 $term = $request->search_key;
-                $query->where("name", "like", "%" . $term . "%");
+                $query->where("properties.name", "like", "%" . $term . "%");
+                $query->orWhere("tenants.first_Name", "like", "%" . $term . "%");
+                $query->orWhere("tenants.last_Name", "like", "%" . $term . "%");
+                $query->orWhere("tenants.phone", "like", "%" . $term . "%");
+                $query->orWhere("tenants.email", "like", "%" . $term . "%");
+
             });
         }
 
         if (!empty($request->start_date)) {
-            $tenantQuery = $tenantQuery->where('created_at', ">=", $request->start_date);
+            $tenantQuery = $tenantQuery->where('tenants.created_at', ">=", $request->start_date);
         }
         if (!empty($request->end_date)) {
-            $tenantQuery = $tenantQuery->where('created_at', "<=", $request->end_date);
+            $tenantQuery = $tenantQuery->where('tenants.created_at', "<=", $request->end_date);
         }
 
-        $tenants = $tenantQuery->orderByDesc("id")->paginate($perPage);
+
+
+        $tenants = $tenantQuery
+        ->groupBy("tenants.id")
+        ->select(
+            "tenants.*",
+            "properties.name as property_name"
+        )
+        ->orderByDesc("tenants.id")->paginate($perPage);
 
         return response()->json($tenants, 200);
     } catch (Exception $e) {
@@ -603,11 +617,6 @@ public function deleteTenantById($id, Request $request)
         return $this->sendError($e, 500,$request);
     }
 }
-
-
-
-
-
 
 
 
