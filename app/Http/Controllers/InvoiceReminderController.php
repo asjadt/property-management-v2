@@ -83,8 +83,11 @@ public function createInvoiceReminder(InvoiceReminderCreateRequest $request)
 
             $insertableData = $request->validated();
             $insertableData["created_by"] = $request->user()->id;
-            $invoice_reminder =  InvoiceReminder::create($insertableData);
+            $insertableData["reminder_status"] = "not_sent";
 
+            InvoiceReminder::updateOrCreate(['invoice_id' => $insertableData["invoice_id"]], $insertableData);
+
+             $invoice_reminder = InvoiceReminder::where('invoice_id', $insertableData["invoice_id"])->first();
 
 
             return response($invoice_reminder, 201);

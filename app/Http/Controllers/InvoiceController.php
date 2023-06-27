@@ -10,6 +10,7 @@ use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
+use App\Models\InvoiceReminder;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -122,6 +123,11 @@ public function createInvoiceImage(ImageUploadRequest $request)
  *  *             @OA\Property(property="logo", type="string", format="string",example="image.jpg"),
   *             @OA\Property(property="invoice_title", type="string", format="string",example="invoice_title"),
  *            @OA\Property(property="invoice_summary", type="string", format="string",example="invoice_summary"),
+ *  *            @OA\Property(property="reminder_date", type="string", format="string",example="12/12/2012"),
+ *
+ *  *  *            @OA\Property(property="send_reminder", type="number", format="number",example="0"),
+ *
+ *
  *            @OA\Property(property="business_name", type="string", format="string",example="business_name"),
  *  * *  @OA\Property(property="business_address", type="string", format="string",example="business_address"),
  *  * *  @OA\Property(property="total_amount", type="number", format="number",example="900"),
@@ -233,6 +239,7 @@ public function createInvoice(InvoiceCreateRequest $request)
 
             if($sum_payment_amounts == $invoice->total_amount) {
                 $invoice->payment_status = "paid";
+                $invoice->invoice_reminder()->delete();
                 $invoice->save();
              }
              else {
@@ -241,7 +248,29 @@ public function createInvoice(InvoiceCreateRequest $request)
              }
 
 
+
+            if(!empty($insertableData["reminder_date"])) {
+                InvoiceReminder::create(
+                    [
+                        "send_reminder" => !empty($insertableData["send_reminder"])?$insertableData["send_reminder"]:0,
+                        "reminder_date" =>$insertableData["reminder_date"],
+                        "invoice_id" => $invoice->id,
+                        "created_by" => $invoice->created_by
+                    ]
+                );
+            }
+
+
             $invoice->load(["invoice_items","invoice_payments"]);
+
+
+
+
+
+
+
+
+
             return response($invoice, 201);
 
 
@@ -279,6 +308,9 @@ public function createInvoice(InvoiceCreateRequest $request)
   *  *             @OA\Property(property="logo", type="string", format="string",example="image.jpg"),
   *             @OA\Property(property="invoice_title", type="string", format="string",example="invoice_title"),
  *            @OA\Property(property="invoice_summary", type="string", format="string",example="invoice_summary"),
+ * *            @OA\Property(property="reminder_date", type="string", format="string",example="12/12/2012"),
+ *  *  *  *            @OA\Property(property="send_reminder", type="number", format="number",example="0"),
+ *
  *            @OA\Property(property="business_name", type="string", format="string",example="business_name"),
  *  * *  @OA\Property(property="business_address", type="string", format="string",example="business_address"),
  *  * *  @OA\Property(property="total_amount", type="number", format="number",example="900"),
@@ -353,6 +385,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                     "logo",
                     "invoice_title",
                     "invoice_summary",
+
                     "business_name",
                     "business_address",
                     "total_amount",
@@ -410,6 +443,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 
                 if($sum_payment_amounts == $invoice->total_amount) {
                    $invoice->payment_status = "paid";
+                   $invoice->invoice_reminder()->delete();
                    $invoice->save();
                 }
                 else {
@@ -417,6 +451,22 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                     $invoice->save();
                  }
 
+
+                 if(!empty($insertableData["reminder_date"])) {
+                    InvoiceReminder::upsert(
+                    [
+                        [
+                            "send_reminder" => !empty($insertableData["send_reminder"])?$insertableData["send_reminder"]:0,
+                            "reminder_date" =>$insertableData["reminder_date"],
+                            "invoice_id" => $invoice->id,
+                            "created_by" => $invoice->created_by
+                        ]
+                    ],
+                    ['invoice_id'],
+                    ['send_reminder','reminder_date','invoice_id','created_by']
+                );
+
+                }
 
 
 
@@ -467,6 +517,28 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 * required=true,
 * example="search_key"
 * ),
+ * *  @OA\Parameter(
+* name="created_by",
+* in="query",
+* description="created_by",
+* required=true,
+* example="1"
+* ),
+ * *  @OA\Parameter(
+* name="is_overdue",
+* in="query",
+* description="is_overdue will return all if not set. if 0 it will return upcoming due date data and for 1 it will return ivoice whic due date passed",
+* required=true,
+* example="1"
+* ),
+ * *  @OA\Parameter(
+* name="invoice_number",
+* in="query",
+* description="invoice_number",
+* required=true,
+* example="1374"
+* ),
+
  *      summary="This method is to get invoices ",
  *      description="This method is to get invoices",
  *
@@ -512,24 +584,66 @@ public function getInvoices($perPage, Request $request)
 
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $invoiceQuery = new Invoice();
+        $invoiceQuery = Invoice::with("invoice_reminder")
+        ->leftJoin('invoice_reminders', 'invoices.id', '=', 'invoice_reminders.invoice_id')
+        // ->leftJoin('users', 'invoices.created_by', '=', 'users.id')
+        ;
 
-        if (!empty($request->search_key)) {
-            $invoiceQuery = $invoiceQuery->where(function ($query) use ($request) {
-                $term = $request->search_key;
-                $query->where("name", "like", "%" . $term . "%");
-            });
+
+        if (!empty($request->created_by)) {
+            $invoiceQuery =   $invoiceQuery->where("invoices.created_by", "like", "%" . $request->created_by . "%");
         }
 
+        if (!empty($request->is_overdue)) {
+            if ($request->is_overdue == 0) {
+                $invoiceQuery = $invoiceQuery->where('invoice_reminders.reminder_date', ">=", today());
+            }
+            else if($request->is_overdue == 1) {
+                $invoiceQuery = $invoiceQuery->where('invoice_reminders.reminder_date', "<", today());
+            }
+
+        }
+        if (!empty($request->invoice_number)) {
+            $invoiceQuery =   $invoiceQuery->where("invoices.invoice_number", "like", "%" . $request->invoice_number . "%");
+        }
+
+
+
+        // if (!empty($request->search_key)) {
+        //     $invoiceQuery = $invoiceQuery->where(function ($query) use ($request) {
+        //         $term = $request->search_key;
+        //         $query->where("name", "like", "%" . $term . "%");
+        //     });
+        // }
+
         if (!empty($request->start_date)) {
-            $invoiceQuery = $invoiceQuery->where('created_at', ">=", $request->start_date);
+            $invoiceQuery = $invoiceQuery->where('invoices.created_at', ">=", $request->start_date);
         }
 
         if (!empty($request->end_date)) {
-            $invoiceQuery = $invoiceQuery->where('created_at', "<=", $request->end_date);
+            $invoiceQuery = $invoiceQuery->where('invoices.created_at', "<=", $request->end_date);
         }
 
-        $invoices = $invoiceQuery->orderByDesc("id")->paginate($perPage);
+        $invoices = $invoiceQuery->
+        groupBy("invoices.id")
+        ->select("invoices.*",
+        DB::raw('
+        (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id) AS total_paid
+        '),
+        DB::raw('
+        (
+            invoices.total_amount
+            -
+            (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id)
+
+        )
+
+        AS total_due
+        '),
+        )
+
+
+        ->orderByDesc("invoices.id")->paginate($perPage);
 
         return response()->json($invoices, 200);
     } catch (Exception $e) {

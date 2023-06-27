@@ -14,6 +14,7 @@ class Invoice extends Model
         "logo",
         "invoice_title",
         "invoice_summary",
+        "invoice_number",
         "business_name",
         "business_address",
         "total_amount",
@@ -30,6 +31,10 @@ class Invoice extends Model
     }
     public function invoice_payments(){
         return $this->hasMany(InvoicePayment::class,'invoice_id', 'id');
+    }
+
+    public function invoice_reminder(){
+        return $this->hasOne(InvoiceReminder::class,'invoice_id', 'id');
     }
 
     public function tenant(){

@@ -109,6 +109,7 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
             }
            else if($invoice_due == $insertableData["amount"]) {
                $invoice->payment_status = "paid";
+               $invoice->invoice_reminder()->delete();
                $invoice->save();
             }
             else {
@@ -248,6 +249,7 @@ public function updateInvoicePayment(InvoicePaymentUpdateRequest $request)
             }
            else if($invoice_due == $updatableData["amount"]) {
                $invoice->payment_status = "paid";
+               $invoice->invoice_reminder()->delete();
                $invoice->save();
             }
             else {

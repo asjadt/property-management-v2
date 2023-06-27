@@ -28,6 +28,7 @@ class InvoiceCreateRequest extends FormRequest
             "logo"=>"nullable|string",
             "invoice_title"=>"required|string",
             "invoice_summary"=>"nullable|string",
+            "reminder_date" => "nullable|date",
             "invoice_number" => "required|string|unique:invoices,invoice_number",
             "business_name"=>"required|string",
             "business_address"=>"required|string",

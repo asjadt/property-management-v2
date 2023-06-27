@@ -28,6 +28,8 @@ class InvoiceUpdateRequest extends FormRequest
             "logo"=>"nullable|string",
             "invoice_title"=>"required|string",
             "invoice_summary"=>"nullable|string",
+            "reminder_date" => "nullable|date",
+            "send_reminder" => "nullable|boolean",
 
             'invoice_number' => 'required|string|unique:invoices,invoice_number,' . $this->id . ',id',
             "business_name"=>"required|string",
