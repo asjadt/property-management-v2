@@ -205,18 +205,10 @@ public function createRepairCategory(RepairCategoryCreateRequest $request)
  *         @OA\JsonContent(
  *            required={"id","name","description","logo"},
  *     *             @OA\Property(property="id", type="number", format="number",example="1"),
- *      *  *             @OA\Property(property="image", type="string", format="string",example="image.jpg"),
- *             @OA\Property(property="first_Name", type="string", format="string",example="Rifat"),
- *            @OA\Property(property="last_Name", type="string", format="string",example="Al"),
- *            @OA\Property(property="email", type="string", format="string",example="rifatalashwad0@gmail.com"),
- *  * *  @OA\Property(property="phone", type="string", format="boolean",example="01771034383"),
- *  * *  @OA\Property(property="address_line_1", type="string", format="boolean",example="dhaka"),
- *  * *  @OA\Property(property="address_line_2", type="string", format="boolean",example="dinajpur"),
- *  * *  @OA\Property(property="country", type="string", format="boolean",example="Bangladesh"),
- *  * *  @OA\Property(property="city", type="string", format="boolean",example="Dhaka"),
- *  * *  @OA\Property(property="postcode", type="string", format="boolean",example="1207"),
- *     *  * *  @OA\Property(property="lat", type="string", format="boolean",example="1207"),
- *     *  * *  @OA\Property(property="long", type="string", format="boolean",example="1207"),
+
+ *             @OA\Property(property="name", type="string", format="string",example="dfthth"),
+ *            @OA\Property(property="icon", type="string", format="string",example="Al.jpg"),
+
  *
  *         ),
  *      ),

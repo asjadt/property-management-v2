@@ -24,7 +24,7 @@ class RepairCategoryUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'=>"id|numeric|exists:repair_categories,id",
+            'id'=>"required|numeric|exists:repair_categories,id",
             'name'=>"required|string",
             'icon'=>"required|string",
         ];

@@ -32,7 +32,7 @@ class InvoiceReminderController extends Controller
  *         required=true,
  *         @OA\JsonContent(
  *            required={"name","description","logo"},
- *  *             @OA\Property(property="image", type="string", format="string",example="image.jpg"),
+
   *             @OA\Property(property="send_reminder", type="string", format="string",example="1"),
  *            @OA\Property(property="reminder_date", type="string", format="string",example="12/12/2012"),
  *            @OA\Property(property="invoice_id", type="string", format="string",example="1"),
@@ -121,7 +121,7 @@ public function createInvoiceReminder(InvoiceReminderCreateRequest $request)
  *         @OA\JsonContent(
  *            required={"id","name","description","logo"},
  *     *             @OA\Property(property="id", type="number", format="number",example="1"),
- *  *             @OA\Property(property="image", type="string", format="string",example="image.jpg"),
+
   *             @OA\Property(property="send_reminder", type="string", format="string",example="1"),
  *            @OA\Property(property="reminder_date", type="string", format="string",example="12/12/2012"),
  *            @OA\Property(property="invoice_id", type="string", format="string",example="1"),
@@ -191,18 +191,9 @@ public function updateInvoiceReminder(InvoiceReminderUpdateForm $request)
 
             $invoice_reminder  =  tap(InvoiceReminder::where(["id" => $updatableData["id"]]))->update(
                 collect($updatableData)->only([
-                    'first_Name',
-    'last_Name',
-    'phone',
-    'image',
-    'address_line_1',
-    'address_line_2',
-    'country',
-    'city',
-    'postcode',
-    "lat",
-    "long",
-    'email'
+                    "send_reminder",
+                    "reminder_date",
+                    "invoice_id",
                 ])->toArray()
             )
                 // ->with("somthing")
@@ -299,7 +290,7 @@ public function getInvoiceReminders($perPage, Request $request)
 
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $invoice_reminderQuery =  InvoiceReminder::with("invoice");
+        $invoice_reminderQuery =  InvoiceReminder::with("invoice")->leftJoin('invoices', 'invoice_reminders.invoice_id', '=', 'invoices.id');
 
         // if (!empty($request->search_key)) {
         //     $invoice_reminderQuery = $invoice_reminderQuery->where(function ($query) use ($request) {
@@ -309,13 +300,14 @@ public function getInvoiceReminders($perPage, Request $request)
         // }
 
         if (!empty($request->start_date)) {
-            $invoice_reminderQuery = $invoice_reminderQuery->where('created_at', ">=", $request->start_date);
+            $invoice_reminderQuery = $invoice_reminderQuery->where('invoice_reminders.created_at', ">=", $request->start_date);
         }
         if (!empty($request->end_date)) {
-            $invoice_reminderQuery = $invoice_reminderQuery->where('created_at', "<=", $request->end_date);
+            $invoice_reminderQuery = $invoice_reminderQuery->where('invoice_reminders.created_at', "<=", $request->end_date);
         }
 
-        $invoice_reminders = $invoice_reminderQuery->orderByDesc("id")->paginate($perPage);
+        $invoice_reminders = $invoice_reminderQuery
+        ->select("invoice_reminders.*")->orderByDesc("invoice_reminders.id")->paginate($perPage);
 
         return response()->json($invoice_reminders, 200);
     } catch (Exception $e) {
