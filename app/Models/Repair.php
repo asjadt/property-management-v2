@@ -10,13 +10,19 @@ class Repair extends Model
     use HasFactory;
     protected $fillable = [
         'property_id',
-        'repair_category',
+        'repair_category_id',
         'item_description',
         'receipt',
         'price',
         'create_date',
+        "created_by"
 
     ];
+
+    public function repair_category() {
+        return $this->hasMany(RepairCategory::class,'id','repair_category_id');
+    }
+
     public function property() {
         return $this->hasMany(Property::class,'id','property_id');
     }

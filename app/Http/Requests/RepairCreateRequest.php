@@ -25,7 +25,7 @@ class RepairCreateRequest extends FormRequest
     {
         return [
             'property_id'=> "required|numeric|exists:properties,id",
-            'repair_category'=>"required|string",
+            'repair_category_id'=>"required|numeric|exists:repair_categories,id",
             'item_description'=>"nullable|string",
             'receipt'=>"required|string",
             'price'=>"required|numeric",

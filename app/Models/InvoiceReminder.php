@@ -12,6 +12,7 @@ class InvoiceReminder extends Model
         "send_reminder",
         "reminder_date",
         "invoice_id",
+        "created_by"
     ];
 
     public function invoice(){

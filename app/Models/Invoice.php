@@ -28,6 +28,7 @@ class Invoice extends Model
         "property_id",
         "landlord_id",
         "tenant_id",
+        "created_by"
     ];
 
     public function invoice_items(){

@@ -38,6 +38,9 @@ class CreateInvoicesTable extends Migration
             $table->unsignedBigInteger("tenant_id")->nullable();
             $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('cascade');
 
+            $table->unsignedBigInteger("created_by");
+            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
+
             $table->timestamps();
         });
     }

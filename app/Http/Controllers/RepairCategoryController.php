@@ -2,41 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\FileUploadRequest;
-use App\Http\Requests\MultipleImageUploadRequest;
-use App\Http\Requests\RepairCreateRequest;
-use App\Http\Requests\RepairUpdateRequest;
+use App\Http\Requests\ImageUploadRequest;
+use App\Http\Requests\RepairCategoryCreateRequest;
+use App\Http\Requests\RepairCategoryUpdateRequest;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
-use App\Models\Repair;
+use App\Models\RepairCategory;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class RepairController extends Controller
+class RepairCategoryController extends Controller
 {
     use ErrorUtil, UserActivityUtil;
-
-  /**
+    /**
     *
  * @OA\Post(
- *      path="/v1.0/repair-receipts-file",
- *      operationId="createRepairReceiptFile",
- *      tags={"property_management.repair_management"},
+ *      path="/v1.0/repair-category-icon",
+ *      operationId="createRepairCategoryImage",
+ *      tags={"property_management.repair_category_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
- *      summary="This method is to store reciept image",
- *      description="This method is to store reciept image",
+ *      summary="This method is to store repair category logo",
+ *      description="This method is to store repair category logo",
  *
 *  @OA\RequestBody(
     *   * @OA\MediaType(
 *     mediaType="multipart/form-data",
 *     @OA\Schema(
-*         required={"file"},
+*         required={"image"},
 *         @OA\Property(
-*             description="file to upload",
-*             property="file",
+*             description="image to upload",
+*             property="image",
 *             type="file",
 *             collectionFormat="multi",
 *         )
@@ -80,21 +78,21 @@ class RepairController extends Controller
  *     )
  */
 
-public function createRepairReceiptFile(FileUploadRequest $request)
+public function createRepairCategoryImage(ImageUploadRequest $request)
 {
     try{
         $this->storeActivity($request,"");
 
         $insertableData = $request->validated();
 
-        $location =  config("setup-config.repair_receipt_file");
+        $location =  config("setup-config.repair_category_image");
 
-        $new_file_name = time() . '_' . $insertableData["file"]->getClientOriginalName();
+        $new_file_name = time() . '_' . $insertableData["image"]->getClientOriginalName();
 
-        $insertableData["file"]->move(public_path($location), $new_file_name);
+        $insertableData["image"]->move(public_path($location), $new_file_name);
 
 
-        return response()->json(["file" => $new_file_name,"location" => $location,"full_location"=>("/".$location."/".$new_file_name)], 200);
+        return response()->json(["image" => $new_file_name,"location" => $location,"full_location"=>("/".$location."/".$new_file_name)], 200);
 
 
     } catch(Exception $e){
@@ -103,127 +101,25 @@ public function createRepairReceiptFile(FileUploadRequest $request)
     }
 }
 
- /**
-        *
-     * @OA\Post(
-     *      path="/v1.0/repair-images/multiple",
-     *      operationId="createRepairImageMultiple",
-     *      tags={"property_management.repair_management"},
-     *       security={
-     *           {"bearerAuth": {}}
-     *       },
 
-     *      summary="This method is to store multiple repair request",
-     *      description="This method is to store multiple repair request",
-     *
-   *  @OA\RequestBody(
-        *   * @OA\MediaType(
-*     mediaType="multipart/form-data",
-*     @OA\Schema(
-*         required={"images[]"},
-*         @OA\Property(
-*             description="array of images to upload",
-*             property="images[]",
-*             type="array",
-*             @OA\Items(
-*                 type="file"
-*             ),
-*             collectionFormat="multi",
-*         )
-*     )
-* )
-
-
-
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Successful operation",
-     *       @OA\JsonContent(),
-     *       ),
-     *      @OA\Response(
-     *          response=401,
-     *          description="Unauthenticated",
-     * @OA\JsonContent(),
-     *      ),
-     *        @OA\Response(
-     *          response=422,
-     *          description="Unprocesseble Content",
-     *    @OA\JsonContent(),
-     *      ),
-     *      @OA\Response(
-     *          response=403,
-     *          description="Forbidden",
-     *   @OA\JsonContent()
-     * ),
-     *  * @OA\Response(
-     *      response=400,
-     *      description="Bad Request",
-     *   *@OA\JsonContent()
-     *   ),
-     * @OA\Response(
-     *      response=404,
-     *      description="not found",
-     *   *@OA\JsonContent()
-     *   )
-     *      )
-     *     )
-     */
-
-    public function createRepairImageMultiple(MultipleImageUploadRequest $request)
-    {
-        try{
-            $this->storeActivity($request,"");
-
-            $insertableData = $request->validated();
-
-            $location =  config("setup-config.repair_image");
-
-            $images = [];
-            if(!empty($insertableData["images"])) {
-                foreach($insertableData["images"] as $image){
-                    $new_file_name = time() . '_' . $image->getClientOriginalName();
-                    $image->move(public_path($location), $new_file_name);
-
-                    array_push($images,("/".$location."/".$new_file_name));
-
-
-                }
-            }
-
-
-            return response()->json(["images" => $images], 201);
-
-
-        } catch(Exception $e){
-            error_log($e->getMessage());
-        return $this->sendError($e,500,$request);
-        }
-    }
 /**
  *
  * @OA\Post(
- *      path="/v1.0/repairs",
- *      operationId="createRepair",
- *      tags={"property_management.repair_management"},
+ *      path="/v1.0/repair-categories",
+ *      operationId="createRepairCategory",
+ *      tags={"property_management.repair_category_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
- *      summary="This method is to store repair",
- *      description="This method is to store repair",
+ *      summary="This method is to store repair category",
+ *      description="This method is to store repair category",
  *
  *  @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
  *            required={"name","description","logo"},
- *  *             @OA\Property(property="property_id", type="number", format="number",example="1"),
-  *             @OA\Property(property="repair_category_id", type="string", format="string",example="1"),
- *            @OA\Property(property="item_description", type="string", format="string",example="item_description"),
- *            @OA\Property(property="receipt", type="string", format="string",example="receipt"),
- *  * *  @OA\Property(property="price", type="string", format="string",example="10"),
- *  * *  @OA\Property(property="create_date", type="string", format="string",example="12/12/2012"),
- *  * *  @OA\Property(property="images", type="string", format="array",example={"a.jpg","b.jpg","c.jpg"}),
-
+ *  *             @OA\Property(property="icon", type="string", format="string",example="image.jpg"),
+  *             @OA\Property(property="name", type="string", format="string",example="Rifat"),
  *
  *         ),
  *      ),
@@ -261,7 +157,7 @@ public function createRepairReceiptFile(FileUploadRequest $request)
  *     )
  */
 
-public function createRepair(RepairCreateRequest $request)
+public function createRepairCategory(RepairCategoryCreateRequest $request)
 {
     try {
         $this->storeActivity($request,"");
@@ -271,22 +167,11 @@ public function createRepair(RepairCreateRequest $request)
 
             $insertableData = $request->validated();
             $insertableData["created_by"] = $request->user()->id;
-            $repair =  Repair::create($insertableData);
-
-            if(!$repair) {
-                throw new Exception("something went wrong");
-            }
-
-            $repair->repair_images()->createMany(
-                collect($insertableData["images"])->map(function ($image) {
-                    return [
-                        'image' => $image,
-                    ];
-                })
-            );
+            $repair_category =  RepairCategory::create($insertableData);
 
 
-            return response($repair, 201);
+
+            return response($repair_category, 201);
 
 
 
@@ -306,28 +191,32 @@ public function createRepair(RepairCreateRequest $request)
 /**
  *
  * @OA\Put(
- *      path="/v1.0/repairs",
- *      operationId="updateRepair",
- *      tags={"property_management.repair_management"},
+ *      path="/v1.0/repair-categories",
+ *      operationId="updateRepairCategory",
+ *      tags={"property_management.repair_category_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
- *      summary="This method is to update repair",
- *      description="This method is to update repair",
+ *      summary="This method is to update repair category",
+ *      description="This method is to update repair category",
  *
  *  @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
  *            required={"id","name","description","logo"},
  *     *             @OA\Property(property="id", type="number", format="number",example="1"),
- *  *             @OA\Property(property="property_id", type="number", format="number",example="1"),
-  *             @OA\Property(property="repair_category_id", type="string", format="string",example="1"),
- *            @OA\Property(property="item_description", type="string", format="string",example="item_description"),
- *            @OA\Property(property="receipt", type="string", format="string",example="receipt"),
- *  * *  @OA\Property(property="price", type="string", format="string",example="10"),
- *  * *  @OA\Property(property="create_date", type="string", format="string",example="12/12/2012"),
- *  * *  @OA\Property(property="images", type="string", format="array",example={"a.jpg","b.jpg","c.jpg"}),
-
+ *      *  *             @OA\Property(property="image", type="string", format="string",example="image.jpg"),
+ *             @OA\Property(property="first_Name", type="string", format="string",example="Rifat"),
+ *            @OA\Property(property="last_Name", type="string", format="string",example="Al"),
+ *            @OA\Property(property="email", type="string", format="string",example="rifatalashwad0@gmail.com"),
+ *  * *  @OA\Property(property="phone", type="string", format="boolean",example="01771034383"),
+ *  * *  @OA\Property(property="address_line_1", type="string", format="boolean",example="dhaka"),
+ *  * *  @OA\Property(property="address_line_2", type="string", format="boolean",example="dinajpur"),
+ *  * *  @OA\Property(property="country", type="string", format="boolean",example="Bangladesh"),
+ *  * *  @OA\Property(property="city", type="string", format="boolean",example="Dhaka"),
+ *  * *  @OA\Property(property="postcode", type="string", format="boolean",example="1207"),
+ *     *  * *  @OA\Property(property="lat", type="string", format="boolean",example="1207"),
+ *     *  * *  @OA\Property(property="long", type="string", format="boolean",example="1207"),
  *
  *         ),
  *      ),
@@ -365,48 +254,45 @@ public function createRepair(RepairCreateRequest $request)
  *     )
  */
 
-public function updateRepair(RepairUpdateRequest $request)
+public function updateRepairCategory(RepairCategoryUpdateRequest $request)
 {
     try {
         $this->storeActivity($request,"");
-
         return  DB::transaction(function () use ($request) {
 
             $updatableData = $request->validated();
 
+            // $affiliationPrev = RepairCategory::where([
+            //     "id" => $updatableData["id"]
+            //    ]);
+
+            //    if(!$request->user()->hasRole('superadmin')) {
+            //     $affiliationPrev =    $affiliationPrev->where([
+            //         "created_by" =>$request->user()->id
+            //     ]);
+            // }
+            // $affiliationPrev = $affiliationPrev->first();
+            //  if(!$affiliationPrev) {
+            //         return response()->json([
+            //            "message" => "you did not create this affiliation."
+            //         ],404);
+            //  }
 
 
 
 
-            $repair  =  tap(Repair::where(["id" => $updatableData["id"]]))->update(
+            $repair_category  =  tap(RepairCategory::where(["id" => $updatableData["id"]]))->update(
                 collect($updatableData)->only([
-                    'property_id',
-                    'repair_category_id',
-                    'item_description',
-                    'receipt',
-                    'price',
-                    'create_date',
+    'name',
+    'icon',
+
                 ])->toArray()
             )
                 // ->with("somthing")
 
                 ->first();
 
-                if(!$repair) {
-                    throw new Exception("something went wrong");
-                }
-
-                $repair->repair_images()->createMany(
-                    collect($updatableData["images"])->map(function ($image) {
-                        return [
-                            'image' => $image,
-                        ];
-                    })
-                );
-
-
-
-            return response($repair, 200);
+            return response($repair_category, 200);
         });
     } catch (Exception $e) {
         error_log($e->getMessage());
@@ -416,9 +302,9 @@ public function updateRepair(RepairUpdateRequest $request)
 /**
  *
  * @OA\Get(
- *      path="/v1.0/repairs/{perPage}",
- *      operationId="getRepairs",
- *      tags={"property_management.repair_management"},
+ *      path="/v1.0/repair-categories/{perPage}",
+ *      operationId="getRepairCategories",
+ *      tags={"property_management.repair_category_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
@@ -451,8 +337,8 @@ public function updateRepair(RepairUpdateRequest $request)
 * required=true,
 * example="search_key"
 * ),
- *      summary="This method is to get repairs ",
- *      description="This method is to get repairs",
+ *      summary="This method is to get repair categories ",
+ *      description="This method is to get repair categories",
  *
 
  *      @OA\Response(
@@ -489,32 +375,32 @@ public function updateRepair(RepairUpdateRequest $request)
  *     )
  */
 
-public function getRepairs($perPage, Request $request)
+public function getRepairCategories($perPage, Request $request)
 {
     try {
         $this->storeActivity($request,"");
 
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $repairQuery =  Repair::with("repair_category");
+        $repair_categoryQuery = new RepairCategory();
 
         if (!empty($request->search_key)) {
-            $repairQuery = $repairQuery->where(function ($query) use ($request) {
+            $repair_categoryQuery = $repair_categoryQuery->where(function ($query) use ($request) {
                 $term = $request->search_key;
                 $query->where("name", "like", "%" . $term . "%");
             });
         }
 
         if (!empty($request->start_date)) {
-            $repairQuery = $repairQuery->where('created_at', ">=", $request->start_date);
+            $repair_categoryQuery = $repair_categoryQuery->where('created_at', ">=", $request->start_date);
         }
         if (!empty($request->end_date)) {
-            $repairQuery = $repairQuery->where('created_at', "<=", $request->end_date);
+            $repair_categoryQuery = $repair_categoryQuery->where('created_at', "<=", $request->end_date);
         }
 
-        $repairs = $repairQuery->orderByDesc("id")->paginate($perPage);
+        $repair_categories = $repair_categoryQuery->orderByDesc("id")->paginate($perPage);
 
-        return response()->json($repairs, 200);
+        return response()->json($repair_categories, 200);
     } catch (Exception $e) {
 
         return $this->sendError($e, 500,$request);
@@ -526,9 +412,9 @@ public function getRepairs($perPage, Request $request)
 /**
  *
  * @OA\Get(
- *      path="/v1.0/repairs/get/single/{id}",
- *      operationId="getRepairById",
- *      tags={"property_management.repair_management"},
+ *      path="/v1.0/repair-categories/get/single/{id}",
+ *      operationId="getRepairCategoryById",
+ *      tags={"property_management.repair_category_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
@@ -541,8 +427,8 @@ public function getRepairs($perPage, Request $request)
  *  example="1"
  *      ),
 
- *      summary="This method is to get repair by id",
- *      description="This method is to get repair by id",
+ *      summary="This method is to get repair category by id",
+ *      description="This method is to get repair category by id",
  *
 
  *      @OA\Response(
@@ -579,26 +465,25 @@ public function getRepairs($perPage, Request $request)
  *     )
  */
 
-public function getRepairById($id, Request $request)
+public function getRepairCategoryById($id, Request $request)
 {
     try {
         $this->storeActivity($request,"");
 
 
-        $repair = Repair::with("repair_category")
-        ->where([
+        $repair_category = RepairCategory::where([
             "id" => $id
         ])
         ->first();
 
-        if(!$repair) {
+        if(!$repair_category) {
      return response()->json([
-"message" => "no repair found"
+"message" => "no repair category found"
 ],404);
         }
 
 
-        return response()->json($repair, 200);
+        return response()->json($repair_category, 200);
     } catch (Exception $e) {
 
         return $this->sendError($e, 500,$request);
@@ -617,9 +502,9 @@ public function getRepairById($id, Request $request)
 /**
  *
  *     @OA\Delete(
- *      path="/v1.0/repairs/{id}",
- *      operationId="deleteRepairById",
- *      tags={"property_management.repair_management"},
+ *      path="/v1.0/repair-categories/{id}",
+ *      operationId="deleteRepairCategoryById",
+ *      tags={"property_management.repair_category_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
@@ -630,8 +515,8 @@ public function getRepairById($id, Request $request)
  *         required=true,
  *  example="1"
  *      ),
- *      summary="This method is to delete repair by id",
- *      description="This method is to delete repair by id",
+ *      summary="This method is to delete repair category by id",
+ *      description="This method is to delete repair category by id",
  *
 
  *      @OA\Response(
@@ -668,26 +553,24 @@ public function getRepairById($id, Request $request)
  *     )
  */
 
-public function deleteRepairById($id, Request $request)
+public function deleteRepairCategoryById($id, Request $request)
 {
 
     try {
         $this->storeActivity($request,"");
 
 
-
-
-        $repair = Repair::where([
+        $repair_category = RepairCategory::where([
             "id" => $id
         ])
         ->first();
 
-        if(!$repair) {
+        if(!$repair_category) {
      return response()->json([
-"message" => "no repair found"
+"message" => "no repair category found"
 ],404);
         }
-        $repair->delete();
+        $repair_category->delete();
 
         return response()->json(["ok" => true], 200);
     } catch (Exception $e) {
@@ -695,5 +578,4 @@ public function deleteRepairById($id, Request $request)
         return $this->sendError($e, 500,$request);
     }
 }
-
 }

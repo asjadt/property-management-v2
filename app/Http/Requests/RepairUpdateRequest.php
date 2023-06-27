@@ -26,7 +26,7 @@ class RepairUpdateRequest extends FormRequest
         return [
             'id'=> "required|numeric|exists:repairs,id",
             'property_id'=> "required|numeric|exists:properties,id",
-            'repair_category'=>"required|string",
+            'repair_category'=>"required|numeric|exists:repair_categories,id",
             'item_description'=>"nullable|string",
             'receipt'=>"required|string",
             'price'=>"required|numeric",

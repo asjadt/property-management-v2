@@ -37,6 +37,7 @@ use App\Http\Controllers\PaymentTypeController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\RepairCategoryController;
 use App\Http\Controllers\RepairController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\RolesController;
@@ -171,6 +172,20 @@ Route::delete('/v1.0/properties/{id}', [PropertyController::class, "deleteProper
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// repair category management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Route::post('/v1.0/repair-category-icon', [RepairCategoryController::class, "createRepairCategoryImage"]);
+Route::post('/v1.0/repair-categories', [RepairCategoryController::class, "createRepairCategory"]);
+Route::put('/v1.0/repair-categories', [RepairCategoryController::class, "updateRepairCategory"]);
+Route::get('/v1.0/repair-categories/{perPage}', [RepairCategoryController::class, "getRepairCategories"]);
+Route::get('/v1.0/repair-categories/get/single/{id}', [RepairCategoryController::class, "getRepairCategoryById"]);
+Route::delete('/v1.0/repair-categories/{id}', [RepairCategoryController::class, "deleteRepairCategoryById"]);
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+// repair category management section
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // Repair management section
@@ -191,9 +206,10 @@ Route::delete('/v1.0/repairs/{id}', [RepairController::class, "deleteRepairById"
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // Invoice management section
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 Route::post('/v1.0/invoice-image', [InvoiceController::class, "createInvoiceImage"]);
 Route::post('/v1.0/invoices', [InvoiceController::class, "createInvoice"]);
 Route::put('/v1.0/invoices', [InvoiceController::class, "updateInvoice"]);
@@ -221,7 +237,7 @@ Route::delete('/v1.0/invoice-payments/{invoice_id}/{id}', [InvoicePaymentControl
 // invoice payment management section
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // invoice reminder management section
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 

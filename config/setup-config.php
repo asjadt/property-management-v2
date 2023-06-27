@@ -31,6 +31,7 @@ return [
     "property_image" => "property_image",
     "repair_image" => "repair_image",
     "repair_receipt_file" => "repair_receipt_file",
-    "invoice_image" => "invoice_image"
+    "invoice_image" => "invoice_image",
+    "repair_category_image" => "repair_category_image"
 
 ];

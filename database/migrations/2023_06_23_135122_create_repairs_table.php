@@ -19,7 +19,10 @@ class CreateRepairsTable extends Migration
             $table->unsignedBigInteger('property_id');
             $table->foreign('property_id')->references('id')->on('properties')->onDelete('cascade');
 
-            $table->string('repair_category');
+
+            $table->unsignedBigInteger("repair_category_id");
+            $table->foreign('repair_category_id')->references('id')->on('repair_categories')->onDelete('cascade');
+
             $table->string('item_description')->nullable();
             $table->string('receipt');
             $table->double('price')->default(0);;
@@ -29,7 +32,8 @@ class CreateRepairsTable extends Migration
 
 
             $table->string('is_active')->default(false);
-            $table->unsignedBigInteger("created_by")->nullable();
+
+            $table->unsignedBigInteger("created_by");
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
 
 

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateInvoiceRemindersTable extends Migration
+class CreateRepairCategoriesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,22 +13,14 @@ class CreateInvoiceRemindersTable extends Migration
      */
     public function up()
     {
-        Schema::create('invoice_reminders', function (Blueprint $table) {
+        Schema::create('repair_categories', function (Blueprint $table) {
             $table->id();
-
-            $table->boolean("send_reminder")->default(0);
-
-            $table->enum("reminder_status",['sent', 'not_sent'])->default("not_sent")->nullable();
-
-            $table->date("reminder_date");
-
-
-            $table->unsignedBigInteger("invoice_id");
-            $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
-
+            $table->string("name");
+            $table->string("icon");
 
             $table->unsignedBigInteger("created_by");
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
+            
             $table->timestamps();
         });
     }
@@ -40,6 +32,6 @@ class CreateInvoiceRemindersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('invoice_reminders');
+        Schema::dropIfExists('repair_categories');
     }
 }
