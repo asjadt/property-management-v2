@@ -365,6 +365,13 @@ public function updateProperty(PropertyUpdateRequest $request)
 * required=true,
 * example="search_key"
 * ),
+ * *  @OA\Parameter(
+* name="address",
+* in="query",
+* description="address",
+* required=true,
+* example="address"
+* ),
  *      summary="This method is to get properties ",
  *      description="This method is to get properties",
  *
@@ -416,7 +423,12 @@ public function getProperties($perPage, Request $request)
             $propertyQuery = $propertyQuery->where(function ($query) use ($request) {
                 $term = $request->search_key;
                 $query->where("name", "like", "%" . $term . "%");
+                $query->orWhere("address", "like", "%" . $term . "%");
             });
+        }
+
+        if (!empty($request->address)) {
+            $propertyQuery =  $propertyQuery->orWhere("address", "like", "%" . $request->address . "%");
         }
 
         if (!empty($request->start_date)) {

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateRepairCategoriesTable extends Migration
+class CreateReceiptsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,16 @@ class CreateRepairCategoriesTable extends Migration
      */
     public function up()
     {
-        Schema::create('repair_categories', function (Blueprint $table) {
+        Schema::create('receipts', function (Blueprint $table) {
             $table->id();
-            $table->string("name");
-            $table->string("icon");
-
+            $table->date("receipt_date");
+            $table->string("receipt_by");
+            $table->double("amount");
+            $table->string("property_address");
+            $table->unsignedBigInteger("tenant_id");
+            $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('cascade');
             $table->unsignedBigInteger("created_by");
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
-
             $table->softDeletes();
             $table->timestamps();
         });
@@ -33,6 +35,6 @@ class CreateRepairCategoriesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('repair_categories');
+        Schema::dropIfExists('receipts');
     }
 }

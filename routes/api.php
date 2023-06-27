@@ -38,6 +38,7 @@ use App\Http\Controllers\PaymentTypeController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\RepairCategoryController;
 use App\Http\Controllers\RepairController;
 use App\Http\Controllers\ReviewController;
@@ -141,6 +142,7 @@ Route::delete('/v1.0/landlords/{id}', [LandlordController::class, "deleteLandlor
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // Landlord management section
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 // Tenant management section
@@ -250,7 +252,25 @@ Route::delete('/v1.0/invoice-reminders/{id}', [InvoiceReminderController::class,
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // invoice reminder management section
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// receipt management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Route::post('/v1.0/receipts', [ReceiptController::class, "createReceipt"]);
+Route::put('/v1.0/receipts', [ReceiptController::class, "updateReceipt"]);
+Route::get('/v1.0/receipts/{perPage}', [ReceiptController::class, "getReceipts"]);
+Route::get('/v1.0/receipts/get/single/{id}', [ReceiptController::class, "getReceiptById"]);
+Route::delete('/v1.0/receipts/{id}', [ReceiptController::class, "deleteReceiptById"]);
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+// receipt management section
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
 
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
