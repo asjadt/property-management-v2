@@ -300,7 +300,7 @@ class ReceiptController extends Controller
             if (!empty($request->search_key)) {
                 $receiptQuery = $receiptQuery->where(function ($query) use ($request) {
                     $term = $request->search_key;
-                    $query->where("name", "like", "%" . $term . "%");
+                    $query->where("property_address", "like", "%" . $term . "%");
                 });
             }
 

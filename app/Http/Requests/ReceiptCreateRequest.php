@@ -25,7 +25,7 @@ class ReceiptCreateRequest extends FormRequest
     {
         return [
             'tenant_id' => "required|numeric|exists:tenants,id",
-            'property_address' => "required|string",
+            'property_address' => "required|string|exists:properties,address",
             'amount' => "required|numeric",
             'receipt_by' => "required|string",
             'receipt_date' => "required|date",
