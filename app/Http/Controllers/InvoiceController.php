@@ -249,15 +249,18 @@ public function createInvoice(InvoiceCreateRequest $request)
 
 
 
-            if(!empty($insertableData["reminder_date"])) {
-                InvoiceReminder::create(
-                    [
-                        "send_reminder" => !empty($insertableData["send_reminder"])?$insertableData["send_reminder"]:0,
-                        "reminder_date" =>$insertableData["reminder_date"],
-                        "invoice_id" => $invoice->id,
-                        "created_by" => $invoice->created_by
-                    ]
-                );
+             if(!empty($insertableData["reminder_date"]) &&  $invoice->payment_status != "paid") {
+
+
+
+                InvoiceReminder::updateOrCreate(['invoice_id' => $invoice->id],  [
+                    "send_reminder" => !empty($insertableData["send_reminder"])?$insertableData["send_reminder"]:0,
+                    "reminder_date" =>$insertableData["reminder_date"],
+                    "invoice_id" => $invoice->id,
+                    "created_by" => $invoice->created_by
+                ]);
+
+
             }
 
 
@@ -452,19 +455,18 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                  }
 
 
-                 if(!empty($insertableData["reminder_date"])) {
-                    InvoiceReminder::upsert(
-                    [
-                        [
-                            "send_reminder" => !empty($insertableData["send_reminder"])?$insertableData["send_reminder"]:0,
-                            "reminder_date" =>$insertableData["reminder_date"],
-                            "invoice_id" => $invoice->id,
-                            "created_by" => $invoice->created_by
-                        ]
-                    ],
-                    ['invoice_id'],
-                    ['send_reminder','reminder_date','invoice_id','created_by']
-                );
+                 if(!empty($updatableData["reminder_date"]) &&  $invoice->payment_status != "paid") {
+
+
+
+                    InvoiceReminder::updateOrCreate(['invoice_id' => $invoice->id],  [
+                        "send_reminder" => !empty($updatableData["send_reminder"])?$updatableData["send_reminder"]:0,
+                        "reminder_date" =>$updatableData["reminder_date"],
+                        "invoice_id" => $invoice->id,
+                        "created_by" => $invoice->created_by
+                    ]);
+
+
 
                 }
 
