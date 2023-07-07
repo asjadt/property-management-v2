@@ -232,40 +232,39 @@ public function createInvoice(InvoiceCreateRequest $request)
             $invoice->invoice_items()->createMany($invoiceItems->all());
 
 
-            $invoicePayments = collect($insertableData["invoice_payments"])->map(function ($item) {
-                return [
-                    "amount" => $item["amount"],
-                    "payment_method" => $item["payment_method"],
-                    "payment_date" => $item["payment_date"],
-                ];
-            });
-            $sum_payment_amounts = $invoicePayments->sum('amount');
+            // $invoicePayments = collect($insertableData["invoice_payments"])->map(function ($item) {
+            //     return [
+            //         "amount" => $item["amount"],
+            //         "payment_method" => $item["payment_method"],
+            //         "payment_date" => $item["payment_date"],
+            //     ];
+            // });
+            // $sum_payment_amounts = $invoicePayments->sum('amount');
 
-            if($sum_payment_amounts > $invoice->total_amount) {
-                $error =  [
-                    "message" => "The given data was invalid.",
-                    "errors" => ["invoice_payments"=>["payment is more than total amount"]]
-             ];
-                throw new Exception(json_encode($error),422);
-            }
-
-
-
-            $invoice->invoice_payments()->createMany($invoicePayments->all());
-
-            if($sum_payment_amounts == $invoice->total_amount) {
-                $invoice->payment_status = "paid";
-                $invoice->invoice_reminder()->delete();
-                $invoice->save();
-             }
-             else {
-                $invoice->payment_status = "due";
-                $invoice->save();
-             }
+            // if($sum_payment_amounts > $invoice->total_amount) {
+            //     $error =  [
+            //         "message" => "The given data was invalid.",
+            //         "errors" => ["invoice_payments"=>["payment is more than total amount"]]
+            //  ];
+            //     throw new Exception(json_encode($error),422);
+            // }
 
 
 
-             if(!empty($insertableData["reminder_dates"]) &&  $invoice->payment_status != "paid") {
+            // $invoice->invoice_payments()->createMany($invoicePayments->all());
+
+            // if($sum_payment_amounts == $invoice->total_amount) {
+            //     $invoice->status = "paid";
+            //     $invoice->invoice_reminder()->delete();
+            //     $invoice->save();
+            //  }
+            //  else {
+
+            //  }
+
+
+
+             if(!empty($insertableData["reminder_dates"]) &&  $invoice->status != "paid") {
 
                 InvoiceReminder::where([
                     "invoice_id" => $invoice->id
@@ -279,6 +278,7 @@ public function createInvoice(InvoiceCreateRequest $request)
      $reminder_date = $due_date->format('d-m-Y');
 
      InvoiceReminder::create([
+        "reminder_status" => "not_sent",
         "send_reminder" => !empty($insertableData["send_reminder"])?$insertableData["send_reminder"]:0,
         "reminder_date" =>$reminder_date,
         "invoice_id" => $invoice->id,
@@ -427,7 +427,10 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 
 
 
-            $invoice  =  tap(Invoice::where(["id" => $updatableData["id"]]))->update(
+            $invoice  =  tap(Invoice::where([
+                "id" => $updatableData["id"],
+                "invoices.created_by" => $request->user()->id
+            ]))->update(
                 collect($updatableData)->only([
                     "logo",
                     "invoice_title",
@@ -471,41 +474,40 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                 $invoice->invoice_items()->upsert($invoiceItemsData->all(), ['id',"invoice_id"], ['name', 'description', 'quantity', 'price', 'tax', 'amount',"invoice_id"]);
 
 
-                $invoicePayments = collect($updatableData["invoice_payments"])->map(function ($item)use ($invoice) {
-                    return [
-                        "id" => $item["id"],
-                        "amount" => $item["amount"],
-                        "payment_method" => $item["payment_method"],
-                        "payment_date" => $item["payment_date"],
-                        "invoice_id" => $invoice->id
-                    ];
-                });
-                $sum_payment_amounts = $invoicePayments->sum('amount');
+                // $invoicePayments = collect($updatableData["invoice_payments"])->map(function ($item)use ($invoice) {
+                //     return [
+                //         "id" => $item["id"],
+                //         "amount" => $item["amount"],
+                //         "payment_method" => $item["payment_method"],
+                //         "payment_date" => $item["payment_date"],
+                //         "invoice_id" => $invoice->id
+                //     ];
+                // });
+                // $sum_payment_amounts = $invoicePayments->sum('amount');
 
-                if($sum_payment_amounts > $invoice->total_amount) {
-                    $error =  [
-                        "message" => "The given data was invalid.",
-                        "errors" => ["invoice_payments"=>["payment is more than total amount"]]
-                 ];
-                    throw new Exception(json_encode($error),422);
-                }
-
-
-                $invoice->invoice_items()->upsert($invoicePayments->all(), ['id',"invoice_id"], ['amount', 'payment_method', 'payment_date', 'invoice_id']);
+                // if($sum_payment_amounts > $invoice->total_amount) {
+                //     $error =  [
+                //         "message" => "The given data was invalid.",
+                //         "errors" => ["invoice_payments"=>["payment is more than total amount"]]
+                //  ];
+                //     throw new Exception(json_encode($error),422);
+                // }
 
 
-                if($sum_payment_amounts == $invoice->total_amount) {
-                   $invoice->payment_status = "paid";
-                   $invoice->invoice_reminder()->delete();
-                   $invoice->save();
-                }
-                else {
-                    $invoice->payment_status = "due";
-                    $invoice->save();
-                 }
+                // $invoice->invoice_payments()->upsert($invoicePayments->all(), ['id',"invoice_id"], ['amount', 'payment_method', 'payment_date', 'invoice_id']);
 
 
-                 if(!empty($updatableData["reminder_dates"]) &&  $invoice->payment_status != "paid") {
+                // if($sum_payment_amounts == $invoice->total_amount) {
+                //    $invoice->status = "paid";
+                //    $invoice->invoice_reminder()->delete();
+                //    $invoice->save();
+                // }
+                // else {
+
+                //  }
+
+
+                 if(!empty($updatableData["reminder_dates"]) &&  $invoice->status != "paid") {
 
                     InvoiceReminder::where([
                         "invoice_id" => $invoice->id
@@ -518,6 +520,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
          $reminder_date = $due_date->format('d-m-Y');
 
          InvoiceReminder::create([
+            "reminder_status" => "not_sent",
             "send_reminder" => !empty($updatableData["send_reminder"])?$updatableData["send_reminder"]:0,
             "reminder_date" =>$reminder_date,
             "invoice_id" => $invoice->id,
@@ -648,6 +651,9 @@ public function getInvoices($perPage, Request $request)
 
         $invoiceQuery = Invoice::with("invoice_reminder")
         ->leftJoin('invoice_reminders', 'invoices.id', '=', 'invoice_reminders.invoice_id')
+        ->where([
+             "invoices.created_by" => $request->user()->id
+        ]);
         // ->leftJoin('users', 'invoices.created_by', '=', 'users.id')
         ;
 
@@ -780,7 +786,8 @@ public function getInvoiceById($id, Request $request)
 
         $invoice = Invoice::with("invoice_items","invoice_payments")
         ->where([
-            "id" => $id
+            "id" => $id,
+            "invoices.created_by" => $request->user()->id
         ])
         ->first();
 
@@ -870,7 +877,8 @@ public function deleteInvoiceById($id, Request $request)
 
 
         $invoice = Invoice::where([
-            "id" => $id
+            "id" => $id,
+            "invoices.created_by" => $request->user()->id
         ])
         ->first();
 
@@ -957,9 +965,12 @@ public function deleteInvoiceItemById($invoice_id,$id, Request $request)
 
 
 
-        $invoice_item = InvoiceItem::where([
-            "invoice_id" => $invoice_id,
-            "id" => $id
+        $invoice_item = InvoiceItem::
+        leftJoin('invoices', 'invoice_items.invoice_id', '=', 'invoices.id')
+        ->where([
+            "invoice_items.invoice_id" => $invoice_id,
+            "invoice_items.id" => $id,
+            "invoices.created_by" => $request->user()->id
         ])
         ->first();
 

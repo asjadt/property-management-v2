@@ -34,8 +34,8 @@ class CreateInvoicesTable extends Migration
 
 
 
-            $table->enum("status",['draft', 'sent','over_due'])->default("draft")->nullable();
-            $table->enum("payment_status",['due', 'paid'])->default("due")->nullable();
+            $table->enum("status",['draft','unsent', 'sent','partial','paid','over_due'])->default("draft")->nullable();
+        
 
             $table->date("invoice_date");
 

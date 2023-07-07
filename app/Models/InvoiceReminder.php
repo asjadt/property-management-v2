@@ -10,10 +10,10 @@ class InvoiceReminder extends Model
 {
     use HasFactory,SoftDeletes;
     protected $fillable = [
+        "reminder_status",
         "send_reminder",
         "reminder_date",
-        "invoice_id",
-        "created_by"
+        "invoice_id"
     ];
 
     public function invoice(){

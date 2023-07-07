@@ -294,7 +294,7 @@ public function updateTenant(TenantUpdateRequest $request)
 
 
 
-            $tenant  =  tap(Tenant::where(["id" => $updatableData["id"]]))->update(
+            $tenant  =  tap(Tenant::where(["id" => $updatableData["id"], "created_by" => $request->user()->id]))->update(
                 collect($updatableData)->only([
                     'first_Name',
         'last_Name',
@@ -409,7 +409,10 @@ public function getTenants($perPage, Request $request)
         // $automobilesQuery = AutomobileMake::with("makes");
 
         $tenantQuery =  Tenant::leftJoin('property_tenants', 'tenants.id', '=', 'property_tenants.tenant_id')
-        ->leftJoin('properties', 'property_tenants.property_id', '=', 'properties.id');
+        ->leftJoin('properties', 'property_tenants.property_id', '=', 'properties.id')
+        ->where([
+            "tenants.created_by" => $request->user()->id
+        ]);
 
         if (!empty($request->search_key)) {
             $tenantQuery = $tenantQuery->where(function ($query) use ($request) {
@@ -512,7 +515,9 @@ public function getTenantById($id, Request $request)
 
 
         $tenant = Tenant::where([
-            "id" => $id
+            "id" => $id,
+            "tenants.created_by" => $request->user()->id
+
         ])
         ->first();
 
@@ -600,7 +605,8 @@ public function deleteTenantById($id, Request $request)
         $this->storeActivity($request,"");
 
         $tenant = Tenant::where([
-            "id" => $id
+            "id" => $id,
+            "tenants.created_by" => $request->user()->id
         ])
         ->first();
 

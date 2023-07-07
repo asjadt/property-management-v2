@@ -88,7 +88,9 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
             $insertableData["created_by"] = $request->user()->id;
 
             $invoice = Invoice::where([
-                "id" => $insertableData["invoice_id"]
+                "id" => $insertableData["invoice_id"],
+                "invoices.created_by" => $request->user()->id
+
             ])
             ->first();
             if(!$invoice) {
@@ -108,12 +110,12 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
                 throw new Exception(json_encode($error),422);
             }
            else if($invoice_due == $insertableData["amount"]) {
-               $invoice->payment_status = "paid";
+               $invoice->status = "paid";
                $invoice->invoice_reminder()->delete();
                $invoice->save();
             }
             else {
-                $invoice->payment_status = "due";
+                $invoice->status = "partial";
                 $invoice->save();
              }
 
@@ -228,7 +230,10 @@ public function updateInvoicePayment(InvoicePaymentUpdateRequest $request)
 
 
             $invoice = Invoice::where([
-                "id" => $updatableData["invoice_id"]
+                "id" => $updatableData["invoice_id"],
+
+            "invoices.created_by" => $request->user()->id
+
             ])
             ->first();
             if(!$invoice) {
@@ -248,16 +253,22 @@ public function updateInvoicePayment(InvoicePaymentUpdateRequest $request)
                 throw new Exception(json_encode($error),422);
             }
            else if($invoice_due == $updatableData["amount"]) {
-               $invoice->payment_status = "paid";
+               $invoice->status = "paid";
                $invoice->invoice_reminder()->delete();
                $invoice->save();
             }
             else {
-                $invoice->payment_status = "due";
+                $invoice->status = "partial";
                 $invoice->save();
              }
 
-            $invoice_payment  =  tap(InvoicePayment::where(["id" => $updatableData["id"]]))->update(
+            $invoice_payment  =  tap(InvoicePayment::leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
+            ->where([
+                "invoice_payments.id" => $updatableData["id"],
+                "invoices.created_by" => $request->user()->id
+            ])
+
+            )->update(
                 collect($updatableData)->only([
                     "amount",
                     "payment_method",
@@ -366,25 +377,28 @@ public function getInvoicePayments($perPage, Request $request)
 
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $invoice_paymentQuery = new InvoicePayment();
+        $invoice_paymentQuery =  InvoicePayment::leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
+        ->where([
+            "invoices.created_by" => $request->user()->id
+        ]);
 
 
         if (!empty($request->invoice_id)) {
-            $invoice_paymentQuery = $invoice_paymentQuery->where('invoice_id',  $request->invoice_id);
+            $invoice_paymentQuery = $invoice_paymentQuery->where('invoice_payments.invoice_id',  $request->invoice_id);
         }
 
-        if (!empty($request->search_key)) {
-            $invoice_paymentQuery = $invoice_paymentQuery->where(function ($query) use ($request) {
-                $term = $request->search_key;
-                $query->where("name", "like", "%" . $term . "%");
-            });
-        }
+        // if (!empty($request->search_key)) {
+        //     $invoice_paymentQuery = $invoice_paymentQuery->where(function ($query) use ($request) {
+        //         $term = $request->search_key;
+        //         $query->where("name", "like", "%" . $term . "%");
+        //     });
+        // }
 
         if (!empty($request->start_date)) {
-            $invoice_paymentQuery = $invoice_paymentQuery->where('created_at', ">=", $request->start_date);
+            $invoice_paymentQuery = $invoice_paymentQuery->where('invoice_payments.created_at', ">=", $request->start_date);
         }
         if (!empty($request->end_date)) {
-            $invoice_paymentQuery = $invoice_paymentQuery->where('created_at', "<=", $request->end_date);
+            $invoice_paymentQuery = $invoice_paymentQuery->where('invoice_payments.created_at', "<=", $request->end_date);
         }
 
         $invoice_payments = $invoice_paymentQuery->orderByDesc("id")->paginate($perPage);
@@ -466,10 +480,14 @@ public function getInvoicePaymentById($invoice_id,$id, Request $request)
         $this->storeActivity($request,"");
 
 
-        $invoice_payment = InvoicePayment::where([
-            "id" => $id,
-            "invoice_id" => $invoice_id
+        $invoice_payment = InvoicePayment::leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
+        ->where([
+            "invoice_payments.id" => $id,
+            "invoice_payments.invoice_id" => $invoice_id,
+            "invoices.created_by" => $request->user()->id
         ])
+
+
         ->first();
 
         if(!$invoice_payment) {
@@ -562,9 +580,11 @@ public function deleteInvoicePaymentById($invoice_id,$id, Request $request)
     try {
         $this->storeActivity($request,"");
 
-        $invoice_payment = InvoicePayment::where([
-            "id" => $id,
-            "invoice_id" => $invoice_id
+        $invoice_payment = InvoicePayment::leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
+        ->where([
+            "invoice_payments.id" => $id,
+            "invoice_payments.invoice_id" => $invoice_id,
+            "invoices.created_by" => $request->user()->id
         ])
         ->first();
 

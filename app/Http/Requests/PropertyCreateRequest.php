@@ -33,8 +33,6 @@ class PropertyCreateRequest extends FormRequest
             'lat' => 'nullable|string',
             'long' => 'nullable|string',
             'type'=>"required|string",
-            'size'=>"required|string",
-            'amenities'=>"nullable|string",
             'reference_no' => 'required|string|max:255|unique:properties,reference_no',
 
             'landlord_id' => "nullable|numeric|exists:landlords,id",

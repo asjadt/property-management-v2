@@ -16,6 +16,7 @@ return [
     ],
     "roles" => [
         "superadmin",
+        "property_dealer"
     ],
     "permissions" => [
        "user_create",

@@ -27,8 +27,7 @@ class CreateInvoiceRemindersTable extends Migration
             $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
 
 
-            $table->unsignedBigInteger("created_by");
-            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
+        
             $table->softDeletes();
             $table->timestamps();
         });

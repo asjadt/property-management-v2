@@ -291,7 +291,10 @@ class LandlordController extends Controller
 
 
 
-                $landlord  =  tap(Landlord::where(["id" => $updatableData["id"]]))->update(
+                $landlord  =  tap(Landlord::where([
+                    "id" => $updatableData["id"],
+                    "created_by" => $request->user()->id
+                    ]))->update(
                     collect($updatableData)->only([
                         'first_Name',
         'last_Name',
@@ -401,7 +404,7 @@ class LandlordController extends Controller
 
             // $automobilesQuery = AutomobileMake::with("makes");
 
-            $landlordQuery = new Landlord();
+            $landlordQuery =  Landlord::where(["created_by" => $request->user()->id]);
 
             if (!empty($request->search_key)) {
                 $landlordQuery = $landlordQuery->where(function ($query) use ($request) {
@@ -491,7 +494,8 @@ class LandlordController extends Controller
 
 
             $landlord = Landlord::where([
-                "id" => $id
+                "id" => $id,
+                "created_by" => $request->user()->id
             ])
             ->first();
 
@@ -581,7 +585,8 @@ class LandlordController extends Controller
 
 
             $landlord = Landlord::where([
-                "id" => $id
+                "id" => $id,
+                "created_by" => $request->user()->id
             ])
             ->first();
 

@@ -24,7 +24,27 @@ class ReceiptCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'tenant_id' => "required|numeric|exists:tenants,id",
+            'tenant_id' => [
+                'nullable',
+                'numeric',
+                'exists:tenants,id',
+                function ($attribute, $value, $fail)  {
+                    // Check if 'tenant_id' is not present and 'tenant_name' is also not present
+                    if (empty(request()->input('tenant_id')) && empty(request()->input('tenant_name'))) {
+                        $fail("Either 'tenant_id' or 'tenant_name' is required.");
+                    }
+                }
+            ],
+            'tenant_name' => [
+                'nullable',
+                'string',
+                function ($attribute, $value, $fail)  {
+                    // Check if 'tenant_name' is not present and 'tenant_id' is also not present
+                    if (empty(request()->input('tenant_name')) && empty(request()->input('tenant_id'))) {
+                        $fail("Either 'tenant_id' or 'tenant_name' is required.");
+                    }
+                }
+            ],
             'property_address' => "required|string|exists:properties,address",
             'amount' => "required|numeric",
             'receipt_by' => "required|string",

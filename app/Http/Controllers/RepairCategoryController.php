@@ -273,7 +273,7 @@ public function updateRepairCategory(RepairCategoryUpdateRequest $request)
 
 
 
-            $repair_category  =  tap(RepairCategory::where(["id" => $updatableData["id"]]))->update(
+            $repair_category  =  tap(RepairCategory::where(["id" => $updatableData["id"], "created_by" => $request->user()->id]))->update(
                 collect($updatableData)->only([
     'name',
     'icon',
@@ -374,7 +374,7 @@ public function getRepairCategories($perPage, Request $request)
 
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $repair_categoryQuery = new RepairCategory();
+        $repair_categoryQuery =  RepairCategory::where(["created_by" => $request->user()->id]);
 
         if (!empty($request->search_key)) {
             $repair_categoryQuery = $repair_categoryQuery->where(function ($query) use ($request) {
@@ -464,7 +464,8 @@ public function getRepairCategoryById($id, Request $request)
 
 
         $repair_category = RepairCategory::where([
-            "id" => $id
+            "id" => $id,
+            "created_by" => $request->user()->id
         ])
         ->first();
 
@@ -553,7 +554,8 @@ public function deleteRepairCategoryById($id, Request $request)
 
 
         $repair_category = RepairCategory::where([
-            "id" => $id
+            "id" => $id,
+            "created_by" => $request->user()->id
         ])
         ->first();
 

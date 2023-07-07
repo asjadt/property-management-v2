@@ -128,8 +128,7 @@ public function createPropertyImage(ImageUploadRequest $request)
  *     *  * *  @OA\Property(property="lat", type="string", format="string",example="1207"),
  *     *  * *  @OA\Property(property="long", type="string", format="string",example="1207"),
  *  *     *  * *  @OA\Property(property="type", type="string", format="string",example="type"),
- *  *     *  * *  @OA\Property(property="size", type="string", format="string",example="size"),
- *  *     *  * *  @OA\Property(property="amenities", type="string", format="string",example="amenities"),
+
  *  *     *  * *  @OA\Property(property="reference_no", type="string", format="string",example="reference_no"),
  *  *     *  * *  @OA\Property(property="landlord_id", type="string", format="string",example="1"),
  *  *  *  *     *  * *  @OA\Property(property="tenant_ids", type="string", format="array",example={1,2,3}),
@@ -234,8 +233,7 @@ public function createProperty(PropertyCreateRequest $request)
  *     *  * *  @OA\Property(property="lat", type="string", format="string",example="1207"),
  *     *  * *  @OA\Property(property="long", type="string", format="string",example="1207"),
  *  *     *  * *  @OA\Property(property="type", type="string", format="string",example="type"),
- *  *     *  * *  @OA\Property(property="size", type="string", format="string",example="size"),
- *  *     *  * *  @OA\Property(property="amenities", type="string", format="string",example="amenities"),
+
  *  *     *  * *  @OA\Property(property="reference_no", type="string", format="string",example="reference_no"),
  *  *     *  * *  @OA\Property(property="landlord_id", type="string", format="string",example="1"),
  *  *  *     *  * *  @OA\Property(property="tenant_ids", type="string", format="array",example={1,2,3}),
@@ -289,7 +287,14 @@ public function updateProperty(PropertyUpdateRequest $request)
 
 
 
-            $property  =  tap(Property::where(["id" => $updatableData["id"]]))->update(
+            $property  =  tap(Property::where([
+
+
+                "id" => $updatableData["id"],
+                "created_by" => $request->user()->id
+
+
+                ]))->update(
                 collect($updatableData)->only([
                 'name',
         'image',
@@ -300,8 +305,6 @@ public function updateProperty(PropertyUpdateRequest $request)
         "lat",
         "long",
         'type',
-        'size',
-        'amenities',
         'reference_no',
         'landlord_id',
                 ])->toArray()
@@ -417,7 +420,7 @@ public function getProperties($perPage, Request $request)
 
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $propertyQuery = new Property();
+        $propertyQuery =  Property::where(["created_by" => $request->user()->id]);
 
         if (!empty($request->search_key)) {
             $propertyQuery = $propertyQuery->where(function ($query) use ($request) {
@@ -512,7 +515,8 @@ public function getPropertyById($id, Request $request)
 
 
         $property = Property::where([
-            "id" => $id
+            "id" => $id,
+            "created_by" => $request->user()->id
         ])
         ->first();
 
@@ -603,7 +607,8 @@ public function deletePropertyById($id, Request $request)
 
 
         $property = Property::where([
-            "id" => $id
+            "id" => $id,
+            "created_by" => $request->user()->id
         ])
         ->first();
 

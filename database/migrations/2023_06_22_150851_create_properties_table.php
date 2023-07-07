@@ -34,8 +34,6 @@ class CreatePropertiesTable extends Migration
 
 
             $table->string('type');
-            $table->string('size');
-            $table->text('amenities')->nullable();
             $table->string('reference_no')->unique();;
 
 

@@ -6,6 +6,7 @@ use App\Http\Requests\InvoiceReminderCreateRequest;
 use App\Http\Requests\InvoiceReminderUpdateForm;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
+use App\Models\Invoice;
 use App\Models\InvoiceReminder;
 use Exception;
 use Illuminate\Http\Request;
@@ -82,12 +83,22 @@ public function createInvoiceReminder(InvoiceReminderCreateRequest $request)
 
 
             $insertableData = $request->validated();
-            $insertableData["created_by"] = $request->user()->id;
+
             $insertableData["reminder_status"] = "not_sent";
 
-            InvoiceReminder::updateOrCreate(['invoice_id' => $insertableData["invoice_id"]], $insertableData);
+            $invoice = Invoice::where([
+                "id" => $insertableData["invoice_id"],
+                "invoices.created_by" => $request->user()->id
 
-             $invoice_reminder = InvoiceReminder::where('invoice_id', $insertableData["invoice_id"])->first();
+            ])
+            ->first();
+            if(!$invoice) {
+                throw new Exception("something went wrong");
+            }
+
+            $invoice_reminder =  InvoiceReminder::create($insertableData);
+
+
 
 
             return response($invoice_reminder, 201);
@@ -172,7 +183,7 @@ public function updateInvoiceReminder(InvoiceReminderUpdateForm $request)
         return  DB::transaction(function () use ($request) {
 
             $updatableData = $request->validated();
-
+            $updatableData["reminder_status"] = "not_sent";
             // $affiliationPrev = InvoiceReminder::where([
             //     "id" => $updatableData["id"]
             //    ]);
@@ -192,11 +203,20 @@ public function updateInvoiceReminder(InvoiceReminderUpdateForm $request)
 
 
 
-            $invoice_reminder  =  tap(InvoiceReminder::where(["id" => $updatableData["id"]]))->update(
+            $invoice_reminder  =  tap(InvoiceReminder::leftJoin('invoices', 'invoice_reminders.invoice_id', '=', 'invoices.id')
+            ->where([
+                "invoice_reminders.id" => $updatableData["id"],
+                "invoices.created_by" => $request->user()->id
+            ])
+
+
+            )->update(
                 collect($updatableData)->only([
+                    "reminder_status",
                     "send_reminder",
                     "reminder_date",
                     "invoice_id",
+
                 ])->toArray()
             )
                 // ->with("somthing")
@@ -293,14 +313,18 @@ public function getInvoiceReminders($perPage, Request $request)
 
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $invoice_reminderQuery =  InvoiceReminder::with("invoice")->leftJoin('invoices', 'invoice_reminders.invoice_id', '=', 'invoices.id');
+        $invoice_reminderQuery =  InvoiceReminder::with("invoice")->leftJoin('invoices', 'invoice_reminders.invoice_id', '=', 'invoices.id')
+        ->where([
+            "invoices.created_by" => $request->user()->id
+        ])
+        ;
 
-        // if (!empty($request->search_key)) {
-        //     $invoice_reminderQuery = $invoice_reminderQuery->where(function ($query) use ($request) {
-        //         $term = $request->search_key;
-        //         $query->where("name", "like", "%" . $term . "%");
-        //     });
-        // }
+        if (!empty($request->search_key)) {
+            $invoice_reminderQuery = $invoice_reminderQuery->where(function ($query) use ($request) {
+                $term = $request->search_key;
+                $query->where("invoices.business_name", "like", "%" . $term . "%");
+            });
+        }
 
         if (!empty($request->start_date)) {
             $invoice_reminderQuery = $invoice_reminderQuery->where('invoice_reminders.created_at', ">=", $request->start_date);
@@ -383,8 +407,13 @@ public function getInvoiceReminderById($id, Request $request)
         $this->storeActivity($request,"");
 
 
-        $invoice_reminder = InvoiceReminder::with("invoice")->where([
-            "id" => $id
+        $invoice_reminder = InvoiceReminder::with("invoice")
+        ->leftJoin('invoices', 'invoice_reminders.invoice_id', '=', 'invoices.id')
+
+        ->where([
+            "invoices.created_by" => $request->user()->id,
+            "invoice_reminders.id" => $id
+
         ])
         ->first();
 
@@ -473,8 +502,12 @@ public function deleteInvoiceReminderById($id, Request $request)
 
 
 
-        $invoice_reminder = InvoiceReminder::where([
-            "id" => $id
+        $invoice_reminder = InvoiceReminder::leftJoin('invoices', 'invoice_reminders.invoice_id', '=', 'invoices.id')
+
+        ->where([
+            "invoices.created_by" => $request->user()->id,
+            "invoice_reminders.id" => $id
+
         ])
         ->first();
 

@@ -33,6 +33,8 @@ class ReceiptController extends Controller
      *         @OA\JsonContent(
      *            required={"name","description","logo"},
      *  *             @OA\Property(property="tenant_id", type="number", format="number",example="1"),
+     *  *  *             @OA\Property(property="tenant_name", type="string", format="string",example="tenant_name"),
+     *
       *             @OA\Property(property="property_address", type="string", format="string",example="property_address"),
      *            @OA\Property(property="amount", type="number", format="number",example="100"),
      *            @OA\Property(property="receipt_by", type="string", format="string",example="receipt_by"),
@@ -123,6 +125,7 @@ class ReceiptController extends Controller
      *            required={"id","name","description","logo"},
      *     *             @OA\Property(property="id", type="number", format="number",example="1"),
      *  *             @OA\Property(property="tenant_id", type="number", format="number",example="1"),
+     *  *             @OA\Property(property="tenant_name", type="string", format="string",example="tenant_name"),
       *             @OA\Property(property="property_address", type="string", format="string",example="property_address"),
      *            @OA\Property(property="amount", type="number", format="number",example="100"),
      *            @OA\Property(property="receipt_by", type="string", format="string",example="receipt_by"),
@@ -191,9 +194,10 @@ class ReceiptController extends Controller
 
 
 
-                $receipt  =  tap(Receipt::where(["id" => $updatableData["id"]]))->update(
+                $receipt  =  tap(Receipt::where(["id" => $updatableData["id"], "created_by" => $request->user()->id]))->update(
                     collect($updatableData)->only([
                         'tenant_id',
+                        "tenant_name",
                         'property_address',
                         'amount',
                         'receipt_by',
@@ -295,12 +299,13 @@ class ReceiptController extends Controller
 
             // $automobilesQuery = AutomobileMake::with("makes");
 
-            $receiptQuery = new Receipt();
+            $receiptQuery =  Receipt::where(["created_by" => $request->user()->id]);
 
             if (!empty($request->search_key)) {
                 $receiptQuery = $receiptQuery->where(function ($query) use ($request) {
                     $term = $request->search_key;
-                    $query->where("property_address", "like", "%" . $term . "%");
+                    $query->where("tenant_name", "like", "%" . $term . "%");
+                    $query->orWhere("property_address", "like", "%" . $term . "%");
                 });
             }
 
@@ -385,7 +390,9 @@ class ReceiptController extends Controller
 
 
             $receipt = Receipt::where([
-                "id" => $id
+                "id" => $id,
+                "created_by" => $request->user()->id
+
             ])
             ->first();
 
@@ -475,7 +482,8 @@ class ReceiptController extends Controller
 
 
             $receipt = Receipt::where([
-                "id" => $id
+                "id" => $id,
+                "created_by" => $request->user()->id
             ])
             ->first();
 

@@ -19,8 +19,6 @@ class Property extends Model
         "lat",
         "long",
         'type',
-        'size',
-        'amenities',
         'reference_no',
         'landlord_id',
         "created_by",

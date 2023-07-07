@@ -378,7 +378,7 @@ public function updateRepair(RepairUpdateRequest $request)
 
 
 
-            $repair  =  tap(Repair::where(["id" => $updatableData["id"]]))->update(
+            $repair  =  tap(Repair::where(["id" => $updatableData["id"],"created_by" => $request->user()->id]))->update(
                 collect($updatableData)->only([
                     'property_id',
                     'repair_category_id',
@@ -496,7 +496,7 @@ public function getRepairs($perPage, Request $request)
 
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $repairQuery =  Repair::with("repair_category");
+        $repairQuery =  Repair::with("repair_category")->where(["created_by" => $request->user()->id]);
 
         if (!empty($request->search_key)) {
             $repairQuery = $repairQuery->where(function ($query) use ($request) {
@@ -587,7 +587,8 @@ public function getRepairById($id, Request $request)
 
         $repair = Repair::with("repair_category")
         ->where([
-            "id" => $id
+            "id" => $id,
+            "created_by" => $request->user()->id
         ])
         ->first();
 
@@ -678,7 +679,8 @@ public function deleteRepairById($id, Request $request)
 
 
         $repair = Repair::where([
-            "id" => $id
+            "id" => $id,
+            "created_by" => $request->user()->id
         ])
         ->first();
 
