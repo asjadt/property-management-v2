@@ -21,10 +21,25 @@ class CreateInvoicesTable extends Migration
             $table->string("invoice_summary")->nullable();
             $table->string("business_name");
             $table->string("business_address");
-            $table->string("total_amount")->default(0);
 
+
+
+            $table->string("discount_description")->nullable();
+            $table->enum("discound_type",["fixed","percentage"])->default("fixed");
+            $table->string("discount_amount")->default(0);
+            $table->string("total_amount")->default(0);
+            $table->date("due_date")->nullable();
+
+
+
+
+
+            $table->enum("status",['draft', 'sent','over_due'])->default("draft")->nullable();
             $table->enum("payment_status",['due', 'paid'])->default("due")->nullable();
+
             $table->date("invoice_date");
+
+
             $table->string("footer_text")->nullable();
             $table->string("invoice_number")->unique();
 
@@ -40,7 +55,7 @@ class CreateInvoicesTable extends Migration
 
             $table->unsignedBigInteger("created_by");
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
-            
+
             $table->softDeletes();
             $table->timestamps();
         });

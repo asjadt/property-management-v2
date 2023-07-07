@@ -28,16 +28,29 @@ class InvoiceCreateRequest extends FormRequest
             "logo"=>"nullable|string",
             "invoice_title"=>"required|string",
             "invoice_summary"=>"nullable|string",
-            "reminder_date" => "nullable|date",
+
             "invoice_number" => "required|string|unique:invoices,invoice_number",
             "business_name"=>"required|string",
             "business_address"=>"required|string",
 
-
+           "send_reminder"=>"nullable|boolean",
 
             "invoice_date"=>"required|date",
             "footer_text"=>"required|string",
             "property_id"=>"required|numeric|exists:properties,id",
+
+
+
+            "discount_description"=>"nullable|string",
+            "discound_type"=>"required|string|in:fixed,percentage",
+            "discount_amount"=>"required|numeric",
+            "due_date"=>"nullable|date",
+            "status"=>"required|string|in:draft,sent",
+
+            "reminder_dates" => "nullable|array",
+            "reminder_dates.*" => "nullable|string",
+
+
 
             // "tenant_id" => "required_without:landlord_id|numeric|exists:tenants,id",
             // "landlord_id" => "required_without:tenant_id|numeric|exists:landlords,id",

@@ -23,6 +23,11 @@ class Invoice extends Model
         "property_id",
         "landlord_id",
         "tenant_id",
+        "discount_description",
+        "discound_type",
+        "discount_amount",
+        "due_date",
+        "status",
         "created_by"
     ];
 

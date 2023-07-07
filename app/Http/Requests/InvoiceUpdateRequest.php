@@ -28,13 +28,29 @@ class InvoiceUpdateRequest extends FormRequest
             "logo"=>"nullable|string",
             "invoice_title"=>"required|string",
             "invoice_summary"=>"nullable|string",
-            "reminder_date" => "nullable|date",
+
             "send_reminder" => "nullable|boolean",
 
             'invoice_number' => 'required|string|unique:invoices,invoice_number,' . $this->id . ',id',
             "business_name"=>"required|string",
             "business_address"=>"required|string",
             "invoice_date"=>"required|date",
+
+
+
+            "discount_description"=>"nullable|string",
+            "discound_type"=>"required|string|in:fixed,percentage",
+            "discount_amount"=>"required|numeric",
+            "due_date"=>"nullable|date",
+            "status"=>"required|string|in:draft,sent",
+
+            "reminder_dates" => "nullable|array",
+            "reminder_dates.*" => "nullable|string",
+
+
+
+
+
             "footer_text"=>"required|string",
             "property_id"=>"required|numeric|exists:properties,id",
 

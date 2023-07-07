@@ -11,6 +11,7 @@ use App\Http\Utils\UserActivityUtil;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\InvoiceReminder;
+use DateTime;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -123,7 +124,8 @@ public function createInvoiceImage(ImageUploadRequest $request)
  *  *             @OA\Property(property="logo", type="string", format="string",example="image.jpg"),
   *             @OA\Property(property="invoice_title", type="string", format="string",example="invoice_title"),
  *            @OA\Property(property="invoice_summary", type="string", format="string",example="invoice_summary"),
- *  *            @OA\Property(property="reminder_date", type="string", format="string",example="12/12/2012"),
+ *
+ *  *            @OA\Property(property="reminder_dates", type="string", format="array",example={'-1','15','30'}),
  *
  *  *  *            @OA\Property(property="send_reminder", type="number", format="number",example="0"),
  *
@@ -134,11 +136,25 @@ public function createInvoiceImage(ImageUploadRequest $request)
  *  * *  @OA\Property(property="invoice_date", type="string", format="string",example="12/12/2012"),
  *  *  * *  @OA\Property(property="invoice_number", type="string", format="string",example="57856465"),
  *
+ *
+ *
+ *  *  *  * *  @OA\Property(property="discount_description", type="string", format="string",example="description"),
+ *  *  *  * *  @OA\Property(property="discound_type", type="string", format="string",example="fixed"),
+ *  *  *  * *  @OA\Property(property="discount_amount", type="number", format="number",example="10"),
+ *  *  *  * *  @OA\Property(property="due_date", type="string", format="string",example="12/12/2012"),
+  *  *  *  * *  @OA\Property(property="status", type="string", format="string",example="draft"),
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  *  * *  @OA\Property(property="footer_text", type="string", format="string",example="footer_text"),
  *  *  * *  @OA\Property(property="landlord_id", type="number", format="number",example="1"),
  *  * *  @OA\Property(property="property_id", type="number", format="number",example="1"),
  *  * *  @OA\Property(property="tenant_id", type="number", format="number",example="1"),
- *     *  * *  @OA\Property(property="number", type="number", format="string",example="1"),
+
  *     *  * *  @OA\Property(property="invoice_items", type="string", format="array",example={
  *{"name":"name","description":"description","quantity":"1","price":"1.1","tax":"20","amount":"300"},
   *{"name":"name","description":"description","quantity":"1","price":"1.1","tax":"20","amount":"300"}
@@ -249,19 +265,34 @@ public function createInvoice(InvoiceCreateRequest $request)
 
 
 
-             if(!empty($insertableData["reminder_date"]) &&  $invoice->payment_status != "paid") {
+             if(!empty($insertableData["reminder_dates"]) &&  $invoice->payment_status != "paid") {
+
+                InvoiceReminder::where([
+                    "invoice_id" => $invoice->id
+                ])
+                ->delete();
+                foreach($insertableData["reminder_dates"] as $reminder_date_amount) {
 
 
+     $due_date = DateTime::createFromFormat('d-m-Y', $insertableData["due_date"]);
+     $due_date->modify(($reminder_date_amount . ' days'));
+     $reminder_date = $due_date->format('d-m-Y');
 
-                InvoiceReminder::updateOrCreate(['invoice_id' => $invoice->id],  [
-                    "send_reminder" => !empty($insertableData["send_reminder"])?$insertableData["send_reminder"]:0,
-                    "reminder_date" =>$insertableData["reminder_date"],
-                    "invoice_id" => $invoice->id,
-                    "created_by" => $invoice->created_by
-                ]);
+     InvoiceReminder::create([
+        "send_reminder" => !empty($insertableData["send_reminder"])?$insertableData["send_reminder"]:0,
+        "reminder_date" =>$reminder_date,
+        "invoice_id" => $invoice->id,
+        "created_by" => $invoice->created_by
+    ]);
+
+
+                }
 
 
             }
+
+
+
 
 
             $invoice->load(["invoice_items","invoice_payments"]);
@@ -311,19 +342,32 @@ public function createInvoice(InvoiceCreateRequest $request)
   *  *             @OA\Property(property="logo", type="string", format="string",example="image.jpg"),
   *             @OA\Property(property="invoice_title", type="string", format="string",example="invoice_title"),
  *            @OA\Property(property="invoice_summary", type="string", format="string",example="invoice_summary"),
- * *            @OA\Property(property="reminder_date", type="string", format="string",example="12/12/2012"),
+ *
+ *  *            @OA\Property(property="reminder_dates", type="string", format="array",example={'0','15','30'}),
+ *
  *  *  *  *            @OA\Property(property="send_reminder", type="number", format="number",example="0"),
  *
  *            @OA\Property(property="business_name", type="string", format="string",example="business_name"),
  *  * *  @OA\Property(property="business_address", type="string", format="string",example="business_address"),
  *  * *  @OA\Property(property="total_amount", type="number", format="number",example="900"),
  *  * *  @OA\Property(property="invoice_date", type="string", format="string",example="12/12/2012"),
+ *   *  *  *  * *  @OA\Property(property="status", type="string", format="string",example="draft"),
+ *
+ *
+ *  *  *  *  * *  @OA\Property(property="discount_description", type="string", format="string",example="description"),
+ *  *  *  * *  @OA\Property(property="discound_type", type="string", format="string",example="fixed"),
+ *  *  *  * *  @OA\Property(property="discount_amount", type="number", format="number",example="10"),
+ *  *  *  * *  @OA\Property(property="due_date", type="string", format="string",example="12/12/2012"),
+ *
+ *
+ *
+ *
  *  *  *  * *  @OA\Property(property="invoice_number", type="string", format="string",example="57856465"),
  *  * *  @OA\Property(property="footer_text", type="string", format="string",example="footer_text"),
  *  * *  @OA\Property(property="property_id", type="number", format="number",example="1"),
  *  *  *  * *  @OA\Property(property="landlord_id", type="number", format="number",example="1"),
  *  * *  @OA\Property(property="tenant_id", type="number", format="number",example="1"),
- *     *  * *  @OA\Property(property="number", type="number", format="string",example="1"),
+
  *     *  * *  @OA\Property(property="invoice_items", type="string", format="array",example={
  *{"id":"1","name":"name","description":"description","quantity":"1","price":"1.1","tax":"20","amount":"300"},
   *{"id":"","name":"name","description":"description","quantity":"1","price":"1.1","tax":"20","amount":"300"}
@@ -388,7 +432,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                     "logo",
                     "invoice_title",
                     "invoice_summary",
-
+                    "invoice_number",
                     "business_name",
                     "business_address",
                     "total_amount",
@@ -397,6 +441,12 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                     "property_id",
                     "landlord_id",
                     "tenant_id",
+                    "discount_description",
+                    "discound_type",
+                    "discount_amount",
+                    "due_date",
+                    "status"
+
                 ])->toArray()
             )
                 ->first();
@@ -455,20 +505,30 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                  }
 
 
-                 if(!empty($updatableData["reminder_date"]) &&  $invoice->payment_status != "paid") {
+                 if(!empty($updatableData["reminder_dates"]) &&  $invoice->payment_status != "paid") {
 
+                    InvoiceReminder::where([
+                        "invoice_id" => $invoice->id
+                    ])
+                    ->delete();
+                    foreach($updatableData["reminder_dates"] as $reminder_date_amount) {
 
+         $due_date = DateTime::createFromFormat('d-m-Y', $updatableData["due_date"]);
+         $due_date->modify(($reminder_date_amount . ' days'));
+         $reminder_date = $due_date->format('d-m-Y');
 
-                    InvoiceReminder::updateOrCreate(['invoice_id' => $invoice->id],  [
-                        "send_reminder" => !empty($updatableData["send_reminder"])?$updatableData["send_reminder"]:0,
-                        "reminder_date" =>$updatableData["reminder_date"],
-                        "invoice_id" => $invoice->id,
-                        "created_by" => $invoice->created_by
-                    ]);
+         InvoiceReminder::create([
+            "send_reminder" => !empty($updatableData["send_reminder"])?$updatableData["send_reminder"]:0,
+            "reminder_date" =>$reminder_date,
+            "invoice_id" => $invoice->id,
+            "created_by" => $invoice->created_by
+        ]);
 
+                    }
 
 
                 }
+
 
 
 
