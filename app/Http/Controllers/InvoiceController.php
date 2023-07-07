@@ -583,11 +583,11 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 * example="search_key"
 * ),
  * *  @OA\Parameter(
-* name="created_by",
+* name="status",
 * in="query",
-* description="created_by",
+* description="status",
 * required=true,
-* example="1"
+* example="status"
 * ),
  * *  @OA\Parameter(
 * name="is_overdue",
@@ -658,16 +658,16 @@ public function getInvoices($perPage, Request $request)
         ;
 
 
-        if (!empty($request->created_by)) {
-            $invoiceQuery =   $invoiceQuery->where("invoices.created_by", "like", "%" . $request->created_by . "%");
+        if (!empty($request->status)) {
+            $invoiceQuery =   $invoiceQuery->where("invoices.status", "like", "%" . $request->status . "%");
         }
 
         if (!empty($request->is_overdue)) {
             if ($request->is_overdue == 0) {
-                $invoiceQuery = $invoiceQuery->where('invoice_reminders.reminder_date', ">=", today());
+                $invoiceQuery = $invoiceQuery->where('invoices.due_date', ">=", today());
             }
             else if($request->is_overdue == 1) {
-                $invoiceQuery = $invoiceQuery->where('invoice_reminders.reminder_date', "<", today());
+                $invoiceQuery = $invoiceQuery->where('invoices.due_date', "<", today());
             }
 
         }
