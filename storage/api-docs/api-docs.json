@@ -12040,6 +12040,20 @@
                                         "format": "string",
                                         "example": "invoice_summary"
                                     },
+                                    "reminder_dates": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            "0",
+                                            "15",
+                                            "30"
+                                        ]
+                                    },
+                                    "send_reminder": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "0"
+                                    },
                                     "business_name": {
                                         "type": "string",
                                         "format": "string",
@@ -12056,6 +12070,31 @@
                                         "example": "900"
                                     },
                                     "invoice_date": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "12/12/2012"
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "draft"
+                                    },
+                                    "discount_description": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "description"
+                                    },
+                                    "discound_type": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "fixed"
+                                    },
+                                    "discount_amount": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "10"
+                                    },
+                                    "due_date": {
                                         "type": "string",
                                         "format": "string",
                                         "example": "12/12/2012"
@@ -12083,11 +12122,6 @@
                                     "tenant_id": {
                                         "type": "number",
                                         "format": "number",
-                                        "example": "1"
-                                    },
-                                    "number": {
-                                        "type": "number",
-                                        "format": "string",
                                         "example": "1"
                                     },
                                     "invoice_items": {
@@ -12227,6 +12261,20 @@
                                         "format": "string",
                                         "example": "invoice_summary"
                                     },
+                                    "reminder_dates": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            "0",
+                                            "15",
+                                            "30"
+                                        ]
+                                    },
+                                    "send_reminder": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "0"
+                                    },
                                     "business_name": {
                                         "type": "string",
                                         "format": "string",
@@ -12252,6 +12300,31 @@
                                         "format": "string",
                                         "example": "57856465"
                                     },
+                                    "discount_description": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "description"
+                                    },
+                                    "discound_type": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "fixed"
+                                    },
+                                    "discount_amount": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "10"
+                                    },
+                                    "due_date": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "12/12/2012"
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "draft"
+                                    },
                                     "footer_text": {
                                         "type": "string",
                                         "format": "string",
@@ -12270,11 +12343,6 @@
                                     "tenant_id": {
                                         "type": "number",
                                         "format": "number",
-                                        "example": "1"
-                                    },
-                                    "number": {
-                                        "type": "number",
-                                        "format": "string",
                                         "example": "1"
                                     },
                                     "invoice_items": {
@@ -12414,6 +12482,27 @@
                         "description": "search_key",
                         "required": true,
                         "example": "search_key"
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "status",
+                        "required": true,
+                        "example": "status"
+                    },
+                    {
+                        "name": "is_overdue",
+                        "in": "query",
+                        "description": "is_overdue will return all if not set. if 0 it will return upcoming due date data and for 1 it will return ivoice whic due date passed",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "invoice_number",
+                        "in": "query",
+                        "description": "invoice_number",
+                        "required": true,
+                        "example": "1374"
                     }
                 ],
                 "responses": {
@@ -13199,11 +13288,6 @@
                                         "format": "number",
                                         "example": "1"
                                     },
-                                    "image": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "image.jpg"
-                                    },
                                     "send_reminder": {
                                         "type": "string",
                                         "format": "string",
@@ -13299,11 +13383,6 @@
                                     "logo"
                                 ],
                                 "properties": {
-                                    "image": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "image.jpg"
-                                    },
                                     "send_reminder": {
                                         "type": "string",
                                         "format": "string",
@@ -18321,16 +18400,6 @@
                                         "format": "string",
                                         "example": "type"
                                     },
-                                    "size": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "size"
-                                    },
-                                    "amenities": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "amenities"
-                                    },
                                     "reference_no": {
                                         "type": "string",
                                         "format": "string",
@@ -18475,16 +18544,6 @@
                                         "format": "string",
                                         "example": "type"
                                     },
-                                    "size": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "size"
-                                    },
-                                    "amenities": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "amenities"
-                                    },
                                     "reference_no": {
                                         "type": "string",
                                         "format": "string",
@@ -18603,6 +18662,13 @@
                         "description": "search_key",
                         "required": true,
                         "example": "search_key"
+                    },
+                    {
+                        "name": "address",
+                        "in": "query",
+                        "description": "address",
+                        "required": true,
+                        "example": "address"
                     }
                 ],
                 "responses": {
@@ -18810,6 +18876,477 @@
                 ]
             }
         },
+        "/v1.0/receipts": {
+            "put": {
+                "tags": [
+                    "property_management.receipt_management"
+                ],
+                "summary": "This method is to update receipt",
+                "description": "This method is to update receipt",
+                "operationId": "updateReceipt",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id",
+                                    "name",
+                                    "description",
+                                    "logo"
+                                ],
+                                "properties": {
+                                    "id": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "1"
+                                    },
+                                    "tenant_id": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "1"
+                                    },
+                                    "tenant_name": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "tenant_name"
+                                    },
+                                    "property_address": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "property_address"
+                                    },
+                                    "amount": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "100"
+                                    },
+                                    "receipt_by": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "receipt_by"
+                                    },
+                                    "receipt_date": {
+                                        "type": "string",
+                                        "format": "boolean",
+                                        "example": "12/12/2012"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "property_management.receipt_management"
+                ],
+                "summary": "This method is to store receipt",
+                "description": "This method is to store receipt",
+                "operationId": "createReceipt",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "description",
+                                    "logo"
+                                ],
+                                "properties": {
+                                    "tenant_id": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "1"
+                                    },
+                                    "tenant_name": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "tenant_name"
+                                    },
+                                    "property_address": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "property_address"
+                                    },
+                                    "amount": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "100"
+                                    },
+                                    "receipt_by": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "receipt_by"
+                                    },
+                                    "receipt_date": {
+                                        "type": "string",
+                                        "format": "boolean",
+                                        "example": "12/12/2012"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/receipts/{perPage}": {
+            "get": {
+                "tags": [
+                    "property_management.receipt_management"
+                ],
+                "summary": "This method is to get receipts ",
+                "description": "This method is to get receipts",
+                "operationId": "getReceipts",
+                "parameters": [
+                    {
+                        "name": "perPage",
+                        "in": "path",
+                        "description": "perPage",
+                        "required": true,
+                        "example": "6"
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "start_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "end_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "search_key",
+                        "required": true,
+                        "example": "search_key"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/receipts/get/single/{id}": {
+            "get": {
+                "tags": [
+                    "property_management.receipt_management"
+                ],
+                "summary": "This method is to get receipt by id",
+                "description": "This method is to get receipt by id",
+                "operationId": "getReceiptsyId",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "id",
+                        "required": true,
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/receipts/{id}": {
+            "delete": {
+                "tags": [
+                    "property_management.receipt_management"
+                ],
+                "summary": "This method is to delete receipt by id",
+                "description": "This method is to delete receipt by id",
+                "operationId": "deleteReceiptById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "id",
+                        "required": true,
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/v1.0/repair-category-icon": {
             "post": {
                 "tags": [
@@ -18919,65 +19456,15 @@
                                         "format": "number",
                                         "example": "1"
                                     },
-                                    "image": {
+                                    "name": {
                                         "type": "string",
                                         "format": "string",
-                                        "example": "image.jpg"
+                                        "example": "dfthth"
                                     },
-                                    "first_Name": {
+                                    "icon": {
                                         "type": "string",
                                         "format": "string",
-                                        "example": "Rifat"
-                                    },
-                                    "last_Name": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "Al"
-                                    },
-                                    "email": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "rifatalashwad0@gmail.com"
-                                    },
-                                    "phone": {
-                                        "type": "string",
-                                        "format": "boolean",
-                                        "example": "01771034383"
-                                    },
-                                    "address_line_1": {
-                                        "type": "string",
-                                        "format": "boolean",
-                                        "example": "dhaka"
-                                    },
-                                    "address_line_2": {
-                                        "type": "string",
-                                        "format": "boolean",
-                                        "example": "dinajpur"
-                                    },
-                                    "country": {
-                                        "type": "string",
-                                        "format": "boolean",
-                                        "example": "Bangladesh"
-                                    },
-                                    "city": {
-                                        "type": "string",
-                                        "format": "boolean",
-                                        "example": "Dhaka"
-                                    },
-                                    "postcode": {
-                                        "type": "string",
-                                        "format": "boolean",
-                                        "example": "1207"
-                                    },
-                                    "lat": {
-                                        "type": "string",
-                                        "format": "boolean",
-                                        "example": "1207"
-                                    },
-                                    "long": {
-                                        "type": "string",
-                                        "format": "boolean",
-                                        "example": "1207"
+                                        "example": "Al.jpg"
                                     }
                                 },
                                 "type": "object"
@@ -19576,10 +20063,10 @@
                                         "format": "number",
                                         "example": "1"
                                     },
-                                    "repair_category": {
+                                    "repair_category_id": {
                                         "type": "string",
                                         "format": "string",
-                                        "example": "repair_category"
+                                        "example": "1"
                                     },
                                     "item_description": {
                                         "type": "string",
@@ -19695,10 +20182,10 @@
                                         "format": "number",
                                         "example": "1"
                                     },
-                                    "repair_category": {
+                                    "repair_category_id": {
                                         "type": "string",
                                         "format": "string",
-                                        "example": "repair_category"
+                                        "example": "1"
                                     },
                                     "item_description": {
                                         "type": "string",
@@ -25630,6 +26117,239 @@
                                         "type": "string",
                                         "format": "boolean",
                                         "example": "customer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/auth/register-with-business": {
+            "post": {
+                "tags": [
+                    "user_management"
+                ],
+                "summary": "This method is to store user with business",
+                "description": "This method is to store user with business",
+                "operationId": "registerUserWithBusiness",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "user",
+                                    "business"
+                                ],
+                                "properties": {
+                                    "user": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": {
+                                            "first_Name": "Rifat",
+                                            "last_Name": "Al-Ashwad",
+                                            "email": "rifatalashwad@gmail.com",
+                                            "password": "12345678",
+                                            "password_confirmation": "12345678",
+                                            "phone": "01771034383",
+                                            "image": "https://images.unsplash.com/photo-1671410714831-969877d103b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80"
+                                        }
+                                    },
+                                    "business": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": {
+                                            "name": "ABCD business",
+                                            "about": "Best business in Dhaka",
+                                            "web_page": "https://www.facebook.com/",
+                                            "phone": "01771034383",
+                                            "email": "rifatalashwad@gmail.com",
+                                            "additional_information": "No Additional Information",
+                                            "address_line_1": "Dhaka",
+                                            "address_line_2": "Dinajpur",
+                                            "lat": "23.704263332849386",
+                                            "long": "90.44707059805279",
+                                            "country": "Bangladesh",
+                                            "city": "Dhaka",
+                                            "currency": "BDT",
+                                            "postcode": "Dinajpur",
+                                            "logo": "https://images.unsplash.com/photo-1671410714831-969877d103b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
+                                            "image": "https://images.unsplash.com/photo-1671410714831-969877d103b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/auth/update-user-with-business": {
+            "put": {
+                "tags": [
+                    "user_management"
+                ],
+                "summary": "This method is to update user with business",
+                "description": "This method is to update user with business",
+                "operationId": "updateBusiness",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "user",
+                                    "business"
+                                ],
+                                "properties": {
+                                    "user": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": {
+                                            "id": 1,
+                                            "first_Name": "Rifat",
+                                            "last_Name": "Al-Ashwad",
+                                            "email": "rifatalashwad@gmail.com",
+                                            "password": "12345678",
+                                            "password_confirmation": "12345678",
+                                            "phone": "01771034383",
+                                            "image": "https://images.unsplash.com/photo-1671410714831-969877d103b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80"
+                                        }
+                                    },
+                                    "business": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": {
+                                            "id": 1,
+                                            "name": "ABCD business",
+                                            "about": "Best business in Dhaka",
+                                            "web_page": "https://www.facebook.com/",
+                                            "phone": "01771034383",
+                                            "email": "rifatalashwad@gmail.com",
+                                            "additional_information": "No Additional Information",
+                                            "address_line_1": "Dhaka",
+                                            "address_line_2": "Dinajpur",
+                                            "lat": "23.704263332849386",
+                                            "long": "90.44707059805279",
+                                            "country": "Bangladesh",
+                                            "city": "Dhaka",
+                                            "postcode": "Dinajpur",
+                                            "logo": "https://images.unsplash.com/photo-1671410714831-969877d103b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
+                                            "image": "https://images.unsplash.com/photo-1671410714831-969877d103b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80"
+                                        }
                                     }
                                 },
                                 "type": "object"

@@ -8,4 +8,30 @@ use Illuminate\Database\Eloquent\Model;
 class Business extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        "name",
+        "about",
+        "web_page",
+        "phone",
+        "email",
+        "additional_information",
+        "address_line_1",
+        "address_line_2",
+        "lat",
+        "long",
+        "country",
+        "city",
+        "currency",
+        "postcode",
+        "logo",
+        "image",
+        "status",
+        "owner_id",
+        "created_by",
+    ];
+
+    public function owner(){
+        return $this->belongsTo(User::class,'owner_id', 'id');
+    }
+
 }

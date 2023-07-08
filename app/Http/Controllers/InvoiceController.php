@@ -125,7 +125,9 @@ public function createInvoiceImage(ImageUploadRequest $request)
   *             @OA\Property(property="invoice_title", type="string", format="string",example="invoice_title"),
  *            @OA\Property(property="invoice_summary", type="string", format="string",example="invoice_summary"),
  *
- *  *            @OA\Property(property="reminder_dates", type="string", format="array",example={'-1','15','30'}),
+
+ *  *     *  * *  @OA\Property(property="reminder_dates", type="string", format="array",example={"0","15","30"
+ * }),
  *
  *  *  *            @OA\Property(property="send_reminder", type="number", format="number",example="0"),
  *
@@ -142,14 +144,7 @@ public function createInvoiceImage(ImageUploadRequest $request)
  *  *  *  * *  @OA\Property(property="discound_type", type="string", format="string",example="fixed"),
  *  *  *  * *  @OA\Property(property="discount_amount", type="number", format="number",example="10"),
  *  *  *  * *  @OA\Property(property="due_date", type="string", format="string",example="12/12/2012"),
-  *  *  *  * *  @OA\Property(property="status", type="string", format="string",example="draft"),
- *
- *
- *
- *
- *
- *
- *
+    *  *  * *  @OA\Property(property="status", type="string", format="string",example="draft"),
  *  * *  @OA\Property(property="footer_text", type="string", format="string",example="footer_text"),
  *  *  * *  @OA\Property(property="landlord_id", type="number", format="number",example="1"),
  *  * *  @OA\Property(property="property_id", type="number", format="number",example="1"),
@@ -343,7 +338,8 @@ public function createInvoice(InvoiceCreateRequest $request)
   *             @OA\Property(property="invoice_title", type="string", format="string",example="invoice_title"),
  *            @OA\Property(property="invoice_summary", type="string", format="string",example="invoice_summary"),
  *
- *  *            @OA\Property(property="reminder_dates", type="string", format="array",example={'0','15','30'}),
+ *  *         *  *     *  * *  @OA\Property(property="reminder_dates", type="string", format="array",example={"0","15","30"
+ * }),
  *
  *  *  *  *            @OA\Property(property="send_reminder", type="number", format="number",example="0"),
  *
