@@ -25,6 +25,6 @@ class Property extends Model
         'is_active',
     ];
     public function property_tenants() {
-        return $this->belongsToMany(PropertyTenant::class, 'property_tenants', 'property_id', 'tenant_id');
+        return $this->belongsToMany(Tenant::class, 'property_tenants', 'property_id', 'tenant_id');
     }
 }
