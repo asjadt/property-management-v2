@@ -450,6 +450,122 @@ public function getProperties($perPage, Request $request)
     }
 }
 
+/**
+ *
+ * @OA\Get(
+ *      path="/v1.0/properties/get/all",
+ *      operationId="getAllProperties",
+ *      tags={"property_management.property_management"},
+ *       security={
+ *           {"bearerAuth": {}}
+ *       },
+
+
+ *      * *  @OA\Parameter(
+* name="start_date",
+* in="query",
+* description="start_date",
+* required=true,
+* example="2019-06-29"
+* ),
+ * *  @OA\Parameter(
+* name="end_date",
+* in="query",
+* description="end_date",
+* required=true,
+* example="2019-06-29"
+* ),
+ * *  @OA\Parameter(
+* name="search_key",
+* in="query",
+* description="search_key",
+* required=true,
+* example="search_key"
+* ),
+ * *  @OA\Parameter(
+* name="address",
+* in="query",
+* description="address",
+* required=true,
+* example="address"
+* ),
+ *      summary="This method is to get properties ",
+ *      description="This method is to get properties",
+ *
+
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *       @OA\JsonContent(),
+ *       ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ * @OA\JsonContent(),
+ *      ),
+ *        @OA\Response(
+ *          response=422,
+ *          description="Unprocesseble Content",
+ *    @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *   @OA\JsonContent()
+ * ),
+ *  * @OA\Response(
+ *      response=400,
+ *      description="Bad Request",
+ *   *@OA\JsonContent()
+ *   ),
+ * @OA\Response(
+ *      response=404,
+ *      description="not found",
+ *   *@OA\JsonContent()
+ *   )
+ *      )
+ *     )
+ */
+
+ public function getAllProperties( Request $request)
+ {
+     try {
+         $this->storeActivity($request,"");
+
+         // $automobilesQuery = AutomobileMake::with("makes");
+
+         $propertyQuery =  Property::where(["created_by" => $request->user()->id]);
+
+         if (!empty($request->search_key)) {
+             $propertyQuery = $propertyQuery->where(function ($query) use ($request) {
+                 $term = $request->search_key;
+                 $query->where("name", "like", "%" . $term . "%");
+                 $query->orWhere("address", "like", "%" . $term . "%");
+             });
+         }
+
+         if (!empty($request->address)) {
+             $propertyQuery =  $propertyQuery->orWhere("address", "like", "%" . $request->address . "%");
+         }
+
+         if (!empty($request->start_date)) {
+             $propertyQuery = $propertyQuery->where('created_at', ">=", $request->start_date);
+         }
+         if (!empty($request->end_date)) {
+             $propertyQuery = $propertyQuery->where('created_at', "<=", $request->end_date);
+         }
+
+         $properties = $propertyQuery
+         ->select("id","address")
+         ->orderBy("address",'asc')->get();
+
+         return response()->json($properties, 200);
+     } catch (Exception $e) {
+
+         return $this->sendError($e, 500,$request);
+     }
+ }
+
 
 
 /**

@@ -167,6 +167,7 @@ Route::post('/v1.0/property-image', [PropertyController::class, "createPropertyI
 Route::post('/v1.0/properties', [PropertyController::class, "createProperty"]);
 Route::put('/v1.0/properties', [PropertyController::class, "updateProperty"]);
 Route::get('/v1.0/properties/{perPage}', [PropertyController::class, "getProperties"]);
+Route::get('/v1.0/properties/get/all', [PropertyController::class, "getAllProperties"]);
 Route::get('/v1.0/properties/get/single/{id}', [PropertyController::class, "getPropertyById"]);
 Route::delete('/v1.0/properties/{id}', [PropertyController::class, "deletePropertyById"]);
 
