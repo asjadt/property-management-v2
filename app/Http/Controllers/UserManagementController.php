@@ -477,11 +477,11 @@ class UserManagementController extends Controller
         try{
             $this->storeActivity($request,"");
      return  DB::transaction(function ()use (&$request) {
-        if(!$request->user()->hasPermissionTo('user_update')){
-            return response()->json([
-               "message" => "You can not perform this action"
-            ],401);
-       }
+    //     if(!$request->user()->hasPermissionTo('user_update')){
+    //         return response()->json([
+    //            "message" => "You can not perform this action"
+    //         ],401);
+    //    }
 
 
        $updatableData = $request->validated();
@@ -562,7 +562,8 @@ class UserManagementController extends Controller
 
 
         $business  =  tap(Business::where([
-            "id" => $updatableData['business']["id"]
+            "id" => $updatableData['business']["id"],
+            "owner_id" => $user->id
             ]))->update(collect($updatableData['business'])->only([
                 "name",
                 "about",
