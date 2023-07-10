@@ -134,6 +134,8 @@ public function createInvoiceImage(ImageUploadRequest $request)
  *
  *            @OA\Property(property="business_name", type="string", format="string",example="business_name"),
  *  * *  @OA\Property(property="business_address", type="string", format="string",example="business_address"),
+ *
+ *  *  * *  @OA\Property(property="sub_total", type="number", format="number",example="900"),
  *  * *  @OA\Property(property="total_amount", type="number", format="number",example="900"),
  *  * *  @OA\Property(property="invoice_date", type="string", format="string",example="12/12/2012"),
  *  *  * *  @OA\Property(property="invoice_number", type="string", format="string",example="57856465"),
@@ -146,6 +148,7 @@ public function createInvoiceImage(ImageUploadRequest $request)
  *  *  *  * *  @OA\Property(property="due_date", type="string", format="string",example="12/12/2012"),
     *  *  * *  @OA\Property(property="status", type="string", format="string",example="draft"),
  *  * *  @OA\Property(property="footer_text", type="string", format="string",example="footer_text"),
+ * *  *  @OA\Property(property="note", type="string", format="string",example="note"),
  *  *  * *  @OA\Property(property="landlord_id", type="number", format="number",example="1"),
  *  * *  @OA\Property(property="property_id", type="number", format="number",example="1"),
  *  * *  @OA\Property(property="tenant_id", type="number", format="number",example="1"),
@@ -268,9 +271,9 @@ public function createInvoice(InvoiceCreateRequest $request)
                 foreach($insertableData["reminder_dates"] as $reminder_date_amount) {
 
 
-     $due_date = DateTime::createFromFormat('d-m-Y', $insertableData["due_date"]);
+     $due_date = DateTime::createFromFormat('d/m/Y', $insertableData["due_date"]);
      $due_date->modify(($reminder_date_amount . ' days'));
-     $reminder_date = $due_date->format('d-m-Y');
+     $reminder_date = $due_date->format('d/m/Y');
 
      InvoiceReminder::create([
         "reminder_status" => "not_sent",
@@ -290,8 +293,33 @@ public function createInvoice(InvoiceCreateRequest $request)
 
 
 
-            $invoice->load(["invoice_items","invoice_payments"]);
+            $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder")
+            ->where([
+                "id" => $invoice->id,
+                "invoices.created_by" => $request->user()->id
+            ])
+            ->select("invoices.*",
+            DB::raw('
+                COALESCE(
+                    (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+                    0
+                ) AS total_paid
+            '),
+            DB::raw('
+                COALESCE(
+                    invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+                    invoices.total_amount
+                ) AS total_due
+            ')
+        )
 
+            ->first();
+
+            if(!$invoice) {
+         return response()->json([
+    "message" => "no invoice found"
+    ],404);
+            }
 
 
 
@@ -345,9 +373,10 @@ public function createInvoice(InvoiceCreateRequest $request)
  *
  *            @OA\Property(property="business_name", type="string", format="string",example="business_name"),
  *  * *  @OA\Property(property="business_address", type="string", format="string",example="business_address"),
+ *  *  * *  @OA\Property(property="sub_total", type="number", format="number",example="900"),
  *  * *  @OA\Property(property="total_amount", type="number", format="number",example="900"),
  *  * *  @OA\Property(property="invoice_date", type="string", format="string",example="12/12/2012"),
- *   *  *  *  * *  @OA\Property(property="status", type="string", format="string",example="draft"),
+
  *
  *
  *  *  *  *  * *  @OA\Property(property="discount_description", type="string", format="string",example="description"),
@@ -360,6 +389,8 @@ public function createInvoice(InvoiceCreateRequest $request)
  *
  *  *  *  * *  @OA\Property(property="invoice_number", type="string", format="string",example="57856465"),
  *  * *  @OA\Property(property="footer_text", type="string", format="string",example="footer_text"),
+ *  *  @OA\Property(property="note", type="string", format="string",example="note"),
+ *
  *  * *  @OA\Property(property="property_id", type="number", format="number",example="1"),
  *  *  *  * *  @OA\Property(property="landlord_id", type="number", format="number",example="1"),
  *  * *  @OA\Property(property="tenant_id", type="number", format="number",example="1"),
@@ -424,7 +455,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 
 
             $invoice  =  tap(Invoice::where([
-                "id" => $updatableData["id"],
+                "invoices.id" => $updatableData["id"],
                 "invoices.created_by" => $request->user()->id
             ]))->update(
                 collect($updatableData)->only([
@@ -435,8 +466,10 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                     "business_name",
                     "business_address",
                     "total_amount",
+                    "sub_total",
                     "invoice_date",
                     "footer_text",
+                    "note",
                     "property_id",
                     "landlord_id",
                     "tenant_id",
@@ -448,7 +481,10 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 
                 ])->toArray()
             )
+
+
                 ->first();
+
 
                 if(!$invoice) {
                     throw new Exception("something went wrong");
@@ -511,9 +547,9 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                     ->delete();
                     foreach($updatableData["reminder_dates"] as $reminder_date_amount) {
 
-         $due_date = DateTime::createFromFormat('d-m-Y', $updatableData["due_date"]);
+         $due_date = DateTime::createFromFormat('d/m/Y', $updatableData["due_date"]);
          $due_date->modify(($reminder_date_amount . ' days'));
-         $reminder_date = $due_date->format('d-m-Y');
+         $reminder_date = $due_date->format('d/m/Y');
 
          InvoiceReminder::create([
             "reminder_status" => "not_sent",
@@ -529,9 +565,37 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                 }
 
 
+                $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder")
+                ->where([
+                    "id" => $invoice->id,
+                    "invoices.created_by" => $request->user()->id
+                ])
+                ->select("invoices.*",
+                DB::raw('
+                    COALESCE(
+                        (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+                        0
+                    ) AS total_paid
+                '),
+                DB::raw('
+                    COALESCE(
+                        invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+                        invoices.total_amount
+                    ) AS total_due
+                ')
+            )
+
+                ->first();
+
+                if(!$invoice) {
+             return response()->json([
+        "message" => "no invoice found"
+        ],404);
+                }
 
 
-                $invoice->load(["invoice_items","invoice_payments"]);
+
+                ;
 
             return response($invoice, 200);
         });
@@ -646,12 +710,11 @@ public function getInvoices($perPage, Request $request)
         // $automobilesQuery = AutomobileMake::with("makes");
 
         $invoiceQuery = Invoice::with("invoice_reminder")
-        ->leftJoin('invoice_reminders', 'invoices.id', '=', 'invoice_reminders.invoice_id')
         ->where([
              "invoices.created_by" => $request->user()->id
         ]);
         // ->leftJoin('users', 'invoices.created_by', '=', 'users.id')
-        ;
+
 
 
         if (!empty($request->status)) {
@@ -688,23 +751,21 @@ public function getInvoices($perPage, Request $request)
             $invoiceQuery = $invoiceQuery->where('invoices.created_at', "<=", $request->end_date);
         }
 
-        $invoices = $invoiceQuery->
-        groupBy("invoices.id")
+        $invoices = $invoiceQuery
         ->select("invoices.*",
         DB::raw('
-        (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id) AS total_paid
+            COALESCE(
+                (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+                0
+            ) AS total_paid
         '),
         DB::raw('
-        (
-            invoices.total_amount
-            -
-            (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id)
-
-        )
-
-        AS total_due
-        '),
-        )
+            COALESCE(
+                invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+                invoices.total_amount
+            ) AS total_due
+        ')
+    )
 
 
         ->orderByDesc("invoices.id")->paginate($perPage);
@@ -780,11 +841,26 @@ public function getInvoiceById($id, Request $request)
         $this->storeActivity($request,"");
 
 
-        $invoice = Invoice::with("invoice_items","invoice_payments")
+        $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder")
         ->where([
             "id" => $id,
             "invoices.created_by" => $request->user()->id
         ])
+        ->select("invoices.*",
+        DB::raw('
+            COALESCE(
+                (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+                0
+            ) AS total_paid
+        '),
+        DB::raw('
+            COALESCE(
+                invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+                invoices.total_amount
+            ) AS total_due
+        ')
+    )
+
         ->first();
 
         if(!$invoice) {

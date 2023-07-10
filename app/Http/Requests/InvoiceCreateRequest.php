@@ -36,16 +36,16 @@ class InvoiceCreateRequest extends FormRequest
            "send_reminder"=>"nullable|boolean",
 
             "invoice_date"=>"required|date",
-            "footer_text"=>"required|string",
+            "footer_text"=>"nullable|string",
             "property_id"=>"required|numeric|exists:properties,id",
 
 
 
             "discount_description"=>"nullable|string",
-            "discound_type"=>"required|string|in:fixed,percentage",
-            "discount_amount"=>"required|numeric",
+            "discound_type"=>"nullable|string|in:fixed,percentage",
+            "discount_amount"=>"nullable|numeric",
             "due_date"=>"nullable|date",
-            "status"=>"required|string|in:draft,sent",
+            "status"=>"required|string|in:draft,unsent",
 
             "reminder_dates" => "nullable|array",
             "reminder_dates.*" => "nullable|string",
@@ -84,7 +84,7 @@ class InvoiceCreateRequest extends FormRequest
             ],
 
 
-            "invoice_items" => "nullable|array",
+            "invoice_items" => "required|array",
             "invoice_items.*.name" => "required|string",
             "invoice_items.*.description" => "nullable|string",
             "invoice_items.*.quantity" => "required|numeric",
@@ -93,7 +93,7 @@ class InvoiceCreateRequest extends FormRequest
             "invoice_items.*.amount" => "required|numeric",
 
 
-
+            "sub_total"=>"required|numeric",
             "total_amount"=>"required|numeric",
 
             "invoice_payments"=>"nullable|array",
@@ -101,7 +101,7 @@ class InvoiceCreateRequest extends FormRequest
             "invoice_payments.*.payment_method"=>"required|string",
             "invoice_payments.*.payment_date"=>"required|date",
 
-
+            "note" => "nullable|string",
         ];
     }
 }
