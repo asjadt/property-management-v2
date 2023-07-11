@@ -24,7 +24,15 @@ class InvoiceSendRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            "id" => "required|numeric|exists:invoices,id",
+            "from"=>"required|string|email",
+            "to"=>"required|array",
+            "to.*"=>"string|email",
+            "subject"=>"required|string",
+
+            "message" => "required|string" ,
+            "copy_to_myself"=>"required|boolean",
+            "attach_pdf"=>"required|boolean",
         ];
     }
 }

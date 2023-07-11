@@ -6,11 +6,13 @@ use App\Http\Requests\InvoicePaymentCreateRequest;
 use App\Http\Requests\InvoicePaymentUpdateRequest;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
+use App\Mail\PaymentEmail;
 use App\Models\Invoice;
 use App\Models\InvoicePayment;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class InvoicePaymentController extends Controller
 {
@@ -126,6 +128,11 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
             if(!$invoice_payment) {
                 throw new Exception("something went wrong");
             }
+
+
+
+            Mail::to()
+            ->send(new PaymentEmail());
 
 
 
