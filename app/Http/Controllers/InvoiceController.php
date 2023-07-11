@@ -1183,4 +1183,169 @@ public function deleteInvoiceItemById($invoice_id,$id, Request $request)
 
 
 
+
+
+
+
+
+
+
+
+
+/**
+ *
+ * @OA\Get(
+ *      path="/v1.0/invoices/generate/invoice-number",
+ *      operationId="generateInvoiceNumber",
+ *      tags={"property_management.invoice_management"},
+ *       security={
+ *           {"bearerAuth": {}}
+ *       },
+
+
+
+ *      summary="This method is to generate invoice number",
+ *      description="This method is to generate invoice number",
+ *
+
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *       @OA\JsonContent(),
+ *       ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ * @OA\JsonContent(),
+ *      ),
+ *        @OA\Response(
+ *          response=422,
+ *          description="Unprocesseble Content",
+ *    @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *   @OA\JsonContent()
+ * ),
+ *  * @OA\Response(
+ *      response=400,
+ *      description="Bad Request",
+ *   *@OA\JsonContent()
+ *   ),
+ * @OA\Response(
+ *      response=404,
+ *      description="not found",
+ *   *@OA\JsonContent()
+ *   )
+ *      )
+ *     )
+ */
+ public function generateInvoiceNumber(Request $request)
+ {
+     try {
+         $this->storeActivity($request,"");
+
+         do {
+            $invoice_number = mt_rand( 1000000000, 9999999999 );
+         } while (
+            DB::table( 'invoices' )->where( [
+            'invoice_number'=> $invoice_number,
+            "created_by" => $request->user()->id
+         ]
+         )->exists()
+        );
+
+
+return response()->json(["invoice_number" => $invoice_number],200);
+
+     } catch (Exception $e) {
+         error_log($e->getMessage());
+         return $this->sendError($e, 500,$request);
+     }
+ }
+
+
+
+ /**
+ *
+ * @OA\Get(
+ *      path="/v1.0/invoices/validate/invoice-number/{invoice_number}",
+ *      operationId="validateInvoiceNumber",
+ *      tags={"property_management.invoice_management"},
+ *       security={
+ *           {"bearerAuth": {}}
+ *       },
+
+ *              @OA\Parameter(
+ *         name="invoice_number",
+ *         in="path",
+ *         description="invoice_number",
+ *         required=true,
+ *  example="1"
+ *      ),
+
+ *      summary="This method is to validate invoice number",
+ *      description="This method is to validate invoice number",
+ *
+
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *       @OA\JsonContent(),
+ *       ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ * @OA\JsonContent(),
+ *      ),
+ *        @OA\Response(
+ *          response=422,
+ *          description="Unprocesseble Content",
+ *    @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *   @OA\JsonContent()
+ * ),
+ *  * @OA\Response(
+ *      response=400,
+ *      description="Bad Request",
+ *   *@OA\JsonContent()
+ *   ),
+ * @OA\Response(
+ *      response=404,
+ *      description="not found",
+ *   *@OA\JsonContent()
+ *   )
+ *      )
+ *     )
+ */
+public function validateInvoiceNumber($invoice_number, Request $request)
+{
+    try {
+        $this->storeActivity($request,"");
+
+        $invoice_number_exists =  DB::table( 'invoices' )->where( [
+           'invoice_number'=> $invoice_number,
+           "created_by" => $request->user()->id
+        ]
+        )->exists();
+
+
+
+return response()->json(["invoice_number_exists" => $invoice_number_exists],200);
+
+    } catch (Exception $e) {
+        error_log($e->getMessage());
+        return $this->sendError($e, 500,$request);
+    }
+}
+
+
+
+
+
+
 }

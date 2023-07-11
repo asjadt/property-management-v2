@@ -43,7 +43,7 @@ class CreateInvoicesTable extends Migration
             $table->string("footer_text")->nullable();
             $table->string("note")->nullable();
 
-            $table->string("invoice_number")->unique();
+            $table->string("invoice_number");
 
 
             $table->unsignedBigInteger("property_id")->nullable();

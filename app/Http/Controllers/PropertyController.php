@@ -741,4 +741,159 @@ public function deletePropertyById($id, Request $request)
         return $this->sendError($e, 500,$request);
     }
 }
+
+
+
+
+/**
+ *
+ * @OA\Get(
+ *      path="/v1.0/properties/generate/property-reference_no",
+ *      operationId="generatePropertyReferenceNumber",
+ *      tags={"property_management.property_management"},
+ *       security={
+ *           {"bearerAuth": {}}
+ *       },
+
+
+
+ *      summary="This method is to generate reference number",
+ *      description="This method is to generate reference number",
+ *
+
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *       @OA\JsonContent(),
+ *       ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ * @OA\JsonContent(),
+ *      ),
+ *        @OA\Response(
+ *          response=422,
+ *          description="Unprocesseble Content",
+ *    @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *   @OA\JsonContent()
+ * ),
+ *  * @OA\Response(
+ *      response=400,
+ *      description="Bad Request",
+ *   *@OA\JsonContent()
+ *   ),
+ * @OA\Response(
+ *      response=404,
+ *      description="not found",
+ *   *@OA\JsonContent()
+ *   )
+ *      )
+ *     )
+ */
+public function generatePropertyReferenceNumber(Request $request)
+{
+    try {
+        $this->storeActivity($request,"");
+
+        do {
+           $reference_no = mt_rand( 1000000000, 9999999999 );
+        } while (
+           DB::table( 'properties' )->where( [
+           'reference_no'=> $reference_no,
+           "created_by" => $request->user()->id
+        ]
+        )->exists()
+       );
+
+
+return response()->json(["reference_no" => $reference_no],200);
+
+    } catch (Exception $e) {
+        error_log($e->getMessage());
+        return $this->sendError($e, 500,$request);
+    }
+}
+
+
+
+/**
+*
+* @OA\Get(
+*      path="/v1.0/properties/validate/property-reference_no/{reference_no}",
+*      operationId="validatePropertyReferenceNumber",
+*      tags={"property_management.property_management"},
+*       security={
+*           {"bearerAuth": {}}
+*       },
+
+*              @OA\Parameter(
+*         name="reference_no",
+*         in="path",
+*         description="reference_no",
+*         required=true,
+*  example="1"
+*      ),
+
+*      summary="This method is to validate reference number",
+*      description="This method is to validate reference number",
+*
+
+*      @OA\Response(
+*          response=200,
+*          description="Successful operation",
+*       @OA\JsonContent(),
+*       ),
+*      @OA\Response(
+*          response=401,
+*          description="Unauthenticated",
+* @OA\JsonContent(),
+*      ),
+*        @OA\Response(
+*          response=422,
+*          description="Unprocesseble Content",
+*    @OA\JsonContent(),
+*      ),
+*      @OA\Response(
+*          response=403,
+*          description="Forbidden",
+*   @OA\JsonContent()
+* ),
+*  * @OA\Response(
+*      response=400,
+*      description="Bad Request",
+*   *@OA\JsonContent()
+*   ),
+* @OA\Response(
+*      response=404,
+*      description="not found",
+*   *@OA\JsonContent()
+*   )
+*      )
+*     )
+*/
+public function validatePropertyReferenceNumber($reference_no, Request $request)
+{
+   try {
+       $this->storeActivity($request,"");
+
+       $reference_no_exists =  DB::table( 'properties' )->where( [
+          'reference_no'=> $reference_no,
+          "created_by" => $request->user()->id
+       ]
+       )->exists();
+
+
+
+return response()->json(["reference_no_exists" => $reference_no_exists],200);
+
+   } catch (Exception $e) {
+       error_log($e->getMessage());
+       return $this->sendError($e, 500,$request);
+   }
+}
+
 }

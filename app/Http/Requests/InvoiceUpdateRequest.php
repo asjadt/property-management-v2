@@ -37,7 +37,7 @@ class InvoiceUpdateRequest extends FormRequest
 
             "invoice_date"=>"required|date",
             "footer_text"=>"nullable|string",
-            "property_id"=>"required|numeric|exists:properties,id",
+            "property_id"=>"nullable|numeric|exists:properties,id",
 
             "status"=>"nullable|string|in:draft,unsent",
 

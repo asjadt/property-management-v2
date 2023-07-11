@@ -34,7 +34,7 @@ class CreatePropertiesTable extends Migration
 
 
             $table->string('type');
-            $table->string('reference_no')->unique();;
+            $table->string('reference_no');
 
 
 

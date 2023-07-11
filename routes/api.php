@@ -171,6 +171,9 @@ Route::get('/v1.0/properties/get/all', [PropertyController::class, "getAllProper
 Route::get('/v1.0/properties/get/single/{id}', [PropertyController::class, "getPropertyById"]);
 Route::delete('/v1.0/properties/{id}', [PropertyController::class, "deletePropertyById"]);
 
+Route::get('/v1.0/properties/generate/property-reference_no', [PropertyController::class, "generatePropertyReferenceNumber"]);
+Route::get('/v1.0/properties/validate/property-reference_no/{reference_no}', [PropertyController::class, "validatePropertyReferenceNumber"]);
+
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // Property management section
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -222,6 +225,11 @@ Route::get('/v1.0/invoices/{perPage}', [InvoiceController::class, "getInvoices"]
 Route::get('/v1.0/invoices/get/single/{id}', [InvoiceController::class, "getInvoiceById"]);
 Route::delete('/v1.0/invoices/{id}', [InvoiceController::class, "deleteInvoiceById"]);
 Route::delete('/v1.0/invoice-items/{invoice_id}/{id}', [InvoiceController::class, "deleteInvoiceById"]);
+
+
+
+Route::get('/v1.0/invoices/generate/invoice-number', [InvoiceController::class, "generateInvoiceNumber"]);
+Route::get('/v1.0/invoices/validate/invoice-number/{invoice_number}', [InvoiceController::class, "validateInvoiceNumber"]);
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // Invoice management section
