@@ -217,6 +217,7 @@ Route::delete('/v1.0/repairs/{id}', [RepairController::class, "deleteRepairById"
 Route::post('/v1.0/invoice-image', [InvoiceController::class, "createInvoiceImage"]);
 Route::post('/v1.0/invoices', [InvoiceController::class, "createInvoice"]);
 Route::put('/v1.0/invoices', [InvoiceController::class, "updateInvoice"]);
+Route::put('/v1.0/invoices/send', [InvoiceController::class, "sendInvoice"]);
 Route::get('/v1.0/invoices/{perPage}', [InvoiceController::class, "getInvoices"]);
 Route::get('/v1.0/invoices/get/single/{id}', [InvoiceController::class, "getInvoiceById"]);
 Route::delete('/v1.0/invoices/{id}', [InvoiceController::class, "deleteInvoiceById"]);

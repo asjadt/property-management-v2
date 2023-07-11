@@ -39,7 +39,7 @@ class InvoiceUpdateRequest extends FormRequest
             "footer_text"=>"nullable|string",
             "property_id"=>"required|numeric|exists:properties,id",
 
-
+            "status"=>"nullable|string|in:draft,unsent",
 
             "discount_description"=>"nullable|string",
             "discound_type"=>"nullable|string|in:fixed,percentage",

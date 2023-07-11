@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ImageUploadRequest;
 use App\Http\Requests\InvoiceCreateRequest;
+use App\Http\Requests\InvoiceSendRequest;
 use App\Http\Requests\InvoiceUpdateRequest;
 
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
+use App\Mail\SendInvoiceEmail;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\InvoiceReminder;
@@ -15,6 +17,7 @@ use DateTime;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class InvoiceController extends Controller
 {
@@ -388,6 +391,7 @@ public function createInvoice(InvoiceCreateRequest $request)
  *
  *
  *  *  *  * *  @OA\Property(property="invoice_number", type="string", format="string",example="57856465"),
+ *     *  *  * *  @OA\Property(property="status", type="string", format="string",example="draft"),
  *  * *  @OA\Property(property="footer_text", type="string", format="string",example="footer_text"),
  *  *  @OA\Property(property="note", type="string", format="string",example="note"),
  *
@@ -477,7 +481,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                     "discound_type",
                     "discount_amount",
                     "due_date",
-                    "status"
+
 
                 ])->toArray()
             )
@@ -565,6 +569,15 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                 }
 
 
+                if(!empty($updatableData["status"])) {
+                    if($invoice->status == "draft" || $invoice->status == "unsent") {
+                        $invoice->status = $updatableData["status"];
+                        $invoice->save();
+                    }
+
+                }
+
+
                 $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder")
                 ->where([
                     "id" => $invoice->id,
@@ -595,7 +608,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 
 
 
-                ;
+
 
             return response($invoice, 200);
         });
@@ -604,6 +617,114 @@ public function updateInvoice(InvoiceUpdateRequest $request)
         return $this->sendError($e, 500,$request);
     }
 }
+/**
+ *
+ * @OA\Put(
+ *      path="/v1.0/invoices/send",
+ *      operationId="sendInvoice",
+ *      tags={"property_management.invoice_management"},
+ *       security={
+ *           {"bearerAuth": {}}
+ *       },
+ *      summary="This method is to update invoice",
+ *      description="This method is to update invoice",
+ *
+ *  @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *            required={"id","name","description","logo"},
+ *     *             @OA\Property(property="id", type="number", format="number",example="1"),
+  *  *             @OA\Property(property="from", type="string", format="string",example="test@gmail.com"),
+  *             @OA\Property(property="to", type="string", format="array",example={ "test1@gmail.com","test2@gmail.com" }),
+ *            @OA\Property(property="subject", type="string", format="string",example="subject"),
+ *
+ *  *         *  *     *  * *  @OA\Property(property="message", type="string", format="string",example="message"),
+ *
+ *  *  *  *            @OA\Property(property="copy_to_myself", type="number", format="number",example="0"),
+ *
+ *            @OA\Property(property="attach_pdf", type="number", format="number",example="1"),
+ *
+ *
+ *         ),
+ *      ),
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *       @OA\JsonContent(),
+ *       ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ * @OA\JsonContent(),
+ *      ),
+ *        @OA\Response(
+ *          response=422,
+ *          description="Unprocesseble Content",
+ *    @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *   @OA\JsonContent()
+ * ),
+ *  * @OA\Response(
+ *      response=400,
+ *      description="Bad Request",
+ *   *@OA\JsonContent()
+ *   ),
+ * @OA\Response(
+ *      response=404,
+ *      description="not found",
+ *   *@OA\JsonContent()
+ *   )
+ *      )
+ *     )
+ */
+
+ public function sendInvoice(InvoiceSendRequest $request)
+ {
+     try {
+         $this->storeActivity($request,"");
+         return  DB::transaction(function () use ($request) {
+
+             $updatableData = $request->validated();
+
+
+
+             $invoice  =  Invoice::where([
+                 "invoices.id" => $updatableData["id"],
+                 "invoices.created_by" => $request->user()->id
+             ])
+                 ->first();
+
+
+                 if(!$invoice) {
+                     throw new Exception("something went wrong");
+                 }
+
+
+                 if($invoice == "draft" || $invoice == "unsent" ) {
+                    $invoice == "sent";
+                    $invoice->save();
+                 }
+                 $recipients = $updatableData["to"];
+                 if($updatableData["copy_to_myself"]) {
+                    array_push($recipients,$updatableData["from"]);
+
+                 }
+
+                 Mail::to($recipients)
+                 ->send(new SendInvoiceEmail($updatableData,$invoice));
+
+
+
+             return response($invoice, 200);
+         });
+     } catch (Exception $e) {
+         error_log($e->getMessage());
+         return $this->sendError($e, 500,$request);
+     }
+ }
 /**
  *
  * @OA\Get(
