@@ -938,6 +938,77 @@ public function getUser (Request $request) {
     }
 
 }
+ /**
+        *
+     * @OA\Get(
+     *      path="/v1.0/user-with-business",
+     *      operationId="getUserWithBusiness",
+     *      tags={"auth"},
+    *       security={
+     *           {"bearerAuth": {}}
+     *       },
+
+
+     *      summary="This method is to get  user with business ",
+     *      description="This method is to get user with business",
+     *
+
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       @OA\JsonContent(),
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     * @OA\JsonContent(),
+     *      ),
+     *        @OA\Response(
+     *          response=422,
+     *          description="Unprocesseble Content",
+     *    @OA\JsonContent(),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *   @OA\JsonContent()
+     * ),
+     *  * @OA\Response(
+     *      response=400,
+     *      description="Bad Request",
+     *   *@OA\JsonContent()
+     *   ),
+     * @OA\Response(
+     *      response=404,
+     *      description="not found",
+     *   *@OA\JsonContent()
+     *   )
+     *      )
+     *     )
+     */
+
+
+     public function getUserWithBusiness (Request $request) {
+        try{
+            $this->storeActivity($request,"");
+            $user = User::with("business")
+            ->where([
+                "id" => $request->user()->id
+            ])
+            ->first();
+
+
+
+
+            return response()->json(
+                $user,
+                200
+            );
+        }catch(Exception $e) {
+            return $this->sendError($e, 500,$request);
+        }
+
+    }
 
 
 

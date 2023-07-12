@@ -53,6 +53,13 @@ class User extends Authenticatable
         "resetPasswordExpires"
     ];
 
+
+    public function business(){
+        return $this->hasMany(Business::class,'owner_id', 'id');
+    }
+
+
+
     /**
      * The attributes that should be cast.
      *
