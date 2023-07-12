@@ -16,6 +16,9 @@ class CreateInvoiceRemindersTable extends Migration
         Schema::create('invoice_reminders', function (Blueprint $table) {
             $table->id();
 
+
+            $table->integer("reminder_date_amount")->nullable();
+
             $table->boolean("send_reminder")->default(0);
 
             $table->enum("reminder_status",['sent', 'not_sent'])->default("not_sent")->nullable();
@@ -27,7 +30,7 @@ class CreateInvoiceRemindersTable extends Migration
             $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
 
 
-        
+
             $table->softDeletes();
             $table->timestamps();
         });

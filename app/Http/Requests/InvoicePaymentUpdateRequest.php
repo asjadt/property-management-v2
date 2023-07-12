@@ -29,6 +29,7 @@ class InvoicePaymentUpdateRequest extends FormRequest
             "payment_method"=>"required|string",
             "payment_date"=>"required|date",
             "invoice_id"=>"required|numeric|exists:invoices,id",
+            "note"=>"nullable|string",
         ];
     }
 }

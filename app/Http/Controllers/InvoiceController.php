@@ -274,11 +274,18 @@ public function createInvoice(InvoiceCreateRequest $request)
                 foreach($insertableData["reminder_dates"] as $reminder_date_amount) {
 
 
-     $due_date = DateTime::createFromFormat('d/m/Y', $insertableData["due_date"]);
-     $due_date->modify(($reminder_date_amount . ' days'));
-     $reminder_date = $due_date->format('d/m/Y');
+                    $due_date = DateTime::createFromFormat('d/m/Y', $insertableData["due_date"]);
+                    if ($due_date !== false) {
+                        $due_date->modify(($reminder_date_amount . ' days'));
+                        $reminder_date = $due_date->format('d/m/Y');
+                    } else {
+                        // Handle invalid input date format
+                        // You can throw an exception, log an error, or provide a default value
+                        $reminder_date = null; // or set a default value
+                    }
 
      InvoiceReminder::create([
+        "reminder_date_amount" => $reminder_date_amount,
         "reminder_status" => "not_sent",
         "send_reminder" => !empty($insertableData["send_reminder"])?$insertableData["send_reminder"]:0,
         "reminder_date" =>$reminder_date,
@@ -551,11 +558,18 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                     ->delete();
                     foreach($updatableData["reminder_dates"] as $reminder_date_amount) {
 
-         $due_date = DateTime::createFromFormat('d/m/Y', $updatableData["due_date"]);
-         $due_date->modify(($reminder_date_amount . ' days'));
-         $reminder_date = $due_date->format('d/m/Y');
+                        $due_date = DateTime::createFromFormat('d/m/Y', $updatableData["due_date"]);
+                        if ($due_date !== false) {
+                            $due_date->modify(($reminder_date_amount . ' days'));
+                            $reminder_date = $due_date->format('d/m/Y');
+                        } else {
+                            // Handle invalid input date format
+                            // You can throw an exception, log an error, or provide a default value
+                            $reminder_date = null; // or set a default value
+                        }
 
          InvoiceReminder::create([
+            "reminder_date_amount" => $reminder_date_amount,
             "reminder_status" => "not_sent",
             "send_reminder" => !empty($updatableData["send_reminder"])?$updatableData["send_reminder"]:0,
             "reminder_date" =>$reminder_date,
@@ -830,7 +844,7 @@ public function getInvoices($perPage, Request $request)
 
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $invoiceQuery = Invoice::with("invoice_reminder")
+        $invoiceQuery = Invoice::with("invoice_items","invoice_payments","invoice_reminder")
         ->where([
              "invoices.created_by" => $request->user()->id
         ]);

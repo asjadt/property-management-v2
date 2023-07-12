@@ -16,11 +16,15 @@ class PaymentEmail extends Mailable
      *
      * @return void
      */
-    public function __construct()
-    {
-        //
-    }
+    public $invoice;
+    public $invoice_payment;
 
+    public function __construct($invoice,$invoice_payment)
+    {
+        $this->invoice = $invoice;
+        $this->invoice_payment = $invoice_payment;
+
+    }
     /**
      * Build the message.
      *
@@ -28,6 +32,6 @@ class PaymentEmail extends Mailable
      */
     public function build()
     {
-        return $this->view('email.payment');
+        return $this->view('email.payment',["invoice" => $this->invoice,"invoice_payments"=>$this->invoice_payment]);
     }
 }

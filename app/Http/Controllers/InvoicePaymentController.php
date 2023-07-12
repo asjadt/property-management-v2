@@ -9,6 +9,8 @@ use App\Http\Utils\UserActivityUtil;
 use App\Mail\PaymentEmail;
 use App\Models\Invoice;
 use App\Models\InvoicePayment;
+use App\Models\Landlord;
+use App\Models\Tenant;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -39,6 +41,8 @@ class InvoicePaymentController extends Controller
  *  *             @OA\Property(property="amount", type="number", format="number",example="10"),
   *             @OA\Property(property="payment_method", type="string", format="string",example="bkash"),
  *            @OA\Property(property="payment_date", type="string", format="string",example="12/12/2012"),
+ *  *            @OA\Property(property="note", type="string", format="string",example="note"),
+ *
  *            @OA\Property(property="invoice_id", type="number", format="number",example="1"),
 
  *
@@ -131,8 +135,26 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
 
 
 
-            Mail::to()
-            ->send(new PaymentEmail());
+            // email section
+         $recipients = [$request->user()->email];
+
+         $tenant =  Tenant::where(["id" => $invoice->tenant_id])->first();
+         if($tenant) {
+            array_push($recipients,$tenant->email);
+         }
+         $landlord =  Landlord::where(["id" => $invoice->tenant_id])->first();
+         if($landlord) {
+            array_push($recipients,$landlord->email);
+         }
+
+         Mail::to($recipients)
+         ->send(new PaymentEmail($invoice,$invoice_payment));
+            // end email section
+
+
+
+
+
 
 
 
@@ -173,6 +195,7 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
  *  *             @OA\Property(property="amount", type="number", format="number",example="10"),
   *             @OA\Property(property="payment_method", type="string", format="string",example="bkash"),
  *            @OA\Property(property="payment_date", type="string", format="string",example="12/12/2012"),
+ *  *  *            @OA\Property(property="note", type="string", format="string",example="note"),
  *            @OA\Property(property="invoice_id", type="number", format="number",example="1"),
  *
  *         ),
@@ -281,6 +304,7 @@ public function updateInvoicePayment(InvoicePaymentUpdateRequest $request)
                     "payment_method",
                     "payment_date",
                     "invoice_id",
+                    "note"
                 ])->toArray()
             )
                 // ->with("somthing")

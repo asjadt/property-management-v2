@@ -12,6 +12,7 @@ class InvoicePayment extends Model
         "amount",
         "payment_method",
         "payment_date",
+        "note",
         "invoice_id",
     ];
 

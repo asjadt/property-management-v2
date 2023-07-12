@@ -41,7 +41,7 @@ class Invoice extends Model
     }
 
     public function invoice_reminder(){
-        return $this->hasOne(InvoiceReminder::class,'invoice_id', 'id');
+        return $this->hasMany(InvoiceReminder::class,'invoice_id', 'id');
     }
 
     public function tenant(){

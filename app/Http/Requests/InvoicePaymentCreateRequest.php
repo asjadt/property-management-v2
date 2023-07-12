@@ -27,6 +27,8 @@ class InvoicePaymentCreateRequest extends FormRequest
             "amount"=>"required|numeric",
             "payment_method"=>"required|string",
             "payment_date"=>"required|date",
+            "note"=>"nullable|string",
+
             "invoice_id"=>"required|numeric|exists:invoices,id",
         ];
 
