@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\InvoicePaymentCreateRequest;
 use App\Http\Requests\InvoicePaymentUpdateRequest;
+use App\Http\Requests\SendInvoicePaymentReceiptRequest;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Mail\PaymentEmail;
@@ -135,21 +136,21 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
 
 
 
-            // email section
-         $recipients = [$request->user()->email];
+        //     // email section
+        //  $recipients = [$request->user()->email];
 
-         $tenant =  Tenant::where(["id" => $invoice->tenant_id])->first();
-         if($tenant) {
-            array_push($recipients,$tenant->email);
-         }
-         $landlord =  Landlord::where(["id" => $invoice->tenant_id])->first();
-         if($landlord) {
-            array_push($recipients,$landlord->email);
-         }
+        //  $tenant =  Tenant::where(["id" => $invoice->tenant_id])->first();
+        //  if($tenant) {
+        //     array_push($recipients,$tenant->email);
+        //  }
+        //  $landlord =  Landlord::where(["id" => $invoice->tenant_id])->first();
+        //  if($landlord) {
+        //     array_push($recipients,$landlord->email);
+        //  }
 
-         Mail::to($recipients)
-         ->send(new PaymentEmail($invoice,$invoice_payment));
-            // end email section
+        //  Mail::to($recipients)
+        //  ->send(new PaymentEmail($invoice,$invoice_payment));
+        //     // end email section
 
 
 
@@ -174,6 +175,138 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
         return $this->sendError($e, 500,$request);
     }
 }
+/**
+ *
+ * @OA\Post(
+ *      path="/v1.0/invoice-payments/send-receipt-email",
+ *      operationId="sendPaymentReceipt",
+ *      tags={"property_management.invoice_payment_management"},
+ *       security={
+ *           {"bearerAuth": {}}
+ *       },
+ *      summary="This method is to send invoice payment receipt",
+ *      description="This method is to send invoice payment receipt",
+ *
+ *  @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *            required={"name","description","logo"},
+  *     *             @OA\Property(property="invoice_id", type="number", format="number",example="1"),
+   *     *             @OA\Property(property="invoice_payment_id", type="number", format="number",example="1"),
+  *  *             @OA\Property(property="from", type="string", format="string",example="test@gmail.com"),
+  *             @OA\Property(property="to", type="string", format="array",example={ "test1@gmail.com","test2@gmail.com" }),
+ *            @OA\Property(property="subject", type="string", format="string",example="subject"),
+ *
+ *  *         *  *     *  * *  @OA\Property(property="message", type="string", format="string",example="message"),
+ *
+ *  *  *  *            @OA\Property(property="copy_to_myself", type="number", format="number",example="0"),
+ *
+ *
+ *         ),
+ *      ),
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *       @OA\JsonContent(),
+ *       ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ * @OA\JsonContent(),
+ *      ),
+ *        @OA\Response(
+ *          response=422,
+ *          description="Unprocesseble Content",
+ *    @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *   @OA\JsonContent()
+ * ),
+ *  * @OA\Response(
+ *      response=400,
+ *      description="Bad Request",
+ *   *@OA\JsonContent()
+ *   ),
+ * @OA\Response(
+ *      response=404,
+ *      description="not found",
+ *   *@OA\JsonContent()
+ *   )
+ *      )
+ *     )
+ */
+
+ public function sendPaymentReceipt(SendInvoicePaymentReceiptRequest $request)
+ {
+     try {
+         $this->storeActivity($request,"");
+         return DB::transaction(function () use ($request) {
+
+
+
+            $updatableData = $request->validated();
+
+
+
+            $invoice  =  Invoice::where([
+                "invoices.id" => $updatableData["invoice_id"],
+                "invoices.created_by" => $request->user()->id
+            ])
+                ->first();
+
+
+                if(!$invoice) {
+                   return response()->json(["message" => "mo invoice found"],404);
+                }
+
+                $invoice_payment = InvoicePayment::where([
+                    "invoice_id" =>  $invoice->id,
+                    "id" => $updatableData["invoice_payment_id"]
+                ])
+                    ->first();
+
+                    if(!$invoice_payment) {
+                        return response()->json(["message" => "mo invoice payment found"],404);
+                    }
+
+
+                $recipients = $updatableData["to"];
+                if($updatableData["copy_to_myself"]) {
+
+                   array_push($recipients,$updatableData["from"]);
+
+                }
+
+
+          Mail::to($recipients)
+          ->send(new PaymentEmail($invoice,$invoice_payment,$updatableData));
+             // end email section
+
+
+
+
+
+
+
+
+             return response($invoice_payment, 201);
+
+
+
+
+
+         });
+
+
+
+
+     } catch (Exception $e) {
+
+         return $this->sendError($e, 500,$request);
+     }
+ }
 
 /**
  *

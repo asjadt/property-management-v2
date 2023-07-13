@@ -723,6 +723,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                  }
                  $recipients = $updatableData["to"];
                  if($updatableData["copy_to_myself"]) {
+
                     array_push($recipients,$updatableData["from"]);
 
                  }

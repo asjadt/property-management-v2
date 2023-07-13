@@ -18,11 +18,12 @@ class PaymentEmail extends Mailable
      */
     public $invoice;
     public $invoice_payment;
-
-    public function __construct($invoice,$invoice_payment)
+    public $request_object;
+    public function __construct($invoice,$invoice_payment,$request_object)
     {
         $this->invoice = $invoice;
         $this->invoice_payment = $invoice_payment;
+        $this->request_object = $request_object;
 
     }
     /**
@@ -32,6 +33,6 @@ class PaymentEmail extends Mailable
      */
     public function build()
     {
-        return $this->view('email.payment',["invoice" => $this->invoice,"invoice_payments"=>$this->invoice_payment]);
+        return $this->view('email.payment',["invoice" => $this->invoice,"invoice_payments"=>$this->invoice_payment,"request_object"=>$this->request_object])->subject($this->request_object["subject"]);
     }
 }

@@ -242,6 +242,8 @@ Route::get('/v1.0/invoices/validate/invoice-number/{invoice_number}', [InvoiceCo
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 Route::post('/v1.0/invoice-payments', [InvoicePaymentController::class, "createInvoicePayment"]);
+Route::post('/v1.0/invoice-payments/send-receipt-email', [InvoicePaymentController::class, "sendPaymentReceipt"]);
+
 Route::put('/v1.0/invoice-payments', [InvoicePaymentController::class, "updateInvoicePayment"]);
 Route::get('/v1.0/invoice-payments/{perPage}', [InvoicePaymentController::class, "getInvoicePayments"]);
 Route::get('/v1.0/invoice-payments/get/single/{invoice_id}/{id}', [InvoicePaymentController::class, "getInvoicePaymentById"]);
