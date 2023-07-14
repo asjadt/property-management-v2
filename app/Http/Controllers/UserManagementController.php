@@ -24,6 +24,97 @@ class UserManagementController extends Controller
     use ErrorUtil,UserActivityUtil;
 
 
+     /**
+        *
+     * @OA\Post(
+     *      path="/v1.0/business-image",
+     *      operationId="createBusinessImage",
+     *      tags={"user_management"},
+     *       security={
+     *           {"bearerAuth": {}}
+     *       },
+     *      summary="This method is to store business image ",
+     *      description="This method is to store business image",
+     *
+   *  @OA\RequestBody(
+        *   * @OA\MediaType(
+*     mediaType="multipart/form-data",
+*     @OA\Schema(
+*         required={"image"},
+*         @OA\Property(
+*             description="image to upload",
+*             property="image",
+*             type="file",
+*             collectionFormat="multi",
+*         )
+*     )
+* )
+
+
+
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       @OA\JsonContent(),
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     * @OA\JsonContent(),
+     *      ),
+     *        @OA\Response(
+     *          response=422,
+     *          description="Unprocesseble Content",
+     *    @OA\JsonContent(),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *   @OA\JsonContent()
+     * ),
+     *  * @OA\Response(
+     *      response=400,
+     *      description="Bad Request",
+     *   *@OA\JsonContent()
+     *   ),
+     * @OA\Response(
+     *      response=404,
+     *      description="not found",
+     *   *@OA\JsonContent()
+     *   )
+     *      )
+     *     )
+     */
+
+     public function createBusinessImage(ImageUploadRequest $request)
+     {
+         try{
+             $this->storeActivity($request,"");
+             // if(!$request->user()->hasPermissionTo('garage_create')){
+             //      return response()->json([
+             //         "message" => "You can not perform this action"
+             //      ],401);
+             // }
+
+             $insertableData = $request->validated();
+
+             $location =  config("setup-config.business_image_location");
+
+             $new_file_name = time() . '_' . $insertableData["image"]->getClientOriginalName();
+
+             $insertableData["image"]->move(public_path($location), $new_file_name);
+
+
+             return response()->json(["image" => $new_file_name,"location" => $location,"full_location"=>("/".$location."/".$new_file_name)], 200);
+
+
+         } catch(Exception $e){
+             error_log($e->getMessage());
+         return $this->sendError($e,500,$request);
+         }
+     }
+
 
        /**
         *
@@ -270,6 +361,7 @@ class UserManagementController extends Controller
      *  "city":"Dhaka",
      *  * "currency":"BDT",
      *  "postcode":"Dinajpur",
+     * "footer_text":"footer_text",
      *
      *  "logo":"https://images.unsplash.com/photo-1671410714831-969877d103b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
 
@@ -425,6 +517,7 @@ class UserManagementController extends Controller
      *  "country":"Bangladesh",
      *  "city":"Dhaka",
      *  "postcode":"Dinajpur",
+     *  "footer_text":"footer_text",
      *
      *  "logo":"https://images.unsplash.com/photo-1671410714831-969877d103b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
      *      *  *  "image":"https://images.unsplash.com/photo-1671410714831-969877d103b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
@@ -581,6 +674,7 @@ class UserManagementController extends Controller
                 "logo",
                 "image",
                 "status",
+                "footer_text"
 
 
 

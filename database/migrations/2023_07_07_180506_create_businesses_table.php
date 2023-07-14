@@ -30,6 +30,7 @@ class CreateBusinessesTable extends Migration
             $table->string("postcode");
             $table->string("currency")->nullable();
             $table->string("logo")->nullable();
+            $table->string("footer_text")->nullable();
             $table->string("image")->nullable();
             $table->string('status')->default("pending");
             // $table->enum('status', ['status1', 'status2',  'status3'])->default("status1");

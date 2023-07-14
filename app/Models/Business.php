@@ -28,6 +28,7 @@ class Business extends Model
         "status",
         "owner_id",
         "created_by",
+        "footer_text"
     ];
 
     public function owner(){
