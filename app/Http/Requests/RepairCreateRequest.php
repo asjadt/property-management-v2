@@ -27,7 +27,7 @@ class RepairCreateRequest extends FormRequest
             'property_id'=> "required|numeric|exists:properties,id",
             'repair_category_id'=>"required|numeric|exists:repair_categories,id",
             'item_description'=>"nullable|string",
-            'receipt'=>"required|string",
+            'receipt'=>"nullable|string",
             'price'=>"required|numeric",
             'create_date'=>"required|date",
             'images' => 'nullable|array',

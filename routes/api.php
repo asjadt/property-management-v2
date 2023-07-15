@@ -43,6 +43,7 @@ use App\Http\Controllers\RepairCategoryController;
 use App\Http\Controllers\RepairController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\RolesController;
+use App\Http\Controllers\SaleItemController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ShopGalleryController;
 use App\Http\Controllers\ShopsController;
@@ -130,6 +131,18 @@ Route::middleware(['auth:api'])->group(function () {
 
     Route::put('/v1.0/update-user-info', [AuthController::class, "updateUserInfo"]);
 
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// sale item management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Route::post('/v1.0/sale-items', [SaleItemController::class, "createSaleItem"]);
+Route::put('/v1.0/sale-items', [SaleItemController::class, "updateSaleItem"]);
+Route::get('/v1.0/sale-items/{perPage}', [SaleItemController::class, "getSaleItems"]);
+Route::get('/v1.0/sale-items/get/single/{id}', [SaleItemController::class, "getSaleItemById"]);
+Route::delete('/v1.0/sale-items/{id}', [SaleItemController::class, "deleteSaleItemById"]);
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+// sale item management section
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
