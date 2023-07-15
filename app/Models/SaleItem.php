@@ -13,7 +13,7 @@ class SaleItem extends Model
     'name',
     'description',
     'price',
-
+    'created_by'
     ];
 
 }
