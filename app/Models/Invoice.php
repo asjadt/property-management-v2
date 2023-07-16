@@ -14,7 +14,7 @@ class Invoice extends Model
         "logo",
         "invoice_title",
         "invoice_summary",
-        "invoice_number",
+        "invoice_reference",
         "business_name",
         "business_address",
         "sub_total",

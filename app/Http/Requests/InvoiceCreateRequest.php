@@ -29,7 +29,7 @@ class InvoiceCreateRequest extends FormRequest
             "invoice_title"=>"required|string",
             "invoice_summary"=>"nullable|string",
 
-            "invoice_number" => "required|string|unique:invoices,invoice_number",
+            "invoice_reference" => "required|string|unique:invoices,invoice_reference",
             "business_name"=>"required|string",
             "business_address"=>"required|string",
 

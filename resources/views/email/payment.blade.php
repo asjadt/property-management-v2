@@ -87,7 +87,7 @@
 
                 <div class="row">
                     <div class="col" style="margin: auto">
-                        <span style="line-height: 30px; font-size: 20px;" class="text-center">Invoice No: {{$invoice->invoice_number}}</span>
+                        <span style="line-height: 30px; font-size: 20px;" class="text-center">Invoice No: {{$invoice->invoice_reference}}</span>
                      </div>
 
                 </div>

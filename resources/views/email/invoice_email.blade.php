@@ -21,10 +21,17 @@
             width: 50px;
             height: 50px;
             object-fit: contain;
-            " class="business_logo" src="https://i.ibb.co/M8YmF13/Porsche-logo-PNG2.png" alt="">
+            " class="business_logo" src="@if($invoice->logo){{env("APP_URL").str_replace('%20', '+', rawurlencode($invoice->logo))}}@else https://i.ibb.co/M8YmF13/Porsche-logo-PNG2.png @endif" alt="">
             <h2 class="business_title" style="
             color: #555555;
-            ">Business Name</h2>
+            "> {{$invoice->business_name}}
+            @if($invoice->logo)
+    {{ env("APP_URL") . str_replace('%2F', '/', str_replace('%20', '+', rawurlencode($invoice->logo))) }}
+@else
+    https://i.ibb.co/M8YmF13/Porsche-logo-PNG2.png
+@endif
+
+</h2>
         </div>
         <hr style="border-color: #eeeeee;">
         <div class="action_container" style="
@@ -33,17 +40,24 @@
 
         "
         class="d-flex justify-content-center align-items-center flex-column ">
-        @if ($invoice->status != "paid")
-        <p style="
-        color: #555555;
-        font-size: 19px;
-        ">Invoice for <strong>&pound;{{$invoice->total_amount - $invoice->invoice_payments()->sum("amount")}}</strong> due by
-        <strong>{{$invoice->due_date}}</strong>
-        {{-- <strong>Jul 11, 2023</strong> --}}
-        </p>
-        @endif
+        <div class="row">
+            <div class="col" style="margin: auto">
+                @if ($invoice->status != "paid")
+                <p style="
+                color: #555555;
+                font-size: 19px;
+                ">Invoice for <strong>&pound;{{$invoice->total_amount - $invoice->invoice_payments()->sum("amount")}}</strong> due by
+                <strong>{{$invoice->due_date}}</strong>
+                {{-- <strong>Jul 11, 2023</strong> --}}
+                </p>
+                @endif
+             </div>
 
-            <a style="
+        </div>
+
+        <div class="row">
+            <div class="col" style="margin: auto">
+                <a style="
             padding: 15px 50px;
             border-radius: 30px;
             background-color: #0575b4;
@@ -53,24 +67,42 @@
             border: none;
 
             ">View Invoice</a>
-        </div>
-        <div class="message_text" style="margin: 50px 0px;">
-            {{$request_obj["message"]}}
+             </div>
+
         </div>
 
-        <div class="footer_container">
-            <small style="
-                text-align: center;
-                display: block;
-                ">Invoice {{$invoice->invoice_number}}</small>
-            <small class="company_name" style="
-            display: block;
-            text-align: center;
-            font-weight: bold;
-            color: #999;
-            ">
-          {{$invoice->business_name}}
-            </small>
+
         </div>
+
+        <div class="row">
+            <div class="col" style="margin: auto">
+                <div class="message_text" style="margin: 50px 0px;">
+                    {{$request_obj["message"]}}
+                </div>
+             </div>
+
+        </div>
+
+
+        <div class="row">
+            <div class="col" style="margin: auto">
+                <div class="footer_container">
+                    <small style="
+                        text-align: center;
+                        display: block;
+                        ">Invoice {{$invoice->invoice_reference}}</small>
+                    <small class="company_name" style="
+                    display: block;
+                    text-align: center;
+                    font-weight: bold;
+                    color: #999;
+                    ">
+                  {{$invoice->business_name}}
+                    </small>
+                </div>
+             </div>
+
+        </div>
+
     </div>
 </div>

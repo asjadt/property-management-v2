@@ -243,8 +243,8 @@ Route::delete('/v1.0/invoice-items/{invoice_id}/{id}', [InvoiceController::class
 
 
 
-Route::get('/v1.0/invoices/generate/invoice-number', [InvoiceController::class, "generateInvoiceNumber"]);
-Route::get('/v1.0/invoices/validate/invoice-number/{invoice_number}', [InvoiceController::class, "validateInvoiceNumber"]);
+Route::get('/v1.0/invoices/generate/invoice-reference', [InvoiceController::class, "generateInvoiceReference"]);
+Route::get('/v1.0/invoices/validate/invoice-reference/{invoice_reference}', [InvoiceController::class, "validateInvoiceReference"]);
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // Invoice management section

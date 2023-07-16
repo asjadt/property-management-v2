@@ -27,9 +27,11 @@ class CreateInvoicesTable extends Migration
             $table->string("discount_description")->nullable();
             $table->enum("discound_type",["fixed","percentage"])->default("fixed");
             $table->string("discount_amount")->default(0);
-            $table->string("total_amount")->default(0);
-            $table->date("due_date")->nullable();
+            $table->double("total_amount")->default(0);
+            $table->double("sub_total")->default(0);
 
+            $table->date("due_date")->nullable();
+            $table->date("last_sent_date")->nullable();
 
 
 
@@ -43,7 +45,7 @@ class CreateInvoicesTable extends Migration
             $table->string("footer_text")->nullable();
             $table->string("note")->nullable();
 
-            $table->string("invoice_number");
+            $table->string("invoice_reference");
 
 
             $table->unsignedBigInteger("property_id")->nullable();

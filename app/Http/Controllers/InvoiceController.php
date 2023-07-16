@@ -141,7 +141,7 @@ public function createInvoiceImage(ImageUploadRequest $request)
  *  *  * *  @OA\Property(property="sub_total", type="number", format="number",example="900"),
  *  * *  @OA\Property(property="total_amount", type="number", format="number",example="900"),
  *  * *  @OA\Property(property="invoice_date", type="string", format="string",example="12/12/2012"),
- *  *  * *  @OA\Property(property="invoice_number", type="string", format="string",example="57856465"),
+ *  *  * *  @OA\Property(property="invoice_reference", type="string", format="string",example="57856465"),
  *
  *
  *
@@ -397,7 +397,7 @@ public function createInvoice(InvoiceCreateRequest $request)
  *
  *
  *
- *  *  *  * *  @OA\Property(property="invoice_number", type="string", format="string",example="57856465"),
+ *  *  *  * *  @OA\Property(property="invoice_reference", type="string", format="string",example="57856465"),
  *     *  *  * *  @OA\Property(property="status", type="string", format="string",example="draft"),
  *  * *  @OA\Property(property="footer_text", type="string", format="string",example="footer_text"),
  *  *  @OA\Property(property="note", type="string", format="string",example="note"),
@@ -473,7 +473,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                     "logo",
                     "invoice_title",
                     "invoice_summary",
-                    "invoice_number",
+                    "invoice_reference",
                     "business_name",
                     "business_address",
                     "total_amount",
@@ -718,9 +718,12 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 
 
                  if($invoice == "draft" || $invoice == "unsent" ) {
-                    $invoice == "sent";
-                    $invoice->save();
+                    $invoice->status == "sent";
                  }
+
+                 $invoice->last_sent_date == now();
+                 $invoice->save();
+
                  $recipients = $updatableData["to"];
                  if($updatableData["copy_to_myself"]) {
 
@@ -793,9 +796,9 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 * example="1"
 * ),
  * *  @OA\Parameter(
-* name="invoice_number",
+* name="invoice_reference",
 * in="query",
-* description="invoice_number",
+* description="invoice_reference",
 * required=true,
 * example="1374"
 * ),
@@ -866,8 +869,8 @@ public function getInvoices($perPage, Request $request)
             }
 
         }
-        if (!empty($request->invoice_number)) {
-            $invoiceQuery =   $invoiceQuery->where("invoices.invoice_number", "like", "%" . $request->invoice_number . "%");
+        if (!empty($request->invoice_reference)) {
+            $invoiceQuery =   $invoiceQuery->where("invoices.invoice_reference", "like", "%" . $request->invoice_reference . "%");
         }
 
 
@@ -1210,8 +1213,8 @@ public function deleteInvoiceItemById($invoice_id,$id, Request $request)
 /**
  *
  * @OA\Get(
- *      path="/v1.0/invoices/generate/invoice-number",
- *      operationId="generateInvoiceNumber",
+ *      path="/v1.0/invoices/generate/invoice-reference",
+ *      operationId="generateInvoiceReference",
  *      tags={"property_management.invoice_management"},
  *       security={
  *           {"bearerAuth": {}}
@@ -1219,8 +1222,8 @@ public function deleteInvoiceItemById($invoice_id,$id, Request $request)
 
 
 
- *      summary="This method is to generate invoice number",
- *      description="This method is to generate invoice number",
+ *      summary="This method is to generate invoice reference",
+ *      description="This method is to generate invoice reference",
  *
 
  *      @OA\Response(
@@ -1256,23 +1259,38 @@ public function deleteInvoiceItemById($invoice_id,$id, Request $request)
  *      )
  *     )
  */
- public function generateInvoiceNumber(Request $request)
+ public function generateInvoiceReference(Request $request)
  {
      try {
          $this->storeActivity($request,"");
 
-         do {
-            $invoice_number = mt_rand( 1000000000, 9999999999 );
-         } while (
-            DB::table( 'invoices' )->where( [
-            'invoice_number'=> $invoice_number,
-            "created_by" => $request->user()->id
-         ]
-         )->exists()
+        //  do {
+        //     $invoice_reference = mt_rand( 1000000000, 9999999999 );
+        //  } while (
+        //     DB::table( 'invoices' )->where( [
+        //     'invoice_reference'=> $invoice_reference,
+        //     "created_by" => $request->user()->id
+        //  ]
+        //  )->exists()
+        // );
+
+        do {
+            $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_/';
+            $invoice_reference = '';
+            $length = 10; // adjust the length as needed
+
+            for ($i = 0; $i < $length; $i++) {
+                $invoice_reference .= $characters[rand(0, strlen($characters) - 1)];
+            }
+        } while (
+            DB::table('invoices')->where([
+                'invoice_reference' => $invoice_reference,
+                'created_by' => $request->user()->id
+            ])->exists()
         );
 
 
-return response()->json(["invoice_number" => $invoice_number],200);
+return response()->json(["invoice_reference" => $invoice_reference],200);
 
      } catch (Exception $e) {
          error_log($e->getMessage());
@@ -1285,17 +1303,17 @@ return response()->json(["invoice_number" => $invoice_number],200);
  /**
  *
  * @OA\Get(
- *      path="/v1.0/invoices/validate/invoice-number/{invoice_number}",
- *      operationId="validateInvoiceNumber",
+ *      path="/v1.0/invoices/validate/invoice-reference/{invoice_reference}",
+ *      operationId="validateInvoiceReference",
  *      tags={"property_management.invoice_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
 
  *              @OA\Parameter(
- *         name="invoice_number",
+ *         name="invoice_reference",
  *         in="path",
- *         description="invoice_number",
+ *         description="invoice_reference",
  *         required=true,
  *  example="1"
  *      ),
@@ -1337,20 +1355,20 @@ return response()->json(["invoice_number" => $invoice_number],200);
  *      )
  *     )
  */
-public function validateInvoiceNumber($invoice_number, Request $request)
+public function validateInvoiceReference($invoice_reference, Request $request)
 {
     try {
         $this->storeActivity($request,"");
 
-        $invoice_number_exists =  DB::table( 'invoices' )->where( [
-           'invoice_number'=> $invoice_number,
+        $invoice_reference_exists =  DB::table( 'invoices' )->where( [
+           'invoice_reference'=> $invoice_reference,
            "created_by" => $request->user()->id
         ]
         )->exists();
 
 
 
-return response()->json(["invoice_number_exists" => $invoice_number_exists],200);
+return response()->json(["invoice_reference_exists" => $invoice_reference_exists],200);
 
     } catch (Exception $e) {
         error_log($e->getMessage());
