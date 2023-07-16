@@ -7,6 +7,7 @@ use App\Http\Requests\PropertyCreateRequest;
 use App\Http\Requests\PropertyUpdateRequest;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
+use App\Models\Business;
 use App\Models\Property;
 use Exception;
 use Illuminate\Http\Request;
@@ -799,15 +800,27 @@ public function generatePropertyReferenceNumber(Request $request)
     try {
         $this->storeActivity($request,"");
 
+        $business = Business::where(["owner_id" => $request->user()->id])->first();
+
+
+        $prefix = "";
+        if ($business) {
+            $prefix = preg_replace_callback('/\b\w/', function ($matches) {
+                return strtoupper($matches[0]);
+            }, $business->name);
+        }
+
+        $current_number = 1; // Start from 0001
+
         do {
-           $reference_no = mt_rand( 1000000000, 9999999999 );
+            $reference_no = $prefix . "-" . str_pad($current_number, 4, '0', STR_PAD_LEFT);
+            $current_number++; // Increment the current number for the next iteration
         } while (
-           DB::table( 'properties' )->where( [
-           'reference_no'=> $reference_no,
-           "created_by" => $request->user()->id
-        ]
-        )->exists()
-       );
+            DB::table('properties')->where([
+                'reference_no' => $reference_no,
+                "created_by" => $request->user()->id
+            ])->exists()
+        );
 
 
 return response()->json(["reference_no" => $reference_no],200);

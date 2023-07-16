@@ -37,6 +37,7 @@ class InvoiceCreateRequest extends FormRequest
 
             "invoice_date"=>"required|date",
             "footer_text"=>"nullable|string",
+           
             "property_id"=>"nullable|numeric|exists:properties,id",
 
 

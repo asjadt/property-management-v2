@@ -362,6 +362,7 @@ class UserManagementController extends Controller
      *  * "currency":"BDT",
      *  "postcode":"Dinajpur",
      * "footer_text":"footer_text",
+     * "is_reference_manual":"1",
      *
      *  "logo":"https://images.unsplash.com/photo-1671410714831-969877d103b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
 
@@ -518,6 +519,7 @@ class UserManagementController extends Controller
      *  "city":"Dhaka",
      *  "postcode":"Dinajpur",
      *  "footer_text":"footer_text",
+     * "is_reference_manual":"1",
      *
      *  "logo":"https://images.unsplash.com/photo-1671410714831-969877d103b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
      *      *  *  "image":"https://images.unsplash.com/photo-1671410714831-969877d103b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",

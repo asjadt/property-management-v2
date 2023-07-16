@@ -151,6 +151,8 @@ public function createInvoiceImage(ImageUploadRequest $request)
  *  *  *  * *  @OA\Property(property="due_date", type="string", format="string",example="12/12/2012"),
     *  *  * *  @OA\Property(property="status", type="string", format="string",example="draft"),
  *  * *  @OA\Property(property="footer_text", type="string", format="string",example="footer_text"),
+
+ *
  * *  *  @OA\Property(property="note", type="string", format="string",example="note"),
  *  *  * *  @OA\Property(property="landlord_id", type="number", format="number",example="1"),
  *  * *  @OA\Property(property="property_id", type="number", format="number",example="1"),
@@ -480,6 +482,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                     "sub_total",
                     "invoice_date",
                     "footer_text",
+                    "is_reference_manual",
                     "note",
                     "property_id",
                     "landlord_id",
@@ -1274,22 +1277,32 @@ public function deleteInvoiceItemById($invoice_id,$id, Request $request)
         //  )->exists()
         // );
 
-        do {
-            $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_/';
-            $invoice_reference = '';
-            $length = 10; // adjust the length as needed
+        // do {
+        //     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_/';
+        //     $invoice_reference = '';
+        //     $length = 10; // adjust the length as needed
 
-            for ($i = 0; $i < $length; $i++) {
-                $invoice_reference .= $characters[rand(0, strlen($characters) - 1)];
-            }
+        //     for ($i = 0; $i < $length; $i++) {
+        //         $invoice_reference .= $characters[rand(0, strlen($characters) - 1)];
+        //     }
+        // } while (
+        //     DB::table('invoices')->where([
+        //         'invoice_reference' => $invoice_reference,
+        //         'created_by' => $request->user()->id
+        //     ])->exists()
+        // );
+
+        $current_number = 1; // Start from 0001
+
+        do {
+            $invoice_reference = str_pad($current_number, 4, '0', STR_PAD_LEFT);
+            $current_number++; // Increment the current number for the next iteration
         } while (
             DB::table('invoices')->where([
                 'invoice_reference' => $invoice_reference,
                 'created_by' => $request->user()->id
             ])->exists()
         );
-
-
 return response()->json(["invoice_reference" => $invoice_reference],200);
 
      } catch (Exception $e) {

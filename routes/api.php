@@ -216,6 +216,7 @@ Route::delete('/v1.0/repair-categories/{id}', [RepairCategoryController::class, 
 Route::post('/v1.0/repair-images/multiple', [RepairController::class, "createRepairImageMultiple"]);
 
 Route::post('/v1.0/repair-receipts-file', [RepairController::class, "createRepairReceiptFile"]);
+Route::post('/v1.0/repair-receipts-file/multiple', [RepairController::class, "createRepairReceiptFileMultiple"]);
 
 Route::post('/v1.0/repairs', [RepairController::class, "createRepair"]);
 Route::put('/v1.0/repairs', [RepairController::class, "updateRepair"]);

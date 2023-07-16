@@ -31,7 +31,15 @@ class CreateBusinessesTable extends Migration
             $table->string("currency")->nullable();
             $table->string("logo")->nullable();
             $table->string("footer_text")->nullable();
+            $table->boolean("is_reference_manual")->default(0);
             $table->string("image")->nullable();
+
+
+
+
+
+
+
             $table->string('status')->default("pending");
             // $table->enum('status', ['status1', 'status2',  'status3'])->default("status1");
             $table->boolean("is_active")->default(false);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\FileUploadRequest;
+use App\Http\Requests\MultipleFileUploadRequest;
 use App\Http\Requests\MultipleImageUploadRequest;
 use App\Http\Requests\RepairCreateRequest;
 use App\Http\Requests\RepairUpdateRequest;
@@ -102,7 +103,103 @@ public function createRepairReceiptFile(FileUploadRequest $request)
         return $this->sendError($e,500,$request);
     }
 }
+ /**
+        *
+     * @OA\Post(
+     *      path="/v1.0/repair-receipts-file/multiple",
+     *      operationId="createRepairReceiptFileMultiple",
+     *      tags={"property_management.repair_management"},
+     *       security={
+     *           {"bearerAuth": {}}
+     *       },
 
+     *      summary="This method is to store multiple repair file",
+     *      description="This method is to store multiple repair file",
+     *
+   *  @OA\RequestBody(
+        *   * @OA\MediaType(
+*     mediaType="multipart/form-data",
+*     @OA\Schema(
+*         required={"files[]"},
+*         @OA\Property(
+*             description="array of files to upload",
+*             property="files[]",
+*             type="array",
+*             @OA\Items(
+*                 type="file"
+*             ),
+*             collectionFormat="multi",
+*         )
+*     )
+* )
+
+
+
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       @OA\JsonContent(),
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     * @OA\JsonContent(),
+     *      ),
+     *        @OA\Response(
+     *          response=422,
+     *          description="Unprocesseble Content",
+     *    @OA\JsonContent(),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *   @OA\JsonContent()
+     * ),
+     *  * @OA\Response(
+     *      response=400,
+     *      description="Bad Request",
+     *   *@OA\JsonContent()
+     *   ),
+     * @OA\Response(
+     *      response=404,
+     *      description="not found",
+     *   *@OA\JsonContent()
+     *   )
+     *      )
+     *     )
+     */
+
+     public function createRepairReceiptFileMultiple(MultipleFileUploadRequest $request)
+     {
+         try{
+             $this->storeActivity($request,"");
+
+             $insertableData = $request->validated();
+
+             $location =  config("setup-config.repair_receipt_file");
+
+             $files = [];
+             if(!empty($insertableData["files"])) {
+                 foreach($insertableData["files"] as $file){
+                     $new_file_name = time() . '_' . $file->getClientOriginalName();
+                     $file->move(public_path($location), $new_file_name);
+
+                     array_push($files,("/".$location."/".$new_file_name));
+
+
+                 }
+             }
+
+
+             return response()->json(["images" => $files], 201);
+
+
+         } catch(Exception $e){
+             error_log($e->getMessage());
+         return $this->sendError($e,500,$request);
+         }
+     }
  /**
         *
      * @OA\Post(
@@ -277,6 +374,9 @@ public function createRepair(RepairCreateRequest $request)
                 throw new Exception("something went wrong");
             }
 
+
+
+
             $repair->repair_images()->createMany(
                 collect($insertableData["images"])->map(function ($image) {
                     return [
@@ -285,6 +385,7 @@ public function createRepair(RepairCreateRequest $request)
                 })
             );
 
+            $repair->load(["repair_category","property"]);
 
             return response($repair, 201);
 
@@ -388,7 +489,7 @@ public function updateRepair(RepairUpdateRequest $request)
                     'create_date',
                 ])->toArray()
             )
-                // ->with("somthing")
+                 ->with("repair_category","property")
 
                 ->first();
 
@@ -496,7 +597,7 @@ public function getRepairs($perPage, Request $request)
 
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $repairQuery =  Repair::with("repair_category")->where(["created_by" => $request->user()->id]);
+        $repairQuery =  Repair::with("repair_category","property")->where(["created_by" => $request->user()->id]);
 
         if (!empty($request->search_key)) {
             $repairQuery = $repairQuery->where(function ($query) use ($request) {
@@ -585,7 +686,7 @@ public function getRepairById($id, Request $request)
         $this->storeActivity($request,"");
 
 
-        $repair = Repair::with("repair_category")
+        $repair = Repair::with("repair_category","property")
         ->where([
             "id" => $id,
             "created_by" => $request->user()->id

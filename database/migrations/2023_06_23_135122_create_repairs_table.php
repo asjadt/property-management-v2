@@ -24,7 +24,7 @@ class CreateRepairsTable extends Migration
             $table->foreign('repair_category_id')->references('id')->on('repair_categories')->onDelete('cascade');
 
             $table->string('item_description')->nullable();
-            $table->string('receipt')->nullable();
+            $table->text('receipt')->nullable();
             $table->double('price')->default(0);;
             $table->date('create_date');
 
