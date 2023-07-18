@@ -667,7 +667,8 @@ public function getPropertyById($id, Request $request)
  *      operationId="deletePropertyById",
  *      tags={"property_management.property_management"},
  *       security={
- *           {"bearerAuth": {}}
+ *           {"bearerAuth": {}},
+ *           {"pin": {}}
  *       },
  *              @OA\Parameter(
  *         name="id",
@@ -720,7 +721,20 @@ public function deletePropertyById($id, Request $request)
     try {
         $this->storeActivity($request,"");
 
+        $business = Business::where([
+            "owner_id" => $request->user()->id
+          ])->first();
 
+        if(!$business) {
+            return response()->json([
+             "message" => "you don't have a valid business"
+            ],401);
+         }
+         if(!($business->pin == $request->header("pin"))) {
+             return response()->json([
+                 "message" => "invalid pin"
+                ],401);
+         }
 
 
         $property = Property::where([

@@ -1,10 +1,43 @@
+<style>
+    /* Override Bootstrap grid classes */
+    .container {
+        width: 100% !important;
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    .row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        margin-left: -10px !important;
+        margin-right: -10px !important;
+    }
+
+    .col-4 {
+        width: 33.33% !important;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+    .center-image {
+  text-align: center;
+}
+
+.center-image img {
+  display: inline-block;
+}
+    /* Add other Bootstrap grid classes as needed */
+
+    /* Add any other custom styles for Gmail or email clients here */
+</style>
 <div style="
 
         background-color: #b2c3ce;
         padding: 50px;
         width: 100%;
         box-sizing: border-box;
-        "  class="d-flex justify-content-center align-items-center ">
+        "  class=" ">
     <div class="main_container" style="
             padding: 20px 20px;
             width: 450px;
@@ -13,33 +46,41 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             box-shadow: 1px 1px 5px #ddd;
             ">
-        <div class="business_details" style="
 
-        "
-        class="d-flex justify-content-center align-items-center flex-column ">
-            <img style="
-            width: 50px;
-            height: 50px;
-            object-fit: contain;
-            " class="business_logo" src="@if($invoice->logo){{env("APP_URL").str_replace('%20', '+', rawurlencode($invoice->logo))}}@else https://i.ibb.co/M8YmF13/Porsche-logo-PNG2.png @endif" alt="">
-            <h2 class="business_title" style="
-            color: #555555;
-            "> {{$invoice->business_name}}
-            @if($invoice->logo)
-    {{ env("APP_URL") . str_replace('%2F', '/', str_replace('%20', '+', rawurlencode($invoice->logo))) }}
-@else
-    https://i.ibb.co/M8YmF13/Porsche-logo-PNG2.png
-@endif
 
-</h2>
-        </div>
+
+
+            <div class="center-image">
+                <img style="
+                width: 50px;
+                height: 50px;
+                object-fit: contain;
+                " class="business_logo" src="@if($invoice->logo){{(env("APP_URL") . "/invoice_image/" . rawurlencode(substr($invoice->logo, strpos($invoice->logo, '/invoice_image/') + strlen('/invoice_image/'))))}}@else https://i.ibb.co/M8YmF13/Porsche-logo-PNG2.png @endif" alt="">
+              </div>
+
+
+
+
+            <div class="row">
+                <div class="col" style="margin: auto">
+                    <h2 class="business_title" style="
+                    color: #555555;
+                    "> {{$invoice->business_name}}
+
+
+        </h2>
+                </div>
+                </div>
+
+
+
         <hr style="border-color: #eeeeee;">
         <div class="action_container" style="
 
         margin-top: 10px;
 
         "
-        class="d-flex justify-content-center align-items-center flex-column ">
+        class="">
         <div class="row">
             <div class="col" style="margin: auto">
                 @if ($invoice->status != "paid")
@@ -65,6 +106,8 @@
             font-size: 18px;
             font-weight: bold;
             border: none;
+            text-align: center;
+            display:block;
 
             ">View Invoice</a>
              </div>
@@ -75,18 +118,20 @@
         </div>
 
         <div class="row">
-            <div class="col" style="margin: auto">
-                <div class="message_text" style="margin: 50px 0px;">
-                    {{$request_obj["message"]}}
-                </div>
+            <div class="col message_text" style="margin: auto">
+
+                <small style="
+                text-align: center;
+                display: block;
+                "> {{$request_obj["message"]}}</small>
              </div>
 
         </div>
 
 
         <div class="row">
-            <div class="col" style="margin: auto">
-                <div class="footer_container">
+            <div class="col footer_container" style="margin: auto">
+
                     <small style="
                         text-align: center;
                         display: block;
@@ -99,7 +144,7 @@
                     ">
                   {{$invoice->business_name}}
                     </small>
-                </div>
+
              </div>
 
         </div>

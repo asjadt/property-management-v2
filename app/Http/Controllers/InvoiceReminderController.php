@@ -6,6 +6,7 @@ use App\Http\Requests\InvoiceReminderCreateRequest;
 use App\Http\Requests\InvoiceReminderUpdateForm;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
+use App\Models\Business;
 use App\Models\Invoice;
 use App\Models\InvoiceReminder;
 use Exception;
@@ -447,7 +448,8 @@ public function getInvoiceReminderById($id, Request $request)
  *      operationId="deleteInvoiceReminderById",
  *      tags={"property_management.invoice_reminder_management"},
  *       security={
- *           {"bearerAuth": {}}
+ *           {"bearerAuth": {}},
+ *           {"pin": {}}
  *       },
  *              @OA\Parameter(
  *         name="id",
@@ -500,7 +502,20 @@ public function deleteInvoiceReminderById($id, Request $request)
     try {
         $this->storeActivity($request,"");
 
+        $business = Business::where([
+            "owner_id" => $request->user()->id
+          ])->first();
 
+        if(!$business) {
+            return response()->json([
+             "message" => "you don't have a valid business"
+            ],401);
+         }
+         if(!($business->pin == $request->header("pin"))) {
+             return response()->json([
+                 "message" => "invalid pin"
+                ],401);
+         }
 
         $invoice_reminder = InvoiceReminder::leftJoin('invoices', 'invoice_reminders.invoice_id', '=', 'invoices.id')
 

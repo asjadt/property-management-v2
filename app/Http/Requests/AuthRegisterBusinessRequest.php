@@ -57,7 +57,15 @@ class AuthRegisterBusinessRequest extends FormRequest
 
             "business.footer_text" => "nullable|string",
 
-            "business.is_reference_manual" => "required|boolean"
+            "business.is_reference_manual" => "required|boolean",
+
+
+
+            "business.pin" => "required|string",
+
+
+
+
 
 
             // 'business.images' => 'nullable|array',

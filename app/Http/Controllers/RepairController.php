@@ -9,6 +9,7 @@ use App\Http\Requests\RepairCreateRequest;
 use App\Http\Requests\RepairUpdateRequest;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
+use App\Models\Business;
 use App\Models\Repair;
 use Exception;
 use Illuminate\Http\Request;
@@ -723,7 +724,8 @@ public function getRepairById($id, Request $request)
  *      operationId="deleteRepairById",
  *      tags={"property_management.repair_management"},
  *       security={
- *           {"bearerAuth": {}}
+ *           {"bearerAuth": {}},
+ *            {"pin": {}}
  *       },
  *              @OA\Parameter(
  *         name="id",
@@ -776,6 +778,20 @@ public function deleteRepairById($id, Request $request)
     try {
         $this->storeActivity($request,"");
 
+        $business = Business::where([
+            "owner_id" => $request->user()->id
+          ])->first();
+
+        if(!$business) {
+            return response()->json([
+             "message" => "you don't have a valid business"
+            ],401);
+         }
+         if(!($business->pin == $request->header("pin"))) {
+             return response()->json([
+                 "message" => "invalid pin"
+                ],401);
+         }
 
 
 

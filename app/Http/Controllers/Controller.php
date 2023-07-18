@@ -29,6 +29,12 @@ use Illuminate\Routing\Controller as BaseController;
      *    scheme="bearer",
      *    bearerFormat="JWT",
      * ),
+     *  * @OA\SecurityScheme(
+ *     type="apiKey",
+ *     in="header",
+ *     securityScheme="pin",
+ *     name="pin"
+ * ),
      *
      * @OA\Server(
      *      url=L5_SWAGGER_CONST_HOST,

@@ -29,7 +29,8 @@ class Business extends Model
         "owner_id",
         "created_by",
         "footer_text",
-       "is_reference_manual"
+       "is_reference_manual",
+       "pin" ,
     ];
 
     public function owner(){

@@ -6,6 +6,7 @@ use App\Http\Requests\ReceiptCreateRequest;
 use App\Http\Requests\ReceiptUpdateRequest;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
+use App\Models\Business;
 use App\Models\Receipt;
 use Exception;
 use Illuminate\Http\Request;
@@ -426,7 +427,8 @@ class ReceiptController extends Controller
      *      operationId="deleteReceiptById",
      *      tags={"property_management.receipt_management"},
      *       security={
-     *           {"bearerAuth": {}}
+     *           {"bearerAuth": {}},
+     *           {"pin": {}}
      *       },
      *              @OA\Parameter(
      *         name="id",
@@ -479,7 +481,20 @@ class ReceiptController extends Controller
         try {
             $this->storeActivity($request,"");
 
+            $business = Business::where([
+                "owner_id" => $request->user()->id
+              ])->first();
 
+            if(!$business) {
+                return response()->json([
+                 "message" => "you don't have a valid business"
+                ],401);
+             }
+             if(!($business->pin == $request->header("pin"))) {
+                 return response()->json([
+                     "message" => "invalid pin"
+                    ],401);
+             }
 
             $receipt = Receipt::where([
                 "id" => $id,

@@ -8,6 +8,7 @@ use App\Http\Requests\SendInvoicePaymentReceiptRequest;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Mail\PaymentEmail;
+use App\Models\Business;
 use App\Models\Invoice;
 use App\Models\InvoicePayment;
 use App\Models\Landlord;
@@ -684,7 +685,8 @@ public function getInvoicePaymentById($invoice_id,$id, Request $request)
  *      operationId="deleteInvoicePaymentById",
  *      tags={"property_management.invoice_payment_management"},
  *       security={
- *           {"bearerAuth": {}}
+ *           {"bearerAuth": {}},
+ *            {"pin": {}}
  *       },
  * *              @OA\Parameter(
  *         name="invoice_id",
@@ -743,6 +745,21 @@ public function deleteInvoicePaymentById($invoice_id,$id, Request $request)
 
     try {
         $this->storeActivity($request,"");
+
+        $business = Business::where([
+            "owner_id" => $request->user()->id
+          ])->first();
+
+        if(!$business) {
+            return response()->json([
+             "message" => "you don't have a valid business"
+            ],401);
+         }
+         if(!($business->pin == $request->header("pin"))) {
+             return response()->json([
+                 "message" => "invalid pin"
+                ],401);
+         }
 
         $invoice_payment = InvoicePayment::leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
         ->where([

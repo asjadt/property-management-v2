@@ -10,6 +10,17 @@ return [
                 "user_update",
                 "user_view",
                 "user_delete",
+
+                "payment_type_create",
+                "payment_type_update",
+                "payment_type_view",
+                "payment_type_delete",
+            ],
+        ],
+        [
+            "role" => "property_dealer",
+            "permissions" => [
+                "payment_type_view",
             ],
         ],
 
@@ -23,6 +34,11 @@ return [
        "user_update",
        "user_view",
        "user_delete",
+
+       "payment_type_create",
+       "payment_type_update",
+       "payment_type_view",
+       "payment_type_delete",
 
     ],
 

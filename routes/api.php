@@ -131,6 +131,24 @@ Route::middleware(['auth:api'])->group(function () {
 
     Route::put('/v1.0/update-user-info', [AuthController::class, "updateUserInfo"]);
 
+
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// payment type management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Route::post('/v1.0/payment-types', [PaymentTypeController::class, "createPaymentType"]);
+Route::put('/v1.0/payment-types', [PaymentTypeController::class, "updatePaymentType"]);
+Route::get('/v1.0/payment-types/{perPage}', [PaymentTypeController::class, "getPaymentTypes"]);
+Route::get('/v1.0/payment-types/get/all', [PaymentTypeController::class, "getAllPaymentTypes"]);
+Route::delete('/v1.0/payment-types/{id}', [PaymentTypeController::class, "deletePaymentTypeById"]);
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+// payment type management section
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // sale item management section
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -706,16 +724,8 @@ Route::delete('/v1.0/fuel-stations-galleries/{fuel_station_id}/{id}', [FuelStati
 
 
 
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-// payment type management section
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-Route::post('/v1.0/payment-types', [PaymentTypeController::class, "createPaymentType"]);
-Route::put('/v1.0/payment-types', [PaymentTypeController::class, "updatePaymentType"]);
-Route::get('/v1.0/payment-types/{perPage}', [PaymentTypeController::class, "getPaymentTypes"]);
-Route::delete('/v1.0/payment-types/{id}', [PaymentTypeController::class, "deletePaymentTypeById"]);
-// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-// payment type management section
-// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 
 
 

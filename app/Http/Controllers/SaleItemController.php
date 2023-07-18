@@ -6,6 +6,7 @@ use App\Http\Requests\SaleItemCreateRequest;
 use App\Http\Requests\SaleItemUpdateRequest;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
+use App\Models\Business;
 use App\Models\SaleItem;
 use Exception;
 use Illuminate\Http\Request;
@@ -418,7 +419,8 @@ public function getSaleItemById($id, Request $request)
  *      operationId="deleteSaleItemById",
  *      tags={"property_management.sale_item_management"},
  *       security={
- *           {"bearerAuth": {}}
+ *           {"bearerAuth": {}},
+ *           {"pin": {}}
  *       },
  *              @OA\Parameter(
  *         name="id",
@@ -471,7 +473,20 @@ public function deleteSaleItemById($id, Request $request)
     try {
         $this->storeActivity($request,"");
 
+        $business = Business::where([
+            "owner_id" => $request->user()->id
+          ])->first();
 
+        if(!$business) {
+            return response()->json([
+             "message" => "you don't have a valid business"
+            ],401);
+         }
+         if(!($business->pin == $request->header("pin"))) {
+             return response()->json([
+                 "message" => "invalid pin"
+                ],401);
+         }
 
         $sale_item = SaleItem::where([
             "id" => $id,

@@ -7,6 +7,7 @@ use App\Http\Requests\RepairCategoryCreateRequest;
 use App\Http\Requests\RepairCategoryUpdateRequest;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
+use App\Models\Business;
 use App\Models\RepairCategory;
 use Exception;
 use Illuminate\Http\Request;
@@ -499,7 +500,8 @@ public function getRepairCategoryById($id, Request $request)
  *      operationId="deleteRepairCategoryById",
  *      tags={"property_management.repair_category_management"},
  *       security={
- *           {"bearerAuth": {}}
+ *           {"bearerAuth": {}},
+ *           {"pin": {}}
  *       },
  *              @OA\Parameter(
  *         name="id",
@@ -552,7 +554,20 @@ public function deleteRepairCategoryById($id, Request $request)
     try {
         $this->storeActivity($request,"");
 
+        $business = Business::where([
+            "owner_id" => $request->user()->id
+          ])->first();
 
+        if(!$business) {
+            return response()->json([
+             "message" => "you don't have a valid business"
+            ],401);
+         }
+         if(!($business->pin == $request->header("pin"))) {
+             return response()->json([
+                 "message" => "invalid pin"
+                ],401);
+         }
         $repair_category = RepairCategory::where([
             "id" => $id,
             "created_by" => $request->user()->id

@@ -32,6 +32,8 @@ class CreateBusinessesTable extends Migration
             $table->string("logo")->nullable();
             $table->string("footer_text")->nullable();
             $table->boolean("is_reference_manual")->default(0);
+            $table->string("pin");
+
             $table->string("image")->nullable();
 
 

@@ -10,6 +10,7 @@ use App\Http\Requests\InvoiceUpdateRequest;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Mail\SendInvoiceEmail;
+use App\Models\Business;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\InvoiceReminder;
@@ -482,7 +483,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                     "sub_total",
                     "invoice_date",
                     "footer_text",
-                    "is_reference_manual",
+                    "pin",
                     "note",
                     "property_id",
                     "landlord_id",
@@ -1035,7 +1036,8 @@ public function getInvoiceById($id, Request $request)
  *      operationId="deleteInvoiceById",
  *      tags={"property_management.invoice_management"},
  *       security={
- *           {"bearerAuth": {}}
+ *           {"bearerAuth": {}},
+ *            {"pin": {}}
  *       },
  *              @OA\Parameter(
  *         name="id",
@@ -1088,6 +1090,21 @@ public function deleteInvoiceById($id, Request $request)
     try {
         $this->storeActivity($request,"");
 
+        $business = Business::where([
+          "owner_id" => $request->user()->id
+        ])->first();
+
+        if(!$business) {
+           return response()->json([
+            "message" => "you don't have a valid business"
+           ],401);
+        }
+        if(!($business->pin == $request->header("pin"))) {
+            return response()->json([
+                "message" => "invalid pin"
+               ],401);
+        }
+
 
 
         $invoice = Invoice::where([
@@ -1117,7 +1134,8 @@ public function deleteInvoiceById($id, Request $request)
  *      operationId="deleteInvoiceItemById",
  *      tags={"property_management.invoice_management"},
  *       security={
- *           {"bearerAuth": {}}
+ *           {"bearerAuth": {}},
+ *            {"pin": {}}
  *       },
  *  *              @OA\Parameter(
  *         name="invoice_id",
@@ -1176,6 +1194,20 @@ public function deleteInvoiceItemById($invoice_id,$id, Request $request)
 
     try {
         $this->storeActivity($request,"");
+        $business = Business::where([
+            "owner_id" => $request->user()->id
+          ])->first();
+
+        if(!$business) {
+            return response()->json([
+             "message" => "you don't have a valid business"
+            ],401);
+         }
+         if(!($business->pin == $request->header("pin"))) {
+             return response()->json([
+                 "message" => "invalid pin"
+                ],401);
+         }
 
 
 
@@ -1201,10 +1233,6 @@ public function deleteInvoiceItemById($invoice_id,$id, Request $request)
         return $this->sendError($e, 500,$request);
     }
 }
-
-
-
-
 
 
 

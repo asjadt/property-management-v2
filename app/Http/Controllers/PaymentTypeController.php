@@ -20,7 +20,7 @@ class PaymentTypeController extends Controller
      * @OA\Post(
      *      path="/v1.0/payment-types",
      *      operationId="createPaymentType",
-     *      tags={"payment_type_management"},
+     *      tags={"property_management.payment_type_management"},
      *       security={
      *           {"bearerAuth": {}}
      *       },
@@ -100,7 +100,7 @@ class PaymentTypeController extends Controller
      * @OA\Put(
      *      path="/v1.0/payment-types",
      *      operationId="updatePaymentType",
-     *      tags={"payment_type_management"},
+     *      tags={"property_management.payment_type_management"},
      *       security={
      *           {"bearerAuth": {}}
      *       },
@@ -189,7 +189,7 @@ class PaymentTypeController extends Controller
      * @OA\Get(
      *      path="/v1.0/payment-types/{perPage}",
      *      operationId="getPaymentTypes",
-     *      tags={"payment_type_management"},
+     *      tags={"property_management.payment_type_management"},
      *       security={
      *           {"bearerAuth": {}}
      *       },
@@ -294,13 +294,116 @@ class PaymentTypeController extends Controller
             return $this->sendError($e, 500,$request);
         }
     }
+      /**
+     *
+     * @OA\Get(
+     *      path="/v1.0/payment-types/get/all",
+     *      operationId="getAllPaymentTypes",
+     *      tags={"property_management.payment_type_management"},
+     *       security={
+     *           {"bearerAuth": {}}
+     *       },
+
+     *      * *  @OA\Parameter(
+* name="start_date",
+* in="query",
+* description="start_date",
+* required=true,
+* example="2019-06-29"
+* ),
+     * *  @OA\Parameter(
+* name="end_date",
+* in="query",
+* description="end_date",
+* required=true,
+* example="2019-06-29"
+* ),
+     * *  @OA\Parameter(
+* name="search_key",
+* in="query",
+* description="search_key",
+* required=true,
+* example="search_key"
+* ),
+     *      summary="This method is to get all payment types ",
+     *      description="This method is to get all payment types",
+     *
+
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       @OA\JsonContent(),
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     * @OA\JsonContent(),
+     *      ),
+     *        @OA\Response(
+     *          response=422,
+     *          description="Unprocesseble Content",
+     *    @OA\JsonContent(),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *   @OA\JsonContent()
+     * ),
+     *  * @OA\Response(
+     *      response=400,
+     *      description="Bad Request",
+     *   *@OA\JsonContent()
+     *   ),
+     * @OA\Response(
+     *      response=404,
+     *      description="not found",
+     *   *@OA\JsonContent()
+     *   )
+     *      )
+     *     )
+     */
+
+     public function getAllPaymentTypes(Request $request)
+     {
+         try {
+             $this->storeActivity($request,"");
+             if (!$request->user()->hasPermissionTo('payment_type_view')) {
+                 return response()->json([
+                     "message" => "You can not perform this action"
+                 ], 401);
+             }
+
+
+
+             $paymentTypeQuery = new PaymentType();
+
+             if (!empty($request->search_key)) {
+                 $paymentTypeQuery = $paymentTypeQuery->where(function ($query) use ($request) {
+                     $term = $request->search_key;
+                     $query->where("name", "like", "%" . $term . "%");
+                 });
+             }
+
+             if (!empty($request->start_date)) {
+                 $paymentTypeQuery = $paymentTypeQuery->where('created_at', ">=", $request->start_date);
+             }
+             if (!empty($request->end_date)) {
+                 $paymentTypeQuery = $paymentTypeQuery->where('created_at', "<=", $request->end_date);
+             }
+             $payment_types = $paymentTypeQuery->orderBy("name","ASC")->get();
+             return response()->json($payment_types, 200);
+         } catch (Exception $e) {
+
+             return $this->sendError($e, 500,$request);
+         }
+     }
 
     /**
      *
      *     @OA\Delete(
      *      path="/v1.0/payment-types/{id}",
      *      operationId="deletePaymentTypeById",
-     *      tags={"payment_type_management"},
+     *      tags={"property_management.payment_type_management"},
      *       security={
      *           {"bearerAuth": {}}
      *       },
