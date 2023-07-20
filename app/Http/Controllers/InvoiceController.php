@@ -152,6 +152,7 @@ public function createInvoiceImage(ImageUploadRequest $request)
  *  *  *  * *  @OA\Property(property="due_date", type="string", format="string",example="12/12/2012"),
     *  *  * *  @OA\Property(property="status", type="string", format="string",example="draft"),
  *  * *  @OA\Property(property="footer_text", type="string", format="string",example="footer_text"),
+ *  *  * *  @OA\Property(property="shareable_link", type="string", format="string",example="shareable_link"),
 
  *
  * *  *  @OA\Property(property="note", type="string", format="string",example="note"),
@@ -403,6 +404,7 @@ public function createInvoice(InvoiceCreateRequest $request)
  *  *  *  * *  @OA\Property(property="invoice_reference", type="string", format="string",example="57856465"),
  *     *  *  * *  @OA\Property(property="status", type="string", format="string",example="draft"),
  *  * *  @OA\Property(property="footer_text", type="string", format="string",example="footer_text"),
+ *  *  *  * *  @OA\Property(property="shareable_link", type="string", format="string",example="shareable_link"),
  *  *  @OA\Property(property="note", type="string", format="string",example="note"),
  *
  *  * *  @OA\Property(property="property_id", type="number", format="number",example="1"),
@@ -483,6 +485,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                     "sub_total",
                     "invoice_date",
                     "footer_text",
+                    "shareable_link",
                     "pin",
                     "note",
                     "property_id",
@@ -721,12 +724,13 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                  }
 
 
-                 if($invoice == "draft" || $invoice == "unsent" ) {
-                    $invoice->status == "sent";
+                 if($invoice->status == "draft" || $invoice->status == "unsent" ) {
+                    $invoice->status = "sent";
                  }
 
-                 $invoice->last_sent_date == now();
+                 $invoice->last_sent_date = now();
                  $invoice->save();
+
 
                  $recipients = $updatableData["to"];
                  if($updatableData["copy_to_myself"]) {
@@ -740,7 +744,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 
 
 
-             return response($invoice, 200);
+             return response($invoice->refresh(), 200);
          });
      } catch (Exception $e) {
          error_log($e->getMessage());
@@ -806,6 +810,13 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 * required=true,
 * example="1374"
 * ),
+ * *  @OA\Parameter(
+* name="is_result_for_payment",
+* in="query",
+* description="is_result_for_payment is true it will return all invoices which requires payment, not draft or pending, and not paid",
+* required=true,
+* example="1"
+* ),
 
  *      summary="This method is to get invoices ",
  *      description="This method is to get invoices",
@@ -860,9 +871,20 @@ public function getInvoices($perPage, Request $request)
 
 
 
-        if (!empty($request->status)) {
-            $invoiceQuery =   $invoiceQuery->where("invoices.status", "like", "%" . $request->status . "%");
-        }
+        if (!empty($request->is_result_for_payment)) {
+            $invoiceQuery =   $invoiceQuery->where(function ($query) use ($request) {
+
+                $query->whereNotIn("status", ['draft','paid']);
+
+
+                if (!empty($request->status)) {
+                    $query->orWhere("status", $request->status);
+                }
+            });
+        } else if (!empty($request->status)) {
+             $invoiceQuery =   $invoiceQuery->where("invoices.status", "like", "%" . $request->status . "%");
+         }
+
 
         if (!empty($request->is_overdue)) {
             if ($request->is_overdue == 0) {
@@ -919,6 +941,189 @@ public function getInvoices($perPage, Request $request)
         return $this->sendError($e, 500,$request);
     }
 }
+/**
+ *
+ * @OA\Get(
+ *      path="/v1.0/invoices/get/all",
+ *      operationId="getAllInvoices",
+ *      tags={"property_management.invoice_management"},
+ *       security={
+ *           {"bearerAuth": {}}
+ *       },
+
+
+ *      * *  @OA\Parameter(
+* name="start_date",
+* in="query",
+* description="start_date",
+* required=true,
+* example="2019-06-29"
+* ),
+ * *  @OA\Parameter(
+* name="end_date",
+* in="query",
+* description="end_date",
+* required=true,
+* example="2019-06-29"
+* ),
+ * *  @OA\Parameter(
+* name="search_key",
+* in="query",
+* description="search_key",
+* required=true,
+* example="search_key"
+* ),
+ * *  @OA\Parameter(
+* name="status",
+* in="query",
+* description="status",
+* required=true,
+* example="status"
+* ),
+ * *  @OA\Parameter(
+* name="is_overdue",
+* in="query",
+* description="is_overdue will return all if not set. if 0 it will return upcoming due date data and for 1 it will return ivoice whic due date passed",
+* required=true,
+* example="1"
+* ),
+ * *  @OA\Parameter(
+* name="is_result_for_payment",
+* in="query",
+* description="is_result_for_payment is true it will return all invoices which requires payment, not draft or pending, and not paid",
+* required=true,
+* example="1"
+* ),
+ * *  @OA\Parameter(
+* name="invoice_reference",
+* in="query",
+* description="invoice_reference",
+* required=true,
+* example="1374"
+* ),
+
+ *      summary="This method is to get invoices ",
+ *      description="This method is to get invoices",
+ *
+
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *       @OA\JsonContent(),
+ *       ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ * @OA\JsonContent(),
+ *      ),
+ *        @OA\Response(
+ *          response=422,
+ *          description="Unprocesseble Content",
+ *    @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *   @OA\JsonContent()
+ * ),
+ *  * @OA\Response(
+ *      response=400,
+ *      description="Bad Request",
+ *   *@OA\JsonContent()
+ *   ),
+ * @OA\Response(
+ *      response=404,
+ *      description="not found",
+ *   *@OA\JsonContent()
+ *   )
+ *      )
+ *     )
+ */
+
+ public function getAllInvoices( Request $request)
+ {
+     try {
+         $this->storeActivity($request,"");
+
+         // $automobilesQuery = AutomobileMake::with("makes");
+
+         $invoiceQuery = Invoice::with("invoice_items","invoice_payments","invoice_reminder")
+         ->where([
+              "invoices.created_by" => $request->user()->id
+         ]);
+         // ->leftJoin('users', 'invoices.created_by', '=', 'users.id')
+
+
+         if (!empty($request->is_result_for_payment)) {
+            $invoiceQuery =   $invoiceQuery->where(function ($query) use ($request) {
+
+                $query->whereNotIn("status", ['draft','paid']);
+
+
+                if (!empty($request->status)) {
+                    $query->orWhere("status", $request->status);
+                }
+            });
+        } else if (!empty($request->status)) {
+             $invoiceQuery =   $invoiceQuery->where("invoices.status", "like", "%" . $request->status . "%");
+         }
+
+
+         if (!empty($request->is_overdue)) {
+             if ($request->is_overdue == 0) {
+                 $invoiceQuery = $invoiceQuery->where('invoices.due_date', ">=", today());
+             }
+             else if($request->is_overdue == 1) {
+                 $invoiceQuery = $invoiceQuery->where('invoices.due_date', "<", today());
+             }
+
+         }
+         if (!empty($request->invoice_reference)) {
+             $invoiceQuery =   $invoiceQuery->where("invoices.invoice_reference", "like", "%" . $request->invoice_reference . "%");
+         }
+
+
+
+         // if (!empty($request->search_key)) {
+         //     $invoiceQuery = $invoiceQuery->where(function ($query) use ($request) {
+         //         $term = $request->search_key;
+         //         $query->where("name", "like", "%" . $term . "%");
+         //     });
+         // }
+
+         if (!empty($request->start_date)) {
+             $invoiceQuery = $invoiceQuery->where('invoices.created_at', ">=", $request->start_date);
+         }
+
+         if (!empty($request->end_date)) {
+             $invoiceQuery = $invoiceQuery->where('invoices.created_at', "<=", $request->end_date);
+         }
+
+         $invoices = $invoiceQuery
+         ->select("invoices.*",
+         DB::raw('
+             COALESCE(
+                 (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+                 0
+             ) AS total_paid
+         '),
+         DB::raw('
+             COALESCE(
+                 invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+                 invoices.total_amount
+             ) AS total_due
+         ')
+     )
+
+
+         ->orderByDesc("invoices.id")->get();
+
+         return response()->json($invoices, 200);
+     } catch (Exception $e) {
+
+         return $this->sendError($e, 500,$request);
+     }
+ }
 
 
 
@@ -984,7 +1189,7 @@ public function getInvoiceById($id, Request $request)
         $this->storeActivity($request,"");
 
 
-        $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder")
+        $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder","tenant","landlord","property")
         ->where([
             "id" => $id,
             "invoices.created_by" => $request->user()->id

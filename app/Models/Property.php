@@ -16,6 +16,7 @@ class Property extends Model
         'country',
         'city',
         'postcode',
+        "town",
         "lat",
         "long",
         'type',

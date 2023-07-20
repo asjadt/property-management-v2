@@ -102,7 +102,7 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
             ])
             ->first();
             if(!$invoice) {
-                throw new Exception("something went wrong");
+                 return response()->json(["message" => "no invoice found or you did not create the invoice"]);
             }
 
             $sum_payment_amounts = $invoice->invoice_payments()->sum('amount');

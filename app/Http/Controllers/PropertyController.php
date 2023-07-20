@@ -126,6 +126,8 @@ public function createPropertyImage(ImageUploadRequest $request)
  *  * *  @OA\Property(property="country", type="string", format="string",example="country"),
  *  * *  @OA\Property(property="city", type="string", format="string",example="Dhaka"),
  *  * *  @OA\Property(property="postcode", type="string", format="string",example="1207"),
+ *  *  * *  @OA\Property(property="town", type="string", format="string",example="town"),
+ *
  *     *  * *  @OA\Property(property="lat", type="string", format="string",example="1207"),
  *     *  * *  @OA\Property(property="long", type="string", format="string",example="1207"),
  *  *     *  * *  @OA\Property(property="type", type="string", format="string",example="type"),
@@ -231,6 +233,8 @@ public function createProperty(PropertyCreateRequest $request)
  *  * *  @OA\Property(property="country", type="string", format="string",example="country"),
  *  * *  @OA\Property(property="city", type="string", format="string",example="Dhaka"),
  *  * *  @OA\Property(property="postcode", type="string", format="string",example="1207"),
+ *  *  * *  @OA\Property(property="town", type="string", format="string",example="town"),
+ *
  *     *  * *  @OA\Property(property="lat", type="string", format="string",example="1207"),
  *     *  * *  @OA\Property(property="long", type="string", format="string",example="1207"),
  *  *     *  * *  @OA\Property(property="type", type="string", format="string",example="type"),
@@ -289,12 +293,8 @@ public function updateProperty(PropertyUpdateRequest $request)
 
 
             $property  =  tap(Property::where([
-
-
                 "id" => $updatableData["id"],
                 "created_by" => $request->user()->id
-
-
                 ]))->update(
                 collect($updatableData)->only([
                 'name',
@@ -303,6 +303,7 @@ public function updateProperty(PropertyUpdateRequest $request)
         'country',
         'city',
         'postcode',
+        "town",
         "lat",
         "long",
         'type',

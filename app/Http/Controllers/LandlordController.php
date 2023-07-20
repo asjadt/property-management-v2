@@ -421,7 +421,16 @@ class LandlordController extends Controller
                 $landlordQuery = $landlordQuery->where('created_at', "<=", $request->end_date);
             }
 
-            $landlords = $landlordQuery->orderByDesc("id")->paginate($perPage);
+            $landlords = $landlordQuery
+            ->select(
+                "landlords.*",
+                DB::raw('
+             COALESCE(
+                 (SELECT COUNT(properties.id) FROM properties WHERE properties.landlord_id = landlords.id),
+                 0
+             ) AS total_properties
+             '))
+            ->orderByDesc("id")->paginate($perPage);
 
             return response()->json($landlords, 200);
         } catch (Exception $e) {
@@ -429,6 +438,116 @@ class LandlordController extends Controller
             return $this->sendError($e, 500,$request);
         }
     }
+/**
+     *
+     * @OA\Get(
+     *      path="/v1.0/landlords/get/all",
+     *      operationId="getAllLandlords",
+     *      tags={"property_management.landlord_management"},
+     *       security={
+     *           {"bearerAuth": {}}
+     *       },
+
+
+     *      * *  @OA\Parameter(
+* name="start_date",
+* in="query",
+* description="start_date",
+* required=true,
+* example="2019-06-29"
+* ),
+     * *  @OA\Parameter(
+* name="end_date",
+* in="query",
+* description="end_date",
+* required=true,
+* example="2019-06-29"
+* ),
+     * *  @OA\Parameter(
+* name="search_key",
+* in="query",
+* description="search_key",
+* required=true,
+* example="search_key"
+* ),
+     *      summary="This method is to get all landlords ",
+     *      description="This method is to get all landlords",
+     *
+
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       @OA\JsonContent(),
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     * @OA\JsonContent(),
+     *      ),
+     *        @OA\Response(
+     *          response=422,
+     *          description="Unprocesseble Content",
+     *    @OA\JsonContent(),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *   @OA\JsonContent()
+     * ),
+     *  * @OA\Response(
+     *      response=400,
+     *      description="Bad Request",
+     *   *@OA\JsonContent()
+     *   ),
+     * @OA\Response(
+     *      response=404,
+     *      description="not found",
+     *   *@OA\JsonContent()
+     *   )
+     *      )
+     *     )
+     */
+
+     public function getAllLandlords(Request $request)
+     {
+         try {
+             $this->storeActivity($request,"");
+
+             // $automobilesQuery = AutomobileMake::with("makes");
+
+             $landlordQuery =  Landlord::where(["created_by" => $request->user()->id]);
+
+             if (!empty($request->search_key)) {
+                 $landlordQuery = $landlordQuery->where(function ($query) use ($request) {
+                     $term = $request->search_key;
+                     $query->where("name", "like", "%" . $term . "%");
+                 });
+             }
+
+             if (!empty($request->start_date)) {
+                 $landlordQuery = $landlordQuery->where('created_at', ">=", $request->start_date);
+             }
+             if (!empty($request->end_date)) {
+                 $landlordQuery = $landlordQuery->where('created_at', "<=", $request->end_date);
+             }
+
+             $landlords = $landlordQuery
+             ->select(
+                "landlords.*",
+                DB::raw('
+             COALESCE(
+                 (SELECT COUNT(properties.id) FROM properties WHERE properties.landlord_id = landlords.id),
+                 0
+             ) AS total_properties
+             '))
+             ->orderByDesc("id")->get();
+
+             return response()->json($landlords, 200);
+         } catch (Exception $e) {
+
+             return $this->sendError($e, 500,$request);
+         }
+     }
 
 
 
@@ -498,6 +617,14 @@ class LandlordController extends Controller
                 "id" => $id,
                 "created_by" => $request->user()->id
             ])
+            ->select(
+                "landlords.*",
+                DB::raw('
+             COALESCE(
+                 (SELECT COUNT(properties.id) FROM properties WHERE properties.landlord_id = landlords.id),
+                 0
+             ) AS total_properties
+             '))
             ->first();
 
             if(!$landlord) {

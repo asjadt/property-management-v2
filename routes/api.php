@@ -37,6 +37,8 @@ use App\Http\Controllers\NotificationTemplateController;
 use App\Http\Controllers\PaymentTypeController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\property_management\BasicController;
+use App\Http\Controllers\PropertyBasicController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\RepairCategoryController;
@@ -169,7 +171,9 @@ Route::delete('/v1.0/sale-items/{id}', [SaleItemController::class, "deleteSaleIt
 Route::post('/v1.0/landlord-image', [LandlordController::class, "createLandlordImage"]);
 Route::post('/v1.0/landlords', [LandlordController::class, "createLandlord"]);
 Route::put('/v1.0/landlords', [LandlordController::class, "updateLandlord"]);
+
 Route::get('/v1.0/landlords/{perPage}', [LandlordController::class, "getLandlords"]);
+Route::get('/v1.0/landlords/get/all', [LandlordController::class, "getAllLandlords"]);
 Route::get('/v1.0/landlords/get/single/{id}', [LandlordController::class, "getLandlordById"]);
 Route::delete('/v1.0/landlords/{id}', [LandlordController::class, "deleteLandlordById"]);
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -227,6 +231,8 @@ Route::delete('/v1.0/repair-categories/{id}', [RepairCategoryController::class, 
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 
+Route::get('/v1.0/activities/{perPage}', [PropertyBasicController::class, "showActivity"]);
+
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // Repair management section
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -256,6 +262,9 @@ Route::post('/v1.0/invoices', [InvoiceController::class, "createInvoice"]);
 Route::put('/v1.0/invoices', [InvoiceController::class, "updateInvoice"]);
 Route::put('/v1.0/invoices/send', [InvoiceController::class, "sendInvoice"]);
 Route::get('/v1.0/invoices/{perPage}', [InvoiceController::class, "getInvoices"]);
+
+Route::get('/v1.0/invoices/get/all', [InvoiceController::class, "getAllInvoices"]);
+
 Route::get('/v1.0/invoices/get/single/{id}', [InvoiceController::class, "getInvoiceById"]);
 Route::delete('/v1.0/invoices/{id}', [InvoiceController::class, "deleteInvoiceById"]);
 Route::delete('/v1.0/invoice-items/{invoice_id}/{id}', [InvoiceController::class, "deleteInvoiceById"]);

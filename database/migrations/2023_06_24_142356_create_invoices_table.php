@@ -42,6 +42,7 @@ class CreateInvoicesTable extends Migration
             $table->date("invoice_date");
 
 
+            $table->string("shareable_link")->nullable();
             $table->string("footer_text")->nullable();
             $table->string("note")->nullable();
 

@@ -21,6 +21,7 @@ class Invoice extends Model
         "total_amount",
         "invoice_date",
         "footer_text",
+        "shareable_link",
         "note",
         "property_id",
         "landlord_id",

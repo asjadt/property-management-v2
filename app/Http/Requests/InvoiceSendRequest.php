@@ -30,7 +30,7 @@ class InvoiceSendRequest extends FormRequest
             "to.*"=>"string|email",
             "subject"=>"required|string",
 
-            "message" => "required|string" ,
+            "message" => "nullable|string" ,
             "copy_to_myself"=>"required|boolean",
             "attach_pdf"=>"required|boolean",
         ];
