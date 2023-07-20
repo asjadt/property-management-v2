@@ -507,6 +507,13 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                 if(!$invoice) {
                     throw new Exception("something went wrong");
                 }
+                if(!empty($updatableData["status"])) {
+                    if(($invoice->status == "draft" || $invoice->status == "unsent") && ( $updatableData["status"] == "draft" || $updatableData["status"] == "unsent")) {
+                        $invoice->status = $updatableData["status"];
+                        $invoice->save();
+                    }
+
+                }
                 $invoiceItemsData = collect($updatableData["invoice_items"])->map(function ($item)use ($invoice) {
                     return [
                         "id" => $item["id"],
@@ -590,13 +597,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                 }
 
 
-                if(!empty($updatableData["status"])) {
-                    if($invoice->status == "draft" || $invoice->status == "unsent") {
-                        $invoice->status = $updatableData["status"];
-                        $invoice->save();
-                    }
 
-                }
 
 
                 $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder")

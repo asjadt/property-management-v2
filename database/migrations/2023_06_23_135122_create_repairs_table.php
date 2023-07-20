@@ -21,7 +21,7 @@ class CreateRepairsTable extends Migration
 
 
             $table->unsignedBigInteger("repair_category_id");
-            $table->foreign('repair_category_id')->references('id')->on('repair_categories')->onDelete('cascade');
+            $table->foreign('repair_category_id')->references('id')->on('repair_categories')->onDelete('restrict');
 
             $table->string('item_description')->nullable();
             $table->text('receipt')->nullable();

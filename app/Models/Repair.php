@@ -21,11 +21,11 @@ class Repair extends Model
     ];
 
     public function repair_category() {
-        return $this->hasMany(RepairCategory::class,'id','repair_category_id');
+        return $this->hasOne(RepairCategory::class,'id','repair_category_id');
     }
 
     public function property() {
-        return $this->hasMany(Property::class,'id','property_id');
+        return $this->hasOne(Property::class,'id','property_id');
     }
     public function repair_images() {
         return $this->hasMany(RepairImage::class,'repair_id','id');

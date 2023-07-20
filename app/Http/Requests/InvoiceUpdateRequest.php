@@ -40,7 +40,7 @@ class InvoiceUpdateRequest extends FormRequest
             "shareable_link" =>"nullable|string",
             "property_id"=>"nullable|numeric|exists:properties,id",
 
-            "status"=>"nullable|string|in:draft,unsent",
+            "status"=>"nullable|string",
 
             "discount_description"=>"nullable|string",
             "discound_type"=>"nullable|string|in:fixed,percentage",

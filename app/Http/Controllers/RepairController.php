@@ -367,6 +367,7 @@ public function createRepair(RepairCreateRequest $request)
 
 
 
+
             $insertableData = $request->validated();
             $insertableData["created_by"] = $request->user()->id;
             $repair =  Repair::create($insertableData);
@@ -473,6 +474,7 @@ public function updateRepair(RepairUpdateRequest $request)
         $this->storeActivity($request,"");
 
         return  DB::transaction(function () use ($request) {
+
 
             $updatableData = $request->validated();
 
@@ -596,7 +598,8 @@ public function getRepairs($perPage, Request $request)
     try {
         $this->storeActivity($request,"");
 
-        // $automobilesQuery = AutomobileMake::with("makes");
+
+
 
         $repairQuery =  Repair::with("repair_category","property")->where(["created_by" => $request->user()->id]);
 
@@ -774,6 +777,7 @@ public function getRepairById($id, Request $request)
 
 public function deleteRepairById($id, Request $request)
 {
+
 
     try {
         $this->storeActivity($request,"");

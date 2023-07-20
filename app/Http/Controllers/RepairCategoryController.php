@@ -163,7 +163,11 @@ public function createRepairCategory(RepairCategoryCreateRequest $request)
     try {
         $this->storeActivity($request,"");
         return DB::transaction(function () use ($request) {
-
+            if (!$request->user()->hasPermissionTo('repair_category_create')) {
+                return response()->json([
+                    "message" => "You can not perform this action"
+                ], 401);
+            }
 
 
             $insertableData = $request->validated();
@@ -252,7 +256,11 @@ public function updateRepairCategory(RepairCategoryUpdateRequest $request)
     try {
         $this->storeActivity($request,"");
         return  DB::transaction(function () use ($request) {
-
+            if (!$request->user()->hasPermissionTo('repair_category_update')) {
+                return response()->json([
+                    "message" => "You can not perform this action"
+                ], 401);
+            }
             $updatableData = $request->validated();
 
             // $affiliationPrev = RepairCategory::where([
@@ -372,6 +380,11 @@ public function getRepairCategories($perPage, Request $request)
 {
     try {
         $this->storeActivity($request,"");
+        if (!$request->user()->hasPermissionTo('repair_category_view')) {
+            return response()->json([
+                "message" => "You can not perform this action"
+            ], 401);
+        }
 
         // $automobilesQuery = AutomobileMake::with("makes");
 
@@ -462,11 +475,16 @@ public function getRepairCategoryById($id, Request $request)
 {
     try {
         $this->storeActivity($request,"");
+        if (!$request->user()->hasPermissionTo('repair_category_view')) {
+            return response()->json([
+                "message" => "You can not perform this action"
+            ], 401);
+        }
 
 
         $repair_category = RepairCategory::where([
             "id" => $id,
-            "created_by" => $request->user()->id
+            // "created_by" => $request->user()->id
         ])
         ->first();
 
@@ -501,7 +519,7 @@ public function getRepairCategoryById($id, Request $request)
  *      tags={"property_management.repair_category_management"},
  *       security={
  *           {"bearerAuth": {}},
- *           {"pin": {}}
+ *
  *       },
  *              @OA\Parameter(
  *         name="id",
@@ -553,21 +571,27 @@ public function deleteRepairCategoryById($id, Request $request)
 
     try {
         $this->storeActivity($request,"");
-
-        $business = Business::where([
-            "owner_id" => $request->user()->id
-          ])->first();
-
-        if(!$business) {
+        if (!$request->user()->hasPermissionTo('repair_category_delete')) {
             return response()->json([
-             "message" => "you don't have a valid business"
-            ],401);
-         }
-         if(!($business->pin == $request->header("pin"))) {
-             return response()->json([
-                 "message" => "invalid pin"
-                ],401);
-         }
+                "message" => "You can not perform this action"
+            ], 401);
+        }
+
+
+        // $business = Business::where([
+        //     "owner_id" => $request->user()->id
+        //   ])->first();
+
+        // if(!$business) {
+        //     return response()->json([
+        //      "message" => "you don't have a valid business"
+        //     ],401);
+        //  }
+        //  if(!($business->pin == $request->header("pin"))) {
+        //      return response()->json([
+        //          "message" => "invalid pin"
+        //         ],401);
+        //  }
         $repair_category = RepairCategory::where([
             "id" => $id,
             "created_by" => $request->user()->id

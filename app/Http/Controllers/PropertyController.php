@@ -820,9 +820,14 @@ public function generatePropertyReferenceNumber(Request $request)
 
         $prefix = "";
         if ($business) {
-            $prefix = preg_replace_callback('/\b\w/', function ($matches) {
-                return strtoupper($matches[0]);
-            }, $business->name);
+            preg_match_all('/\b\w/', $business->name, $matches);
+
+            $prefix = implode('', array_map(function ($match) {
+                return strtoupper($match[0]);
+            }, $matches[0]));
+
+            // If you want to get only the first two letters from each word:
+            $prefix = substr($prefix, 0, 2 * count($matches[0]));
         }
 
         $current_number = 1; // Start from 0001
@@ -908,7 +913,7 @@ public function validatePropertyReferenceNumber($reference_no, Request $request)
    try {
        $this->storeActivity($request,"");
 
-       $reference_no_exists =  DB::table( 'properties' )->where( [
+       $reference_no_exists =  DB::table( 'properties' )->where([
           'reference_no'=> $reference_no,
           "created_by" => $request->user()->id
        ]
