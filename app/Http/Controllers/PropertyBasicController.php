@@ -11,6 +11,7 @@ use App\Models\Property;
 use App\Models\Receipt;
 use App\Models\Repair;
 use App\Models\Tenant;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -255,6 +256,9 @@ use ErrorUtil,UserActivityUtil;
                     return $item->type == 'invoice';
                 })->sum("total_amount");
 
+                $section_1["start_date"] = $request->start_date;
+                $section_1["end_date"] = $request->end_date;
+                $section_1["property"] = $property;
 
                 return response()->json([
                     "section_1"=>$section_1,
@@ -317,7 +321,9 @@ use ErrorUtil,UserActivityUtil;
                     return $item->type == 'invoice';
                 })->sum("total_amount");
 
-
+                $section_1["start_date"] = $request->start_date;
+                $section_1["end_date"] = $request->end_date;
+                $section_1["landlord"] = $landlord;
                 return response()->json([
                     "section_1"=>$section_1,
                     "section_2"=>$activitiesPaginated,
@@ -380,8 +386,9 @@ use ErrorUtil,UserActivityUtil;
                 $section_1["invoice_total_amount"] =   collect($activitiesPaginated->items())->filter(function ($item) {
                     return $item->type == 'invoice';
                 })->sum("total_amount");
-
-
+                $section_1["start_date"] = $request->start_date;
+                $section_1["end_date"] = $request->end_date;
+                $section_1["tenant"] = $tenant;
                 return response()->json([
                     "section_1"=>$section_1,
                     "section_2"=>$activitiesPaginated,
@@ -488,4 +495,169 @@ use ErrorUtil,UserActivityUtil;
          return $this->sendError($e, 500,$request);
      }
  }
+   /**
+     *
+     * @OA\Get(
+     *      path="/v1.0//dashboard",
+     *      operationId="getDashboardData",
+     *      tags={"property_management.basics"},
+     *       security={
+     *           {"bearerAuth": {}}
+     *       },
+
+     *      summary="get all dashboard data combined",
+     *      description="get all dashboard data combined",
+     *
+
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       @OA\JsonContent(),
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     * @OA\JsonContent(),
+     *      ),
+     *        @OA\Response(
+     *          response=422,
+     *          description="Unprocesseble Content",
+     *    @OA\JsonContent(),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *   @OA\JsonContent()
+     * ),
+     *  * @OA\Response(
+     *      response=400,
+     *      description="Bad Request",
+     *   *@OA\JsonContent()
+     *   ),
+     * @OA\Response(
+     *      response=404,
+     *      description="not found",
+     *   *@OA\JsonContent()
+     *   )
+     *      )
+     *     )
+     */
+
+     public function getDashboardData( Request $request)
+     {
+         try{
+             $this->storeActivity($request,"");
+
+
+             $data["total_paid_amount"] = Invoice::leftJoin('invoice_payments', 'invoice_payments.invoice_id', '=', 'invoices.id')
+             ->where([
+                "invoices.created_by" => $request->user()->id
+             ])
+             ->sum("invoice_payments.amount");
+
+             $data["total_paid_invoice"] = Invoice::where([
+                "invoices.created_by" => $request->user()->id
+             ])
+          ->select(
+
+            DB::raw('
+            COALESCE(
+                invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+                invoices.total_amount
+            ) AS total_due
+        ')
+          )
+          ->havingRaw('total_due = 0')
+          ->count()
+          ;
+
+          $data["total_due_invoice"] = Invoice::where([
+            "invoices.created_by" => $request->user()->id
+         ])
+      ->select(
+        DB::raw('
+        COALESCE(
+            invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+            invoices.total_amount
+        ) AS total_due
+    ')
+      )
+      ->havingRaw('total_due > 0')
+      ->count();
+
+
+$currentDate = Carbon::now();
+$endDate = $currentDate->copy()->addDays(15);
+
+      $data["next_15_days_invoice_due_dates"] = Invoice::where([
+        "invoices.created_by" => $request->user()->id
+     ])
+     ->whereDate('invoices.due_date', '>=', $currentDate)
+     ->whereDate('invoices.due_date', '<=', $endDate)
+  ->select(
+    DB::raw('
+    COALESCE(
+        invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+        invoices.total_amount
+    ) AS total_due
+')
+  )
+  ->havingRaw('total_due > 0')
+  ->count();
+
+  $data["next_15_days_invoice_due_amounts"] = Invoice::where([
+    "invoices.created_by" => $request->user()->id
+ ])
+ ->whereDate('invoices.due_date', '>=', $currentDate)
+ ->whereDate('invoices.due_date', '<=', $endDate)
+->select(
+DB::raw('
+COALESCE(
+    invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+    invoices.total_amount
+) AS total_due
+')
+)
+->havingRaw('total_due > 0')
+->count();
+
+$data["next_15_days_invoice_due_amounts"] = Invoice::where([
+    "invoices.created_by" => $request->user()->id
+ ])
+ ->whereDate('invoices.due_date', '>=', $currentDate)
+ ->whereDate('invoices.due_date', '<=', $endDate)
+->select(
+DB::raw('
+COALESCE(
+    invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+    invoices.total_amount
+) AS total_due
+')
+)
+->selectRaw('SUM(COALESCE(
+    invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+    invoices.total_amount
+)) AS total_due_sum')
+->having('total_due_sum', '>', 0)
+->get();
+$data["next_15_days_invoice_due_amounts"] = $data["next_15_days_invoice_due_amounts"]->sum('total_due_sum');
+
+
+
+
+
+
+
+
+
+
+
+
+             return response()->json($data, 200);
+         }catch(Exception $e) {
+       return $this->sendError($e, 500,$request);
+         }
+
+     }
+
 }

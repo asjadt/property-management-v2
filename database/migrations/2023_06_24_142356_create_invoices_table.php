@@ -25,8 +25,8 @@ class CreateInvoicesTable extends Migration
 
 
             $table->string("discount_description")->nullable();
-            $table->enum("discound_type",["fixed","percentage"])->default("fixed");
-            $table->string("discount_amount")->default(0);
+            $table->enum("discound_type",["fixed","percentage"])->default("fixed")->nullable();
+            $table->string("discount_amount")->default(0)->nullable();
             $table->double("total_amount")->default(0);
             $table->double("sub_total")->default(0);
 

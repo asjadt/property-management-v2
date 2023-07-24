@@ -133,6 +133,7 @@ Route::middleware(['auth:api'])->group(function () {
 
     Route::put('/v1.0/update-user-info', [AuthController::class, "updateUserInfo"]);
 
+    Route::get('/v1.0//dashboard', [PropertyBasicController::class, "getDashboardData"]);
 
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // payment type management section

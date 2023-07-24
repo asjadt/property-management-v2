@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class Property extends Model
 {
@@ -28,4 +29,21 @@ class Property extends Model
     public function property_tenants() {
         return $this->belongsToMany(Tenant::class, 'property_tenants', 'property_id', 'tenant_id');
     }
+    public function landlord() {
+        return $this->hasOne(Landlord::class,'id','landlord_id');
+    }
+
+    public function repairs() {
+        return $this->hasMany(Repair::class,'property_id','id');
+    }
+    public function invoices() {
+        return $this->hasMany(Invoice::class,'property_id','id')
+        ->select('*', DB::raw('
+        COALESCE(
+            invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+            invoices.total_amount
+        ) AS total_due
+    '));
+    }
+
 }

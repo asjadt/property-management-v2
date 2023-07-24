@@ -9,6 +9,7 @@ use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Business;
 use App\Models\Landlord;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -402,26 +403,28 @@ class LandlordController extends Controller
     {
         try {
             $this->storeActivity($request,"");
-
+            $currentDate = Carbon::now();
+            $endDate = $currentDate->copy()->addDays(15);
             // $automobilesQuery = AutomobileMake::with("makes");
 
-            $landlordQuery =  Landlord::where(["created_by" => $request->user()->id]);
+            $landlordQuery =  Landlord::where(["landlords.created_by" => $request->user()->id]);
 
             if (!empty($request->search_key)) {
                 $landlordQuery = $landlordQuery->where(function ($query) use ($request) {
                     $term = $request->search_key;
-                    $query->where("name", "like", "%" . $term . "%");
+                    $query->where("landlords.name", "like", "%" . $term . "%");
                 });
             }
 
             if (!empty($request->start_date)) {
-                $landlordQuery = $landlordQuery->where('created_at', ">=", $request->start_date);
+                $landlordQuery = $landlordQuery->where('landlords.created_at', ">=", $request->start_date);
             }
             if (!empty($request->end_date)) {
-                $landlordQuery = $landlordQuery->where('created_at', "<=", $request->end_date);
+                $landlordQuery = $landlordQuery->where('landlords.created_at', "<=", $request->end_date);
             }
 
             $landlords = $landlordQuery
+
             ->select(
                 "landlords.*",
                 DB::raw('
@@ -429,7 +432,81 @@ class LandlordController extends Controller
                  (SELECT COUNT(properties.id) FROM properties WHERE properties.landlord_id = landlords.id),
                  0
              ) AS total_properties
-             '))
+             '),
+
+             DB::raw(
+
+                '
+             COALESCE(
+                 (SELECT SUM(invoices.total_amount) FROM invoices WHERE invoices.landlord_id = landlords.id),
+                 0
+             ) AS total_amount
+             '
+
+             ),
+             DB::raw(
+                '
+             COALESCE(
+                 (SELECT SUM(invoice_payments.amount) FROM invoices
+                 LEFT JOIN
+                    invoice_payments ON invoices.id = invoice_payments.invoice_id
+                 WHERE invoices.landlord_id = landlords.id),
+                 0
+             ) AS total_paid
+             '
+             ),
+             DB::raw(
+                '
+                COALESCE(
+                COALESCE(
+                    (SELECT SUM(invoices.total_amount) FROM invoices WHERE invoices.landlord_id = landlords.id),
+                    0
+                )
+                -
+                COALESCE(
+                    (SELECT SUM(invoice_payments.amount) FROM invoices
+                    LEFT JOIN
+                       invoice_payments ON invoices.id = invoice_payments.invoice_id
+                    WHERE invoices.landlord_id = landlords.id),
+                    0
+                )
+             )
+             as total_due
+
+             '
+                ),
+                DB::raw(
+                    '
+                    COALESCE(
+                    COALESCE(
+                        (SELECT SUM(invoices.total_amount) FROM invoices
+                        WHERE  invoices.landlord_id = landlords.id
+                        AND invoices.due_date >= "' . $currentDate . '"
+                        AND invoices.due_date <= "' . $endDate . '"
+
+                    ),
+                        0
+                    )
+                    -
+                    COALESCE(
+                        (SELECT SUM(invoice_payments.amount) FROM invoices
+                        LEFT JOIN
+                           invoice_payments ON invoices.id = invoice_payments.invoice_id
+                        WHERE invoices.landlord_id = landlords.id
+                        AND invoices.due_date >= "' . $currentDate . '"
+                        AND invoices.due_date <= "' . $endDate . '"
+
+                    ),
+                        0
+                    )
+                 )
+                 as total_due_next_15_days
+
+                 '
+                ),
+
+
+             )
             ->orderByDesc("id")->paginate($perPage);
 
             return response()->json($landlords, 200);

@@ -443,7 +443,17 @@ public function getProperties($perPage, Request $request)
             $propertyQuery = $propertyQuery->where('created_at', "<=", $request->end_date);
         }
 
-        $properties = $propertyQuery->orderByDesc("id")->paginate($perPage);
+        $properties = $propertyQuery->orderByDesc("id")
+        ->select(
+            "properties.*",
+            DB::raw('
+            COALESCE(
+                (SELECT COUNT(invoices.id) FROM invoices WHERE invoices.property_id = properties.id),
+                0
+            ) AS total_invoice
+        '),
+            )
+        ->paginate($perPage);
 
         return response()->json($properties, 200);
     } catch (Exception $e) {
@@ -632,7 +642,15 @@ public function getPropertyById($id, Request $request)
         $this->storeActivity($request,"");
 
 
-        $property = Property::where([
+        $property = Property::
+        with(
+            "property_tenants",
+            "landlord",
+            "repairs.repair_category",
+            "invoices"
+
+            )
+        ->where([
             "id" => $id,
             "created_by" => $request->user()->id
         ])

@@ -534,6 +534,13 @@ public function updateRepair(RepairUpdateRequest $request)
  *         required=true,
  *  example="6"
  *      ),
+ * *      * *  @OA\Parameter(
+* name="property_id",
+* in="query",
+* description="property_id",
+* required=true,
+* example="1"
+* ),
  *      * *  @OA\Parameter(
 * name="start_date",
 * in="query",
@@ -616,6 +623,10 @@ public function getRepairs($perPage, Request $request)
         if (!empty($request->end_date)) {
             $repairQuery = $repairQuery->where('created_at', "<=", $request->end_date);
         }
+        if (!empty($request->property_id)) {
+            $repairQuery = $repairQuery->where('property_id', $request->property_id);
+        }
+
 
         $repairs = $repairQuery->orderByDesc("id")->paginate($perPage);
 
