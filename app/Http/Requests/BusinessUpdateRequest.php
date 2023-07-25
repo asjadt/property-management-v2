@@ -48,7 +48,7 @@ class BusinessUpdateRequest extends FormRequest
             'business.long' => 'required|string',
             'business.country' => 'required|string',
             'business.city' => 'required|string',
-            'business.postcode' => 'required|string',
+            'business.postcode' => 'nullable|string',
             'business.address_line_1' => 'required|string',
             'business.address_line_2' => 'nullable|string',
 
@@ -57,6 +57,9 @@ class BusinessUpdateRequest extends FormRequest
             'business.image' => 'nullable|string',
             "business.footer_text" => "nullable|string",
             "business.is_reference_manual" => "required|boolean",
+            "business.account_name" => "nullable|string",
+            "business.account_number" => "nullable|string",
+            "business.sort_code" => "nullable|string",
             "business.pin" => "required|string",
 
             // 'business.images' => 'nullable|array',

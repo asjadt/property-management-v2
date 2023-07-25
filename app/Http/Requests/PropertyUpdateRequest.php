@@ -35,7 +35,7 @@ class PropertyUpdateRequest extends FormRequest
             'lat' => 'nullable|string',
             'long' => 'nullable|string',
             'type'=>"required|string",
-            'reference_no' => 'required|string|max:255|unique:properties,reference_no',
+            'reference_no' => 'required|string|max:255',
             'landlord_id' => "nullable|numeric|exists:landlords,id",
             'tenant_ids' => 'nullable|array',
             'tenant_ids.*' => 'nullable|exists:tenants,id',

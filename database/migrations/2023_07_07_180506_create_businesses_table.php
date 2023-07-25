@@ -27,11 +27,19 @@ class CreateBusinessesTable extends Migration
             $table->string("long")->nullable();
             $table->string("country");
             $table->string("city");
-            $table->string("postcode");
+            $table->string("postcode")->nullable();
             $table->string("currency")->nullable();
             $table->string("logo")->nullable();
             $table->string("footer_text")->nullable();
             $table->boolean("is_reference_manual")->default(0);
+
+            $table->string("account_name")->nullable();
+            $table->string("account_number")->nullable();
+            $table->string("sort_code")->nullable();
+
+
+
+
             $table->string("pin");
 
             $table->string("image")->nullable();

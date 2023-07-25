@@ -475,6 +475,7 @@ class LandlordController extends Controller
 
              '
                 ),
+
                 DB::raw(
                     '
                     COALESCE(
@@ -501,6 +502,35 @@ class LandlordController extends Controller
                     )
                  )
                  as total_due_next_15_days
+
+                 '
+                ),
+                DB::raw(
+                    '
+                    COALESCE(
+                    COALESCE(
+                        (SELECT SUM(invoices.total_amount) FROM invoices
+                        WHERE  invoices.landlord_id = landlords.id
+                        AND invoices.due_date < "' . today() . '"
+
+
+                    ),
+                        0
+                    )
+                    -
+                    COALESCE(
+                        (SELECT SUM(invoice_payments.amount) FROM invoices
+                        LEFT JOIN
+                           invoice_payments ON invoices.id = invoice_payments.invoice_id
+                        WHERE invoices.landlord_id = landlords.id
+                        AND invoices.due_date < "' . today() . '"
+
+
+                    ),
+                        0
+                    )
+                 )
+                 as total_over_due
 
                  '
                 ),
@@ -607,16 +637,122 @@ class LandlordController extends Controller
              if (!empty($request->end_date)) {
                  $landlordQuery = $landlordQuery->where('created_at', "<=", $request->end_date);
              }
-
+             $currentDate = Carbon::now();
+             $endDate = $currentDate->copy()->addDays(15);
              $landlords = $landlordQuery
+
              ->select(
-                "landlords.*",
-                DB::raw('
-             COALESCE(
-                 (SELECT COUNT(properties.id) FROM properties WHERE properties.landlord_id = landlords.id),
-                 0
-             ) AS total_properties
-             '))
+                 "landlords.*",
+                 DB::raw('
+              COALESCE(
+                  (SELECT COUNT(properties.id) FROM properties WHERE properties.landlord_id = landlords.id),
+                  0
+              ) AS total_properties
+              '),
+
+              DB::raw(
+
+                 '
+              COALESCE(
+                  (SELECT SUM(invoices.total_amount) FROM invoices WHERE invoices.landlord_id = landlords.id),
+                  0
+              ) AS total_amount
+              '
+
+              ),
+              DB::raw(
+                 '
+              COALESCE(
+                  (SELECT SUM(invoice_payments.amount) FROM invoices
+                  LEFT JOIN
+                     invoice_payments ON invoices.id = invoice_payments.invoice_id
+                  WHERE invoices.landlord_id = landlords.id),
+                  0
+              ) AS total_paid
+              '
+              ),
+              DB::raw(
+                 '
+                 COALESCE(
+                 COALESCE(
+                     (SELECT SUM(invoices.total_amount) FROM invoices WHERE invoices.landlord_id = landlords.id),
+                     0
+                 )
+                 -
+                 COALESCE(
+                     (SELECT SUM(invoice_payments.amount) FROM invoices
+                     LEFT JOIN
+                        invoice_payments ON invoices.id = invoice_payments.invoice_id
+                     WHERE invoices.landlord_id = landlords.id),
+                     0
+                 )
+              )
+              as total_due
+
+              '
+                 ),
+
+                 DB::raw(
+                     '
+                     COALESCE(
+                     COALESCE(
+                         (SELECT SUM(invoices.total_amount) FROM invoices
+                         WHERE  invoices.landlord_id = landlords.id
+                         AND invoices.due_date >= "' . $currentDate . '"
+                         AND invoices.due_date <= "' . $endDate . '"
+
+                     ),
+                         0
+                     )
+                     -
+                     COALESCE(
+                         (SELECT SUM(invoice_payments.amount) FROM invoices
+                         LEFT JOIN
+                            invoice_payments ON invoices.id = invoice_payments.invoice_id
+                         WHERE invoices.landlord_id = landlords.id
+                         AND invoices.due_date >= "' . $currentDate . '"
+                         AND invoices.due_date <= "' . $endDate . '"
+
+                     ),
+                         0
+                     )
+                  )
+                  as total_due_next_15_days
+
+                  '
+                 ),
+                 DB::raw(
+                     '
+                     COALESCE(
+                     COALESCE(
+                         (SELECT SUM(invoices.total_amount) FROM invoices
+                         WHERE  invoices.landlord_id = landlords.id
+                         AND invoices.due_date < "' . today() . '"
+
+
+                     ),
+                         0
+                     )
+                     -
+                     COALESCE(
+                         (SELECT SUM(invoice_payments.amount) FROM invoices
+                         LEFT JOIN
+                            invoice_payments ON invoices.id = invoice_payments.invoice_id
+                         WHERE invoices.landlord_id = landlords.id
+                         AND invoices.due_date < "' . today() . '"
+
+
+                     ),
+                         0
+                     )
+                  )
+                  as total_over_due
+
+                  '
+                 ),
+
+
+              )
              ->orderByDesc("id")->get();
 
              return response()->json($landlords, 200);

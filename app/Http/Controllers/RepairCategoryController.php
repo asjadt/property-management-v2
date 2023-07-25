@@ -388,7 +388,7 @@ public function getRepairCategories($perPage, Request $request)
 
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $repair_categoryQuery =  RepairCategory::where(["created_by" => $request->user()->id]);
+        $repair_categoryQuery =  new RepairCategory();
 
         if (!empty($request->search_key)) {
             $repair_categoryQuery = $repair_categoryQuery->where(function ($query) use ($request) {

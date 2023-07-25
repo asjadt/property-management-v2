@@ -363,6 +363,10 @@ class UserManagementController extends Controller
      *  "postcode":"Dinajpur",
      * "footer_text":"footer_text",
      * "is_reference_manual":"1",
+     * "account_name":"thdht rth s",
+     * "account_number":"fdghdgh",
+     * "sort_code":"sort_coderthdrfth",
+     *
      * "pin":"1234",
      *
      *  "logo":"https://images.unsplash.com/photo-1671410714831-969877d103b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
@@ -521,6 +525,9 @@ class UserManagementController extends Controller
      *  "postcode":"Dinajpur",
      *  "footer_text":"footer_text",
      * "is_reference_manual":"1",
+     *   * "account_name":"thdht rth s",
+     * "account_number":"fdghdgh",
+     * "sort_code":"sort_coderthdrfth",
      * "pin":"1234",
      *
      *  "logo":"https://images.unsplash.com/photo-1671410714831-969877d103b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
@@ -674,12 +681,18 @@ class UserManagementController extends Controller
                 "long",
                 "country",
                 "city",
+                "currency",
                 "postcode",
                 "logo",
                 "image",
                 "status",
-                "footer_text"
 
+                "footer_text",
+               "is_reference_manual",
+               "business.account_name" ,
+               "business.account_number",
+               "business.sort_code",
+               "pin" ,
 
 
         ])->toArray()

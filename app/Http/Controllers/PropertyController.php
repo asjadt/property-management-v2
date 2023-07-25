@@ -183,6 +183,23 @@ public function createProperty(PropertyCreateRequest $request)
 
             $insertableData = $request->validated();
             $insertableData["created_by"] = $request->user()->id;
+
+            $reference_no_exists =  DB::table( 'properties' )->where([
+                'reference_no'=> $insertableData['reference_no'],
+                "created_by" => $request->user()->id
+             ]
+             )->exists();
+             if ($reference_no_exists) {
+                $error =  [
+                       "message" => "The given data was invalid.",
+                       "errors" => ["reference_no"=>["The reference no has already been taken."]]
+                ];
+                   throw new Exception(json_encode($error),422);
+               }
+
+
+
+
             $property =  Property::create($insertableData);
 
 
@@ -289,7 +306,19 @@ public function updateProperty(PropertyUpdateRequest $request)
             $updatableData = $request->validated();
 
 
-
+            $reference_no_exists =  DB::table( 'properties' )->where([
+                'reference_no'=> $updatableData['reference_no'],
+                "created_by" => $request->user()->id
+             ]
+             )
+             ->whereNotIn('id', [$updatableData["id"]])->exists();
+             if ($reference_no_exists) {
+                $error =  [
+                       "message" => "The given data was invalid.",
+                       "errors" => ["reference_no"=>["The reference no has already been taken."]]
+                ];
+                   throw new Exception(json_encode($error),422);
+               }
 
 
             $property  =  tap(Property::where([
@@ -501,6 +530,13 @@ public function getProperties($perPage, Request $request)
 * required=true,
 * example="address"
 * ),
+ * *  @OA\Parameter(
+* name="landlord_id",
+* in="query",
+* description="landlord_id",
+* required=true,
+* example="1"
+* ),
  *      summary="This method is to get properties ",
  *      description="This method is to get properties",
  *
@@ -556,8 +592,11 @@ public function getProperties($perPage, Request $request)
              });
          }
 
+         if (!empty($request->landlord_id)) {
+            $propertyQuery =  $propertyQuery->where("landlord_id", $request->landlord_id );
+        }
          if (!empty($request->address)) {
-             $propertyQuery =  $propertyQuery->orWhere("address", "like", "%" . $request->address . "%");
+             $propertyQuery =  $propertyQuery->where("address", "like", "%" . $request->address . "%");
          }
 
          if (!empty($request->start_date)) {
