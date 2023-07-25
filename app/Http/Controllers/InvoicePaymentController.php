@@ -13,6 +13,7 @@ use App\Models\Invoice;
 use App\Models\InvoicePayment;
 use App\Models\Landlord;
 use App\Models\Tenant;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -94,6 +95,10 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
 
             $insertableData = $request->validated();
             $insertableData["created_by"] = $request->user()->id;
+
+            $invoiceDateWithTime = Carbon::createFromFormat('Y-m-d', $insertableData["payment_date"]);
+            $invoiceDateWithTime->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
+            $insertableData["payment_date"] =    $invoiceDateWithTime;
 
             $invoice = Invoice::where([
                 "id" => $insertableData["invoice_id"],
@@ -375,6 +380,10 @@ public function updateInvoicePayment(InvoicePaymentUpdateRequest $request)
         return  DB::transaction(function () use ($request) {
 
             $updatableData = $request->validated();
+
+            $invoiceDateWithTime = Carbon::createFromFormat('Y-m-d', $updatableData["payment_date"]);
+            $invoiceDateWithTime->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
+            $updatableData["payment_date"] =    $invoiceDateWithTime;
 
             // $affiliationPrev = InvoicePayments::where([
             //     "id" => $updatableData["id"]

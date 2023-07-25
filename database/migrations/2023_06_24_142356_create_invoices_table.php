@@ -39,7 +39,7 @@ class CreateInvoicesTable extends Migration
             $table->enum("status",['draft','unsent', 'sent','partial','paid','over_due'])->default("draft")->nullable();
 
 
-            $table->date("invoice_date");
+            $table->dateTime("invoice_date");
 
 
             $table->string("shareable_link")->nullable();

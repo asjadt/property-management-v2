@@ -14,6 +14,7 @@ use App\Models\Business;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\InvoiceReminder;
+use Carbon\Carbon;
 use DateTime;
 use Exception;
 use Illuminate\Http\Request;
@@ -218,6 +219,12 @@ public function createInvoice(InvoiceCreateRequest $request)
 
             $insertableData = $request->validated();
             $insertableData["created_by"] = $request->user()->id;
+
+            $invoiceDateWithTime = Carbon::createFromFormat('Y-m-d', $insertableData["invoice_date"]);
+            $invoiceDateWithTime->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
+            $insertableData["invoice_date"] =    $invoiceDateWithTime;
+
+
             $invoice =  Invoice::create($insertableData);
             if(!$invoice) {
                 throw new Exception("something went wrong");
@@ -467,7 +474,9 @@ public function updateInvoice(InvoiceUpdateRequest $request)
         return  DB::transaction(function () use ($request) {
 
             $updatableData = $request->validated();
-
+            $invoiceDateWithTime = Carbon::createFromFormat('Y-m-d', $updatableData["invoice_date"]);
+            $invoiceDateWithTime->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
+            $updatableData["invoice_date"] =    $invoiceDateWithTime;
 
 
             $invoice  =  tap(Invoice::where([
