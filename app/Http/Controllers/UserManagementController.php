@@ -588,6 +588,7 @@ class UserManagementController extends Controller
     //    }
 
 
+
        $updatableData = $request->validated();
     //    user email check
        $userPrev = User::where([
@@ -689,9 +690,9 @@ class UserManagementController extends Controller
 
                 "footer_text",
                "is_reference_manual",
-               "business.account_name" ,
-               "business.account_number",
-               "business.sort_code",
+               "account_name" ,
+               "account_number",
+               "sort_code",
                "pin" ,
 
 

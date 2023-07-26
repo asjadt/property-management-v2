@@ -44,10 +44,10 @@ class BusinessUpdateRequest extends FormRequest
             'business.additional_information' => 'nullable|string',
 
 
-            'business.lat' => 'required|string',
-            'business.long' => 'required|string',
-            'business.country' => 'required|string',
-            'business.city' => 'required|string',
+            'business.lat' => 'nullable|string',
+            'business.long' => 'nullable|string',
+            'business.country' => 'nullable|string',
+            'business.city' => 'nullable|string',
             'business.postcode' => 'nullable|string',
             'business.address_line_1' => 'required|string',
             'business.address_line_2' => 'nullable|string',

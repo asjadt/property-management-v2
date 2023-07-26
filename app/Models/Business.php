@@ -30,9 +30,9 @@ class Business extends Model
         "created_by",
         "footer_text",
        "is_reference_manual",
-       "business.account_name" ,
-       "business.account_number",
-       "business.sort_code",
+       "account_name" ,
+       "account_number",
+       "sort_code",
        "pin" ,
     ];
 

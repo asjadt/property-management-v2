@@ -39,7 +39,7 @@ class ReceiptController extends Controller
       *             @OA\Property(property="property_address", type="string", format="string",example="property_address"),
      *            @OA\Property(property="amount", type="number", format="number",example="100"),
      *            @OA\Property(property="receipt_by", type="string", format="string",example="receipt_by"),
-     *  * *  @OA\Property(property="receipt_date", type="string", format="boolean",example="12/12/2012"),
+     *  * *  @OA\Property(property="receipt_date", type="string", format="boolean",example="2019-06-29"),
      *
      *         ),
      *      ),
@@ -130,7 +130,7 @@ class ReceiptController extends Controller
       *             @OA\Property(property="property_address", type="string", format="string",example="property_address"),
      *            @OA\Property(property="amount", type="number", format="number",example="100"),
      *            @OA\Property(property="receipt_by", type="string", format="string",example="receipt_by"),
-     *  * *  @OA\Property(property="receipt_date", type="string", format="boolean",example="12/12/2012"),
+     *  * *  @OA\Property(property="receipt_date", type="string", format="boolean",example="2019-06-29"),
      *
      *         ),
      *      ),

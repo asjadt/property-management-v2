@@ -41,8 +41,8 @@ class AuthRegisterBusinessRequest extends FormRequest
 
             'business.lat' => 'nullable|string',
             'business.long' => 'nullable|string',
-            'business.country' => 'required|string',
-            'business.city' => 'required|string',
+            'business.country' => 'nullable|string',
+            'business.city' => 'nullable|string',
 
             'business.currency' => 'nullable|string',
 

@@ -217,7 +217,8 @@ Route::get('/v1.0/properties/validate/property-reference_no/{reference_no}', [Pr
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // repair category management section
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 Route::post('/v1.0/repair-category-icon', [RepairCategoryController::class, "createRepairCategoryImage"]);
@@ -229,7 +230,9 @@ Route::delete('/v1.0/repair-categories/{id}', [RepairCategoryController::class, 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // repair category management section
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
 
 
 Route::get('/v1.0/activities/{perPage}', [PropertyBasicController::class, "showActivity"]);
@@ -261,6 +264,8 @@ Route::delete('/v1.0/repairs/{id}', [RepairController::class, "deleteRepairById"
 Route::post('/v1.0/invoice-image', [InvoiceController::class, "createInvoiceImage"]);
 Route::post('/v1.0/invoices', [InvoiceController::class, "createInvoice"]);
 Route::put('/v1.0/invoices', [InvoiceController::class, "updateInvoice"]);
+Route::put('/v1.0/invoices/change/status', [InvoiceController::class, "updateInvoiceStatus"]);
+
 Route::put('/v1.0/invoices/send', [InvoiceController::class, "sendInvoice"]);
 Route::get('/v1.0/invoices/{perPage}', [InvoiceController::class, "getInvoices"]);
 

@@ -43,7 +43,7 @@ class InvoicePaymentController extends Controller
  *            required={"name","description","logo"},
  *  *             @OA\Property(property="amount", type="number", format="number",example="10"),
   *             @OA\Property(property="payment_method", type="string", format="string",example="bkash"),
- *            @OA\Property(property="payment_date", type="string", format="string",example="12/12/2012"),
+ *            @OA\Property(property="payment_date", type="string", format="string",example="2019-06-29"),
  *  *            @OA\Property(property="note", type="string", format="string",example="note"),
  *
  *            @OA\Property(property="invoice_id", type="number", format="number",example="1"),
@@ -333,7 +333,7 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
  *     *             @OA\Property(property="id", type="number", format="number",example="1"),
  *  *             @OA\Property(property="amount", type="number", format="number",example="10"),
   *             @OA\Property(property="payment_method", type="string", format="string",example="bkash"),
- *            @OA\Property(property="payment_date", type="string", format="string",example="12/12/2012"),
+ *            @OA\Property(property="payment_date", type="string", format="string",example="2019-06-29"),
  *  *  *            @OA\Property(property="note", type="string", format="string",example="note"),
  *            @OA\Property(property="invoice_id", type="number", format="number",example="1"),
  *

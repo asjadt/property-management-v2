@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ImageUploadRequest;
 use App\Http\Requests\InvoiceCreateRequest;
 use App\Http\Requests\InvoiceSendRequest;
+use App\Http\Requests\InvoiceStatusUpdateRequest;
 use App\Http\Requests\InvoiceUpdateRequest;
 
 use App\Http\Utils\ErrorUtil;
@@ -142,7 +143,7 @@ public function createInvoiceImage(ImageUploadRequest $request)
  *
  *  *  * *  @OA\Property(property="sub_total", type="number", format="number",example="900"),
  *  * *  @OA\Property(property="total_amount", type="number", format="number",example="900"),
- *  * *  @OA\Property(property="invoice_date", type="string", format="string",example="12/12/2012"),
+ *  * *  @OA\Property(property="invoice_date", type="string", format="string",example="2019-06-29"),
  *  *  * *  @OA\Property(property="invoice_reference", type="string", format="string",example="57856465"),
  *
  *
@@ -150,7 +151,7 @@ public function createInvoiceImage(ImageUploadRequest $request)
  *  *  *  * *  @OA\Property(property="discount_description", type="string", format="string",example="description"),
  *  *  *  * *  @OA\Property(property="discound_type", type="string", format="string",example="fixed"),
  *  *  *  * *  @OA\Property(property="discount_amount", type="number", format="number",example="10"),
- *  *  *  * *  @OA\Property(property="due_date", type="string", format="string",example="12/12/2012"),
+ *  *  *  * *  @OA\Property(property="due_date", type="string", format="string",example="2019-06-29"),
     *  *  * *  @OA\Property(property="status", type="string", format="string",example="draft"),
  *  * *  @OA\Property(property="footer_text", type="string", format="string",example="footer_text"),
  *  *  * *  @OA\Property(property="shareable_link", type="string", format="string",example="shareable_link"),
@@ -168,8 +169,8 @@ public function createInvoiceImage(ImageUploadRequest $request)
  * }),
  *
  *  *     *  * *  @OA\Property(property="invoice_payments", type="string", format="array",example={
- *{"amount":"10","payment_method":"payment_method","payment_date":"12/12/2012"},
- *{"amount":"10","payment_method":"payment_method","payment_date":"12/12/2012"}
+ *{"amount":"10","payment_method":"payment_method","payment_date":"2019-06-29"},
+ *{"amount":"10","payment_method":"payment_method","payment_date":"2019-06-29"}
  *
  * }),
  *
@@ -285,10 +286,10 @@ public function createInvoice(InvoiceCreateRequest $request)
                 foreach($insertableData["reminder_dates"] as $reminder_date_amount) {
 
 
-                    $due_date = DateTime::createFromFormat('d/m/Y', $insertableData["due_date"]);
+                    $due_date = DateTime::createFromFormat('Y-m-d', $insertableData["due_date"]);
                     if ($due_date !== false) {
                         $due_date->modify(($reminder_date_amount . ' days'));
-                        $reminder_date = $due_date->format('d/m/Y');
+                        $reminder_date = $due_date->format('Y-m-d');
                     } else {
                         // Handle invalid input date format
                         // You can throw an exception, log an error, or provide a default value
@@ -396,14 +397,14 @@ public function createInvoice(InvoiceCreateRequest $request)
  *  * *  @OA\Property(property="business_address", type="string", format="string",example="business_address"),
  *  *  * *  @OA\Property(property="sub_total", type="number", format="number",example="900"),
  *  * *  @OA\Property(property="total_amount", type="number", format="number",example="900"),
- *  * *  @OA\Property(property="invoice_date", type="string", format="string",example="12/12/2012"),
+ *  * *  @OA\Property(property="invoice_date", type="string", format="string",example="2019-06-29"),
 
  *
  *
  *  *  *  *  * *  @OA\Property(property="discount_description", type="string", format="string",example="description"),
  *  *  *  * *  @OA\Property(property="discound_type", type="string", format="string",example="fixed"),
  *  *  *  * *  @OA\Property(property="discount_amount", type="number", format="number",example="10"),
- *  *  *  * *  @OA\Property(property="due_date", type="string", format="string",example="12/12/2012"),
+ *  *  *  * *  @OA\Property(property="due_date", type="string", format="string",example="2019-06-29"),
  *
  *
  *
@@ -426,8 +427,8 @@ public function createInvoice(InvoiceCreateRequest $request)
  *
  *
  *  *  *     *  * *  @OA\Property(property="invoice_payments", type="string", format="array",example={
- *{"id":"1","amount":"10","payment_method":"payment_method","payment_date":"12/12/2012"},
- *{"id":"","amount":"10","payment_method":"payment_method","payment_date":"12/12/2012"}
+ *{"id":"1","amount":"10","payment_method":"payment_method","payment_date":"2019-06-29"},
+ *{"id":"","amount":"10","payment_method":"payment_method","payment_date":"2019-06-29"}
  *
  * }),
  *
@@ -474,10 +475,10 @@ public function updateInvoice(InvoiceUpdateRequest $request)
         return  DB::transaction(function () use ($request) {
 
             $updatableData = $request->validated();
-            $invoiceDateWithTime = Carbon::createFromFormat('Y-m-d', $updatableData["invoice_date"]);
-            $invoiceDateWithTime->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
-            $updatableData["invoice_date"] =    $invoiceDateWithTime;
 
+            // $invoiceDateWithTime = Carbon::createFromFormat('Y-m-d', $updatableData["invoice_date"]);
+            // $invoiceDateWithTime->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
+            // $updatableData["invoice_date"] =    $invoiceDateWithTime;
 
             $invoice  =  tap(Invoice::where([
                 "invoices.id" => $updatableData["id"],
@@ -581,10 +582,10 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                     ->delete();
                     foreach($updatableData["reminder_dates"] as $reminder_date_amount) {
 
-                        $due_date = DateTime::createFromFormat('d/m/Y', $updatableData["due_date"]);
+                        $due_date = DateTime::createFromFormat('Y-m-d', $updatableData["due_date"]);
                         if ($due_date !== false) {
                             $due_date->modify(($reminder_date_amount . ' days'));
-                            $reminder_date = $due_date->format('d/m/Y');
+                            $reminder_date = $due_date->format('Y-m-d');
                         } else {
                             // Handle invalid input date format
                             // You can throw an exception, log an error, or provide a default value
@@ -648,6 +649,138 @@ public function updateInvoice(InvoiceUpdateRequest $request)
         return $this->sendError($e, 500,$request);
     }
 }
+/**
+ *
+ * @OA\Put(
+ *      path="/v1.0/invoices/change/status",
+ *      operationId="updateInvoiceStatus",
+ *      tags={"property_management.invoice_management"},
+ *       security={
+ *           {"bearerAuth": {}}
+ *       },
+ *      summary="This method is to update invoice",
+ *      description="This method is to update invoice",
+ *
+ *  @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *            required={"id","name","description","logo"},
+ *     *             @OA\Property(property="id", type="number", format="number",example="1"),
+ *     *  *  * *  @OA\Property(property="status", type="string", format="string",example="draft"),
+
+ *
+ *         ),
+ *      ),
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *       @OA\JsonContent(),
+ *       ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ * @OA\JsonContent(),
+ *      ),
+ *        @OA\Response(
+ *          response=422,
+ *          description="Unprocesseble Content",
+ *    @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *   @OA\JsonContent()
+ * ),
+ *  * @OA\Response(
+ *      response=400,
+ *      description="Bad Request",
+ *   *@OA\JsonContent()
+ *   ),
+ * @OA\Response(
+ *      response=404,
+ *      description="not found",
+ *   *@OA\JsonContent()
+ *   )
+ *      )
+ *     )
+ */
+
+ public function updateInvoiceStatus(InvoiceStatusUpdateRequest $request)
+ {
+     try {
+         $this->storeActivity($request,"");
+         return  DB::transaction(function () use ($request) {
+
+             $updatableData = $request->validated();
+
+
+
+             $invoice  =  Invoice::where([
+                 "invoices.id" => $updatableData["id"],
+                 "invoices.created_by" => $request->user()->id
+             ])
+                 ->first();
+
+
+                 if(!$invoice) {
+                    return response()->json([
+               "message" => "no invoice found"
+               ],404);
+                       }
+
+             if(($invoice->status == "draft" || $invoice->status == "unsent")) {
+                            $invoice->status = $updatableData["status"];
+                            $invoice->save();
+            } else {
+                return response()->json([
+                    "message" => "you can only update status of a draft and unsent invoice"
+                    ],409);
+            }
+
+
+
+
+
+
+                 $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder")
+                 ->where([
+                     "id" => $invoice->id,
+                     "invoices.created_by" => $request->user()->id
+                 ])
+                 ->select("invoices.*",
+                 DB::raw('
+                     COALESCE(
+                         (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+                         0
+                     ) AS total_paid
+                 '),
+                 DB::raw('
+                     COALESCE(
+                         invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+                         invoices.total_amount
+                     ) AS total_due
+                 ')
+             )
+
+                 ->first();
+
+                 if(!$invoice) {
+              return response()->json([
+         "message" => "no invoice found"
+         ],404);
+                 }
+
+
+
+
+
+             return response($invoice, 200);
+         });
+     } catch (Exception $e) {
+         error_log($e->getMessage());
+         return $this->sendError($e, 500,$request);
+     }
+ }
 /**
  *
  * @OA\Put(

@@ -319,7 +319,7 @@ public function createRepairReceiptFile(FileUploadRequest $request)
  *            @OA\Property(property="item_description", type="string", format="string",example="item_description"),
  *            @OA\Property(property="receipt", type="string", format="string",example="receipt"),
  *  * *  @OA\Property(property="price", type="string", format="string",example="10"),
- *  * *  @OA\Property(property="create_date", type="string", format="string",example="12/12/2012"),
+ *  * *  @OA\Property(property="create_date", type="string", format="string",example="2019-06-29"),
  *  * *  @OA\Property(property="images", type="string", format="array",example={"a.jpg","b.jpg","c.jpg"}),
 
  *
@@ -428,7 +428,7 @@ public function createRepair(RepairCreateRequest $request)
  *            @OA\Property(property="item_description", type="string", format="string",example="item_description"),
  *            @OA\Property(property="receipt", type="string", format="string",example="receipt"),
  *  * *  @OA\Property(property="price", type="string", format="string",example="10"),
- *  * *  @OA\Property(property="create_date", type="string", format="string",example="12/12/2012"),
+ *  * *  @OA\Property(property="create_date", type="string", format="string",example="2019-06-29"),
  *  * *  @OA\Property(property="images", type="string", format="array",example={"a.jpg","b.jpg","c.jpg"}),
 
  *

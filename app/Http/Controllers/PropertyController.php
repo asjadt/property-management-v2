@@ -456,8 +456,8 @@ public function getProperties($perPage, Request $request)
         if (!empty($request->search_key)) {
             $propertyQuery = $propertyQuery->where(function ($query) use ($request) {
                 $term = $request->search_key;
-                $query->where("name", "like", "%" . $term . "%");
-                $query->orWhere("address", "like", "%" . $term . "%");
+                // $query->where("name", "like", "%" . $term . "%");
+                $query->where("address", "like", "%" . $term . "%");
             });
         }
 

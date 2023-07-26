@@ -615,12 +615,14 @@ $total_past_invoice_payment_amount = InvoicePayment::leftJoin('invoices', 'invoi
              ->where([
                 "invoices.created_by" => $request->user()->id
              ])
+             ->where("invoices.status", "!=", "draft")
              ->sum("invoice_payments.amount");
 
 
              $data["total_invoice_amount"] = Invoice::where([
                 "invoices.created_by" => $request->user()->id
              ])
+             ->where("invoices.status", "!=", "draft")
              ->sum("invoices.total_amount");
 
 
@@ -630,6 +632,7 @@ $total_past_invoice_payment_amount = InvoicePayment::leftJoin('invoices', 'invoi
              $data["total_paid_invoice_count"] = Invoice::where([
                 "invoices.created_by" => $request->user()->id
              ])
+             ->where("invoices.status", "!=", "draft")
           ->select(
 
             DB::raw('
@@ -646,6 +649,8 @@ $total_past_invoice_payment_amount = InvoicePayment::leftJoin('invoices', 'invoi
           $data["total_due_invoice_count"] = Invoice::where([
             "invoices.created_by" => $request->user()->id
          ])
+         ->where("invoices.status", "!=", "draft")
+
       ->select(
         DB::raw('
         COALESCE(
@@ -664,6 +669,7 @@ $endDate = $currentDate->copy()->addDays(15);
       $data["next_15_days_invoice_due_dates"] = Invoice::where([
         "invoices.created_by" => $request->user()->id
      ])
+     ->where("invoices.status", "!=", "draft")
      ->whereDate('invoices.due_date', '>=', $currentDate)
      ->whereDate('invoices.due_date', '<=', $endDate)
   ->select(
@@ -683,6 +689,7 @@ $endDate = $currentDate->copy()->addDays(15);
 $data["next_15_days_invoice_due_amounts"] = Invoice::where([
     "invoices.created_by" => $request->user()->id
  ])
+ ->where("invoices.status", "!=", "draft")
  ->whereDate('invoices.due_date', '>=', $currentDate)
  ->whereDate('invoices.due_date', '<=', $endDate)
 ->select(

@@ -36,7 +36,7 @@ class InvoiceReminderController extends Controller
  *            required={"name","description","logo"},
 
   *             @OA\Property(property="send_reminder", type="string", format="string",example="1"),
- *            @OA\Property(property="reminder_date", type="string", format="string",example="12/12/2012"),
+ *            @OA\Property(property="reminder_date", type="string", format="string",example="2019-06-29"),
  *            @OA\Property(property="invoice_id", type="string", format="string",example="1"),
  *
  *         ),
@@ -138,7 +138,7 @@ public function createInvoiceReminder(InvoiceReminderCreateRequest $request)
  *     *             @OA\Property(property="id", type="number", format="number",example="1"),
 
   *             @OA\Property(property="send_reminder", type="string", format="string",example="1"),
- *            @OA\Property(property="reminder_date", type="string", format="string",example="12/12/2012"),
+ *            @OA\Property(property="reminder_date", type="string", format="string",example="2019-06-29"),
  *            @OA\Property(property="invoice_id", type="string", format="string",example="1"),
  *
  *         ),
