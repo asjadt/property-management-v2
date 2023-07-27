@@ -314,7 +314,7 @@ public function getInvoiceReminders($perPage, Request $request)
 
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $invoice_reminderQuery =  InvoiceReminder::with("invoice")->leftJoin('invoices', 'invoice_reminders.invoice_id', '=', 'invoices.id')
+        $invoice_reminderQuery =  InvoiceReminder::leftJoin('invoices', 'invoice_reminders.invoice_id', '=', 'invoices.id')
         ->where([
             "invoices.created_by" => $request->user()->id
         ])
@@ -335,7 +335,11 @@ public function getInvoiceReminders($perPage, Request $request)
         }
 
         $invoice_reminders = $invoice_reminderQuery
-        ->select("invoice_reminders.*")->orderByDesc("invoice_reminders.id")->paginate($perPage);
+        ->select(
+            "invoice_reminders.*",
+            "invoices.invoice_reference",
+
+            )->orderByDesc("invoice_reminders.id")->paginate($perPage);
 
         return response()->json($invoice_reminders, 200);
     } catch (Exception $e) {
@@ -408,14 +412,19 @@ public function getInvoiceReminderById($id, Request $request)
         $this->storeActivity($request,"");
 
 
-        $invoice_reminder = InvoiceReminder::with("invoice")
-        ->leftJoin('invoices', 'invoice_reminders.invoice_id', '=', 'invoices.id')
+        $invoice_reminder = InvoiceReminder::
+        leftJoin('invoices', 'invoice_reminders.invoice_id', '=', 'invoices.id')
 
         ->where([
             "invoices.created_by" => $request->user()->id,
             "invoice_reminders.id" => $id
 
         ])
+        ->select(
+            "invoice_reminders.*",
+            "invoices.invoice_reference",
+
+            )
         ->first();
 
         if(!$invoice_reminder) {

@@ -50,13 +50,15 @@ class CreateInvoicesTable extends Migration
 
 
             $table->unsignedBigInteger("property_id")->nullable();
-            $table->foreign('property_id')->references('id')->on('properties')->onDelete('cascade');
+            $table->foreign('property_id')->references('id')->on('properties')->onDelete('set null');
 
             $table->unsignedBigInteger("landlord_id")->nullable();
-            $table->foreign('landlord_id')->references('id')->on('landlords')->onDelete('cascade');
+            $table->foreign('landlord_id')->references('id')->on('landlords')->onDelete('set null');
 
             $table->unsignedBigInteger("tenant_id")->nullable();
-            $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('cascade');
+            $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('set null');
+
+        
 
             $table->unsignedBigInteger("created_by");
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');

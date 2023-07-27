@@ -226,6 +226,20 @@ public function createInvoice(InvoiceCreateRequest $request)
             $insertableData["invoice_date"] =    $invoiceDateWithTime;
 
 
+            $reference_no_exists =  DB::table( 'invoices' )->where([
+                'invoice_reference'=> $insertableData['invoice_reference'],
+                "created_by" => $request->user()->id
+             ]
+             )->exists();
+             if ($reference_no_exists) {
+                $error =  [
+                       "message" => "The given data was invalid.",
+                       "errors" => ["invoice_reference"=>["The invoice reference has already been taken."]]
+                ];
+                   throw new Exception(json_encode($error),422);
+               }
+
+
             $invoice =  Invoice::create($insertableData);
             if(!$invoice) {
                 throw new Exception("something went wrong");
@@ -479,6 +493,20 @@ public function updateInvoice(InvoiceUpdateRequest $request)
             // $invoiceDateWithTime = Carbon::createFromFormat('Y-m-d', $updatableData["invoice_date"]);
             // $invoiceDateWithTime->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
             // $updatableData["invoice_date"] =    $invoiceDateWithTime;
+            $reference_no_exists =  DB::table( 'invoices' )->where([
+                'invoice_reference'=> $updatableData['invoice_reference'],
+                "created_by" => $request->user()->id
+             ]
+             )
+             ->whereNotIn('id', [$updatableData["id"]])->exists();
+             if ($reference_no_exists) {
+                $error =  [
+                       "message" => "The given data was invalid.",
+                       "errors" => ["invoice_reference"=>["The invoice reference has already been taken."]]
+                ];
+                   throw new Exception(json_encode($error),422);
+               }
+
 
             $invoice  =  tap(Invoice::where([
                 "invoices.id" => $updatableData["id"],
@@ -491,12 +519,11 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                     "invoice_reference",
                     "business_name",
                     "business_address",
-                    "total_amount",
                     "sub_total",
+                    "total_amount",
                     "invoice_date",
                     "footer_text",
                     "shareable_link",
-                    "pin",
                     "note",
                     "property_id",
                     "landlord_id",
@@ -505,6 +532,8 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                     "discound_type",
                     "discount_amount",
                     "due_date",
+                    "status",
+
 
 
                 ])->toArray()
@@ -712,6 +741,8 @@ public function updateInvoice(InvoiceUpdateRequest $request)
          return  DB::transaction(function () use ($request) {
 
              $updatableData = $request->validated();
+
+
 
 
 
@@ -1025,7 +1056,12 @@ public function getInvoices($perPage, Request $request)
                 }
             });
         } else if (!empty($request->status)) {
-             $invoiceQuery =   $invoiceQuery->where("invoices.status", "like", "%" . $request->status . "%");
+            if($request->status == "unpaid") {
+                $invoiceQuery =      $invoiceQuery->whereNotIn("status", ['draft','paid']);
+            } else {
+ $invoiceQuery =   $invoiceQuery->where("invoices.status", "like", "%" . $request->status . "%");
+            }
+
          }
 
 
@@ -1208,7 +1244,12 @@ public function getInvoices($perPage, Request $request)
                 }
             });
         } else if (!empty($request->status)) {
-             $invoiceQuery =   $invoiceQuery->where("invoices.status", "like", "%" . $request->status . "%");
+            if($request->status == "unpaid") {
+                $invoiceQuery =      $invoiceQuery->whereNotIn("status", ['draft','paid']);
+            } else {
+ $invoiceQuery =   $invoiceQuery->where("invoices.status", "like", "%" . $request->status . "%");
+            }
+
          }
 
 
@@ -1568,12 +1609,12 @@ public function deleteInvoiceItemById($invoice_id,$id, Request $request)
         ])
         ->first();
 
-        if(!$invoice_id) {
+        if(!$invoice_item) {
      return response()->json([
 "message" => "no invoice item found"
 ],404);
         }
-        $invoice_id->delete();
+        $invoice_item->forceDelete();
 
         return response()->json(["ok" => true], 200);
     } catch (Exception $e) {
