@@ -91,7 +91,8 @@ public function createRepairReceiptFile(FileUploadRequest $request)
 
         $location =  config("setup-config.repair_receipt_file");
 
-        $new_file_name = time() . '_' . $insertableData["file"]->getClientOriginalName();
+        $new_file_name = time() . '_' . str_replace(' ', '_', $insertableData["file"]->getClientOriginalName());
+
 
         $insertableData["file"]->move(public_path($location), $new_file_name);
 
@@ -184,6 +185,7 @@ public function createRepairReceiptFile(FileUploadRequest $request)
              if(!empty($insertableData["files"])) {
                  foreach($insertableData["files"] as $file){
                      $new_file_name = time() . '_' . $file->getClientOriginalName();
+                     $new_file_name = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
                      $file->move(public_path($location), $new_file_name);
 
                      array_push($files,("/".$location."/".$new_file_name));
@@ -280,7 +282,7 @@ public function createRepairReceiptFile(FileUploadRequest $request)
             $images = [];
             if(!empty($insertableData["images"])) {
                 foreach($insertableData["images"] as $image){
-                    $new_file_name = time() . '_' . $image->getClientOriginalName();
+                    $new_file_name = time() . '_' . str_replace(' ', '_', $image->getClientOriginalName());
                     $image->move(public_path($location), $new_file_name);
 
                     array_push($images,("/".$location."/".$new_file_name));

@@ -33,7 +33,7 @@ class InvoiceUpdateRequest extends FormRequest
             "business_name"=>"required|string",
             "business_address"=>"required|string",
 
-            "send_reminder"=>"required|boolean",
+            "send_reminder"=>"nullable|boolean",
 
             "invoice_date"=>"required|date",
             "footer_text"=>"nullable|string",

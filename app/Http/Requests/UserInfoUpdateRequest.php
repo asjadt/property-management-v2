@@ -36,8 +36,8 @@ class UserInfoUpdateRequest extends FormRequest
             'country' => 'required|string',
             'city' => 'required|string',
             'postcode' => 'required|string',
-            'lat' => 'required|string',
-            'long' => 'required|string',
+            'lat' => 'nullable|string',
+            'long' => 'nullable|string',
 
         ];
     }

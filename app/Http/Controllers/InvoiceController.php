@@ -98,7 +98,7 @@ public function createInvoiceImage(ImageUploadRequest $request)
 
         $location =  config("setup-config.invoice_image");
 
-        $new_file_name = time() . '_' . $insertableData["image"]->getClientOriginalName();
+        $new_file_name = time() . '_' . str_replace(' ', '_', $insertableData["image"]->getClientOriginalName());
 
         $insertableData["image"]->move(public_path($location), $new_file_name);
 
@@ -1028,6 +1028,30 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 * required=true,
 * example="1"
 * ),
+ * *  @OA\Parameter(
+* name="landlord_id",
+* in="query",
+* description="landlord_id",
+* required=true,
+* example="1"
+* ),
+ * *  @OA\Parameter(
+* name="tenant_id",
+* in="query",
+* description="tenant_id",
+* required=true,
+* example="1"
+* ),
+ * *  @OA\Parameter(
+* name="property_id",
+* in="query",
+* description="property_id",
+* required=true,
+* example="1"
+* ),
+
+
+
 
  *      summary="This method is to get invoices ",
  *      description="This method is to get invoices",
@@ -1113,6 +1137,17 @@ public function getInvoices($perPage, Request $request)
         }
         if (!empty($request->invoice_reference)) {
             $invoiceQuery =   $invoiceQuery->where("invoices.invoice_reference", "like", "%" . $request->invoice_reference . "%");
+        }
+
+        if (!empty($request->landlord_id)) {
+            $invoiceQuery =   $invoiceQuery->where("invoices.landlord_id", $request->landlord_id);
+        }
+        if (!empty($request->tenant_id)) {
+            $invoiceQuery =   $invoiceQuery->where("invoices.tenant_id", $request->tenant_id);
+        }
+
+        if (!empty($request->property_id)) {
+            $invoiceQuery =   $invoiceQuery->where("invoices.property_id", $request->property_id);
         }
 
 
@@ -1456,9 +1491,9 @@ public function getInvoiceById($id, Request $request)
  *       },
 
  *              @OA\Parameter(
- *         name="id",
+ *         name="reference",
  *         in="path",
- *         description="id",
+ *         description="reference",
  *         required=true,
  *  example="1"
  *      ),

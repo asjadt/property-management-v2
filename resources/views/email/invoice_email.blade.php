@@ -54,10 +54,12 @@ text-align: center;
                 width: 50px;
                 height: 50px;
                 margin: 0 auto;
-                " class="business_logo" src="@if($invoice->logo){{(env("APP_URL") . "/invoice_image/" . rawurlencode(substr($invoice->logo, strpos($invoice->logo, '/invoice_image/') + strlen('/invoice_image/'))))}}@else https://i.ibb.co/M8YmF13/Porsche-logo-PNG2.png @endif" alt="">
+                " class="business_logo" src="@if($invoice->logo){{(env("APP_URL")."/".$invoice->logo)}}@else https://i.ibb.co/M8YmF13/Porsche-logo-PNG2.png @endif" alt="">
               </div>
 
 
+
+              @if($invoice->logo){{(env("APP_URL")."/".$invoice->logo)}}@else https://i.ibb.co/M8YmF13/Porsche-logo-PNG2.png @endif
 
 
             <div class="row">
@@ -65,8 +67,8 @@ text-align: center;
                     <h2 class="business_title" style="
                     color: #555555;
                     ">
-                    <!-- {{$invoice->business_name}} -->
-Garage Management
+                     {{$invoice->business_name}}
+
 
         </h2>
                 </div>

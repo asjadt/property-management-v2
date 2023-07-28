@@ -106,7 +106,7 @@ class GaragesController extends Controller
             $images = [];
             if(!empty($insertableData["images"])) {
                 foreach($insertableData["images"] as $image){
-                    $new_file_name = time() . '_' . $image->getClientOriginalName();
+                    $new_file_name = time() . '_' . str_replace(' ', '_', $image->getClientOriginalName());
                     $image->move(public_path($location), $new_file_name);
 
                     array_push($images,("/".$location."/".$new_file_name));

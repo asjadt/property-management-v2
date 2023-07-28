@@ -618,17 +618,6 @@ $total_past_invoice_payment_amount = InvoicePayment::leftJoin('invoices', 'invoi
              ->where("invoices.status", "!=", "draft")
              ->sum("invoice_payments.amount");
 
-
-             $data["total_invoice_amount"] = Invoice::where([
-                "invoices.created_by" => $request->user()->id
-             ])
-             ->where("invoices.status", "!=", "draft")
-             ->sum("invoices.total_amount");
-
-
-
-
-
              $data["total_paid_invoice_count"] = Invoice::where([
                 "invoices.created_by" => $request->user()->id
              ])
@@ -646,6 +635,19 @@ $total_past_invoice_payment_amount = InvoicePayment::leftJoin('invoices', 'invoi
           ->count()
           ;
 
+
+             $data["total_invoice_amount"] = Invoice::where([
+                "invoices.created_by" => $request->user()->id
+             ])
+             ->where("invoices.status", "!=", "draft")
+             ->sum("invoices.total_amount");
+
+
+
+
+
+
+
           $data["total_due_invoice_count"] = Invoice::where([
             "invoices.created_by" => $request->user()->id
          ])
@@ -661,8 +663,22 @@ $total_past_invoice_payment_amount = InvoicePayment::leftJoin('invoices', 'invoi
       )
       ->havingRaw('total_due > 0')
       ->count();
+   $data["total_due_invoice_amount"] = Invoice::where([
+            "invoices.created_by" => $request->user()->id
+         ])
+         ->where("invoices.status", "!=", "draft")
 
-
+      ->select(
+        DB::raw('
+        COALESCE(
+            invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+            invoices.total_amount
+        ) AS total_due
+    ')
+      )
+      ->havingRaw('total_due > 0')
+      ->get();
+      $data["total_due_invoice_amount"] =  $data["total_due_invoice_amount"]->sum("total_due");
 $currentDate = Carbon::now();
 $endDate = $currentDate->copy()->addDays(15);
 
@@ -706,7 +722,7 @@ COALESCE(
 // )) AS total_due_sum')
 ->havingRaw('total_due > 0')
 ->get();
-$data["next_15_days_invoice_due_amounts"] = $data["next_15_days_invoice_due_amounts"]->sum('total_due_sum');
+$data["next_15_days_invoice_due_amounts"] = $data["next_15_days_invoice_due_amounts"]->sum('total_due');
 
 
 

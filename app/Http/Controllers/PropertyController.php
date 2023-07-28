@@ -88,7 +88,7 @@ public function createPropertyImage(ImageUploadRequest $request)
 
         $location =  config("setup-config.property_image");
 
-        $new_file_name = time() . '_' . $insertableData["image"]->getClientOriginalName();
+        $new_file_name = time() . '_' . str_replace(' ', '_', $insertableData["image"]->getClientOriginalName());
 
         $insertableData["image"]->move(public_path($location), $new_file_name);
 
