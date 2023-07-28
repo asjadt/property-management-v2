@@ -25,6 +25,9 @@ class CreateInvoiceItemsTable extends Migration
 
             $table->unsignedBigInteger("invoice_id");
             $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
+
+            $table->unsignedBigInteger("repair_id")->nullable();
+            $table->foreign('repair_id')->references('id')->on('repairs')->onDelete('set null');
             $table->timestamps();
 
         });

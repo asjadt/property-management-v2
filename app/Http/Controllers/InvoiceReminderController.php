@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\InvoiceReminderCreateRequest;
+use App\Http\Requests\InvoiceReminderNumberToDateCreateRequest;
 use App\Http\Requests\InvoiceReminderUpdateForm;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Business;
 use App\Models\Invoice;
 use App\Models\InvoiceReminder;
+use DateTime;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +19,128 @@ class InvoiceReminderController extends Controller
 {
     use ErrorUtil, UserActivityUtil;
 
+/**
+ *
+ * @OA\Post(
+ *      path="/v1.0/invoice-reminders/number-todate-convert",
+ *      operationId="createInvoiceReminderNumberDateConvert",
+ *      tags={"property_management.invoice_reminder_management"},
+ *       security={
+ *           {"bearerAuth": {}}
+ *       },
+ *      summary="This method is to store invoice reminder number to date convert",
+ *      description="This method is to store invoice reminder number to date convert",
+ *
+ *  @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *            required={"name","description","logo"},
 
+  *             @OA\Property(property="send_reminder", type="string", format="string",example="1"),
+ *            @OA\Property(property="reminder_date_amount", type="number", format="number",example="14"),
+ *            @OA\Property(property="invoice_id", type="string", format="string",example="1"),
+ *
+ *         ),
+ *      ),
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *       @OA\JsonContent(),
+ *       ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ * @OA\JsonContent(),
+ *      ),
+ *        @OA\Response(
+ *          response=422,
+ *          description="Unprocesseble Content",
+ *    @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *   @OA\JsonContent()
+ * ),
+ *  * @OA\Response(
+ *      response=400,
+ *      description="Bad Request",
+ *   *@OA\JsonContent()
+ *   ),
+ * @OA\Response(
+ *      response=404,
+ *      description="not found",
+ *   *@OA\JsonContent()
+ *   )
+ *      )
+ *     )
+ */
+
+ public function createInvoiceReminderNumberDateConvert(InvoiceReminderNumberToDateCreateRequest $request)
+ {
+     try {
+         $this->storeActivity($request,"");
+         return DB::transaction(function () use ($request) {
+
+
+
+             $insertableData = $request->validated();
+
+
+
+
+
+
+
+
+             $invoice = Invoice::where([
+                 "id" => $insertableData["invoice_id"],
+                 "invoices.created_by" => $request->user()->id
+
+             ])
+             ->first();
+             if(!$invoice) {
+                return response()->json([
+                    "message" => "no invoice found"
+                ],404);
+             }
+             if(empty($invoice->due_date)) {
+                return response()->json([
+                    "message" => "invoice due not defined"
+                ],404);
+             }
+             $due_date = DateTime::createFromFormat('Y-m-d', $invoice->due_date);
+             if ($due_date !== false) {
+                 $due_date->modify(($insertableData["reminder_date_amount"] . ' days'));
+                 $reminder_date = $due_date->format('Y-m-d');
+             } else {
+                 $reminder_date = null;
+             }
+
+             $insertableData["reminder_status"] = "not_sent";
+             $insertableData["reminder_date"] = $reminder_date;
+
+$invoice_reminder =  InvoiceReminder::create($insertableData);
+
+
+
+
+             return response($invoice_reminder, 201);
+
+
+
+
+
+         });
+
+
+
+
+     } catch (Exception $e) {
+
+         return $this->sendError($e, 500,$request);
+     }
+ }
 /**
  *
  * @OA\Post(

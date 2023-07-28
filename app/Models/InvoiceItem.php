@@ -17,7 +17,8 @@ class InvoiceItem extends Model
         "price",
         "tax",
         "amount",
-        "invoice_id"
+        "invoice_id",
+        "repair_id"
 
     ];
 }

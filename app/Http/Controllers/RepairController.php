@@ -534,6 +534,15 @@ public function updateRepair(RepairUpdateRequest $request)
  *         required=true,
  *  example="6"
  *      ),
+ *
+ *  * *      * *  @OA\Parameter(
+* name="repair_id",
+* in="query",
+* description="repair_id",
+* required=true,
+* example="1"
+* ),
+ *
  * *      * *  @OA\Parameter(
 * name="property_id",
 * in="query",
@@ -608,27 +617,59 @@ public function getRepairs($perPage, Request $request)
 
 
 
-        $repairQuery =  Repair::with("repair_category","property")->where(["created_by" => $request->user()->id]);
+        $repairQuery =  Repair::with("repair_category","property")
+        ->leftJoin('invoice_items', 'invoice_items.repair_id', '=', 'repairs.id')
+        ->leftJoin('invoices', 'invoices.id', '=', 'invoice_items.invoice_id')
+        ->leftJoin('properties', 'properties.id', '=', 'repairs.property_id')
+        ->where(["repairs.created_by" => $request->user()->id])
 
+        ;
+
+        if (!empty($request->invoice_not_issued)) {
+            if($request->invoice_not_issued == 1) {
+               $repairQuery = $repairQuery->whereNull('invoice_items.repair_id');
+            }
+
+        }
         if (!empty($request->search_key)) {
             $repairQuery = $repairQuery->where(function ($query) use ($request) {
                 $term = $request->search_key;
-                $query->where("name", "like", "%" . $term . "%");
+                $query->where("properties.address", "like", "%" . $term . "%");
+                $query->orWhere("properties.type", "like", "%" . $term . "%");
+
+                // $query->where("repairs.item_description", "like", "%" . $term . "%");
             });
         }
 
         if (!empty($request->start_date)) {
-            $repairQuery = $repairQuery->where('created_at', ">=", $request->start_date);
+            $repairQuery = $repairQuery->where('repairs.created_at', ">=", $request->start_date);
         }
         if (!empty($request->end_date)) {
-            $repairQuery = $repairQuery->where('created_at', "<=", $request->end_date);
+            $repairQuery = $repairQuery->where('repairs.created_at', "<=", $request->end_date);
         }
         if (!empty($request->property_id)) {
-            $repairQuery = $repairQuery->where('property_id', $request->property_id);
+            $repairQuery = $repairQuery->where('repairs.property_id', $request->property_id);
         }
 
 
-        $repairs = $repairQuery->orderByDesc("id")->paginate($perPage);
+        $repairs = $repairQuery
+        ->select("repairs.*",
+        DB::raw('CASE
+        WHEN (SELECT COUNT(invoice_items.id) FROM invoice_items WHERE invoice_items.repair_id = repairs.id) = 0 THEN 0
+        ELSE 1
+    END AS is_invoice_issued'),
+    DB::raw('CASE
+    WHEN invoices.status = "paid" THEN "paid"
+    WHEN invoices.status = "partial" THEN "partial"
+    ELSE "due"
+    END AS payment_status')
+
+
+
+        )
+        ->
+        orderByDesc("repairs.item_description")
+        ->paginate($perPage);
 
         return response()->json($repairs, 200);
     } catch (Exception $e) {

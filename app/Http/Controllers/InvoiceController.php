@@ -164,7 +164,9 @@ public function createInvoiceImage(ImageUploadRequest $request)
 
  *     *  * *  @OA\Property(property="invoice_items", type="string", format="array",example={
  *{"name":"name","description":"description","quantity":"1","price":"1.1","tax":"20","amount":"300"},
-  *{"name":"name","description":"description","quantity":"1","price":"1.1","tax":"20","amount":"300"}
+  *{"name":"name","description":"description","quantity":"1","price":"1.1","tax":"20","amount":"300"},
+    *{"name":"name","description":"description","quantity":"1","price":"1.1","tax":"20","amount":"300","repair_id":1},
+
  *
  * }),
  *
@@ -245,7 +247,23 @@ public function createInvoice(InvoiceCreateRequest $request)
                 throw new Exception("something went wrong");
             }
 
-            $invoiceItems = collect($insertableData["invoice_items"])->map(function ($item) {
+            $invoiceItems = collect($insertableData["invoice_items"])->map(function ($item)use ($invoice) {
+                if(!empty($item["repair_id"])) {
+                    $invoice_item_exists =    InvoiceItem::where([
+                            "repair_id" => $item["repair_id"]
+                        ])
+                       ->whereNotIn("invoice_id",[$invoice->id])
+                        ->first();
+                        if($invoice_item_exists) {
+                            $error =  [
+                                "message" => "The given data was invalid.",
+                                "errors" => ["automobile_make_id"=>["This garage does not support this make"]]
+                         ];
+                            throw new Exception(json_encode($error),422);
+                        }
+
+                    }
+
                 return [
                     "name" => $item["name"],
                     "description" => $item["description"],
@@ -253,6 +271,8 @@ public function createInvoice(InvoiceCreateRequest $request)
                     "price" => $item["price"],
                     "tax" => $item["tax"],
                     "amount" => $item["amount"],
+                    "repair_id" => !empty($item["repair_id"])?$item["repair_id"]:NULL,
+
                 ];
             });
 
@@ -532,7 +552,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                     "discound_type",
                     "discount_amount",
                     "due_date",
-                    "status",
+
 
 
 
@@ -554,6 +574,22 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 
                 }
                 $invoiceItemsData = collect($updatableData["invoice_items"])->map(function ($item)use ($invoice) {
+                    if(!empty($item["repair_id"])) {
+                    $invoice_item_exists =    InvoiceItem::where([
+                            "repair_id" => $item["repair_id"]
+                        ])
+                       ->whereNotIn("invoice_id",[$invoice->id])
+                        ->first();
+                        if($invoice_item_exists) {
+                            $error =  [
+                                "message" => "The given data was invalid.",
+                                "errors" => ["automobile_make_id"=>["This garage does not support this make"]]
+                         ];
+                            throw new Exception(json_encode($error),422);
+                        }
+
+                    }
+
                     return [
                         "id" => $item["id"],
                         "name" => $item["name"],
@@ -562,7 +598,8 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                         "price" => $item["price"],
                         "tax" => $item["tax"],
                         "amount" => $item["amount"],
-                        "invoice_id" => $invoice->id
+                        "invoice_id" => $invoice->id,
+                        "repair_id" => !empty($item["repair_id"])?$item["repair_id"]:NULL,
                     ];
                 });
 
@@ -1408,6 +1445,104 @@ public function getInvoiceById($id, Request $request)
         return $this->sendError($e, 500,$request);
     }
 }
+/**
+ *
+ * @OA\Get(
+ *      path="/v1.0/invoices/get/single-by-reference/{reference}",
+ *      operationId="getInvoiceByReference",
+ *      tags={"property_management.invoice_management"},
+ *       security={
+ *           {"bearerAuth": {}}
+ *       },
+
+ *              @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         description="id",
+ *         required=true,
+ *  example="1"
+ *      ),
+
+ *      summary="This method is to get invoice by id",
+ *      description="This method is to get invoice by id",
+ *
+
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *       @OA\JsonContent(),
+ *       ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ * @OA\JsonContent(),
+ *      ),
+ *        @OA\Response(
+ *          response=422,
+ *          description="Unprocesseble Content",
+ *    @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *   @OA\JsonContent()
+ * ),
+ *  * @OA\Response(
+ *      response=400,
+ *      description="Bad Request",
+ *   *@OA\JsonContent()
+ *   ),
+ * @OA\Response(
+ *      response=404,
+ *      description="not found",
+ *   *@OA\JsonContent()
+ *   )
+ *      )
+ *     )
+ */
+
+ public function getInvoiceByReference($reference, Request $request)
+ {
+     try {
+         $this->storeActivity($request,"");
+
+
+         $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder","tenant","landlord","property")
+         ->where([
+             "invoice_reference" => $reference,
+             "invoices.created_by" => $request->user()->id
+         ])
+         ->select("invoices.*",
+         DB::raw('
+             COALESCE(
+                 (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+                 0
+             ) AS total_paid
+         '),
+         DB::raw('
+             COALESCE(
+                 invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+                 invoices.total_amount
+             ) AS total_due
+         ')
+     )
+
+         ->first();
+
+         if(!$invoice) {
+      return response()->json([
+ "message" => "no invoice found"
+ ],404);
+         }
+
+
+         return response()->json($invoice, 200);
+     } catch (Exception $e) {
+
+         return $this->sendError($e, 500,$request);
+     }
+ }
+
 
 
 

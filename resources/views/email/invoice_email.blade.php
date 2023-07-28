@@ -32,13 +32,14 @@
     /* Add any other custom styles for Gmail or email clients here */
 </style>
 <div style="
-
+text-align: center;
         background-color: #b2c3ce;
         padding: 50px;
         width: 100%;
         box-sizing: border-box;
         "  class=" ">
     <div class="main_container" style="
+    text-align: center;
             padding: 20px 20px;
             width: 450px;
             height: auto;
@@ -48,13 +49,11 @@
             ">
 
 
-
-
             <div class="center-image">
                 <img style="
                 width: 50px;
                 height: 50px;
-                object-fit: contain;
+                margin: 0 auto;
                 " class="business_logo" src="@if($invoice->logo){{(env("APP_URL") . "/invoice_image/" . rawurlencode(substr($invoice->logo, strpos($invoice->logo, '/invoice_image/') + strlen('/invoice_image/'))))}}@else https://i.ibb.co/M8YmF13/Porsche-logo-PNG2.png @endif" alt="">
               </div>
 
@@ -65,8 +64,9 @@
                 <div class="col" style="margin: auto">
                     <h2 class="business_title" style="
                     color: #555555;
-                    "> {{$invoice->business_name}}
-
+                    ">
+                    <!-- {{$invoice->business_name}} -->
+Garage Management
 
         </h2>
                 </div>
@@ -82,11 +82,12 @@
         "
         class="">
         <div class="row">
-            <div class="col" style="margin: auto">
+            <div class="col" style="margin: auto; text-align: center;">
                 @if ($invoice->status != "paid")
                 <p style="
                 color: #555555;
                 font-size: 19px;
+                text-align: center;
                 ">Invoice for <strong>&pound;{{$invoice->total_amount - $invoice->invoice_payments()->sum("amount")}}</strong> due by
                 <strong>{{$invoice->due_date}}</strong>
                 {{-- <strong>Jul 11, 2023</strong> --}}
@@ -99,7 +100,7 @@
         <div class="row">
             <div class="col" style="margin: auto">
                 <a style="
-            padding: 15px 50px;
+            padding: 10px 50px;
             border-radius: 30px;
             background-color: #0575b4;
             color: #ffffff;
@@ -108,6 +109,7 @@
             border: none;
             text-align: center;
             display:block;
+            margin-bottom: 10px;
 
             ">View Invoice</a>
              </div>

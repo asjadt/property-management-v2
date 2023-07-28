@@ -272,6 +272,10 @@ Route::get('/v1.0/invoices/{perPage}', [InvoiceController::class, "getInvoices"]
 Route::get('/v1.0/invoices/get/all', [InvoiceController::class, "getAllInvoices"]);
 
 Route::get('/v1.0/invoices/get/single/{id}', [InvoiceController::class, "getInvoiceById"]);
+Route::get('/v1.0/invoices/get/single-by-reference/{reference}', [InvoiceController::class, "getInvoiceByReference"]);
+
+
+
 Route::delete('/v1.0/invoices/{id}', [InvoiceController::class, "deleteInvoiceById"]);
 Route::delete('/v1.0/invoice-items/{invoice_id}/{id}', [InvoiceController::class, "deleteInvoiceById"]);
 
@@ -304,7 +308,7 @@ Route::delete('/v1.0/invoice-payments/{invoice_id}/{id}', [InvoicePaymentControl
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // invoice reminder management section
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
+Route::post('/v1.0/invoice-reminders/number-todate-convert', [InvoiceReminderController::class, "createInvoiceReminderNumberDateConvert"]);
 Route::post('/v1.0/invoice-reminders', [InvoiceReminderController::class, "createInvoiceReminder"]);
 Route::put('/v1.0/invoice-reminders', [InvoiceReminderController::class, "updateInvoiceReminder"]);
 Route::get('/v1.0/invoice-reminders/{perPage}', [InvoiceReminderController::class, "getInvoiceReminders"]);

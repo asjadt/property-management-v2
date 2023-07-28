@@ -93,6 +93,7 @@ class InvoiceCreateRequest extends FormRequest
             "invoice_items.*.price" => "required|numeric",
             "invoice_items.*.tax" => "required|numeric",
             "invoice_items.*.amount" => "required|numeric",
+            "invoice_items.*.repair_id" => "nullable|numeric",
 
 
             "sub_total"=>"required|numeric",
