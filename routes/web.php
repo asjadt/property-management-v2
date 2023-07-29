@@ -2,10 +2,14 @@
 
 use App\Http\Controllers\SetUpController;
 use App\Http\Controllers\SwaggerLoginController;
+use App\Mail\SendInvoiceReminderEmail;
 use App\Models\EmailTemplate;
 use App\Models\EmailTemplateWrapper;
+use App\Models\InvoiceReminder;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -95,12 +99,34 @@ Route::get("/activate/{token}",function(Request $request,$token) {
 });
 
 Route::get("/test",function() {
-    $html_content = EmailTemplate::where([
-        "type" => "email_verification_mail",
-        "is_active" => 1
 
-    ])->first()->template;
-    return view('email.dynamic_mail',["contactEmail"=>"rest@gmail.com","user"=>[],"html_content"=>$html_content]);
+    Log::info('Task started.');
+    $invoice_reminders = InvoiceReminder::whereDate(
+       "reminder_date", today()
+   )
+   ->where([
+       "send_reminder" => TRUE
+   ])
+   ->get()
+   ;
+
+   foreach($invoice_reminders as $invoice_reminder) {
+       $recipients = ["drrifatalashwad0@gmail.com"];
+       return response()->json($invoice_reminder->invoice);
+       if($invoice_reminder->invoice->tenant) {
+           array_push($recipients, $invoice_reminder->invoice->tenant->email);
+       }
+       if($invoice_reminder->invoice->landlord) {
+           array_push($recipients, $invoice_reminder->invoice->landlord->email);
+       }
+
+       Mail::to($recipients)
+       ->send(new SendInvoiceReminderEmail($invoice_reminder->invoice));
+   }
+
+          Log::info('Task executed.');
+
+
 });
 
 

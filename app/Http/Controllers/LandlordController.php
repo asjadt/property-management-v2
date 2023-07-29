@@ -537,7 +537,7 @@ class LandlordController extends Controller
 
 
              )
-            ->orderByDesc("id")->paginate($perPage);
+            ->orderBy("landlords.first_Name",'asc')->paginate($perPage);
 
             return response()->json($landlords, 200);
         } catch (Exception $e) {
@@ -753,7 +753,7 @@ class LandlordController extends Controller
 
 
               )
-             ->orderByDesc("id")->get();
+             ->orderBy("landlords.first_Name",'asc')->get();
 
              return response()->json($landlords, 200);
          } catch (Exception $e) {

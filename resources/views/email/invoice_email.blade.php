@@ -59,7 +59,7 @@ text-align: center;
 
 
 
-              @if($invoice->logo){{(env("APP_URL")."/".$invoice->logo)}}@else https://i.ibb.co/M8YmF13/Porsche-logo-PNG2.png @endif
+
 
 
             <div class="row">

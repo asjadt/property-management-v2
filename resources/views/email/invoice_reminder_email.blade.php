@@ -49,14 +49,13 @@ text-align: center;
             ">
 
 
-            <div class="center-image">
-                <img style="
-                width: 50px;
-                height: 50px;
-                margin: 0 auto;
-                " class="business_logo" src="@if($invoice->logo){{(env("APP_URL")."/".$invoice->logo)}}@else https://i.ibb.co/M8YmF13/Porsche-logo-PNG2.png @endif" alt="">
-              </div>
-
+<div class="center-image">
+    <img style="
+    width: 50px;
+    height: 50px;
+    margin: 0 auto;
+    " class="business_logo" src="@if($invoice->logo){{(env("APP_URL")."/".$invoice->logo)}}@else https://i.ibb.co/M8YmF13/Porsche-logo-PNG2.png @endif" alt="">
+  </div>
 
 
 
@@ -121,7 +120,36 @@ text-align: center;
 
         </div>
 
-      
+        <div class="row">
+            <div class="col message_text" style="margin: auto">
+
+                <p style="
+                text-align: center;
+                display: block;
+                ">  {{$invoice->business_name}} </p>
+
+                    <p style="
+                    text-align: center;
+                    display: block;
+                    ">
+                    Just a friendly reminder that payment on an invoice issued on
+                    {{-- Jul 11, 2023  --}} {{$invoice->due_date}}
+                    is overdue. This invoice was due on {{$invoice->due_date}}. Please submit payment for this invoice as soon as possible.
+                </p>
+                <p style="
+                text-align: center;
+                display: block;
+                ">  Thanks </p>
+
+                   <p style="
+                   text-align: center;
+                   display: block;
+                   ">
+                   {{$invoice->business_name}}
+                 </p>
+             </div>
+
+        </div>
 
 
         <div class="row">

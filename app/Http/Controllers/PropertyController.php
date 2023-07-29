@@ -472,7 +472,7 @@ public function getProperties($perPage, Request $request)
             $propertyQuery = $propertyQuery->where('created_at', "<=", $request->end_date);
         }
 
-        $properties = $propertyQuery->orderByDesc("id")
+        $properties = $propertyQuery->orderBy("properties.address",'asc')
         ->select(
             "properties.*",
             DB::raw('
@@ -608,7 +608,7 @@ public function getProperties($perPage, Request $request)
 
          $properties = $propertyQuery
          ->select("id","address")
-         ->orderBy("address",'asc')->get();
+         ->orderBy("properties.address",'asc')->get();
 
          return response()->json($properties, 200);
      } catch (Exception $e) {

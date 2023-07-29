@@ -442,7 +442,7 @@ public function getTenants($perPage, Request $request)
             "tenants.*",
             "properties.name as property_name"
         )
-        ->orderByDesc("tenants.id")->paginate($perPage);
+        ->orderBy("tenants.first_Name",'asc')->paginate($perPage);
 
         return response()->json($tenants, 200);
     } catch (Exception $e) {
