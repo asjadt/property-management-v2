@@ -52,16 +52,23 @@ class InvoiceReminderCommand extends Command
         ;
 
         foreach($invoice_reminders as $invoice_reminder) {
-            $recipients = [];
-            if($invoice_reminder->invoice->tenant) {
-                array_push($recipients, $invoice_reminder->invoice->tenant->email);
-            }
-            if($invoice_reminder->invoice->landlord) {
-                array_push($recipients, $invoice_reminder->invoice->landlord->email);
+            if($invoice_reminder->send_reminder == 1) {
+                $recipients = [];
+                if($invoice_reminder->invoice->tenant) {
+                    array_push($recipients, $invoice_reminder->invoice->tenant->email);
+                }
+                if($invoice_reminder->invoice->landlord) {
+                    array_push($recipients, $invoice_reminder->invoice->landlord->email);
+                }
+
+                Mail::to($recipients)
+                ->send(new SendInvoiceReminderEmail($invoice_reminder->invoice));
+                $invoice_reminder->reminder_status = "sent";
+                $invoice_reminder->save();
+
             }
 
-            Mail::to($recipients)
-            ->send(new SendInvoiceReminderEmail($invoice_reminder->invoice));
+
         }
 
         Log::info('Task executed.');

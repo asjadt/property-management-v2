@@ -677,6 +677,96 @@ public function getInvoicePaymentById($invoice_id,$id, Request $request)
         return $this->sendError($e, 500,$request);
     }
 }
+/**
+ *
+ * @OA\Get(
+ *      path="/v2.0/invoice-payments/get/single/{id}",
+ *      operationId="getInvoicePaymentByIdv2",
+ *      tags={"property_management.invoice_payment_management"},
+ *       security={
+ *           {"bearerAuth": {}}
+ *       },
+*              @OA\Parameter(
+ *         name="invoice_id",
+ *         in="path",
+ *         description="invoice_id",
+ *         required=true,
+ *  example="1"
+ *      ),
+ *              @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         description="id",
+ *         required=true,
+ *  example="1"
+ *      ),
+
+ *      summary="This method is to get invoice by id",
+ *      description="This method is to get invoice by id",
+ *
+
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *       @OA\JsonContent(),
+ *       ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ * @OA\JsonContent(),
+ *      ),
+ *        @OA\Response(
+ *          response=422,
+ *          description="Unprocesseble Content",
+ *    @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *   @OA\JsonContent()
+ * ),
+ *  * @OA\Response(
+ *      response=400,
+ *      description="Bad Request",
+ *   *@OA\JsonContent()
+ *   ),
+ * @OA\Response(
+ *      response=404,
+ *      description="not found",
+ *   *@OA\JsonContent()
+ *   )
+ *      )
+ *     )
+ */
+
+ public function getInvoicePaymentByIdv2($id, Request $request)
+ {
+     try {
+         $this->storeActivity($request,"");
+
+
+         $invoice_payment = InvoicePayment::leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
+         ->where([
+             "invoice_payments.id" => $id,
+             "invoices.created_by" => $request->user()->id
+         ])
+
+
+         ->first();
+
+         if(!$invoice_payment) {
+      return response()->json([
+ "message" => "no invoice payment found"
+ ],404);
+         }
+
+
+         return response()->json($invoice_payment, 200);
+     } catch (Exception $e) {
+
+         return $this->sendError($e, 500,$request);
+     }
+ }
 
 
 

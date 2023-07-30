@@ -299,6 +299,7 @@ Route::post('/v1.0/invoice-payments/send-receipt-email', [InvoicePaymentControll
 Route::put('/v1.0/invoice-payments', [InvoicePaymentController::class, "updateInvoicePayment"]);
 Route::get('/v1.0/invoice-payments/{perPage}', [InvoicePaymentController::class, "getInvoicePayments"]);
 Route::get('/v1.0/invoice-payments/get/single/{invoice_id}/{id}', [InvoicePaymentController::class, "getInvoicePaymentById"]);
+Route::get('/v2.0/invoice-payments/get/single/{id}', [InvoicePaymentController::class, "getInvoicePaymentByIdv2"]);
 Route::delete('/v1.0/invoice-payments/{invoice_id}/{id}', [InvoicePaymentController::class, "deleteInvoicePaymentById"]);
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
