@@ -575,7 +575,7 @@ public function getInvoicePayments($perPage, Request $request)
             $invoice_paymentQuery = $invoice_paymentQuery->where('invoice_payments.created_at', "<=", $request->end_date);
         }
 
-        $invoice_payments = $invoice_paymentQuery->orderByDesc("id")->paginate($perPage);
+        $invoice_payments = $invoice_paymentQuery->orderByDesc("invoice_payments.id")->paginate($perPage);
 
         return response()->json($invoice_payments, 200);
     } catch (Exception $e) {

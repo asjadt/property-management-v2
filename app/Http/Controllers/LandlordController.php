@@ -412,7 +412,7 @@ class LandlordController extends Controller
             if (!empty($request->search_key)) {
                 $landlordQuery = $landlordQuery->where(function ($query) use ($request) {
                     $term = $request->search_key;
-                    $query->where("landlords.name", "like", "%" . $term . "%");
+                    $query->where("landlords.first_Name", "like", "%" . $term . "%");
                 });
             }
 
