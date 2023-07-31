@@ -406,6 +406,20 @@ public function updateProperty(PropertyUpdateRequest $request)
 * required=true,
 * example="address"
 * ),
+ * *  @OA\Parameter(
+* name="landlord_id",
+* in="query",
+* description="landlord_id",
+* required=true,
+* example="1"
+* ),
+ * *  @OA\Parameter(
+* name="tenant_id",
+* in="query",
+* description="tenant_id",
+* required=true,
+* example="1"
+* ),
  *      summary="This method is to get properties ",
  *      description="This method is to get properties",
  *
@@ -451,25 +465,32 @@ public function getProperties($perPage, Request $request)
 
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $propertyQuery =  Property::where(["created_by" => $request->user()->id]);
+        $propertyQuery =  Property::leftJoin('property_tenants', 'properties.id', '=', 'property_tenants.property_id')
+        ->leftJoin('tenants', 'property_tenants.tenant_id', '=', 'tenants.id')
+        ->where(["properties.created_by" => $request->user()->id]);
 
         if (!empty($request->search_key)) {
             $propertyQuery = $propertyQuery->where(function ($query) use ($request) {
                 $term = $request->search_key;
                 // $query->where("name", "like", "%" . $term . "%");
-                $query->where("address", "like", "%" . $term . "%");
+                $query->where("properties.address", "like", "%" . $term . "%");
             });
         }
-
+        if (!empty($request->landlord_id)) {
+            $propertyQuery =  $propertyQuery->where("properties.landlord_id", $request->landlord_id );
+        }
+        if (!empty($request->tenant_id)) {
+            $propertyQuery =  $propertyQuery->where("tenants.id", $request->tenant_id );
+        }
         if (!empty($request->address)) {
-            $propertyQuery =  $propertyQuery->orWhere("address", "like", "%" . $request->address . "%");
+            $propertyQuery =  $propertyQuery->orWhere("properties.address", "like", "%" . $request->address . "%");
         }
 
         if (!empty($request->start_date)) {
-            $propertyQuery = $propertyQuery->where('created_at', ">=", $request->start_date);
+            $propertyQuery = $propertyQuery->where('properties.created_at', ">=", $request->start_date);
         }
         if (!empty($request->end_date)) {
-            $propertyQuery = $propertyQuery->where('created_at', "<=", $request->end_date);
+            $propertyQuery = $propertyQuery->where('properties.created_at', "<=", $request->end_date);
         }
 
         $properties = $propertyQuery->orderBy("properties.address",'asc')
@@ -591,7 +612,7 @@ public function getProperties($perPage, Request $request)
 
          $propertyQuery =  Property::leftJoin('property_tenants', 'properties.id', '=', 'property_tenants.property_id')
          ->leftJoin('tenants', 'property_tenants.tenant_id', '=', 'tenants.id')
-         ->where(["created_by" => $request->user()->id]);
+         ->where(["properties.created_by" => $request->user()->id]);
 
          if (!empty($request->search_key)) {
              $propertyQuery = $propertyQuery->where(function ($query) use ($request) {
