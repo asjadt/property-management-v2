@@ -361,6 +361,13 @@ class LandlordController extends Controller
 * required=true,
 * example="search_key"
 * ),
+ * *  @OA\Parameter(
+* name="property_id",
+* in="query",
+* description="property_id",
+* required=true,
+* example="1"
+* ),
      *      summary="This method is to get landlords ",
      *      description="This method is to get landlords",
      *
@@ -407,7 +414,8 @@ class LandlordController extends Controller
             $endDate = $currentDate->copy()->addDays(15);
             // $automobilesQuery = AutomobileMake::with("makes");
 
-            $landlordQuery =  Landlord::where(["landlords.created_by" => $request->user()->id]);
+            $landlordQuery =  Landlord::leftJoin('properties', 'landlords.id', '=', 'properties.landlord_id')
+            ->where(["landlords.created_by" => $request->user()->id]);
 
             if (!empty($request->search_key)) {
                 $landlordQuery = $landlordQuery->where(function ($query) use ($request) {
@@ -415,7 +423,9 @@ class LandlordController extends Controller
                     $query->where("landlords.first_Name", "like", "%" . $term . "%");
                 });
             }
-
+            if(!empty($request->property_id)){
+                $landlordQuery = $landlordQuery->where('properties.id',$request->property_id);
+            }
             if (!empty($request->start_date)) {
                 $landlordQuery = $landlordQuery->where('landlords.created_at', ">=", $request->start_date);
             }
