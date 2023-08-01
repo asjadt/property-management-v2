@@ -1021,13 +1021,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 * required=true,
 * example="1374"
 * ),
- * *  @OA\Parameter(
-* name="is_result_for_payment",
-* in="query",
-* description="is_result_for_payment is true it will return all invoices which requires payment, not draft or pending, and not paid",
-* required=true,
-* example="1"
-* ),
+
  * *  @OA\Parameter(
 * name="landlord_id",
 * in="query",
@@ -1106,24 +1100,26 @@ public function getInvoices($perPage, Request $request)
 
 
 
-        if (!empty($request->is_result_for_payment)) {
-            $invoiceQuery =   $invoiceQuery->where(function ($query) use ($request) {
-
-                $query->whereNotIn("status", ['draft','paid']);
 
 
-                if (!empty($request->status)) {
-                    $query->orWhere("status", $request->status);
-                }
-            });
-        } else if (!empty($request->status)) {
+
+         if(!empty($request->status)) {
             if($request->status == "unpaid") {
                 $invoiceQuery =      $invoiceQuery->whereNotIn("status", ['draft','paid']);
-            } else {
- $invoiceQuery =   $invoiceQuery->where("invoices.status", "like", "%" . $request->status . "%");
+            }
+            if($request->status == "next_15_days_invoice_due") {
+                $currentDate = Carbon::now();
+                $endDate = $currentDate->copy()->addDays(15);
+                $invoiceQuery =      $invoiceQuery->whereNotIn("status", ['draft','paid']);
+                $invoiceQuery =      $invoiceQuery->whereDate('invoices.due_date', '>=', $currentDate);
+                $invoiceQuery =      $invoiceQuery->whereDate('invoices.due_date', '<=', $endDate);
             }
 
          }
+
+
+
+
 
 
         if (!empty($request->is_overdue)) {
@@ -1238,13 +1234,7 @@ public function getInvoices($perPage, Request $request)
 * required=true,
 * example="1"
 * ),
- * *  @OA\Parameter(
-* name="is_result_for_payment",
-* in="query",
-* description="is_result_for_payment is true it will return all invoices which requires payment, not draft or pending, and not paid",
-* required=true,
-* example="1"
-* ),
+
  * *  @OA\Parameter(
 * name="invoice_reference",
 * in="query",
@@ -1305,24 +1295,23 @@ public function getInvoices($perPage, Request $request)
          // ->leftJoin('users', 'invoices.created_by', '=', 'users.id')
 
 
-         if (!empty($request->is_result_for_payment)) {
-            $invoiceQuery =   $invoiceQuery->where(function ($query) use ($request) {
-
-                $query->whereNotIn("status", ['draft','paid']);
-
-
-                if (!empty($request->status)) {
-                    $query->orWhere("status", $request->status);
-                }
-            });
-        } else if (!empty($request->status)) {
+         if(!empty($request->status)) {
             if($request->status == "unpaid") {
                 $invoiceQuery =      $invoiceQuery->whereNotIn("status", ['draft','paid']);
-            } else {
- $invoiceQuery =   $invoiceQuery->where("invoices.status", "like", "%" . $request->status . "%");
+            }
+           else if($request->status == "next_15_days_invoice_due") {
+                $currentDate = Carbon::now();
+                $endDate = $currentDate->copy()->addDays(15);
+                $invoiceQuery =      $invoiceQuery->whereNotIn("status", ['draft','paid']);
+                $invoiceQuery =      $invoiceQuery->whereDate('invoices.due_date', '>=', $currentDate);
+                $invoiceQuery =      $invoiceQuery->whereDate('invoices.due_date', '<=', $endDate);
+            }
+            else {
+                $invoiceQuery =      $invoiceQuery->where("status", $request->status);
             }
 
          }
+
 
 
          if (!empty($request->is_overdue)) {

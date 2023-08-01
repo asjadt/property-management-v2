@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Mail\SendInvoiceReminderEmail;
+use App\Models\Invoice;
 use App\Models\InvoiceReminder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -70,6 +71,19 @@ class InvoiceReminderCommand extends Command
 
 
         }
+
+
+
+
+        Invoice::whereNotIn("status",[
+         "draft","over_due"
+        ])
+        ->whereDate('due_date', '<=', today())
+        ->update([
+            "status" => "over_due"
+        ]);
+
+
 
         Log::info('Task executed.');
     }

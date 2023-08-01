@@ -262,7 +262,7 @@ public function createInvoiceReminder(InvoiceReminderCreateRequest $request)
 
   *             @OA\Property(property="send_reminder", type="string", format="string",example="1"),
  *            @OA\Property(property="reminder_date", type="string", format="string",example="2019-06-29"),
- *            @OA\Property(property="invoice_id", type="string", format="string",example="1"),
+
  *
  *         ),
  *      ),
@@ -327,25 +327,31 @@ public function updateInvoiceReminder(InvoiceReminderUpdateForm $request)
 
 
 
-            $invoice_reminder  =  tap(InvoiceReminder::leftJoin('invoices', 'invoice_reminders.invoice_id', '=', 'invoices.id')
+            $invoice_reminder  = InvoiceReminder::leftJoin('invoices', 'invoice_reminders.invoice_id', '=', 'invoices.id')
             ->where([
                 "invoice_reminders.id" => $updatableData["id"],
                 "invoices.created_by" => $request->user()->id
-            ])
+            ])->first();
 
 
-            )->update(
-                collect($updatableData)->only([
-                    "reminder_status",
-                    "send_reminder",
-                    "reminder_date",
-                    "invoice_id",
 
-                ])->toArray()
-            )
-                // ->with("somthing")
+            $invoice_reminder_date = new DateTime($invoice_reminder->reminder_date);
+            $updatableData_date = new DateTime($updatableData["reminder_date"]);
 
-                ->first();
+            // Extract day components from the dates.
+            $invoice_reminder_day = (int)$invoice_reminder_date->format('d');
+            $updatableData_day = (int)$updatableData_date->format('d');
+
+            // Compare the day components.
+            if ($invoice_reminder_day !== $updatableData_day) {
+
+                $invoice_reminder->reminder_date_amount = NULL;
+            }
+            $invoice_reminder->send_reminder = $updatableData["send_reminder"];
+            $invoice_reminder->reminder_date = $updatableData["reminder_date"];
+
+            $invoice_reminder->save();
+
 
             return response($invoice_reminder, 200);
         });

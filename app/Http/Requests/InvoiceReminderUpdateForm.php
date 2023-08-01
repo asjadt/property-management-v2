@@ -27,7 +27,7 @@ class InvoiceReminderUpdateForm extends FormRequest
             "id"=>"required|numeric|exists:invoice_reminders,id",
             "send_reminder"=>"required|boolean",
             "reminder_date"=>"required|date",
-            "invoice_id"=>"required|numeric|exists:invoices,id",
+
         ];
     }
 }
