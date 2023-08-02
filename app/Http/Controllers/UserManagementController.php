@@ -447,6 +447,8 @@ class UserManagementController extends Controller
 
 
     $user =  User::create($insertableData['user']);
+    $user->email_verified_at = now();
+    $user->save();
     $user->assignRole('property_dealer');
    // end user info ##############
 

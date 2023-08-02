@@ -1099,14 +1099,14 @@ public function deleteInvoicePaymentById($invoice_id,$id, Request $request)
          // $automobilesQuery = AutomobileMake::with("makes");
 
          $invoice_payment_receiptQuery =  InvoicePaymentReceipt::with("invoice","invoice_payment")
-         ->leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
+         ->leftJoin('invoices', 'invoice_payment_receipts.invoice_id', '=', 'invoices.id')
          ->where([
              "invoices.created_by" => $request->user()->id
          ]);
 
 
          if (!empty($request->invoice_id)) {
-             $invoice_payment_receiptQuery = $invoice_payment_receiptQuery->where('invoice_payments.invoice_id',  $request->invoice_id);
+             $invoice_payment_receiptQuery = $invoice_payment_receiptQuery->where('invoice_payment_receipts.invoice_id',  $request->invoice_id);
          }
 
          // if (!empty($request->search_key)) {
@@ -1117,15 +1117,15 @@ public function deleteInvoicePaymentById($invoice_id,$id, Request $request)
          // }
 
          if (!empty($request->start_date)) {
-             $invoice_payment_receiptQuery = $invoice_payment_receiptQuery->where('invoice_payments.created_at', ">=", $request->start_date);
+             $invoice_payment_receiptQuery = $invoice_payment_receiptQuery->where('invoice_payment_receipts.created_at', ">=", $request->start_date);
          }
          if (!empty($request->end_date)) {
-             $invoice_payment_receiptQuery = $invoice_payment_receiptQuery->where('invoice_payments.created_at', "<=", $request->end_date);
+             $invoice_payment_receiptQuery = $invoice_payment_receiptQuery->where('invoice_payment_receipts.created_at', "<=", $request->end_date);
          }
 
          $invoice_payment_receipts = $invoice_payment_receiptQuery
          ->select("invoice_payment_receipts.*")
-         ->orderByDesc("invoice_payments.id")->paginate($perPage);
+         ->orderByDesc("invoice_payment_receipts.id")->paginate($perPage);
 
          return response()->json($invoice_payment_receipts, 200);
      } catch (Exception $e) {
@@ -1197,9 +1197,9 @@ public function deleteInvoicePaymentById($invoice_id,$id, Request $request)
 
 
          $invoice_payment_receipt = InvoicePaymentReceipt::with("invoice","invoice_payment")
-         ->leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
+         ->leftJoin('invoices', 'invoice_payment_receipts.invoice_id', '=', 'invoices.id')
          ->where([
-             "invoice_payments.id" => $id,
+             "invoice_payment_receipts.id" => $id,
              "invoices.created_by" => $request->user()->id
          ])
          ->select("invoice_payment_receipts.*")
