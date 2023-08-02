@@ -641,20 +641,20 @@ public function deleteInvoiceReminderById($id, Request $request)
     try {
         $this->storeActivity($request,"");
 
-        // $business = Business::where([
-        //     "owner_id" => $request->user()->id
-        //   ])->first();
+        $business = Business::where([
+            "owner_id" => $request->user()->id
+          ])->first();
 
-        // if(!$business) {
-        //     return response()->json([
-        //      "message" => "you don't have a valid business"
-        //     ],401);
-        //  }
-        //  if(!($business->pin == $request->header("pin"))) {
-        //      return response()->json([
-        //          "message" => "invalid pin"
-        //         ],401);
-        //  }
+        if(!$business) {
+            return response()->json([
+             "message" => "you don't have a valid business"
+            ],401);
+         }
+         if(!($business->pin == $request->header("pin"))) {
+             return response()->json([
+                 "message" => "invalid pin"
+                ],401);
+         }
 
         $invoice_reminder = InvoiceReminder::leftJoin('invoices', 'invoice_reminders.invoice_id', '=', 'invoices.id')
 
@@ -679,5 +679,105 @@ public function deleteInvoiceReminderById($id, Request $request)
         return $this->sendError($e, 500,$request);
     }
 }
+
+/**
+ *
+ *     @OA\Delete(
+ *      path="/v1.0/invoice-reminders/without-pin/{id}",
+ *      operationId="deleteInvoiceReminderWithoutById",
+ *      tags={"property_management.invoice_reminder_management"},
+ *       security={
+ *           {"bearerAuth": {}},
+ *           {"pin": {}}
+ *       },
+ *              @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         description="id",
+ *         required=true,
+ *  example="1"
+ *      ),
+ *      summary="This method is to delete invoice reminder by id",
+ *      description="This method is to delete invoice reminder by id",
+ *
+
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *       @OA\JsonContent(),
+ *       ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ * @OA\JsonContent(),
+ *      ),
+ *        @OA\Response(
+ *          response=422,
+ *          description="Unprocesseble Content",
+ *    @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *   @OA\JsonContent()
+ * ),
+ *  * @OA\Response(
+ *      response=400,
+ *      description="Bad Request",
+ *   *@OA\JsonContent()
+ *   ),
+ * @OA\Response(
+ *      response=404,
+ *      description="not found",
+ *   *@OA\JsonContent()
+ *   )
+ *      )
+ *     )
+ */
+
+ public function deleteInvoiceReminderWithoutById($id, Request $request)
+ {
+
+     try {
+         $this->storeActivity($request,"");
+
+         // $business = Business::where([
+         //     "owner_id" => $request->user()->id
+         //   ])->first();
+
+         // if(!$business) {
+         //     return response()->json([
+         //      "message" => "you don't have a valid business"
+         //     ],401);
+         //  }
+         //  if(!($business->pin == $request->header("pin"))) {
+         //      return response()->json([
+         //          "message" => "invalid pin"
+         //         ],401);
+         //  }
+
+         $invoice_reminder = InvoiceReminder::leftJoin('invoices', 'invoice_reminders.invoice_id', '=', 'invoices.id')
+
+         ->where([
+             "invoices.created_by" => $request->user()->id,
+             "invoice_reminders.id" => $id
+
+         ])
+         ->select("invoice_reminders.id")
+         ->first();
+
+         if(!$invoice_reminder) {
+      return response()->json([
+ "message" => "no invoice reminder found"
+ ],404);
+         }
+         $invoice_reminder->delete();
+
+         return response()->json(["ok" => true], 200);
+     } catch (Exception $e) {
+
+         return $this->sendError($e, 500,$request);
+     }
+ }
 
 }

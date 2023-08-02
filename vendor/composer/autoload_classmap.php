@@ -6,6 +6,7 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'App\\Console\\Commands\\InvoiceReminderCommand' => $baseDir . '/app/Console/Commands/InvoiceReminderCommand.php',
     'App\\Console\\Kernel' => $baseDir . '/app/Console/Kernel.php',
     'App\\Exceptions\\Handler' => $baseDir . '/app/Exceptions/Handler.php',
     'App\\Http\\Controllers\\AffiliationController' => $baseDir . '/app/Http/Controllers/AffiliationController.php',
@@ -125,8 +126,10 @@ return array(
     'App\\Http\\Requests\\InvoicePaymentCreateRequest' => $baseDir . '/app/Http/Requests/InvoicePaymentCreateRequest.php',
     'App\\Http\\Requests\\InvoicePaymentUpdateRequest' => $baseDir . '/app/Http/Requests/InvoicePaymentUpdateRequest.php',
     'App\\Http\\Requests\\InvoiceReminderCreateRequest' => $baseDir . '/app/Http/Requests/InvoiceReminderCreateRequest.php',
+    'App\\Http\\Requests\\InvoiceReminderNumberToDateCreateRequest' => $baseDir . '/app/Http/Requests/InvoiceReminderNumberToDateCreateRequest.php',
     'App\\Http\\Requests\\InvoiceReminderUpdateForm' => $baseDir . '/app/Http/Requests/InvoiceReminderUpdateForm.php',
     'App\\Http\\Requests\\InvoiceSendRequest' => $baseDir . '/app/Http/Requests/InvoiceSendRequest.php',
+    'App\\Http\\Requests\\InvoiceStatusUpdateRequest' => $baseDir . '/app/Http/Requests/InvoiceStatusUpdateRequest.php',
     'App\\Http\\Requests\\InvoiceUpdateRequest' => $baseDir . '/app/Http/Requests/InvoiceUpdateRequest.php',
     'App\\Http\\Requests\\JobBidCreateRequest' => $baseDir . '/app/Http/Requests/JobBidCreateRequest.php',
     'App\\Http\\Requests\\JobBidUpdateRequest' => $baseDir . '/app/Http/Requests/JobBidUpdateRequest.php',
@@ -184,6 +187,7 @@ return array(
     'App\\Mail\\ForgetPasswordMail' => $baseDir . '/app/Mail/ForgetPasswordMail.php',
     'App\\Mail\\PaymentEmail' => $baseDir . '/app/Mail/PaymentEmail.php',
     'App\\Mail\\SendInvoiceEmail' => $baseDir . '/app/Mail/SendInvoiceEmail.php',
+    'App\\Mail\\SendInvoiceReminderEmail' => $baseDir . '/app/Mail/SendInvoiceReminderEmail.php',
     'App\\Mail\\VerifyMail' => $baseDir . '/app/Mail/VerifyMail.php',
     'App\\Models\\ActivityLog' => $baseDir . '/app/Models/ActivityLog.php',
     'App\\Models\\Affiliation' => $baseDir . '/app/Models/Affiliation.php',
@@ -220,6 +224,7 @@ return array(
     'App\\Models\\Invoice' => $baseDir . '/app/Models/Invoice.php',
     'App\\Models\\InvoiceItem' => $baseDir . '/app/Models/InvoiceItem.php',
     'App\\Models\\InvoicePayment' => $baseDir . '/app/Models/InvoicePayment.php',
+    'App\\Models\\InvoicePaymentReceipt' => $baseDir . '/app/Models/InvoicePaymentReceipt.php',
     'App\\Models\\InvoiceReminder' => $baseDir . '/app/Models/InvoiceReminder.php',
     'App\\Models\\Job' => $baseDir . '/app/Models/Job.php',
     'App\\Models\\JobBid' => $baseDir . '/app/Models/JobBid.php',

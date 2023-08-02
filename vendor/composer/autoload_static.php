@@ -621,6 +621,7 @@ class ComposerStaticInit21d3eeeef4e11a73df45b8701b58e483
     );
 
     public static $classMap = array (
+        'App\\Console\\Commands\\InvoiceReminderCommand' => __DIR__ . '/../..' . '/app/Console/Commands/InvoiceReminderCommand.php',
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
         'App\\Http\\Controllers\\AffiliationController' => __DIR__ . '/../..' . '/app/Http/Controllers/AffiliationController.php',
@@ -740,8 +741,10 @@ class ComposerStaticInit21d3eeeef4e11a73df45b8701b58e483
         'App\\Http\\Requests\\InvoicePaymentCreateRequest' => __DIR__ . '/../..' . '/app/Http/Requests/InvoicePaymentCreateRequest.php',
         'App\\Http\\Requests\\InvoicePaymentUpdateRequest' => __DIR__ . '/../..' . '/app/Http/Requests/InvoicePaymentUpdateRequest.php',
         'App\\Http\\Requests\\InvoiceReminderCreateRequest' => __DIR__ . '/../..' . '/app/Http/Requests/InvoiceReminderCreateRequest.php',
+        'App\\Http\\Requests\\InvoiceReminderNumberToDateCreateRequest' => __DIR__ . '/../..' . '/app/Http/Requests/InvoiceReminderNumberToDateCreateRequest.php',
         'App\\Http\\Requests\\InvoiceReminderUpdateForm' => __DIR__ . '/../..' . '/app/Http/Requests/InvoiceReminderUpdateForm.php',
         'App\\Http\\Requests\\InvoiceSendRequest' => __DIR__ . '/../..' . '/app/Http/Requests/InvoiceSendRequest.php',
+        'App\\Http\\Requests\\InvoiceStatusUpdateRequest' => __DIR__ . '/../..' . '/app/Http/Requests/InvoiceStatusUpdateRequest.php',
         'App\\Http\\Requests\\InvoiceUpdateRequest' => __DIR__ . '/../..' . '/app/Http/Requests/InvoiceUpdateRequest.php',
         'App\\Http\\Requests\\JobBidCreateRequest' => __DIR__ . '/../..' . '/app/Http/Requests/JobBidCreateRequest.php',
         'App\\Http\\Requests\\JobBidUpdateRequest' => __DIR__ . '/../..' . '/app/Http/Requests/JobBidUpdateRequest.php',
@@ -799,6 +802,7 @@ class ComposerStaticInit21d3eeeef4e11a73df45b8701b58e483
         'App\\Mail\\ForgetPasswordMail' => __DIR__ . '/../..' . '/app/Mail/ForgetPasswordMail.php',
         'App\\Mail\\PaymentEmail' => __DIR__ . '/../..' . '/app/Mail/PaymentEmail.php',
         'App\\Mail\\SendInvoiceEmail' => __DIR__ . '/../..' . '/app/Mail/SendInvoiceEmail.php',
+        'App\\Mail\\SendInvoiceReminderEmail' => __DIR__ . '/../..' . '/app/Mail/SendInvoiceReminderEmail.php',
         'App\\Mail\\VerifyMail' => __DIR__ . '/../..' . '/app/Mail/VerifyMail.php',
         'App\\Models\\ActivityLog' => __DIR__ . '/../..' . '/app/Models/ActivityLog.php',
         'App\\Models\\Affiliation' => __DIR__ . '/../..' . '/app/Models/Affiliation.php',
@@ -835,6 +839,7 @@ class ComposerStaticInit21d3eeeef4e11a73df45b8701b58e483
         'App\\Models\\Invoice' => __DIR__ . '/../..' . '/app/Models/Invoice.php',
         'App\\Models\\InvoiceItem' => __DIR__ . '/../..' . '/app/Models/InvoiceItem.php',
         'App\\Models\\InvoicePayment' => __DIR__ . '/../..' . '/app/Models/InvoicePayment.php',
+        'App\\Models\\InvoicePaymentReceipt' => __DIR__ . '/../..' . '/app/Models/InvoicePaymentReceipt.php',
         'App\\Models\\InvoiceReminder' => __DIR__ . '/../..' . '/app/Models/InvoiceReminder.php',
         'App\\Models\\Job' => __DIR__ . '/../..' . '/app/Models/Job.php',
         'App\\Models\\JobBid' => __DIR__ . '/../..' . '/app/Models/JobBid.php',

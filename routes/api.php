@@ -294,13 +294,30 @@ Route::get('/v1.0/invoices/validate/invoice-reference/{invoice_reference}', [Inv
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 Route::post('/v1.0/invoice-payments', [InvoicePaymentController::class, "createInvoicePayment"]);
-Route::post('/v1.0/invoice-payments/send-receipt-email', [InvoicePaymentController::class, "sendPaymentReceipt"]);
+
 
 Route::put('/v1.0/invoice-payments', [InvoicePaymentController::class, "updateInvoicePayment"]);
 Route::get('/v1.0/invoice-payments/{perPage}', [InvoicePaymentController::class, "getInvoicePayments"]);
 Route::get('/v1.0/invoice-payments/get/single/{invoice_id}/{id}', [InvoicePaymentController::class, "getInvoicePaymentById"]);
 Route::get('/v2.0/invoice-payments/get/single/{id}', [InvoicePaymentController::class, "getInvoicePaymentByIdv2"]);
 Route::delete('/v1.0/invoice-payments/{invoice_id}/{id}', [InvoicePaymentController::class, "deleteInvoicePaymentById"]);
+Route::delete('/v1.0/invoice-payments/{id}', [InvoicePaymentController::class, "deleteInvoicePaymentByIdV2"]);
+
+
+
+
+
+Route::post('/v1.0/invoice-payments/send-receipt-email', [InvoicePaymentController::class, "sendPaymentReceipt"]);
+Route::get('/v1.0/invoice-payment-receipts/{perPage}', [InvoicePaymentController::class, "getInvoicePaymentReceipts"]);
+Route::get('/v1.0/invoice-payment-receipts/get/single/{id}', [InvoicePaymentController::class, "getInvoicePaymentReceiptById"]);
+
+
+
+
+
+
+
+
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // invoice payment management section
@@ -315,6 +332,7 @@ Route::put('/v1.0/invoice-reminders', [InvoiceReminderController::class, "update
 Route::get('/v1.0/invoice-reminders/{perPage}', [InvoiceReminderController::class, "getInvoiceReminders"]);
 Route::get('/v1.0/invoice-reminders/get/single/{id}', [InvoiceReminderController::class, "getInvoiceReminderById"]);
 Route::delete('/v1.0/invoice-reminders/{id}', [InvoiceReminderController::class, "deleteInvoiceReminderById"]);
+Route::delete('/v1.0/invoice-reminders/without-pin/{id}', [InvoiceReminderController::class, "deleteInvoiceReminderWithoutById"]);
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // invoice reminder management section
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

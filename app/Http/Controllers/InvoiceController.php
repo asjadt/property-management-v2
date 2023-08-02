@@ -21,7 +21,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-
+use Illuminate\Support\Str;
 class InvoiceController extends Controller
 {
     use ErrorUtil, UserActivityUtil;
@@ -262,7 +262,7 @@ public function createInvoice(InvoiceCreateRequest $request)
                             throw new Exception(json_encode($error),422);
                         }
 
-                    }
+            }
 
                 return [
                     "name" => $item["name"],
@@ -344,6 +344,10 @@ public function createInvoice(InvoiceCreateRequest $request)
 
 
             }
+
+            $invoice->shareable_link =  env("FRONT_END_URL_DASHBOARD")."/share/invoice/". Str::random(4) . "-". $invoice->id ."-" . Str::random(4);
+
+            $invoice->save();
 
 
 
@@ -1045,6 +1049,14 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 * example="1"
 * ),
 
+*  @OA\Parameter(
+*      name="property_ids[]",
+*      in="query",
+*      description="property_ids",
+*      required=true,
+*      example="1,2"
+* ),
+
 
 
 
@@ -1148,6 +1160,15 @@ public function getInvoices($perPage, Request $request)
         }
 
 
+        if(!empty($request->property_ids)) {
+            $null_filter = collect(array_filter($request->property_ids))->values();
+        $property_ids =  $null_filter->all();
+            if(count($property_ids)) {
+                $invoiceQuery =   $invoiceQuery->whereIn("invoices.property_id",$property_ids);
+            }
+
+        }
+
 
         // if (!empty($request->search_key)) {
         //     $invoiceQuery = $invoiceQuery->where(function ($query) use ($request) {
@@ -1244,6 +1265,14 @@ public function getInvoices($perPage, Request $request)
 * example="1374"
 * ),
 
+*  @OA\Parameter(
+*      name="property_ids[]",
+*      in="query",
+*      description="property_ids",
+*      required=true,
+*      example="1,2"
+* ),
+
  *      summary="This method is to get invoices ",
  *      description="This method is to get invoices",
  *
@@ -1329,6 +1358,14 @@ public function getInvoices($perPage, Request $request)
          }
 
 
+         if(!empty($request->property_ids)) {
+            $null_filter = collect(array_filter($request->property_ids))->values();
+        $property_ids =  $null_filter->all();
+            if(count($property_ids)) {
+                $invoiceQuery =   $invoiceQuery->whereIn("invoices.property_id",$property_ids);
+            }
+
+        }
 
          // if (!empty($request->search_key)) {
          //     $invoiceQuery = $invoiceQuery->where(function ($query) use ($request) {

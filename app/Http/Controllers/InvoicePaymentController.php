@@ -11,6 +11,7 @@ use App\Mail\PaymentEmail;
 use App\Models\Business;
 use App\Models\Invoice;
 use App\Models\InvoicePayment;
+use App\Models\InvoicePaymentReceipt;
 use App\Models\Landlord;
 use App\Models\Tenant;
 use Carbon\Carbon;
@@ -18,6 +19,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class InvoicePaymentController extends Controller
 {
@@ -181,138 +183,7 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
         return $this->sendError($e, 500,$request);
     }
 }
-/**
- *
- * @OA\Post(
- *      path="/v1.0/invoice-payments/send-receipt-email",
- *      operationId="sendPaymentReceipt",
- *      tags={"property_management.invoice_payment_management"},
- *       security={
- *           {"bearerAuth": {}}
- *       },
- *      summary="This method is to send invoice payment receipt",
- *      description="This method is to send invoice payment receipt",
- *
- *  @OA\RequestBody(
- *         required=true,
- *         @OA\JsonContent(
- *            required={"name","description","logo"},
-  *     *             @OA\Property(property="invoice_id", type="number", format="number",example="1"),
-   *     *             @OA\Property(property="invoice_payment_id", type="number", format="number",example="1"),
-  *  *             @OA\Property(property="from", type="string", format="string",example="test@gmail.com"),
-  *             @OA\Property(property="to", type="string", format="array",example={ "test1@gmail.com","test2@gmail.com" }),
- *            @OA\Property(property="subject", type="string", format="string",example="subject"),
- *
- *  *         *  *     *  * *  @OA\Property(property="message", type="string", format="string",example="message"),
- *
- *  *  *  *            @OA\Property(property="copy_to_myself", type="number", format="number",example="0"),
- *
- *
- *         ),
- *      ),
- *      @OA\Response(
- *          response=200,
- *          description="Successful operation",
- *       @OA\JsonContent(),
- *       ),
- *      @OA\Response(
- *          response=401,
- *          description="Unauthenticated",
- * @OA\JsonContent(),
- *      ),
- *        @OA\Response(
- *          response=422,
- *          description="Unprocesseble Content",
- *    @OA\JsonContent(),
- *      ),
- *      @OA\Response(
- *          response=403,
- *          description="Forbidden",
- *   @OA\JsonContent()
- * ),
- *  * @OA\Response(
- *      response=400,
- *      description="Bad Request",
- *   *@OA\JsonContent()
- *   ),
- * @OA\Response(
- *      response=404,
- *      description="not found",
- *   *@OA\JsonContent()
- *   )
- *      )
- *     )
- */
 
- public function sendPaymentReceipt(SendInvoicePaymentReceiptRequest $request)
- {
-     try {
-         $this->storeActivity($request,"");
-         return DB::transaction(function () use ($request) {
-
-
-
-            $updatableData = $request->validated();
-
-
-
-            $invoice  =  Invoice::where([
-                "invoices.id" => $updatableData["invoice_id"],
-                "invoices.created_by" => $request->user()->id
-            ])
-                ->first();
-
-
-                if(!$invoice) {
-                   return response()->json(["message" => "mo invoice found"],404);
-                }
-
-                $invoice_payment = InvoicePayment::where([
-                    "invoice_id" =>  $invoice->id,
-                    "id" => $updatableData["invoice_payment_id"]
-                ])
-                    ->first();
-
-                    if(!$invoice_payment) {
-                        return response()->json(["message" => "mo invoice payment found"],404);
-                    }
-
-
-                $recipients = $updatableData["to"];
-                if($updatableData["copy_to_myself"]) {
-
-                   array_push($recipients,$updatableData["from"]);
-
-                }
-
-
-          Mail::to($recipients)
-          ->send(new PaymentEmail($invoice,$invoice_payment,$updatableData));
-             // end email section
-
-
-
-
-
-
-
-
-             return response($invoice_payment, 201);
-
-
-
-
-
-         });
-
-
-
-
-     } catch (Exception $e) {
-
-         return $this->sendError($e, 500,$request);
-     }
- }
 
 /**
  *
@@ -575,7 +446,10 @@ public function getInvoicePayments($perPage, Request $request)
             $invoice_paymentQuery = $invoice_paymentQuery->where('invoice_payments.created_at', "<=", $request->end_date);
         }
 
-        $invoice_payments = $invoice_paymentQuery->orderByDesc("invoice_payments.id")->paginate($perPage);
+        $invoice_payments = $invoice_paymentQuery
+        ->select("invoice_payments.*")
+        ->orderByDesc("invoice_payments.id")
+        ->paginate($perPage);
 
         return response()->json($invoice_payments, 200);
     } catch (Exception $e) {
@@ -660,7 +534,7 @@ public function getInvoicePaymentById($invoice_id,$id, Request $request)
             "invoice_payments.invoice_id" => $invoice_id,
             "invoices.created_by" => $request->user()->id
         ])
-
+        ->select("invoice_payments.*")
 
         ->first();
 
@@ -686,13 +560,6 @@ public function getInvoicePaymentById($invoice_id,$id, Request $request)
  *       security={
  *           {"bearerAuth": {}}
  *       },
-*              @OA\Parameter(
- *         name="invoice_id",
- *         in="path",
- *         description="invoice_id",
- *         required=true,
- *  example="1"
- *      ),
  *              @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -750,7 +617,7 @@ public function getInvoicePaymentById($invoice_id,$id, Request $request)
              "invoice_payments.id" => $id,
              "invoices.created_by" => $request->user()->id
          ])
-
+         ->select("invoice_payments.*")
 
          ->first();
 
@@ -866,6 +733,7 @@ public function deleteInvoicePaymentById($invoice_id,$id, Request $request)
             "invoice_payments.invoice_id" => $invoice_id,
             "invoices.created_by" => $request->user()->id
         ])
+        ->select("invoice_payments.id")
         ->first();
 
         if(!$invoice_payment) {
@@ -881,6 +749,493 @@ public function deleteInvoicePaymentById($invoice_id,$id, Request $request)
         return $this->sendError($e, 500,$request);
     }
 }
+
+
+
+
+
+/**
+ *
+ *     @OA\Delete(
+ *      path="/v1.0/invoice-payments/{id}",
+ *      operationId="deleteInvoicePaymentByIdV2",
+ *      tags={"property_management.invoice_payment_management"},
+ *       security={
+ *           {"bearerAuth": {}},
+ *            {"pin": {}}
+ *       },
+ * *              @OA\Parameter(
+ *         name="invoice_id",
+ *         in="path",
+ *         description="invoice_id",
+ *         required=true,
+ *  example="1"
+ *      ),
+ *              @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         description="id",
+ *         required=true,
+ *  example="1"
+ *      ),
+ *      summary="This method is to delete invoice by id",
+ *      description="This method is to delete invoice by id",
+ *
+
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *       @OA\JsonContent(),
+ *       ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ * @OA\JsonContent(),
+ *      ),
+ *        @OA\Response(
+ *          response=422,
+ *          description="Unprocesseble Content",
+ *    @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *   @OA\JsonContent()
+ * ),
+ *  * @OA\Response(
+ *      response=400,
+ *      description="Bad Request",
+ *   *@OA\JsonContent()
+ *   ),
+ * @OA\Response(
+ *      response=404,
+ *      description="not found",
+ *   *@OA\JsonContent()
+ *   )
+ *      )
+ *     )
+ */
+
+ public function deleteInvoicePaymentByIdV2($id, Request $request)
+ {
+
+     try {
+         $this->storeActivity($request,"");
+
+         $business = Business::where([
+             "owner_id" => $request->user()->id
+           ])->first();
+
+         if(!$business) {
+             return response()->json([
+              "message" => "you don't have a valid business"
+             ],401);
+          }
+          if(!($business->pin == $request->header("pin"))) {
+              return response()->json([
+                  "message" => "invalid pin"
+                 ],401);
+          }
+
+         $invoice_payment = InvoicePayment::leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
+         ->where([
+             "invoice_payments.id" => $id,
+             "invoices.created_by" => $request->user()->id
+         ])
+         ->select("invoice_payments.id")
+         ->first();
+
+         if(!$invoice_payment) {
+      return response()->json([
+ "message" => "no invoice payment found"
+ ],404);
+         }
+         $invoice_payment->delete();
+
+         return response()->json(["ok" => true], 200);
+     } catch (Exception $e) {
+
+         return $this->sendError($e, 500,$request);
+     }
+ }
+
+
+
+
+
+
+
+
+
+ /**
+ *
+ * @OA\Post(
+ *      path="/v1.0/invoice-payments/send-receipt-email",
+ *      operationId="sendPaymentReceipt",
+ *      tags={"property_management.invoice_payment_receipt_management"},
+ *       security={
+ *           {"bearerAuth": {}}
+ *       },
+ *      summary="This method is to send invoice payment receipt",
+ *      description="This method is to send invoice payment receipt",
+ *
+ *  @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *            required={"name","description","logo"},
+  *     *             @OA\Property(property="invoice_id", type="number", format="number",example="1"),
+   *     *             @OA\Property(property="invoice_payment_id", type="number", format="number",example="1"),
+  *  *             @OA\Property(property="from", type="string", format="string",example="test@gmail.com"),
+  *             @OA\Property(property="to", type="string", format="array",example={ "test1@gmail.com","test2@gmail.com" }),
+ *            @OA\Property(property="subject", type="string", format="string",example="subject"),
+ *
+ *  *         *  *     *  * *  @OA\Property(property="message", type="string", format="string",example="message"),
+ *
+ *  *  *  *            @OA\Property(property="copy_to_myself", type="number", format="number",example="0"),
+ *
+ *
+ *         ),
+ *      ),
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *       @OA\JsonContent(),
+ *       ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ * @OA\JsonContent(),
+ *      ),
+ *        @OA\Response(
+ *          response=422,
+ *          description="Unprocesseble Content",
+ *    @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *   @OA\JsonContent()
+ * ),
+ *  * @OA\Response(
+ *      response=400,
+ *      description="Bad Request",
+ *   *@OA\JsonContent()
+ *   ),
+ * @OA\Response(
+ *      response=404,
+ *      description="not found",
+ *   *@OA\JsonContent()
+ *   )
+ *      )
+ *     )
+ */
+
+ public function sendPaymentReceipt(SendInvoicePaymentReceiptRequest $request)
+ {
+     try {
+         $this->storeActivity($request,"");
+         return DB::transaction(function () use ($request) {
+
+
+
+            $updatableData = $request->validated();
+
+
+
+            $invoice  =  Invoice::where([
+                "invoices.id" => $updatableData["invoice_id"],
+                "invoices.created_by" => $request->user()->id
+            ])
+                ->first();
+
+
+                if(!$invoice) {
+                   return response()->json(["message" => "mo invoice found"],404);
+                }
+
+                $invoice_payment = InvoicePayment::where([
+                    "invoice_id" =>  $invoice->id,
+                    "id" => $updatableData["invoice_payment_id"]
+                ])
+                    ->first();
+
+                    if(!$invoice_payment) {
+                        return response()->json(["message" => "mo invoice payment found"],404);
+                    }
+
+
+                $recipients = $updatableData["to"];
+                if($updatableData["copy_to_myself"]) {
+
+                   array_push($recipients,$updatableData["from"]);
+
+                }
+
+
+          Mail::to($recipients)
+          ->send(new PaymentEmail($invoice,$invoice_payment,$updatableData));
+             // end email section
+
+             $updatableData["to"] =  json_encode($updatableData["to"]);
+
+         $invoice_payment_receipt =  InvoicePaymentReceipt::create($updatableData);
+
+
+
+           $invoice_payment_receipt->shareable_link =  env("FRONT_END_URL_DASHBOARD")."/share/receipt/". Str::random(4) . "-". $invoice->id ."-" . Str::random(4);
+
+
+
+
+
+
+           $invoice_payment_receipt->save();
+
+
+             return response($invoice_payment, 201);
+
+
+
+
+
+         });
+
+
+
+
+     } catch (Exception $e) {
+
+         return $this->sendError($e, 500,$request);
+     }
+ }
+/**
+ *
+ * @OA\Get(
+ *      path="/v1.0/invoice-payment-receipts/{perPage}",
+ *      operationId="getInvoicePaymentReceipts",
+ *      tags={"property_management.invoice_payment_receipt_management"},
+ *       security={
+ *           {"bearerAuth": {}}
+ *       },
+
+ *              @OA\Parameter(
+ *         name="perPage",
+ *         in="path",
+ *         description="perPage",
+ *         required=true,
+ *  example="6"
+ *      ),
+ *  *      * *  @OA\Parameter(
+* name="invoice_id",
+* in="query",
+* description="invoice_id",
+* required=true,
+* example="1"
+* ),
+ *      * *  @OA\Parameter(
+* name="start_date",
+* in="query",
+* description="start_date",
+* required=true,
+* example="2019-06-29"
+* ),
+ * *  @OA\Parameter(
+* name="end_date",
+* in="query",
+* description="end_date",
+* required=true,
+* example="2019-06-29"
+* ),
+ * *  @OA\Parameter(
+* name="search_key",
+* in="query",
+* description="search_key",
+* required=true,
+* example="search_key"
+* ),
+ *      summary="This method is to get invoice payment receipt ",
+ *      description="This method is to get invoice payment receipt",
+ *
+
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *       @OA\JsonContent(),
+ *       ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ * @OA\JsonContent(),
+ *      ),
+ *        @OA\Response(
+ *          response=422,
+ *          description="Unprocesseble Content",
+ *    @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *   @OA\JsonContent()
+ * ),
+ *  * @OA\Response(
+ *      response=400,
+ *      description="Bad Request",
+ *   *@OA\JsonContent()
+ *   ),
+ * @OA\Response(
+ *      response=404,
+ *      description="not found",
+ *   *@OA\JsonContent()
+ *   )
+ *      )
+ *     )
+ */
+
+ public function getInvoicePaymentReceipts($perPage, Request $request)
+ {
+     try {
+         $this->storeActivity($request,"");
+
+         // $automobilesQuery = AutomobileMake::with("makes");
+
+         $invoice_payment_receiptQuery =  InvoicePaymentReceipt::with("invoice","invoice_payment")
+         ->leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
+         ->where([
+             "invoices.created_by" => $request->user()->id
+         ]);
+
+
+         if (!empty($request->invoice_id)) {
+             $invoice_payment_receiptQuery = $invoice_payment_receiptQuery->where('invoice_payments.invoice_id',  $request->invoice_id);
+         }
+
+         // if (!empty($request->search_key)) {
+         //     $invoice_paymentQuery = $invoice_paymentQuery->where(function ($query) use ($request) {
+         //         $term = $request->search_key;
+         //         $query->where("name", "like", "%" . $term . "%");
+         //     });
+         // }
+
+         if (!empty($request->start_date)) {
+             $invoice_payment_receiptQuery = $invoice_payment_receiptQuery->where('invoice_payments.created_at', ">=", $request->start_date);
+         }
+         if (!empty($request->end_date)) {
+             $invoice_payment_receiptQuery = $invoice_payment_receiptQuery->where('invoice_payments.created_at', "<=", $request->end_date);
+         }
+
+         $invoice_payment_receipts = $invoice_payment_receiptQuery
+         ->select("invoice_payment_receipts.*")
+         ->orderByDesc("invoice_payments.id")->paginate($perPage);
+
+         return response()->json($invoice_payment_receipts, 200);
+     } catch (Exception $e) {
+
+         return $this->sendError($e, 500,$request);
+     }
+ }
+
+
+/**
+ *
+ * @OA\Get(
+ *      path="/v1.0/invoice-payment-receipts/get/single/{id}",
+ *      operationId="getInvoicePaymentReceiptById",
+ *      tags={"property_management.invoice_payment_receipt_management"},
+ *       security={
+ *           {"bearerAuth": {}}
+ *       },
+ *              @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         description="id",
+ *         required=true,
+ *  example="1"
+ *      ),
+
+ *      summary="This method is to get invoice payment receipt by id",
+ *      description="This method is to get invoice payment receipt by id",
+ *
+
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *       @OA\JsonContent(),
+ *       ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ * @OA\JsonContent(),
+ *      ),
+ *        @OA\Response(
+ *          response=422,
+ *          description="Unprocesseble Content",
+ *    @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *   @OA\JsonContent()
+ * ),
+ *  * @OA\Response(
+ *      response=400,
+ *      description="Bad Request",
+ *   *@OA\JsonContent()
+ *   ),
+ * @OA\Response(
+ *      response=404,
+ *      description="not found",
+ *   *@OA\JsonContent()
+ *   )
+ *      )
+ *     )
+ */
+
+ public function getInvoicePaymentReceiptById($id, Request $request)
+ {
+     try {
+         $this->storeActivity($request,"");
+
+
+         $invoice_payment_receipt = InvoicePaymentReceipt::with("invoice","invoice_payment")
+         ->leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
+         ->where([
+             "invoice_payments.id" => $id,
+             "invoices.created_by" => $request->user()->id
+         ])
+         ->select("invoice_payment_receipts.*")
+
+
+         ->first();
+
+         if(!$invoice_payment_receipt) {
+      return response()->json([
+ "message" => "no invoice payment found"
+ ],404);
+         }
+
+
+         return response()->json($invoice_payment_receipt, 200);
+     } catch (Exception $e) {
+
+         return $this->sendError($e, 500,$request);
+     }
+ }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
