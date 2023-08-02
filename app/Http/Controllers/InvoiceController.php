@@ -573,6 +573,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                     }
 
                 }
+                $invoice->invoice_items()->delete();
                 $invoiceItemsData = collect($updatableData["invoice_items"])->map(function ($item)use ($invoice) {
                     if(!empty($item["repair_id"])) {
                     $invoice_item_exists =    InvoiceItem::where([
@@ -591,7 +592,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                     }
 
                     return [
-                        "id" => $item["id"],
+                        // "id" => $item["id"],
                         "name" => $item["name"],
                         "description" => $item["description"],
                         "quantity" => $item["quantity"],

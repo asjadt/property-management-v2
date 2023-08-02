@@ -515,7 +515,7 @@ class PropertyBasicController extends Controller
                 "invoices.created_by" => $request->user()->id
             ])
 
-                ->where('invoices.status',  'over_due')
+                ->where('invoices.status',  'overdue')
                 ->select(
                     DB::raw('
         COALESCE(
@@ -529,7 +529,7 @@ class PropertyBasicController extends Controller
             $data["total_overdue_invoice_amount"] = Invoice::where([
                 "invoices.created_by" => $request->user()->id
             ])
-            ->where('invoices.status',  'over_due')
+            ->where('invoices.status',  'overdue')
 
                 ->select(
                     DB::raw('

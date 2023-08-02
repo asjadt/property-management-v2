@@ -76,11 +76,11 @@ class InvoiceReminderCommand extends Command
 
 
         Invoice::whereNotIn("status",[
-         "draft","over_due"
+         "draft","overdue"
         ])
         ->whereDate('due_date', '<=', today())
         ->update([
-            "status" => "over_due"
+            "status" => "overdue"
         ]);
 
 

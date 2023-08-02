@@ -464,6 +464,7 @@ public function getInvoiceReminders($perPage, Request $request)
         }
 
         $invoice_reminders = $invoice_reminderQuery
+        ->groupBy("invoice_reminders.id")
         ->select(
             "invoice_reminders.*",
             "invoices.invoice_reference",
@@ -662,6 +663,7 @@ public function deleteInvoiceReminderById($id, Request $request)
             "invoice_reminders.id" => $id
 
         ])
+        ->select("invoice_reminders.id")
         ->first();
 
         if(!$invoice_reminder) {

@@ -36,7 +36,7 @@ class CreateInvoicesTable extends Migration
 
 
 
-            $table->enum("status",['draft','unsent', 'sent','partial','paid','over_due'])->default("draft")->nullable();
+            $table->enum("status",['draft','unsent', 'sent','partial','paid','overdue'])->default("draft")->nullable();
 
 
             $table->dateTime("invoice_date");
@@ -58,7 +58,7 @@ class CreateInvoicesTable extends Migration
             $table->unsignedBigInteger("tenant_id")->nullable();
             $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('set null');
 
-        
+
 
             $table->unsignedBigInteger("created_by");
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
