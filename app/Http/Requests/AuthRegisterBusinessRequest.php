@@ -54,6 +54,7 @@ class AuthRegisterBusinessRequest extends FormRequest
             'business.logo' => 'nullable|string',
 
             'business.image' => 'nullable|string',
+            "business.invoice_title" => "nullable|string",
 
             "business.footer_text" => "nullable|string",
 

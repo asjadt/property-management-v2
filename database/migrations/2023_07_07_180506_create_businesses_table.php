@@ -30,6 +30,8 @@ class CreateBusinessesTable extends Migration
             $table->string("postcode")->nullable();
             $table->string("currency")->nullable();
             $table->string("logo")->nullable();
+
+            $table->string("invoice_title")->nullable();
             $table->string("footer_text")->nullable();
             $table->boolean("is_reference_manual")->default(0);
 

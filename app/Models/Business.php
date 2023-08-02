@@ -28,6 +28,7 @@ class Business extends Model
         "status",
         "owner_id",
         "created_by",
+        "invoice_title",
         "footer_text",
        "is_reference_manual",
        "account_name" ,

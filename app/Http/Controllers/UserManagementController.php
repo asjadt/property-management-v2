@@ -101,7 +101,7 @@ class UserManagementController extends Controller
 
              $location =  config("setup-config.business_image_location");
 
-             $new_file_name = time() . '_' . str_replace(' ', '_', $insertableData["file"]->getClientOriginalName());
+             $new_file_name = time() . '_' . str_replace(' ', '_', $insertableData["image"]->getClientOriginalName());
 
              $insertableData["image"]->move(public_path($location), $new_file_name);
 
@@ -361,6 +361,7 @@ class UserManagementController extends Controller
      *  "city":"Dhaka",
      *  * "currency":"BDT",
      *  "postcode":"Dinajpur",
+     * "invoice_title":"invoice_title",
      * "footer_text":"footer_text",
      * "is_reference_manual":"1",
      * "account_name":"thdht rth s",
@@ -523,6 +524,7 @@ class UserManagementController extends Controller
      *  "country":"Bangladesh",
      *  "city":"Dhaka",
      *  "postcode":"Dinajpur",
+     *   "invoice_title":"invoice_title",
      *  "footer_text":"footer_text",
      * "is_reference_manual":"1",
      *   * "account_name":"thdht rth s",
@@ -687,7 +689,7 @@ class UserManagementController extends Controller
                 "logo",
                 "image",
                 "status",
-
+                "invoice_title",
                 "footer_text",
                "is_reference_manual",
                "account_name" ,

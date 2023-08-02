@@ -55,6 +55,8 @@ class BusinessUpdateRequest extends FormRequest
 
             'business.logo' => 'nullable|string',
             'business.image' => 'nullable|string',
+
+            "business.invoice_title" => "nullable|string",
             "business.footer_text" => "nullable|string",
             "business.is_reference_manual" => "required|boolean",
             "business.account_name" => "nullable|string",

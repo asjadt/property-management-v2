@@ -379,15 +379,16 @@ public function createRepair(RepairCreateRequest $request)
             }
 
 
+    if(!empty($insertableData["images"])) {
+        $repair->repair_images()->createMany(
+            collect($insertableData["images"])->map(function ($image) {
+                return [
+                    'image' => $image,
+                ];
+            })
+        );
+    }
 
-
-            $repair->repair_images()->createMany(
-                collect($insertableData["images"])->map(function ($image) {
-                    return [
-                        'image' => $image,
-                    ];
-                })
-            );
 
             $repair->load(["repair_category","property"]);
 
@@ -502,13 +503,19 @@ public function updateRepair(RepairUpdateRequest $request)
                     throw new Exception("something went wrong");
                 }
 
-                $repair->repair_images()->createMany(
-                    collect($updatableData["images"])->map(function ($image) {
-                        return [
-                            'image' => $image,
-                        ];
-                    })
-                );
+                $repair->repair_images()->delete();
+                if(!empty($updatableData["images"])) {
+                    $repair->repair_images()->createMany(
+                        collect($updatableData["images"])->map(function ($image) {
+                            return [
+                                'image' => $image,
+                            ];
+                        })
+                    );
+                }
+
+
+
 
 
 

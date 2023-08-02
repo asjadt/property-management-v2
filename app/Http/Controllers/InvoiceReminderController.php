@@ -641,20 +641,20 @@ public function deleteInvoiceReminderById($id, Request $request)
     try {
         $this->storeActivity($request,"");
 
-        $business = Business::where([
-            "owner_id" => $request->user()->id
-          ])->first();
+        // $business = Business::where([
+        //     "owner_id" => $request->user()->id
+        //   ])->first();
 
-        if(!$business) {
-            return response()->json([
-             "message" => "you don't have a valid business"
-            ],401);
-         }
-         if(!($business->pin == $request->header("pin"))) {
-             return response()->json([
-                 "message" => "invalid pin"
-                ],401);
-         }
+        // if(!$business) {
+        //     return response()->json([
+        //      "message" => "you don't have a valid business"
+        //     ],401);
+        //  }
+        //  if(!($business->pin == $request->header("pin"))) {
+        //      return response()->json([
+        //          "message" => "invalid pin"
+        //         ],401);
+        //  }
 
         $invoice_reminder = InvoiceReminder::leftJoin('invoices', 'invoice_reminders.invoice_id', '=', 'invoices.id')
 
