@@ -12,6 +12,7 @@ use App\Models\Tenant;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class TenantController extends Controller
 {
@@ -179,11 +180,13 @@ public function createTenant(TenantCreateRequest $request)
             $insertableData = $request->validated();
             $insertableData["created_by"] = $request->user()->id;
             $tenant =  Tenant::create($insertableData);
+
             if(!$tenant) {
                 throw new Exception("something went wrong");
             }
 
-
+            $tenant->generated_id = Str::random(4) . $tenant->id . Str::random(4);
+            $tenant->save();
 
             return response($tenant, 201);
 
@@ -358,6 +361,13 @@ public function updateTenant(TenantUpdateRequest $request)
 * example="2019-06-29"
 * ),
  * *  @OA\Parameter(
+* name="order_by",
+* in="query",
+* description="order_by",
+* required=true,
+* example="ASC"
+* ),
+ * *  @OA\Parameter(
 * name="search_key",
 * in="query",
 * description="search_key",
@@ -453,7 +463,7 @@ public function getTenants($perPage, Request $request)
             "tenants.*",
             "properties.name as property_name"
         )
-        ->orderBy("tenants.first_Name",'asc')->paginate($perPage);
+        ->orderBy("tenants.first_Name",$request->order_by)->paginate($perPage);
 
         return response()->json($tenants, 200);
     } catch (Exception $e) {
@@ -527,7 +537,7 @@ public function getTenantById($id, Request $request)
 
 
         $tenant = Tenant::where([
-            "id" => $id,
+            "generated_id" => $id,
             "tenants.created_by" => $request->user()->id
 
         ])

@@ -15,6 +15,7 @@ class CreateLandlordsTable extends Migration
     {
         Schema::create('landlords', function (Blueprint $table) {
             $table->id();
+            $table->string('generated_id')->nullable();
             $table->string('first_Name');
             $table->string('last_Name');
             $table->string('image')->nullable();

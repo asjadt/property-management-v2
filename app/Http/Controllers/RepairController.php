@@ -14,6 +14,7 @@ use App\Models\Repair;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class RepairController extends Controller
 {
@@ -377,6 +378,8 @@ public function createRepair(RepairCreateRequest $request)
             if(!$repair) {
                 throw new Exception("something went wrong");
             }
+            $repair->generated_id = Str::random(4) . $repair->id . Str::random(4);
+            $repair->save();
 
 
     if(!empty($insertableData["images"])) {
@@ -574,6 +577,13 @@ public function updateRepair(RepairUpdateRequest $request)
 * example="2019-06-29"
 * ),
  * *  @OA\Parameter(
+* name="order_by",
+* in="query",
+* description="order_by",
+* required=true,
+* example="ASC"
+* ),
+ * *  @OA\Parameter(
 * name="search_key",
 * in="query",
 * description="search_key",
@@ -677,7 +687,7 @@ public function getRepairs($perPage, Request $request)
 
         )
         ->
-        orderByDesc("repairs.item_description")
+        orderBy("repairs.item_description",$request->order_by)
         ->paginate($perPage);
 
         return response()->json($repairs, 200);
@@ -751,9 +761,9 @@ public function getRepairById($id, Request $request)
         $this->storeActivity($request,"");
 
 
-        $repair = Repair::with("repair_category","property")
+        $repair = Repair::with("repair_category","property","repair_images")
         ->where([
-            "id" => $id,
+            "generated_id" => $id,
             "created_by" => $request->user()->id
         ])
         ->first();

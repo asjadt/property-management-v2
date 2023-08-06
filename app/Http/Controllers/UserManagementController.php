@@ -894,6 +894,13 @@ class UserManagementController extends Controller
 * required=true,
 * example="2019-06-29"
 * ),
+ * *  @OA\Parameter(
+* name="order_by",
+* in="query",
+* description="order_by",
+* required=true,
+* example="ASC"
+* ),
      * *  @OA\Parameter(
 * name="search_key",
 * in="query",
@@ -971,7 +978,7 @@ class UserManagementController extends Controller
                 $usersQuery = $usersQuery->where('created_at', "<=", $request->end_date);
             }
 
-            $users = $usersQuery->orderByDesc("id")->paginate($perPage);
+            $users = $usersQuery->orderBy("id",$request->order_by)->paginate($perPage);
             return response()->json($users, 200);
         } catch(Exception $e){
 

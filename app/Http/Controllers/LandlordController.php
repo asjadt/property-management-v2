@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class LandlordController extends Controller
 {
@@ -180,6 +181,29 @@ class LandlordController extends Controller
                 $insertableData = $request->validated();
                 $insertableData["created_by"] = $request->user()->id;
                 $landlord =  Landlord::create($insertableData);
+                $landlord->generated_id = Str::random(4) . $landlord->id . Str::random(4);
+                $landlord->save();
+
+                // for($i=0;$i<500;$i++) {
+                //     $landlord =  Landlord::create([
+                //         'first_Name'=>Str::random(4),
+                //         'last_Name'=> Str::random(4),
+                //         'phone'=> Str::random(4),
+                //         'image',
+                //         'address_line_1'=>Str::random(4),
+                //         'address_line_2',
+                //         'country'=>Str::random(4),
+                //         'city'=>Str::random(4),
+                //         'postcode'=>Str::random(4),
+                //         "lat"=>Str::random(4),
+                //         "long"=>Str::random(4),
+                //         'email'=>Str::random(4),
+                //         "created_by"=>$request->user()->id,
+                //          'is_active'=>1
+                //     ]);
+                //     $landlord->generated_id = Str::random(4) . $landlord->id . Str::random(4);
+                //     $landlord->save();
+                // }
 
 
 
@@ -353,6 +377,13 @@ class LandlordController extends Controller
 * description="end_date",
 * required=true,
 * example="2019-06-29"
+* ),
+ * *  @OA\Parameter(
+* name="order_by",
+* in="query",
+* description="order_by",
+* required=true,
+* example="ASC"
 * ),
      * *  @OA\Parameter(
 * name="search_key",
@@ -547,7 +578,7 @@ class LandlordController extends Controller
 
 
              )
-            ->orderBy("landlords.first_Name",'asc')->paginate($perPage);
+            ->orderBy("landlords.first_Name",$request->order_by)->paginate($perPage);
 
             return response()->json($landlords, 200);
         } catch (Exception $e) {
@@ -579,6 +610,13 @@ class LandlordController extends Controller
 * description="end_date",
 * required=true,
 * example="2019-06-29"
+* ),
+ * *  @OA\Parameter(
+* name="order_by",
+* in="query",
+* description="order_by",
+* required=true,
+* example="ASC"
 * ),
      * *  @OA\Parameter(
 * name="search_key",
@@ -763,7 +801,7 @@ class LandlordController extends Controller
 
 
               )
-             ->orderBy("landlords.first_Name",'asc')->get();
+             ->orderBy("landlords.first_Name",$request->order_by)->get();
 
              return response()->json($landlords, 200);
          } catch (Exception $e) {
@@ -837,7 +875,7 @@ class LandlordController extends Controller
 
 
             $landlord = Landlord::where([
-                "id" => $id,
+                "generated_id" => $id,
                 "created_by" => $request->user()->id
             ])
             ->select(

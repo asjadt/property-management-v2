@@ -142,6 +142,8 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
                 throw new Exception("something went wrong");
             }
 
+            $invoice_payment->shareable_link = env("FRONT_END_URL_DASHBOARD")."/share/receipt/". Str::random(4) . "-". $invoice_payment->id ."-" . Str::random(4);
+            $invoice_payment->save();
 
 
         //     // email section
@@ -371,6 +373,13 @@ public function updateInvoicePayment(InvoicePaymentUpdateRequest $request)
 * example="2019-06-29"
 * ),
  * *  @OA\Parameter(
+* name="order_by",
+* in="query",
+* description="order_by",
+* required=true,
+* example="ASC"
+* ),
+ * *  @OA\Parameter(
 * name="search_key",
 * in="query",
 * description="search_key",
@@ -448,7 +457,7 @@ public function getInvoicePayments($perPage, Request $request)
 
         $invoice_payments = $invoice_paymentQuery
         ->select("invoice_payments.*")
-        ->orderByDesc("invoice_payments.id")
+        ->orderBy("invoice_payments.id",$request->order_by)
         ->paginate($perPage);
 
         return response()->json($invoice_payments, 200);
@@ -982,7 +991,7 @@ public function deleteInvoicePaymentById($invoice_id,$id, Request $request)
 
 
 
-           $invoice_payment_receipt->shareable_link =  env("FRONT_END_URL_DASHBOARD")."/share/receipt/". Str::random(4) . "-". $invoice->id ."-" . Str::random(4);
+           $invoice_payment_receipt->shareable_link =  $invoice_payment->shareable_link;
 
 
 
@@ -1045,6 +1054,13 @@ public function deleteInvoicePaymentById($invoice_id,$id, Request $request)
 * description="end_date",
 * required=true,
 * example="2019-06-29"
+* ),
+ * *  @OA\Parameter(
+* name="order_by",
+* in="query",
+* description="order_by",
+* required=true,
+* example="ASC"
 * ),
  * *  @OA\Parameter(
 * name="search_key",
@@ -1125,7 +1141,7 @@ public function deleteInvoicePaymentById($invoice_id,$id, Request $request)
 
          $invoice_payment_receipts = $invoice_payment_receiptQuery
          ->select("invoice_payment_receipts.*")
-         ->orderByDesc("invoice_payment_receipts.id")->paginate($perPage);
+         ->orderBy("invoice_payment_receipts.id",$request->order_by)->paginate($perPage);
 
          return response()->json($invoice_payment_receipts, 200);
      } catch (Exception $e) {

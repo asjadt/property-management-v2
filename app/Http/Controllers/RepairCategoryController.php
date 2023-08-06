@@ -12,6 +12,7 @@ use App\Models\RepairCategory;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class RepairCategoryController extends Controller
 {
@@ -173,7 +174,8 @@ public function createRepairCategory(RepairCategoryCreateRequest $request)
             $insertableData = $request->validated();
             $insertableData["created_by"] = $request->user()->id;
             $repair_category =  RepairCategory::create($insertableData);
-
+            $repair_category->generated_id = Str::random(4) . $repair_category->id . Str::random(4);
+            $repair_category->save();
 
 
             return response($repair_category, 201);
@@ -332,6 +334,13 @@ public function updateRepairCategory(RepairCategoryUpdateRequest $request)
 * example="2019-06-29"
 * ),
  * *  @OA\Parameter(
+* name="order_by",
+* in="query",
+* description="order_by",
+* required=true,
+* example="ASC"
+* ),
+ * *  @OA\Parameter(
 * name="search_key",
 * in="query",
 * description="search_key",
@@ -404,7 +413,7 @@ public function getRepairCategories($perPage, Request $request)
             $repair_categoryQuery = $repair_categoryQuery->where('created_at', "<=", $request->end_date);
         }
 
-        $repair_categories = $repair_categoryQuery->orderByDesc("id")->paginate($perPage);
+        $repair_categories = $repair_categoryQuery->orderBy("id",$request->order_by)->paginate($perPage);
 
         return response()->json($repair_categories, 200);
     } catch (Exception $e) {
@@ -483,7 +492,7 @@ public function getRepairCategoryById($id, Request $request)
 
 
         $repair_category = RepairCategory::where([
-            "id" => $id,
+            "generated_id" => $id,
             // "created_by" => $request->user()->id
         ])
         ->first();

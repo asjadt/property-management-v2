@@ -15,6 +15,7 @@ class CreateSaleItemsTable extends Migration
     {
         Schema::create('sale_items', function (Blueprint $table) {
             $table->id();
+            $table->string('generated_id')->nullable();
             $table->string("name");
             $table->text("description")->nullable();
             $table->double("price");

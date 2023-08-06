@@ -12,6 +12,7 @@ use App\Models\Property;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class PropertyController extends Controller
 {
@@ -201,6 +202,8 @@ public function createProperty(PropertyCreateRequest $request)
 
 
             $property =  Property::create($insertableData);
+            $property->generated_id = Str::random(4) . $property->id . Str::random(4);
+            $property->save();
 
 
             if(!empty($insertableData['tenant_ids'])) {
@@ -393,6 +396,13 @@ public function updateProperty(PropertyUpdateRequest $request)
 * example="2019-06-29"
 * ),
  * *  @OA\Parameter(
+* name="order_by",
+* in="query",
+* description="order_by",
+* required=true,
+* example="ASC"
+* ),
+ * *  @OA\Parameter(
 * name="search_key",
 * in="query",
 * description="search_key",
@@ -493,7 +503,7 @@ public function getProperties($perPage, Request $request)
             $propertyQuery = $propertyQuery->where('properties.created_at', "<=", $request->end_date);
         }
 
-        $properties = $propertyQuery->orderBy("properties.address",'asc')
+        $properties = $propertyQuery->orderBy("properties.address",$request->order_by)
         ->select(
             "properties.*",
             DB::raw('
@@ -536,6 +546,13 @@ public function getProperties($perPage, Request $request)
 * description="end_date",
 * required=true,
 * example="2019-06-29"
+* ),
+ * *  @OA\Parameter(
+* name="order_by",
+* in="query",
+* description="order_by",
+* required=true,
+* example="ASC"
 * ),
  * *  @OA\Parameter(
 * name="search_key",
@@ -643,7 +660,7 @@ public function getProperties($perPage, Request $request)
          ->groupBy("properties.id")
          ->select("properties.id","properties.address")
 
-         ->orderBy("properties.address",'asc')->get();
+         ->orderBy("properties.address",$request->order_by)->get();
 
          return response()->json($properties, 200);
      } catch (Exception $e) {
@@ -725,7 +742,7 @@ public function getPropertyById($id, Request $request)
 
             )
         ->where([
-            "id" => $id,
+            "generated_id" => $id,
             "created_by" => $request->user()->id
         ])
         ->first();

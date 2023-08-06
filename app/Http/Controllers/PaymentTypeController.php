@@ -215,6 +215,13 @@ class PaymentTypeController extends Controller
 * required=true,
 * example="2019-06-29"
 * ),
+ * *  @OA\Parameter(
+* name="order_by",
+* in="query",
+* description="order_by",
+* required=true,
+* example="ASC"
+* ),
      * *  @OA\Parameter(
 * name="search_key",
 * in="query",
@@ -287,7 +294,7 @@ class PaymentTypeController extends Controller
             if (!empty($request->end_date)) {
                 $paymentTypeQuery = $paymentTypeQuery->where('created_at', "<=", $request->end_date);
             }
-            $payment_types = $paymentTypeQuery->orderByDesc("id")->paginate($perPage);
+            $payment_types = $paymentTypeQuery->orderBy("id",$request->order_by)->paginate($perPage);
             return response()->json($payment_types, 200);
         } catch (Exception $e) {
 
@@ -317,6 +324,13 @@ class PaymentTypeController extends Controller
 * description="end_date",
 * required=true,
 * example="2019-06-29"
+* ),
+ * *  @OA\Parameter(
+* name="order_by",
+* in="query",
+* description="order_by",
+* required=true,
+* example="ASC"
 * ),
      * *  @OA\Parameter(
 * name="search_key",

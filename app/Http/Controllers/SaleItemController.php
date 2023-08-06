@@ -11,6 +11,7 @@ use App\Models\SaleItem;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class SaleItemController extends Controller
 {
@@ -85,7 +86,8 @@ public function createSaleItem(SaleItemCreateRequest $request)
             $insertableData = $request->validated();
             $insertableData["created_by"] = $request->user()->id;
             $sale_item =  SaleItem::create($insertableData);
-
+            $sale_item->generated_id = Str::random(4) . $sale_item->id . Str::random(4);
+            $sale_item->save();
 
 
             return response($sale_item, 201);
@@ -243,6 +245,13 @@ public function updateSaleItem(SaleItemUpdateRequest $request)
 * example="2019-06-29"
 * ),
  * *  @OA\Parameter(
+* name="order_by",
+* in="query",
+* description="order_by",
+* required=true,
+* example="ASC"
+* ),
+ * *  @OA\Parameter(
 * name="search_key",
 * in="query",
 * description="search_key",
@@ -310,7 +319,7 @@ public function getSaleItems($perPage, Request $request)
             $sale_itemQuery = $sale_itemQuery->where('created_at', "<=", $request->end_date);
         }
 
-        $sale_items = $sale_itemQuery->orderByDesc("id")->paginate($perPage);
+        $sale_items = $sale_itemQuery->orderBy("id",$request->order_by)->paginate($perPage);
 
         return response()->json($sale_items, 200);
     } catch (Exception $e) {
@@ -384,7 +393,7 @@ public function getSaleItemById($id, Request $request)
 
 
         $sale_item = SaleItem::where([
-            "id" => $id,
+            "generated_id" => $id,
             "created_by" => $request->user()->id
         ])
         ->first();

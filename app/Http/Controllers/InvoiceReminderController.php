@@ -392,6 +392,13 @@ public function updateInvoiceReminder(InvoiceReminderUpdateForm $request)
 * example="2019-06-29"
 * ),
  * *  @OA\Parameter(
+* name="order_by",
+* in="query",
+* description="order_by",
+* required=true,
+* example="ASC"
+* ),
+ * *  @OA\Parameter(
 * name="search_key",
 * in="query",
 * description="search_key",
@@ -469,7 +476,8 @@ public function getInvoiceReminders($perPage, Request $request)
             "invoice_reminders.*",
             "invoices.invoice_reference",
 
-            )->orderByDesc("invoice_reminders.id")->paginate($perPage);
+            )
+        ->orderBy("invoice_reminders.id",$request->order_by)->paginate($perPage);
 
         return response()->json($invoice_reminders, 200);
     } catch (Exception $e) {

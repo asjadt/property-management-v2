@@ -15,7 +15,7 @@ class CreateRepairsTable extends Migration
     {
         Schema::create('repairs', function (Blueprint $table) {
             $table->id();
-
+            $table->string('generated_id')->nullable();
             $table->unsignedBigInteger('property_id');
             $table->foreign('property_id')->references('id')->on('properties')->onDelete('cascade');
 

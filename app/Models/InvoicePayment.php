@@ -14,6 +14,7 @@ class InvoicePayment extends Model
         "payment_date",
         "note",
         "invoice_id",
+        "shareable_link"
     ];
 
 

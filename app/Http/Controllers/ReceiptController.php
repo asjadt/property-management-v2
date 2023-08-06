@@ -11,6 +11,7 @@ use App\Models\Receipt;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class ReceiptController extends Controller
 {
@@ -88,7 +89,8 @@ class ReceiptController extends Controller
                 $insertableData = $request->validated();
                 $insertableData["created_by"] = $request->user()->id;
                 $receipt =  Receipt::create($insertableData);
-
+                $receipt->generated_id = Str::random(4) . $receipt->id . Str::random(4);
+                $receipt->save();
 
 
                 return response($receipt, 201);
@@ -248,6 +250,13 @@ class ReceiptController extends Controller
 * required=true,
 * example="2019-06-29"
 * ),
+ * *  @OA\Parameter(
+* name="order_by",
+* in="query",
+* description="order_by",
+* required=true,
+* example="ASC"
+* ),
      * *  @OA\Parameter(
 * name="search_key",
 * in="query",
@@ -317,7 +326,7 @@ class ReceiptController extends Controller
                 $receiptQuery = $receiptQuery->where('created_at', "<=", $request->end_date);
             }
 
-            $receipts = $receiptQuery->orderByDesc("id")->paginate($perPage);
+            $receipts = $receiptQuery->orderBy("id",$request->order_by)->paginate($perPage);
 
             return response()->json($receipts, 200);
         } catch (Exception $e) {
@@ -391,7 +400,7 @@ class ReceiptController extends Controller
 
 
             $receipt = Receipt::where([
-                "id" => $id,
+                "generated_id" => $id,
                 "created_by" => $request->user()->id
 
             ])

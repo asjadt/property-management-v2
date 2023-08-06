@@ -15,6 +15,7 @@ class CreateRepairCategoriesTable extends Migration
     {
         Schema::create('repair_categories', function (Blueprint $table) {
             $table->id();
+            $table->string('generated_id')->nullable();
             $table->string("name");
             $table->string("icon");
 
