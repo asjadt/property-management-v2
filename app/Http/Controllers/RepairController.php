@@ -640,6 +640,7 @@ public function getRepairs($perPage, Request $request)
         ->leftJoin('invoice_items', 'invoice_items.repair_id', '=', 'repairs.id')
         ->leftJoin('invoices', 'invoices.id', '=', 'invoice_items.invoice_id')
         ->leftJoin('properties', 'properties.id', '=', 'repairs.property_id')
+        ->leftJoin('repair_categories', 'repair_categories.id', '=', 'repairs.repair_category_id')
         ->where(["repairs.created_by" => $request->user()->id])
 
         ;
@@ -653,10 +654,12 @@ public function getRepairs($perPage, Request $request)
         if (!empty($request->search_key)) {
             $repairQuery = $repairQuery->where(function ($query) use ($request) {
                 $term = $request->search_key;
-                $query->where("properties.address", "like", "%" . $term . "%");
-                $query->orWhere("properties.type", "like", "%" . $term . "%");
+                $query->where("properties.reference_no", "like", "%" . $term . "%");
+                $query->orWhere("properties.address", "like", "%" . $term . "%");
+                $query->orWhere("repair_categories.name", "like", "%" . $term . "%");
 
-                // $query->where("repairs.item_description", "like", "%" . $term . "%");
+                // $query->orWhere("properties.type", "like", "%" . $term . "%");
+                // $query->orWhere("repairs.item_description", "like", "%" . $term . "%");
             });
         }
 

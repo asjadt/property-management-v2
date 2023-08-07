@@ -452,6 +452,16 @@ class LandlordController extends Controller
                 $landlordQuery = $landlordQuery->where(function ($query) use ($request) {
                     $term = $request->search_key;
                     $query->where("landlords.first_Name", "like", "%" . $term . "%");
+                    $query->orWhere("landlords.last_Name", "like", "%" . $term . "%");
+                    $query->orWhere("landlords.phone", "like", "%" . $term . "%");
+                    $query->orWhere("landlords.address_line_1", "like", "%" . $term . "%");
+                    $query->orWhere("landlords.address_line_2", "like", "%" . $term . "%");
+                    $query->orWhere("landlords.country", "like", "%" . $term . "%");
+                    $query->orWhere("landlords.city", "like", "%" . $term . "%");
+                    $query->orWhere("landlords.postcode", "like", "%" . $term . "%");
+                    $query->orWhere("landlords.email", "like", "%" . $term . "%");
+
+
                 });
             }
             if(!empty($request->property_id)){
@@ -675,7 +685,17 @@ class LandlordController extends Controller
              if (!empty($request->search_key)) {
                  $landlordQuery = $landlordQuery->where(function ($query) use ($request) {
                      $term = $request->search_key;
-                     $query->where("name", "like", "%" . $term . "%");
+                     $query->where("landlords.first_Name", "like", "%" . $term . "%");
+                     $query->orWhere("landlords.last_Name", "like", "%" . $term . "%");
+                     $query->orWhere("landlords.phone", "like", "%" . $term . "%");
+
+                     
+                    //  $query->orWhere("landlords.address_line_1", "like", "%" . $term . "%");
+                    //  $query->orWhere("landlords.address_line_2", "like", "%" . $term . "%");
+                    //  $query->orWhere("landlords.country", "like", "%" . $term . "%");
+                    //  $query->orWhere("landlords.city", "like", "%" . $term . "%");
+                    //  $query->orWhere("landlords.postcode", "like", "%" . $term . "%");
+                    //  $query->orWhere("landlords.email", "like", "%" . $term . "%");
                  });
              }
 

@@ -309,6 +309,8 @@ public function getSaleItems($perPage, Request $request)
             $sale_itemQuery = $sale_itemQuery->where(function ($query) use ($request) {
                 $term = $request->search_key;
                 $query->where("name", "like", "%" . $term . "%");
+                $query->orWhere("description", "like", "%" . $term . "%");
+                $query->orWhere("price", "like", "%" . $term . "%");
             });
         }
 

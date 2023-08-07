@@ -438,8 +438,21 @@ public function getTenants($perPage, Request $request)
                 $query->where("properties.name", "like", "%" . $term . "%");
                 $query->orWhere("tenants.first_Name", "like", "%" . $term . "%");
                 $query->orWhere("tenants.last_Name", "like", "%" . $term . "%");
-                $query->orWhere("tenants.phone", "like", "%" . $term . "%");
                 $query->orWhere("tenants.email", "like", "%" . $term . "%");
+                $query->orWhere("tenants.address_line_1", "like", "%" . $term . "%");
+                $query->orWhere("tenants.address_line_2", "like", "%" . $term . "%");
+
+                
+
+                // $query->orWhere("tenants.phone", "like", "%" . $term . "%");
+                // $query->orWhere("tenants.country", "like", "%" . $term . "%");
+                // $query->orWhere("tenants.city", "like", "%" . $term . "%");
+                // $query->orWhere("tenants.postcode", "like", "%" . $term . "%");
+
+
+
+
+
 
             });
         }

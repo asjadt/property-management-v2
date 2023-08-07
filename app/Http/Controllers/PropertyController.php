@@ -634,8 +634,20 @@ public function getProperties($perPage, Request $request)
          if (!empty($request->search_key)) {
              $propertyQuery = $propertyQuery->where(function ($query) use ($request) {
                  $term = $request->search_key;
-                 $query->where("properties.name", "like", "%" . $term . "%");
+
+                 $query->where("properties.reference_no", "like", "%" . $term . "%");
                  $query->orWhere("properties.address", "like", "%" . $term . "%");
+                 $query->orWhere("properties.type", "like", "%" . $term . "%");
+
+
+                //  $query->orWhere("properties.name", "like", "%" . $term . "%");
+
+                //  $query->orWhere("properties.country", "like", "%" . $term . "%");
+                //  $query->orWhere("properties.city", "like", "%" . $term . "%");
+                //  $query->orWhere("properties.postcode", "like", "%" . $term . "%");
+                //  $query->orWhere("properties.town", "like", "%" . $term . "%");
+
+
              });
          }
 

@@ -459,7 +459,8 @@ public function getInvoiceReminders($perPage, Request $request)
         if (!empty($request->search_key)) {
             $invoice_reminderQuery = $invoice_reminderQuery->where(function ($query) use ($request) {
                 $term = $request->search_key;
-                $query->where("invoices.business_name", "like", "%" . $term . "%");
+                $query->where("invoices.invoice_reference", "like", "%" . $term . "%");
+                $query->orWhere("invoice_reminders.reminder_status", "like", "%" . $term . "%");
             });
         }
 

@@ -399,7 +399,9 @@ class ReceiptController extends Controller
             $this->storeActivity($request,"");
 
 
-            $receipt = Receipt::where([
+            $receipt = Receipt::
+            with("property","tenant")
+            ->where([
                 "generated_id" => $id,
                 "created_by" => $request->user()->id
 

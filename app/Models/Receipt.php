@@ -27,5 +27,7 @@ class Receipt extends Model
     public function property_address() {
         return $this->belongsTo(Property::class,'property_address','address');
     }
-
+    public function property() {
+        return $this->belongsTo(Property::class,'property_address','address');
+    }
 }
