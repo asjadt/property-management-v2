@@ -441,12 +441,16 @@ public function getInvoicePayments($perPage, Request $request)
             $invoice_paymentQuery = $invoice_paymentQuery->where('invoice_payments.invoice_id',  $request->invoice_id);
         }
 
-        // if (!empty($request->search_key)) {
-        //     $invoice_paymentQuery = $invoice_paymentQuery->where(function ($query) use ($request) {
-        //         $term = $request->search_key;
-        //         $query->where("name", "like", "%" . $term . "%");
-        //     });
-        // }
+        if (!empty($request->search_key)) {
+            $invoice_paymentQuery = $invoice_paymentQuery->where(function ($query) use ($request) {
+                $term = $request->search_key;
+                $query->where("payments.payment_method", "like", "%" . $term . "%");
+                $query->orWhere("payments.payment_date", "like", "%" . $term . "%");
+                $query->orWhere("payments.payment_method", "like", "%" . $term . "%");
+                $query->orWhere("payments.invoice_id",  $term );
+                $query->orWhere("payments.amount", $term);
+            });
+        }
 
         if (!empty($request->start_date)) {
             $invoice_paymentQuery = $invoice_paymentQuery->where('invoice_payments.created_at', ">=", $request->start_date);
