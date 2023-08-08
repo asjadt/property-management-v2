@@ -399,6 +399,20 @@ class LandlordController extends Controller
 * required=true,
 * example="1"
 * ),
+ * *  @OA\Parameter(
+* name="total_due",
+* in="query",
+* description="total_due",
+* required=true,
+* example="1"
+* ),
+ * *  @OA\Parameter(
+* name="total_over_due",
+* in="query",
+* description="total_over_due",
+* required=true,
+* example="1"
+* ),
      *      summary="This method is to get landlords ",
      *      description="This method is to get landlords",
      *
@@ -474,7 +488,7 @@ class LandlordController extends Controller
                 $landlordQuery = $landlordQuery->where('landlords.created_at', "<=", $request->end_date);
             }
 
-            $landlords = $landlordQuery
+            $landlordQuery = $landlordQuery
 
             ->select(
                 "landlords.*",
@@ -587,8 +601,18 @@ class LandlordController extends Controller
                 ),
 
 
-             )
-            ->orderBy("landlords.first_Name",$request->order_by)->paginate($perPage);
+            );
+
+            if(!empty($request->total_due)) {
+                $landlordQuery = $landlordQuery->havingRaw("total_due = " .$request->total_due . "");
+            }
+            if(!empty($request->total_over_due)) {
+                $landlordQuery = $landlordQuery->havingRaw("total_over_due = " .$request->total_over_due . "");
+            }
+
+          $landlords =  $landlordQuery
+          ->groupBy("landlords.id")
+          ->orderBy("landlords.first_Name",$request->order_by)->paginate($perPage);
 
             return response()->json($landlords, 200);
         } catch (Exception $e) {
@@ -689,7 +713,7 @@ class LandlordController extends Controller
                      $query->orWhere("landlords.last_Name", "like", "%" . $term . "%");
                      $query->orWhere("landlords.phone", "like", "%" . $term . "%");
 
-                     
+
                     //  $query->orWhere("landlords.address_line_1", "like", "%" . $term . "%");
                     //  $query->orWhere("landlords.address_line_2", "like", "%" . $term . "%");
                     //  $query->orWhere("landlords.country", "like", "%" . $term . "%");
@@ -707,7 +731,7 @@ class LandlordController extends Controller
              }
              $currentDate = Carbon::now();
              $endDate = $currentDate->copy()->addDays(15);
-             $landlords = $landlordQuery
+             $landlordQuery = $landlordQuery
 
              ->select(
                  "landlords.*",
@@ -820,8 +844,18 @@ class LandlordController extends Controller
                  ),
 
 
-              )
-             ->orderBy("landlords.first_Name",$request->order_by)->get();
+             );
+
+             if(!empty($request->total_due)) {
+                 $landlordQuery = $landlordQuery->havingRaw("total_due = " .$request->total_due . "");
+             }
+             if(!empty($request->total_over_due)) {
+                 $landlordQuery = $landlordQuery->havingRaw("total_over_due = " .$request->total_over_due . "");
+             }
+
+           $landlords =  $landlordQuery
+           ->groupBy("landlords.id")
+           ->orderBy("landlords.first_Name",$request->order_by)->get();
 
              return response()->json($landlords, 200);
          } catch (Exception $e) {
