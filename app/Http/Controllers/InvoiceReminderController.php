@@ -377,6 +377,20 @@ public function updateInvoiceReminder(InvoiceReminderUpdateForm $request)
  *         required=true,
  *  example="6"
  *      ),
+ *  * *  @OA\Parameter(
+* name="tenant_id",
+* in="query",
+* description="tenant_id",
+* required=true,
+* example="1"
+* ),
+ * *  @OA\Parameter(
+* name="landlord_id",
+* in="query",
+* description="landlord_id",
+* required=true,
+* example="1"
+* ),
  *      * *  @OA\Parameter(
 * name="start_date",
 * in="query",
@@ -453,8 +467,7 @@ public function getInvoiceReminders($perPage, Request $request)
         $invoice_reminderQuery =  InvoiceReminder::leftJoin('invoices', 'invoice_reminders.invoice_id', '=', 'invoices.id')
         ->where([
             "invoices.created_by" => $request->user()->id
-        ])
-        ;
+        ]);
 
         if (!empty($request->search_key)) {
             $invoice_reminderQuery = $invoice_reminderQuery->where(function ($query) use ($request) {
@@ -470,6 +483,15 @@ public function getInvoiceReminders($perPage, Request $request)
         if (!empty($request->end_date)) {
             $invoice_reminderQuery = $invoice_reminderQuery->where('invoice_reminders.created_at', "<=", $request->end_date);
         }
+
+        if (!empty($request->landlord_id)) {
+            $invoice_reminderQuery =   $invoice_reminderQuery->where("invoices.landlord_id", $request->landlord_id);
+        }
+        if (!empty($request->tenant_id)) {
+            $invoice_reminderQuery =   $invoice_reminderQuery->where("invoices.tenant_id", $request->tenant_id);
+        }
+
+
 
         $invoice_reminders = $invoice_reminderQuery
         ->groupBy("invoice_reminders.id")

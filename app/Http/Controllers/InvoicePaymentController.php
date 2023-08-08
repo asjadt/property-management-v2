@@ -141,8 +141,10 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
             if(!$invoice_payment) {
                 throw new Exception("something went wrong");
             }
+            $invoice_payment->generated_id = Str::random(4) . $invoice_payment->id . Str::random(4);
 
             $invoice_payment->shareable_link = env("FRONT_END_URL_DASHBOARD")."/share/receipt/". Str::random(4) . "-". $invoice_payment->id ."-" . Str::random(4);
+
             $invoice_payment->save();
 
 
@@ -543,7 +545,7 @@ public function getInvoicePaymentById($invoice_id,$id, Request $request)
 
         $invoice_payment = InvoicePayment::leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
         ->where([
-            "invoice_payments.id" => $id,
+            "invoice_payments.generated_id" => $id,
             "invoice_payments.invoice_id" => $invoice_id,
             "invoices.created_by" => $request->user()->id
         ])
@@ -627,7 +629,7 @@ public function getInvoicePaymentById($invoice_id,$id, Request $request)
 
          $invoice_payment = InvoicePayment::leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
          ->where([
-             "invoice_payments.id" => $id,
+             "invoice_payments.generated_id" => $id,
              "invoices.created_by" => $request->user()->id
          ])
          ->select("invoice_payments.*")

@@ -248,6 +248,8 @@ public function createInvoice(InvoiceCreateRequest $request)
             }
 
             $invoice->generated_id = Str::random(4) . $invoice->id . Str::random(4);
+            $invoice->shareable_link =  env("FRONT_END_URL_DASHBOARD")."/share/invoice/". Str::random(4) . "-". $invoice->generated_id ."-" . Str::random(4);
+
             $invoice->save();
 
             $invoiceItems = collect($insertableData["invoice_items"])->map(function ($item)use ($invoice) {
@@ -348,9 +350,7 @@ public function createInvoice(InvoiceCreateRequest $request)
 
             }
 
-            $invoice->shareable_link =  env("FRONT_END_URL_DASHBOARD")."/share/invoice/". Str::random(4) . "-". $invoice->id ."-" . Str::random(4);
 
-            $invoice->save();
 
 
 
@@ -550,7 +550,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                     "total_amount",
                     "invoice_date",
                     "footer_text",
-                    "shareable_link",
+
                     "note",
                     "property_id",
                     "landlord_id",
@@ -974,7 +974,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
  public function invoiceQuery(Request $request) {
    // $automobilesQuery = AutomobileMake::with("makes");
 
-   $invoiceQuery = Invoice::with("invoice_items","invoice_payments","invoice_reminder")
+   $invoiceQuery = Invoice::with("invoice_items","invoice_payments","invoice_reminder","tenant","landlord")
    ->where([
         "invoices.created_by" => $request->user()->id
    ]);

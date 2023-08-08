@@ -15,6 +15,8 @@ class CreateInvoicePaymentsTable extends Migration
     {
         Schema::create('invoice_payments', function (Blueprint $table) {
             $table->id();
+            $table->string('generated_id')->nullable();
+
             $table->double("amount")->default(0);
             $table->string("payment_method");
             $table->date("payment_date");
