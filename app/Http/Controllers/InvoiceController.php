@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ImageUploadRequest;
 use App\Http\Requests\InvoiceCreateRequest;
+use App\Http\Requests\InvoiceMarkSendRequest;
 use App\Http\Requests\InvoiceSendRequest;
 use App\Http\Requests\InvoiceStatusUpdateRequest;
 use App\Http\Requests\InvoiceUpdateRequest;
@@ -857,6 +858,130 @@ public function updateInvoice(InvoiceUpdateRequest $request)
          return $this->sendError($e, 500,$request);
      }
  }
+ /**
+ *
+ * @OA\Put(
+ *      path="/v1.0/invoices/mark/send",
+ *      operationId="invoiceMarkSend",
+ *      tags={"property_management.invoice_management"},
+ *       security={
+ *           {"bearerAuth": {}}
+ *       },
+ *      summary="This method is to update invoice",
+ *      description="This method is to update invoice",
+ *
+ *  @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *            required={"id","name","description","logo"},
+ *     *             @OA\Property(property="id", type="number", format="number",example="1"),
+ *
+ *         ),
+ *      ),
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *       @OA\JsonContent(),
+ *       ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ * @OA\JsonContent(),
+ *      ),
+ *        @OA\Response(
+ *          response=422,
+ *          description="Unprocesseble Content",
+ *    @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *   @OA\JsonContent()
+ * ),
+ *  * @OA\Response(
+ *      response=400,
+ *      description="Bad Request",
+ *   *@OA\JsonContent()
+ *   ),
+ * @OA\Response(
+ *      response=404,
+ *      description="not found",
+ *   *@OA\JsonContent()
+ *   )
+ *      )
+ *     )
+ */
+
+ public function invoiceMarkSend(InvoiceMarkSendRequest $request)
+ {
+     try {
+         $this->storeActivity($request,"");
+         return  DB::transaction(function () use ($request) {
+
+             $updatableData = $request->validated();
+
+
+
+             $invoice  =  Invoice::where([
+                 "invoices.id" => $updatableData["id"],
+                 "invoices.created_by" => $request->user()->id
+             ])
+                 ->first();
+
+
+                 if(!$invoice) {
+                    return response()->json([
+               "message" => "no invoice found"
+               ],404);
+                       }
+
+                       $invoice->invoice_date = now();
+                       $invoice->save();
+
+
+
+
+
+                 $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder")
+                 ->where([
+                     "id" => $invoice->id,
+                     "invoices.created_by" => $request->user()->id
+                 ])
+                 ->select("invoices.*",
+                 DB::raw('
+                     COALESCE(
+                         (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+                         0
+                     ) AS total_paid
+                 '),
+                 DB::raw('
+                     COALESCE(
+                         invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+                         invoices.total_amount
+                     ) AS total_due
+                 ')
+             )
+
+                 ->first();
+
+                 if(!$invoice) {
+              return response()->json([
+         "message" => "no invoice found"
+         ],404);
+                 }
+
+
+
+
+
+             return response($invoice, 200);
+         });
+     } catch (Exception $e) {
+         error_log($e->getMessage());
+         return $this->sendError($e, 500,$request);
+     }
+ }
+
 /**
  *
  * @OA\Put(

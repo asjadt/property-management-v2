@@ -265,6 +265,7 @@ Route::post('/v1.0/invoice-image', [InvoiceController::class, "createInvoiceImag
 Route::post('/v1.0/invoices', [InvoiceController::class, "createInvoice"]);
 Route::put('/v1.0/invoices', [InvoiceController::class, "updateInvoice"]);
 Route::put('/v1.0/invoices/change/status', [InvoiceController::class, "updateInvoiceStatus"]);
+Route::put('/v1.0/invoices/mark/send', [InvoiceController::class, "invoiceMarkSend"]);
 
 Route::put('/v1.0/invoices/send', [InvoiceController::class, "sendInvoice"]);
 Route::get('/v1.0/invoices/{perPage}', [InvoiceController::class, "getInvoices"]);
