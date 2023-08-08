@@ -935,7 +935,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                ],404);
                        }
 
-                       $invoice->invoice_date = now();
+                       $invoice->last_sent_date = now();
                        $invoice->save();
 
 
