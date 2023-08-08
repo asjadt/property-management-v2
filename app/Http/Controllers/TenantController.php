@@ -442,7 +442,7 @@ public function getTenants($perPage, Request $request)
                 $query->orWhere("tenants.address_line_1", "like", "%" . $term . "%");
                 $query->orWhere("tenants.address_line_2", "like", "%" . $term . "%");
 
-                
+
 
                 // $query->orWhere("tenants.phone", "like", "%" . $term . "%");
                 // $query->orWhere("tenants.country", "like", "%" . $term . "%");
@@ -549,7 +549,7 @@ public function getTenantById($id, Request $request)
         $this->storeActivity($request,"");
 
 
-        $tenant = Tenant::where([
+        $tenant = Tenant::with("properties")->where([
             "generated_id" => $id,
             "tenants.created_by" => $request->user()->id
 

@@ -25,4 +25,9 @@ class Landlord extends Model
         "created_by",
          'is_active'
     ];
+
+
+    public function properties() {
+        return $this->hasMany(Property::class,'landlord_id','id');
+    }
 }

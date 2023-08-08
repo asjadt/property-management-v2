@@ -928,7 +928,7 @@ class LandlordController extends Controller
             $this->storeActivity($request,"");
 
 
-            $landlord = Landlord::where([
+            $landlord = Landlord::with("properties")->where([
                 "generated_id" => $id,
                 "created_by" => $request->user()->id
             ])

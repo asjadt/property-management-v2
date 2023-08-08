@@ -25,4 +25,8 @@ class Tenant extends Model
         "created_by",
          'is_active'
     ];
+    public function properties()
+    {
+        return $this->belongsToMany(Property::class, 'property_tenants', 'tenant_id', 'property_id');
+    }
 }
