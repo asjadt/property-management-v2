@@ -689,8 +689,9 @@ public function getRepairs($perPage, Request $request)
 
 
         )
+        ->groupBy("repairs.id")
         ->
-        orderBy("repairs.item_description",$request->order_by)
+        orderBy("repairs.id",$request->order_by)
         ->paginate($perPage);
 
         return response()->json($repairs, 200);
