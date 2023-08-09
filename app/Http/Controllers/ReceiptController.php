@@ -264,6 +264,20 @@ class ReceiptController extends Controller
 * required=true,
 * example="search_key"
 * ),
+     * *  @OA\Parameter(
+* name="start_amount",
+* in="query",
+* description="start_amount",
+* required=true,
+* example="10"
+* ),
+     * *  @OA\Parameter(
+* name="end_amount",
+* in="query",
+* description="end_amount",
+* required=true,
+* example="10"
+* ),
      *      summary="This method is to get receipts ",
      *      description="This method is to get receipts",
      *
@@ -316,6 +330,7 @@ class ReceiptController extends Controller
                     $term = $request->search_key;
                     $query->where("tenant_name", "like", "%" . $term . "%");
                     $query->orWhere("property_address", "like", "%" . $term . "%");
+                    $query->orWhere("receipt_by", "like", "%" . $term . "%");
                 });
             }
 
@@ -324,6 +339,12 @@ class ReceiptController extends Controller
             }
             if (!empty($request->end_date)) {
                 $receiptQuery = $receiptQuery->where('created_at', "<=", $request->end_date);
+            }
+            if (!empty($request->start_amount)) {
+                $receiptQuery = $receiptQuery->where('amount', ">=", $request->start_amount);
+            }
+            if (!empty($request->end_amount)) {
+                $receiptQuery = $receiptQuery->where('amount', "<=", $request->end_amount);
             }
 
             $receipts = $receiptQuery->orderBy("id",$request->order_by)->paginate($perPage);

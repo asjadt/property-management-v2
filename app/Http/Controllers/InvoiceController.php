@@ -1285,10 +1285,6 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 *      required=true,
 *      example="1,2"
 * ),
-
-
-
-
  *      summary="This method is to get invoices ",
  *      description="This method is to get invoices",
  *

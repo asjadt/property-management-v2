@@ -381,6 +381,13 @@ public function updateTenant(TenantUpdateRequest $request)
 * required=true,
 * example="1"
 * ),
+*  @OA\Parameter(
+*      name="property_ids[]",
+*      in="query",
+*      description="property_ids",
+*      required=true,
+*      example="1,2"
+* ),
  *      summary="This method is to get tenants ",
  *      description="This method is to get tenants",
  *
@@ -459,7 +466,14 @@ public function getTenants($perPage, Request $request)
         if(!empty($request->property_id)){
             $tenantQuery = $tenantQuery->where('properties.id',$request->property_id);
         }
+        if(!empty($request->property_ids)) {
+            $null_filter = collect(array_filter($request->property_ids))->values();
+        $property_ids =  $null_filter->all();
+            if(count($property_ids)) {
+                $tenantQuery =   $tenantQuery->whereIn("properties.id",$property_ids);
+            }
 
+        }
 
         if (!empty($request->start_date)) {
             $tenantQuery = $tenantQuery->where('tenants.created_at', ">=", $request->start_date);
