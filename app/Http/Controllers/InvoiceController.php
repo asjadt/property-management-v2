@@ -939,7 +939,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 
 
                        if($invoice->status == "unsent" || $invoice->status == "draft") {
-                        $invoice->status = "unsent";
+                        $invoice->status = "sent";
                        }
 
 

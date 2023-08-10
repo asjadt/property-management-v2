@@ -320,10 +320,11 @@ public function createRepairReceiptFile(FileUploadRequest $request)
  *  *             @OA\Property(property="property_id", type="number", format="number",example="1"),
   *             @OA\Property(property="repair_category_id", type="string", format="string",example="1"),
  *            @OA\Property(property="item_description", type="string", format="string",example="item_description"),
- *            @OA\Property(property="receipt", type="string", format="string",example="receipt"),
+
  *  * *  @OA\Property(property="price", type="string", format="string",example="10"),
  *  * *  @OA\Property(property="create_date", type="string", format="string",example="2019-06-29"),
  *  * *  @OA\Property(property="images", type="string", format="array",example={"a.jpg","b.jpg","c.jpg"}),
+ *  *  *  * *  @OA\Property(property="receipt", type="string", format="array",example={"a.jpg","b.jpg","c.jpg"}),
 
  *
  *         ),
@@ -372,6 +373,7 @@ public function createRepair(RepairCreateRequest $request)
 
 
             $insertableData = $request->validated();
+            $updatableData["receipt"]   = json_encode($insertableData["receipt"] );
             $insertableData["created_by"] = $request->user()->id;
             $repair =  Repair::create($insertableData);
 
@@ -432,10 +434,11 @@ public function createRepair(RepairCreateRequest $request)
  *  *             @OA\Property(property="property_id", type="number", format="number",example="1"),
   *             @OA\Property(property="repair_category_id", type="string", format="string",example="1"),
  *            @OA\Property(property="item_description", type="string", format="string",example="item_description"),
- *            @OA\Property(property="receipt", type="string", format="string",example="receipt"),
+
  *  * *  @OA\Property(property="price", type="string", format="string",example="10"),
  *  * *  @OA\Property(property="create_date", type="string", format="string",example="2019-06-29"),
  *  * *  @OA\Property(property="images", type="string", format="array",example={"a.jpg","b.jpg","c.jpg"}),
+ *  *  * *  @OA\Property(property="receipt", type="string", format="array",example={"a.jpg","b.jpg","c.jpg"}),
 
  *
  *         ),
@@ -483,7 +486,7 @@ public function updateRepair(RepairUpdateRequest $request)
 
 
             $updatableData = $request->validated();
-
+            $updatableData["receipt"]   = json_encode($updatableData["receipt"] );
 
 
 

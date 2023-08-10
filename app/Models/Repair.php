@@ -30,5 +30,7 @@ class Repair extends Model
     public function repair_images() {
         return $this->hasMany(RepairImage::class,'repair_id','id');
     }
-
+    protected $casts = [
+        'receipt' => 'array',
+    ];
 }

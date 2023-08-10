@@ -433,7 +433,7 @@ public function getInvoicePayments($perPage, Request $request)
 
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $invoice_paymentQuery =  InvoicePayment::leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
+        $invoice_paymentQuery =  InvoicePayment::with("invoice.tenant","invoice.landlord")->leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
         ->where([
             "invoices.created_by" => $request->user()->id
         ]);
@@ -543,7 +543,8 @@ public function getInvoicePaymentById($invoice_id,$id, Request $request)
         $this->storeActivity($request,"");
 
 
-        $invoice_payment = InvoicePayment::leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
+        $invoice_payment = InvoicePayment::with("invoice")
+        ->leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
         ->where([
             "invoice_payments.generated_id" => $id,
             "invoice_payments.invoice_id" => $invoice_id,
@@ -627,7 +628,8 @@ public function getInvoicePaymentById($invoice_id,$id, Request $request)
          $this->storeActivity($request,"");
 
 
-         $invoice_payment = InvoicePayment::leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
+         $invoice_payment = InvoicePayment::with("invoice")
+         ->leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
          ->where([
              "invoice_payments.generated_id" => $id,
              "invoices.created_by" => $request->user()->id

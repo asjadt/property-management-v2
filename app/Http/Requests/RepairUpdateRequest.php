@@ -28,11 +28,13 @@ class RepairUpdateRequest extends FormRequest
             'property_id'=> "required|numeric|exists:properties,id",
             'repair_category'=>"required|numeric|exists:repair_categories,id",
             'item_description'=>"nullable|string",
-            'receipt'=>"nullable|string",
+
             'price'=>"required|numeric",
             'create_date'=>"required|date",
             'images' => 'nullable|array',
             'images.*' => 'nullable|string',
+            'receipt' => 'nullable|array',
+            'receipt.*' => 'nullable|string',
         ];
     }
 }
