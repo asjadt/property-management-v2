@@ -936,6 +936,15 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                        }
 
                        $invoice->last_sent_date = now();
+
+
+                       if($invoice->status == "unsent" || $invoice->status == "draft") {
+                        $invoice->status = "unsent";
+                       }
+
+
+
+
                        $invoice->save();
 
 
