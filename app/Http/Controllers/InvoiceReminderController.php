@@ -473,7 +473,7 @@ public function getInvoiceReminders($perPage, Request $request)
             $invoice_reminderQuery = $invoice_reminderQuery->where(function ($query) use ($request) {
                 $term = $request->search_key;
                 $query->where("invoices.invoice_reference", "like", "%" . $term . "%");
-                $query->orWhere("invoice_reminders.reminder_status", "like", "%" . $term . "%");
+                // $query->orWhere("invoice_reminders.reminder_status", "like", "%" . $term . "%");
             });
         }
 
@@ -498,6 +498,7 @@ public function getInvoiceReminders($perPage, Request $request)
         ->select(
             "invoice_reminders.*",
             "invoices.invoice_reference",
+            "invoices.generated_id",
 
             )
         ->orderBy("invoice_reminders.id",$request->order_by)->paginate($perPage);

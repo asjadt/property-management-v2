@@ -446,11 +446,11 @@ public function getInvoicePayments($perPage, Request $request)
         if (!empty($request->search_key)) {
             $invoice_paymentQuery = $invoice_paymentQuery->where(function ($query) use ($request) {
                 $term = $request->search_key;
-                $query->where("payments.payment_method", "like", "%" . $term . "%");
-                $query->orWhere("payments.payment_date", "like", "%" . $term . "%");
-                $query->orWhere("payments.payment_method", "like", "%" . $term . "%");
-                $query->orWhere("payments.invoice_id",  $term );
-                $query->orWhere("payments.amount", $term);
+                $query->where("invoice_payments.payment_method", "like", "%" . $term . "%");
+                // $query->orWhere("invoice_payments.payment_date", "like", "%" . $term . "%");
+                $query->orWhere("invoice_payments.payment_method", "like", "%" . $term . "%");
+                $query->orWhere("invoice_payments.invoice_id",  $term );
+                $query->orWhere("invoice_payments.amount", $term);
             });
         }
 
@@ -462,7 +462,7 @@ public function getInvoicePayments($perPage, Request $request)
         }
 
         $invoice_payments = $invoice_paymentQuery
-        ->select("invoice_payments.*")
+        ->select("invoice_payments.*","invoices.generated_id as invoice_generated_id")
         ->orderBy("invoice_payments.id",$request->order_by)
         ->paginate($perPage);
 
