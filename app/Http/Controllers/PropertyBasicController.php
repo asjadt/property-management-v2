@@ -123,6 +123,14 @@ class PropertyBasicController extends Controller
             $this->storeActivity($request, "");
 
 
+            if(empty($request->start_date)){
+                $firstDayOfYear = Carbon::now()->startOfYear();
+                $request["end_date"] = $firstDayOfYear->format('Y-m-d');
+            }
+            if(empty($request->end_date)){
+                $todayDate = Carbon::now();
+                $request["end_date"] = $todayDate->format('Y-m-d');
+            }
 
 
 

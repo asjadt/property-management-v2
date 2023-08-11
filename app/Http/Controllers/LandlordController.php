@@ -400,19 +400,34 @@ class LandlordController extends Controller
 * example="1"
 * ),
  * *  @OA\Parameter(
-* name="total_due",
+* name="total_due_min",
 * in="query",
 * description="total_due",
 * required=true,
 * example="1"
 * ),
  * *  @OA\Parameter(
-* name="total_over_due",
+* name="total_due_max",
 * in="query",
-* description="total_over_due",
+* description="total_due",
 * required=true,
 * example="1"
 * ),
+ * *  @OA\Parameter(
+* name="total_over_due_min",
+* in="query",
+* description="total_due",
+* required=true,
+* example="1"
+* ),
+ * *  @OA\Parameter(
+* name="total_over_due_max",
+* in="query",
+* description="total_due",
+* required=true,
+* example="1"
+* ),
+
      *      summary="This method is to get landlords ",
      *      description="This method is to get landlords",
      *
