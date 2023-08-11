@@ -30,7 +30,7 @@ class LandlordUpdateRequest extends FormRequest
 
             'email' => 'required|string|unique:landlords,email,' . $this->id . ',id',
 
-            'phone' => 'required|string',
+            'phone' => 'nullable|string',
             'image' => 'nullable|string',
             'address_line_1' => 'nullable|string',
             'address_line_2' => 'nullable|string',

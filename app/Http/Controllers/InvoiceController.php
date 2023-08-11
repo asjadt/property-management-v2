@@ -1197,10 +1197,14 @@ public function updateInvoice(InvoiceUpdateRequest $request)
            invoices.total_amount
        ) AS total_due
    ')
-)
-
-
-   ->orderBy("invoices.id",$request->order_by);
+);
+if(!empty($request->total_due_min)) {
+    $invoiceQuery = $invoiceQuery->havingRaw("total_due >= " .$request->total_due_min . "");
+}
+if(!empty($request->total_due_max)) {
+    $invoiceQuery = $invoiceQuery->havingRaw("total_due <= " .$request->total_due_max . "");
+}
+$invoiceQuery = $invoiceQuery->orderBy("invoices.id",$request->order_by);
    return $invoiceQuery;
 
  }
@@ -1283,6 +1287,20 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 * name="property_id",
 * in="query",
 * description="property_id",
+* required=true,
+* example="1"
+* ),
+ * *  @OA\Parameter(
+* name="total_due_min",
+* in="query",
+* description="total_due",
+* required=true,
+* example="1"
+* ),
+ * *  @OA\Parameter(
+* name="total_due_max",
+* in="query",
+* description="total_due",
 * required=true,
 * example="1"
 * ),
@@ -1526,6 +1544,20 @@ public function getInvoices($perPage, Request $request)
 *      description="property_ids",
 *      required=true,
 *      example="1,2"
+* ),
+ * *  @OA\Parameter(
+* name="total_due_min",
+* in="query",
+* description="total_due",
+* required=true,
+* example="1"
+* ),
+ * *  @OA\Parameter(
+* name="total_due_max",
+* in="query",
+* description="total_due",
+* required=true,
+* example="1"
 * ),
 
 

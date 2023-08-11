@@ -506,6 +506,7 @@ public function getProperties($perPage, Request $request)
         }
 
         $properties = $propertyQuery->orderBy("properties.address",$request->order_by)
+        ->groupBy("properties.id")
         ->select(
             "properties.*",
             DB::raw('

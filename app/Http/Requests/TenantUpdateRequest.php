@@ -28,7 +28,7 @@ class TenantUpdateRequest extends FormRequest
             'first_Name' => 'required|string|max:255',
             'last_Name' => 'required|string|max:255',
             'email' =>'required|string|unique:tenants,email,' . $this->id . ',id',
-            'phone' => 'required|string',
+            'phone' => 'nullable|string',
             'image' => 'nullable|string',
             'address_line_1' => 'nullable|string',
             'address_line_2' => 'nullable|string',
