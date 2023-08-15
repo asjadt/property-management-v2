@@ -388,6 +388,20 @@ public function updateInvoicePayment(InvoicePaymentUpdateRequest $request)
 * required=true,
 * example="search_key"
 * ),
+ * *  @OA\Parameter(
+* name="min_amount",
+* in="query",
+* description="min_total_due",
+* required=true,
+* example="1"
+* ),
+ * *  @OA\Parameter(
+* name="max_amount",
+* in="query",
+* description="max_total_due",
+* required=true,
+* example="1"
+* ),
  *      summary="This method is to get invoice-payments ",
  *      description="This method is to get invoice-payments",
  *
@@ -450,7 +464,7 @@ public function getInvoicePayments($perPage, Request $request)
                 // $query->orWhere("invoice_payments.payment_date", "like", "%" . $term . "%");
                 $query->orWhere("invoice_payments.payment_method", "like", "%" . $term . "%");
                 $query->orWhere("invoice_payments.invoice_id",  $term );
-                $query->orWhere("invoice_payments.amount", $term);
+                 $query->orWhere("invoice_payments.amount", $term);
             });
         }
 
@@ -460,6 +474,14 @@ public function getInvoicePayments($perPage, Request $request)
         if (!empty($request->end_date)) {
             $invoice_paymentQuery = $invoice_paymentQuery->where('invoice_payments.created_at', "<=", $request->end_date);
         }
+
+        if (!empty($request->min_amount)) {
+            $invoice_paymentQuery = $invoice_paymentQuery->where('invoice_payments.amount', ">=", $request->min_amount);
+        }
+        if (!empty($request->max_amount)) {
+            $invoice_paymentQuery = $invoice_paymentQuery->where('invoice_payments.amount', "<=", $request->max_amount);
+        }
+
 
         $invoice_payments = $invoice_paymentQuery
         ->select("invoice_payments.*","invoices.generated_id as invoice_generated_id")

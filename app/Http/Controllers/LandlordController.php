@@ -400,30 +400,30 @@ class LandlordController extends Controller
 * example="1"
 * ),
  * *  @OA\Parameter(
-* name="total_due_min",
+* name="min_total_due",
 * in="query",
-* description="total_due",
+* description="min_total_due",
 * required=true,
 * example="1"
 * ),
  * *  @OA\Parameter(
-* name="total_due_max",
+* name="max_total_due",
 * in="query",
-* description="total_due",
+* description="max_total_due",
 * required=true,
 * example="1"
 * ),
  * *  @OA\Parameter(
-* name="total_over_due_min",
+* name="min_total_over_due",
 * in="query",
-* description="total_due",
+* description="min_total_over_due",
 * required=true,
 * example="1"
 * ),
  * *  @OA\Parameter(
-* name="total_over_due_max",
+* name="max_total_over_due",
 * in="query",
-* description="total_due",
+* description="max_total_over_due",
 * required=true,
 * example="1"
 * ),
@@ -524,6 +524,12 @@ class LandlordController extends Controller
              '
 
              ),
+             DB::raw('
+             COALESCE(
+                 (SELECT COUNT(invoices.id) FROM invoices WHERE invoices.landlord_id = landlords.id),
+                 0
+             ) AS total_invoices
+             '),
              DB::raw(
                 '
              COALESCE(
@@ -618,18 +624,18 @@ class LandlordController extends Controller
 
             );
 
-            if(!empty($request->total_due_min)) {
-                $landlordQuery = $landlordQuery->havingRaw("total_due >= " .$request->total_due_min . "");
+            if(!empty($request->min_total_due)) {
+                $landlordQuery = $landlordQuery->havingRaw("total_due >= " .$request->min_total_due . "");
             }
-            if(!empty($request->total_due_max)) {
-                $landlordQuery = $landlordQuery->havingRaw("total_due <= " .$request->total_due_max . "");
+            if(!empty($request->max_total_due)) {
+                $landlordQuery = $landlordQuery->havingRaw("total_due <= " .$request->max_total_due . "");
             }
 
-            if(!empty($request->total_over_due_min)) {
-                $landlordQuery = $landlordQuery->havingRaw("total_over_due >= " .$request->total_over_due_min . "");
+            if(!empty($request->min_total_over_due)) {
+                $landlordQuery = $landlordQuery->havingRaw("total_over_due >= " .$request->min_total_over_due . "");
             }
-            if(!empty($request->total_over_due_max)) {
-                $landlordQuery = $landlordQuery->havingRaw("total_over_due <= " .$request->total_over_due_max . "");
+            if(!empty($request->max_total_over_due)) {
+                $landlordQuery = $landlordQuery->havingRaw("total_over_due <= " .$request->max_total_over_due . "");
             }
 
           $landlords =  $landlordQuery
@@ -680,6 +686,34 @@ class LandlordController extends Controller
 * description="search_key",
 * required=true,
 * example="search_key"
+* ),
+ * *  @OA\Parameter(
+* name="min_total_due",
+* in="query",
+* description="min_total_due",
+* required=true,
+* example="1"
+* ),
+ * *  @OA\Parameter(
+* name="max_total_due",
+* in="query",
+* description="max_total_due",
+* required=true,
+* example="1"
+* ),
+ * *  @OA\Parameter(
+* name="min_total_over_due",
+* in="query",
+* description="min_total_over_due",
+* required=true,
+* example="1"
+* ),
+ * *  @OA\Parameter(
+* name="max_total_over_due",
+* in="query",
+* description="max_total_over_due",
+* required=true,
+* example="1"
 * ),
      *      summary="This method is to get all landlords ",
      *      description="This method is to get all landlords",
@@ -762,6 +796,12 @@ class LandlordController extends Controller
                   (SELECT COUNT(properties.id) FROM properties WHERE properties.landlord_id = landlords.id),
                   0
               ) AS total_properties
+              '),
+              DB::raw('
+              COALESCE(
+                  (SELECT COUNT(invoices.id) FROM invoices WHERE invoices.landlord_id = landlords.id),
+                  0
+              ) AS total_invoices
               '),
 
               DB::raw(
@@ -868,11 +908,17 @@ class LandlordController extends Controller
 
              );
 
-             if(!empty($request->total_due_min)) {
-                $landlordQuery = $landlordQuery->havingRaw("total_due >= " .$request->total_due_min . "");
+             if(!empty($request->min_total_due)) {
+                $landlordQuery = $landlordQuery->havingRaw("total_due >= " .$request->min_total_due . "");
             }
-            if(!empty($request->total_due_max)) {
-                $landlordQuery = $landlordQuery->havingRaw("total_due <= " .$request->total_due_max . "");
+            if(!empty($request->max_total_due)) {
+                $landlordQuery = $landlordQuery->havingRaw("total_due <= " .$request->max_total_due . "");
+            }
+            if(!empty($request->min_total_over_due)) {
+                $landlordQuery = $landlordQuery->havingRaw("total_over_due >= " .$request->min_total_over_due . "");
+            }
+            if(!empty($request->max_total_over_due)) {
+                $landlordQuery = $landlordQuery->havingRaw("total_over_due <= " .$request->max_total_over_due . "");
             }
 
            $landlords =  $landlordQuery

@@ -475,7 +475,8 @@ public function getProperties($perPage, Request $request)
 
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $propertyQuery =  Property::leftJoin('property_tenants', 'properties.id', '=', 'property_tenants.property_id')
+        $propertyQuery =  Property::with("property_tenants")
+        ->leftJoin('property_tenants', 'properties.id', '=', 'property_tenants.property_id')
         ->leftJoin('tenants', 'property_tenants.tenant_id', '=', 'tenants.id')
         ->where(["properties.created_by" => $request->user()->id]);
 
@@ -630,7 +631,8 @@ public function getProperties($perPage, Request $request)
 
          // $automobilesQuery = AutomobileMake::with("makes");
 
-         $propertyQuery =  Property::leftJoin('property_tenants', 'properties.id', '=', 'property_tenants.property_id')
+         $propertyQuery =  Property::with("property_tenants")
+         ->leftJoin('property_tenants', 'properties.id', '=', 'property_tenants.property_id')
          ->leftJoin('tenants', 'property_tenants.tenant_id', '=', 'tenants.id')
          ->where(["properties.created_by" => $request->user()->id]);
 

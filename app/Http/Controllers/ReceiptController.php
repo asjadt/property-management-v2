@@ -265,16 +265,16 @@ class ReceiptController extends Controller
 * example="search_key"
 * ),
      * *  @OA\Parameter(
-* name="start_amount",
+* name="min_amount",
 * in="query",
-* description="start_amount",
+* description="min_amount",
 * required=true,
 * example="10"
 * ),
      * *  @OA\Parameter(
-* name="end_amount",
+* name="max_amount",
 * in="query",
-* description="end_amount",
+* description="max_amount",
 * required=true,
 * example="10"
 * ),
@@ -323,7 +323,8 @@ class ReceiptController extends Controller
 
             // $automobilesQuery = AutomobileMake::with("makes");
 
-            $receiptQuery =  Receipt::where(["created_by" => $request->user()->id]);
+            $receiptQuery =  Receipt::with("property")
+            ->where(["created_by" => $request->user()->id]);
 
             if (!empty($request->search_key)) {
                 $receiptQuery = $receiptQuery->where(function ($query) use ($request) {
@@ -340,11 +341,11 @@ class ReceiptController extends Controller
             if (!empty($request->end_date)) {
                 $receiptQuery = $receiptQuery->where('created_at', "<=", $request->end_date);
             }
-            if (!empty($request->start_amount)) {
-                $receiptQuery = $receiptQuery->where('amount', ">=", $request->start_amount);
+            if (!empty($request->min_amount)) {
+                $receiptQuery = $receiptQuery->where('amount', ">=", $request->min_amount);
             }
-            if (!empty($request->end_amount)) {
-                $receiptQuery = $receiptQuery->where('amount', "<=", $request->end_amount);
+            if (!empty($request->max_amount)) {
+                $receiptQuery = $receiptQuery->where('amount', "<=", $request->max_amount);
             }
 
             $receipts = $receiptQuery->orderBy("id",$request->order_by)->paginate($perPage);

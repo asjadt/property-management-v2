@@ -442,12 +442,12 @@ public function getTenants($perPage, Request $request)
         if (!empty($request->search_key)) {
             $tenantQuery = $tenantQuery->where(function ($query) use ($request) {
                 $term = $request->search_key;
-                $query->where("properties.name", "like", "%" . $term . "%");
+                // $query->where("properties.name", "like", "%" . $term . "%");
                 $query->orWhere("tenants.first_Name", "like", "%" . $term . "%");
                 $query->orWhere("tenants.last_Name", "like", "%" . $term . "%");
                 $query->orWhere("tenants.email", "like", "%" . $term . "%");
-                $query->orWhere("tenants.address_line_1", "like", "%" . $term . "%");
-                $query->orWhere("tenants.address_line_2", "like", "%" . $term . "%");
+                // $query->orWhere("tenants.address_line_1", "like", "%" . $term . "%");
+                // $query->orWhere("tenants.address_line_2", "like", "%" . $term . "%");
 
 
 

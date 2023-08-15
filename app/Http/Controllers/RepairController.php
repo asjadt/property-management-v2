@@ -657,12 +657,15 @@ public function getRepairs($perPage, Request $request)
         if (!empty($request->search_key)) {
             $repairQuery = $repairQuery->where(function ($query) use ($request) {
                 $term = $request->search_key;
-                $query->where("properties.reference_no", "like", "%" . $term . "%");
-                $query->orWhere("properties.address", "like", "%" . $term . "%");
-                $query->orWhere("repair_categories.name", "like", "%" . $term . "%");
 
+                $query->where("repair_categories.name", "like", "%" . $term . "%");
+                $query->orWhere("repairs.item_description", "like", "%" . $term . "%");
+                // $query->where("properties.reference_no", "like", "%" . $term . "%");
+                // $query->orWhere("properties.address", "like", "%" . $term . "%");
+                // $query->orWhere("repair_categories.name", "like", "%" . $term . "%");
+      // $query->orWhere("repairs.item_description", "like", "%" . $term . "%");
                 // $query->orWhere("properties.type", "like", "%" . $term . "%");
-                // $query->orWhere("repairs.item_description", "like", "%" . $term . "%");
+
             });
         }
 
