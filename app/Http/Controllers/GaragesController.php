@@ -276,6 +276,8 @@ class GaragesController extends Controller
     $insertableData['user']['is_active'] = true;
     $insertableData['user']['created_by'] = $request->user()->id;
     $user =  User::create($insertableData['user']);
+    $user->email_verified_at = now();
+    $user->save();
     $user->assignRole('garage_owner');
    // end user info ##############
 
