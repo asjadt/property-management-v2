@@ -402,6 +402,14 @@ public function updateInvoicePayment(InvoicePaymentUpdateRequest $request)
 * required=true,
 * example="1"
 * ),
+ * *  @OA\Parameter(
+* name="payment_method",
+* in="query",
+* description="payment_method",
+* required=true,
+* example="1"
+* ),
+
  *      summary="This method is to get invoice-payments ",
  *      description="This method is to get invoice-payments",
  *
@@ -467,7 +475,9 @@ public function getInvoicePayments($perPage, Request $request)
                  $query->orWhere("invoice_payments.amount", $term);
             });
         }
-
+        if (!empty($request->payment_method)) {
+            $invoice_paymentQuery = $invoice_paymentQuery->where('invoice_payments.payment_method', $request->payment_method);
+        }
         if (!empty($request->start_date)) {
             $invoice_paymentQuery = $invoice_paymentQuery->where('invoice_payments.created_at', ">=", $request->start_date);
         }

@@ -593,6 +593,14 @@ public function updateRepair(RepairUpdateRequest $request)
 * required=true,
 * example="search_key"
 * ),
+ * *  @OA\Parameter(
+* name="repair_category",
+* in="query",
+* description="repair_category",
+* required=true,
+* example="repair_category"
+* ),
+
  *      summary="This method is to get repairs ",
  *      description="This method is to get repairs",
  *
@@ -658,7 +666,7 @@ public function getRepairs($perPage, Request $request)
             $repairQuery = $repairQuery->where(function ($query) use ($request) {
                 $term = $request->search_key;
 
-                $query->where("repair_categories.name", "like", "%" . $term . "%");
+
                 $query->orWhere("repairs.item_description", "like", "%" . $term . "%");
                 // $query->where("properties.reference_no", "like", "%" . $term . "%");
                 // $query->orWhere("properties.address", "like", "%" . $term . "%");
@@ -667,6 +675,9 @@ public function getRepairs($perPage, Request $request)
                 // $query->orWhere("properties.type", "like", "%" . $term . "%");
 
             });
+        }
+        if (!empty($request->repair_category)) {
+            $repairQuery = $repairQuery->where('repair_categories.name', $request->repair_category);
         }
 
         if (!empty($request->start_date)) {

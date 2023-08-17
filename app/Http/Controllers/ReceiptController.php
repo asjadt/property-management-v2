@@ -278,6 +278,13 @@ class ReceiptController extends Controller
 * required=true,
 * example="10"
 * ),
+*  @OA\Parameter(
+*      name="property_ids[]",
+*      in="query",
+*      description="property_ids",
+*      required=true,
+*      example="1,2"
+* ),
      *      summary="This method is to get receipts ",
      *      description="This method is to get receipts",
      *
@@ -333,6 +340,19 @@ class ReceiptController extends Controller
                     $query->orWhere("property_address", "like", "%" . $term . "%");
                     $query->orWhere("receipt_by", "like", "%" . $term . "%");
                 });
+            }
+
+
+             if(!empty($request->property_ids)) {
+                $null_filter = collect(array_filter($request->property_ids))->values();
+            $property_ids =  $null_filter->all();
+                if(count($property_ids)) {
+                    $receiptQuery =     $receiptQuery->whereHas('property', function ($query)use($property_ids) {
+                        $query->whereIn('id', $property_ids);
+                    });
+
+                }
+
             }
 
             if (!empty($request->start_date)) {

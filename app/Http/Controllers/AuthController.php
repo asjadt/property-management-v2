@@ -254,6 +254,10 @@ class AuthController extends Controller
             }
 
             $user = auth()->user();
+            if(!$user->is_active) {
+                return response(['message' => 'User not active'], 403);
+
+            }
             $now = time(); // or your date as well
 $user_created_date = strtotime($user->created_at);
 $datediff = $now - $user_created_date;

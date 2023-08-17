@@ -236,6 +236,7 @@ Route::delete('/v1.0/repair-categories/{id}', [RepairCategoryController::class, 
 
 
 Route::get('/v1.0/activities/{perPage}', [PropertyBasicController::class, "showActivity"]);
+Route::get('/v1.0/property-report', [PropertyBasicController::class, "propertyReport"]);
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // Repair management section
@@ -388,10 +389,14 @@ Route::put('/v1.0/auth/update-user-with-business', [UserManagementController::cl
 
 Route::post('/v1.0/users', [UserManagementController::class, "createUser"]);
 Route::put('/v1.0/users', [UserManagementController::class, "updateUser"]);
+
+Route::put('/v1.0/users/toggle-active', [UserManagementController::class, "toggleActive"]);
+
 Route::get('/v1.0/users/{perPage}', [UserManagementController::class, "getUsers"]);
 Route::get('/v1.0/users/get-by-id/{id}', [UserManagementController::class, "getUserById"]);
 
 Route::delete('/v1.0/users/{id}', [UserManagementController::class, "deleteUserById"]);
+
 
 // ********************************************
 // user management section --role

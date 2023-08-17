@@ -263,7 +263,7 @@ public function createInvoice(InvoiceCreateRequest $request)
                         if($invoice_item_exists) {
                             $error =  [
                                 "message" => "The given data was invalid.",
-                                "errors" => ["automobile_make_id"=>["This garage does not support this make"]]
+                                "errors" => ["invoice_items"=>["invalid repair item"]]
                          ];
                             throw new Exception(json_encode($error),422);
                         }

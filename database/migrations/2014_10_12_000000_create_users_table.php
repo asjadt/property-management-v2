@@ -38,7 +38,7 @@ class CreateUsersTable extends Migration
 
             $table->string('site_redirect_token')->nullable();
 
-            $table->string('is_active')->default(false);
+            $table->boolean('is_active')->default(false);
             $table->unsignedBigInteger("created_by")->nullable();
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
 

@@ -399,6 +399,14 @@ class LandlordController extends Controller
 * required=true,
 * example="1"
 * ),
+*  @OA\Parameter(
+*      name="property_ids[]",
+*      in="query",
+*      description="property_ids",
+*      required=true,
+*      example="1,2"
+* ),
+ *   
  * *  @OA\Parameter(
 * name="min_total_due",
 * in="query",
@@ -495,6 +503,14 @@ class LandlordController extends Controller
             }
             if(!empty($request->property_id)){
                 $landlordQuery = $landlordQuery->where('properties.id',$request->property_id);
+            }
+            if(!empty($request->property_ids)) {
+                $null_filter = collect(array_filter($request->property_ids))->values();
+            $property_ids =  $null_filter->all();
+                if(count($property_ids)) {
+                    $landlordQuery =   $landlordQuery->whereIn("properties.id",$property_ids);
+                }
+
             }
             if (!empty($request->start_date)) {
                 $landlordQuery = $landlordQuery->where('landlords.created_at', ">=", $request->start_date);

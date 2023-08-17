@@ -6,6 +6,7 @@ use App\Http\Requests\AuthRegisterBusinessRequest;
 use App\Http\Requests\BusinessUpdateRequest;
 use App\Http\Requests\ImageUploadRequest;
 use App\Http\Requests\UserCreateRequest;
+use App\Http\Requests\UserToggleRequest;
 use App\Http\Requests\UserUpdateRequest;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
@@ -480,6 +481,7 @@ class UserManagementController extends Controller
         }
 
     }
+
 /**
         *
      * @OA\Put(
@@ -862,6 +864,100 @@ class UserManagementController extends Controller
         return $this->sendError($e,500,$request);
         }
     }
+ /**
+        *
+     * @OA\Put(
+     *      path="/v1.0/users/toggle-active",
+     *      operationId="toggleActive",
+     *      tags={"user_management"},
+    *       security={
+     *           {"bearerAuth": {}}
+     *       },
+     *      summary="This method is to toggle user activity",
+     *      description="This method is to toggle user activity",
+     *
+     *  @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *            required={"id","first_Name","last_Name","email","password","password_confirmation","phone","address_line_1","address_line_2","country","city","postcode","role"},
+     *           @OA\Property(property="id", type="string", format="number",example="1"),
+     *
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       @OA\JsonContent(),
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     * @OA\JsonContent(),
+     *      ),
+     *        @OA\Response(
+     *          response=422,
+     *          description="Unprocesseble Content",
+     *    @OA\JsonContent(),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *   @OA\JsonContent()
+     * ),
+     *  * @OA\Response(
+     *      response=400,
+     *      description="Bad Request",
+     *   *@OA\JsonContent()
+     *   ),
+     * @OA\Response(
+     *      response=404,
+     *      description="not found",
+     *   *@OA\JsonContent()
+     *   )
+     *      )
+     *     )
+     */
+
+     public function toggleActive(UserToggleRequest $request)
+     {
+
+         try{
+             $this->storeActivity($request,"");
+             if(!$request->user()->hasPermissionTo('user_update')){
+                 return response()->json([
+                    "message" => "You can not perform this action"
+                 ],401);
+            }
+            $updatableData = $request->validated();
+
+
+            $user = User::where([
+                "id" => $updatableData["id"]
+            ])
+            ->first();
+            if (!$user) {
+                return response()->json([
+                    "message" => "no user found"
+                ], 404);
+            }
+            if($user->hasRole("superadmin")){
+                return response()->json([
+                   "message" => "superadmin can not be deactivated"
+                ],401);
+           }
+
+            $user->update([
+                'is_active' => !$user->is_active
+            ]);
+
+            return response()->json(['message' => 'User status updated successfully'], 200);
+
+
+         } catch(Exception $e){
+             error_log($e->getMessage());
+         return $this->sendError($e,500,$request);
+         }
+     }
 
 
    /**
@@ -1130,17 +1226,27 @@ class UserManagementController extends Controller
                    "message" => "You can not perform this action"
                 ],401);
            }
-           $userQuery = User::where([
+           $user = User::where([
             "id" => $id
-       ]);
-           if($userQuery->first()->hasRole("superadmin")){
+       ])
+       ->first();
+
+       if (!$user) {
+        return response()->json([
+            "message" => "no user found"
+        ], 404);
+    }
+
+
+
+           if($user->hasRole("superadmin")){
             return response()->json([
                "message" => "superadmin can not be deleted"
             ],401);
        }
 
-           $userQuery
-           ->delete();
+           $user
+          ->forceDelete();
 
             return response()->json(["ok" => true], 200);
         } catch(Exception $e){
