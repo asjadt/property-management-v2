@@ -194,7 +194,7 @@ class UserManagementController extends Controller
 
             $location =  config("setup-config.user_image_location");
 
-            $new_file_name = time() . '_' . str_replace(' ', '_', $insertableData["file"]->getClientOriginalName());
+            $new_file_name = time() . '_' . str_replace(' ', '_', $insertableData["image"]->getClientOriginalName());
 
             $insertableData["image"]->move(public_path($location), $new_file_name);
 

@@ -471,7 +471,7 @@ public function getInvoicePayments($perPage, Request $request)
                 $query->where("invoice_payments.payment_method", "like", "%" . $term . "%");
                 // $query->orWhere("invoice_payments.payment_date", "like", "%" . $term . "%");
                 $query->orWhere("invoice_payments.payment_method", "like", "%" . $term . "%");
-                $query->orWhere("invoice_payments.invoice_id",  $term );
+                $query->orWhere("invoices.invoice_reference",  $term );
                  $query->orWhere("invoice_payments.amount", $term);
             });
         }
