@@ -3,6 +3,7 @@
 use App\Http\Controllers\AffiliationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AutomobilesController;
+use App\Http\Controllers\BillItemController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\client\ClientBasicController;
 use App\Http\Controllers\client\ClientBookingController;
@@ -164,6 +165,19 @@ Route::get('/v1.0/sale-items/get/single/{id}', [SaleItemController::class, "getS
 Route::delete('/v1.0/sale-items/{id}', [SaleItemController::class, "deleteSaleItemById"]);
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // sale item management section
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// bill item management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Route::post('/v1.0/bill-items', [BillItemController::class, "createBillItem"]);
+Route::put('/v1.0/bill-items', [BillItemController::class, "updateBillItem"]);
+Route::get('/v1.0/bill-items/{perPage}', [BillItemController::class, "getBillItems"]);
+Route::get('/v1.0/bill-items/get/single/{id}', [BillItemController::class, "getBillItemById"]);
+Route::delete('/v1.0/bill-items/{id}', [BillItemController::class, "deleteBillItemById"]);
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+// bill item management section
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
