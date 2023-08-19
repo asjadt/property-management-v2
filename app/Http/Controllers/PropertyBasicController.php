@@ -114,10 +114,12 @@ class PropertyBasicController extends Controller
             //      $firstDayOfYear = Carbon::now()->startOfYear();
             //      $request["end_date"] = $firstDayOfYear->format('Y-m-d');
             //  }
-            //  if(empty($request->end_date)){
-            //      $todayDate = Carbon::now();
-            //      $request["end_date"] = $todayDate->format('Y-m-d');
-            //  }
+
+             if(empty($request->end_date)){
+                //  $todayDate = Carbon::now();
+                //  $request["end_date"] = $todayDate->format('Y-m-d');
+                 $request['next_day'] = date('Y-m-d', strtotime($request->end_date) + 86400);
+             }
 
 
 
@@ -165,7 +167,7 @@ class PropertyBasicController extends Controller
                         return $query->where('invoices.invoice_date', ">=", $request->start_date);
                     })
                     ->when(!empty($request->end_date), function ($query) use ($request) {
-                        return $query->where('invoices.invoice_date', "<=", $request->end_date);
+                        return $query->where('invoices.invoice_date', "<", $request["next_day"]);
                     })
 
                     ->select('invoices.id', 'invoices.total_amount', 'invoices.invoice_date as created_at', 'invoices.invoice_reference', DB::raw("'invoice' as type"), 'invoices.due_date as due_date');
@@ -179,7 +181,7 @@ class PropertyBasicController extends Controller
                         return $query->where('invoice_payments.payment_date', ">=", $request->start_date);
                     })
                     ->when(!empty($request->end_date), function ($query) use ($request) {
-                        return $query->where('invoice_payments.payment_date', "<=", $request->end_date);
+                        return $query->where('invoice_payments.payment_date', "<", $request["next_day"]);
                     })
 
                     ->select('invoice_payments.invoice_id', 'invoice_payments.amount as total_amount', 'invoice_payments.payment_date as created_at', 'invoices.invoice_reference', DB::raw("'invoice_payment' as type"), 'invoices.due_date as due_date');
@@ -204,9 +206,9 @@ class PropertyBasicController extends Controller
                     return $item->type == 'invoice';
                 })->sum("total_amount");
 
-                $section_1["start_date"] = $request->start_date;
-                $section_1["end_date"] = $request->end_date;
-                $section_1["property"] = $property;
+                $data["start_date"] = $request->start_date;
+                $data["end_date"] = $request->end_date;
+                $data["property"] = $property;
 
                 $data["table_1"] = [
                     "section_1" => $section_1,
@@ -221,7 +223,7 @@ class PropertyBasicController extends Controller
                         return $query->where('receipts.created_at', ">=", $request->start_date);
                     })
                     ->when(!empty($request->end_date), function ($query) use ($request) {
-                        return $query->where('receipts.created_at', "<=", $request->end_date);
+                        return $query->where('receipts.created_at', "<", $request["next_day"]);
                     })
                     ->get();
 
@@ -233,7 +235,7 @@ class PropertyBasicController extends Controller
                             return $query->where('repairs.created_at', ">=", $request->start_date);
                         })
                         ->when(!empty($request->end_date), function ($query) use ($request) {
-                            return $query->where('repairs.created_at', "<=", $request->end_date);
+                            return $query->where('repairs.created_at', "<", $request["next_day"]);
                         })
                         ->when(!empty($request->repair_category), function ($query) use ($request) {
                           return  $query->whereHas('repair_category', function ($innerQuery)use($request) {
@@ -369,10 +371,11 @@ class PropertyBasicController extends Controller
             //     $firstDayOfYear = Carbon::now()->startOfYear();
             //     $request["end_date"] = $firstDayOfYear->format('Y-m-d');
             // }
-            // if(empty($request->end_date)){
-            //     $todayDate = Carbon::now();
-            //     $request["end_date"] = $todayDate->format('Y-m-d');
-            // }
+            if(empty($request->end_date)){
+                //  $todayDate = Carbon::now();
+                //  $request["end_date"] = $todayDate->format('Y-m-d');
+                 $request['next_day'] = date('Y-m-d', strtotime($request->end_date) + 86400);
+             }
 
 
 
@@ -424,7 +427,7 @@ class PropertyBasicController extends Controller
                         return $query->where('invoices.invoice_date', ">=", $request->start_date);
                     })
                     ->when(!empty($request->end_date), function ($query) use ($request) {
-                        return $query->where('invoices.invoice_date', "<=", $request->end_date);
+                        return $query->where('invoices.invoice_date', "<",  $request['next_day'] );
                     })
                     ->when(!empty($request->property_ids), function ($query) use ($request) {
                         $null_filter = collect(array_filter($request->property_ids))->values();
@@ -442,7 +445,7 @@ class PropertyBasicController extends Controller
                         return $query->where('invoice_payments.payment_date', ">=", $request->start_date);
                     })
                     ->when(!empty($request->end_date), function ($query) use ($request) {
-                        return $query->where('invoice_payments.payment_date', "<=", $request->end_date);
+                        return $query->where('invoice_payments.payment_date', "<",  $request['next_day'] );
                     })
                     ->when(!empty($request->property_ids), function ($query) use ($request) {
                         $null_filter = collect(array_filter($request->property_ids))->values();
@@ -529,7 +532,7 @@ class PropertyBasicController extends Controller
                         return $query->where('invoices.invoice_date', ">=", $request->start_date);
                     })
                     ->when(!empty($request->end_date), function ($query) use ($request) {
-                        return $query->where('invoices.invoice_date', "<=", $request->end_date);
+                        return $query->where('invoices.invoice_date', "<",  $request['next_day'] );
                     })
                     ->when(!empty($request->property_ids), function ($query) use ($request) {
                         $null_filter = collect(array_filter($request->property_ids))->values();
@@ -547,7 +550,7 @@ class PropertyBasicController extends Controller
                         return $query->where('invoice_payments.payment_date', ">=", $request->start_date);
                     })
                     ->when(!empty($request->end_date), function ($query) use ($request) {
-                        return $query->where('invoice_payments.payment_date', "<=", $request->end_date);
+                        return $query->where('invoice_payments.payment_date', "<",  $request['next_day'] );
                     })
                     ->when(!empty($request->property_ids), function ($query) use ($request) {
                         $null_filter = collect(array_filter($request->property_ids))->values();

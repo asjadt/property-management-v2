@@ -29,7 +29,7 @@ use Illuminate\Routing\Controller as BaseController;
      *    scheme="bearer",
      *    bearerFormat="JWT",
      * ),
-     *  * @OA\SecurityScheme(
+  * @OA\SecurityScheme(
  *     type="apiKey",
  *     in="header",
  *     securityScheme="pin",

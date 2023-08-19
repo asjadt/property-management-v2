@@ -57,6 +57,7 @@ return [
     "user_image_location" => "user_image",
     "landlord_image" => "landlord_image",
     "tenant_image" => "tenant_image",
+    "client_image" => "client_image",
     "property_image" => "property_image",
     "repair_image" => "repair_image",
     "repair_receipt_file" => "repair_receipt_file",

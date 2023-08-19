@@ -10,6 +10,7 @@ use App\Http\Controllers\client\ClientCouponController;
 use App\Http\Controllers\client\ClientJobController;
 use App\Http\Controllers\client\ClientPreBookingController;
 use App\Http\Controllers\client\ClientReviewController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\DashboardManagementController;
 use App\Http\Controllers\EmailTemplateController;
@@ -191,6 +192,21 @@ Route::put('/v1.0/tenants', [TenantController::class, "updateTenant"]);
 Route::get('/v1.0/tenants/{perPage}', [TenantController::class, "getTenants"]);
 Route::get('/v1.0/tenants/get/single/{id}', [TenantController::class, "getTenantById"]);
 Route::delete('/v1.0/tenants/{id}', [TenantController::class, "deleteTenantById"]);
+
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+// Tenant management section
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+// Tenant management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Route::post('/v1.0/client-image', [ClientController::class, "createClientImage"]);
+Route::post('/v1.0/clients', [ClientController::class, "createClient"]);
+Route::put('/v1.0/clients', [ClientController::class, "updateClient"]);
+Route::get('/v1.0/clients/{perPage}', [ClientController::class, "getClients"]);
+Route::get('/v1.0/clients/get/single/{id}', [ClientController::class, "getClientById"]);
+Route::delete('/v1.0/clients/{id}', [ClientController::class, "deleteClientById"]);
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // Tenant management section

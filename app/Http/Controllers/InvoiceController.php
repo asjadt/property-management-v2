@@ -1975,7 +1975,6 @@ public function deleteInvoiceById($id, Request $request)
         }
 
 
-
         $invoice = Invoice::where([
             "id" => $id,
             "invoices.created_by" => $request->user()->id
