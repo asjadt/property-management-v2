@@ -55,7 +55,7 @@ class InvoiceCreateRequest extends FormRequest
 
 
 
-            "business_type" => "required|string|in:normal,property",
+            "business_type" => "required|string|in:other,property_dealer",
             "client_id" => [
                 "nullable",
                 "numeric",
@@ -65,14 +65,14 @@ class InvoiceCreateRequest extends FormRequest
                     $tenantId = request()->input('tenant_id');
 
                     $business_type = request()->input('business_type');
-                    if($business_type == "property") {
+                    if($business_type == "property_dealer") {
                         if (!empty($value)) {
-                            $fail('for business type property you can not select client.');
+                            $fail('for business type property dealer you can not select client.');
                         }
 
                     } else {
                         if (empty($value)) {
-                            $fail('for business type normal you must select a client.');
+                            $fail('for business type other you must select a client.');
                         }
 
                     }
@@ -87,7 +87,7 @@ class InvoiceCreateRequest extends FormRequest
                     $client_id = request()->input('client_id');
                     $landlordId = request()->input('landlord_id');
                     $business_type = request()->input('business_type');
-                    if($business_type == "property") {
+                    if($business_type == "property_dealer") {
                         if (empty($value) && empty($landlordId)) {
                             $fail('Either tenant_id or landlord_id is required.');
                         }
@@ -97,7 +97,7 @@ class InvoiceCreateRequest extends FormRequest
                     }
                     else {
                         if (!empty($value)) {
-                            $fail('for business type normal you can not select a tenant.');
+                            $fail('for business type other you can not select a tenant.');
                         }
                     }
 
@@ -111,7 +111,7 @@ class InvoiceCreateRequest extends FormRequest
                     $client_id = request()->input('client_id');
                     $tenantId = request()->input('tenant_id');
                     $business_type = request()->input('business_type');
-                    if($business_type == "property") {
+                    if($business_type == "property_dealer") {
 
                         if (empty($value) && empty($tenantId)) {
                             $fail('Either tenant_id or landlord_id is required.');
@@ -122,7 +122,7 @@ class InvoiceCreateRequest extends FormRequest
                     }
                     else {
                         if (!empty($value)) {
-                            $fail('for business type normal you can not select a landlord.');
+                            $fail('for business type other you can not select a landlord.');
                         }
                     }
 

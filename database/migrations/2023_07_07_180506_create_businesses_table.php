@@ -57,7 +57,7 @@ class CreateBusinessesTable extends Migration
             $table->boolean("is_active")->default(false);
 
 
-            $table->enum('type', ['normal', 'property'])->default("normal");
+            $table->enum('type', ['other', 'property_dealer'])->default("other");
 
 
             $table->unsignedBigInteger("owner_id");
