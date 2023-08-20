@@ -8,4 +8,20 @@ use Illuminate\Database\Eloquent\Model;
 class BillItem extends Model
 {
     use HasFactory;
+
+
+    protected $fillable = [
+        'name',
+        'description',
+        'price',
+        'created_by'
+        ];
+
+
+
+
+
+
+
+
 }

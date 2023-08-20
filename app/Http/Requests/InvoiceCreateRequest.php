@@ -54,20 +54,53 @@ class InvoiceCreateRequest extends FormRequest
 
 
 
-            // "tenant_id" => "required_without:landlord_id|numeric|exists:tenants,id",
-            // "landlord_id" => "required_without:tenant_id|numeric|exists:landlords,id",
-            "tenant_id" => [
+
+            "business_type" => "required|string|in:normal,property",
+            "client_id" => [
                 "nullable",
                 "numeric",
                 "exists:tenants,id",
                 function ($attribute, $value, $fail) {
                     $landlordId = request()->input('landlord_id');
-                    if (empty($value) && empty($landlordId)) {
-                        $fail('Either tenant_id or landlord_id is required.');
+                    $tenantId = request()->input('tenant_id');
+
+                    $business_type = request()->input('business_type');
+                    if($business_type == "property") {
+                        if (!empty($value)) {
+                            $fail('for business type property you can not select client.');
+                        }
+
+                    } else {
+                        if (empty($value)) {
+                            $fail('for business type normal you must select a client.');
+                        }
+
                     }
-                    if (!empty($value) && !empty($landlordId)) {
-                        $fail('Only one of tenant_id or landlord_id should have a value.');
+
+                },
+            ],
+            "tenant_id" => [
+                "nullable",
+                "numeric",
+                "exists:tenants,id",
+                function ($attribute, $value, $fail) {
+                    $client_id = request()->input('client_id');
+                    $landlordId = request()->input('landlord_id');
+                    $business_type = request()->input('business_type');
+                    if($business_type == "property") {
+                        if (empty($value) && empty($landlordId)) {
+                            $fail('Either tenant_id or landlord_id is required.');
+                        }
+                        if (!empty($value) && !empty($landlordId)) {
+                            $fail('Only one of tenant_id or landlord_id should have a value.');
+                        }
                     }
+                    else {
+                        if (!empty($value)) {
+                            $fail('for business type normal you can not select a tenant.');
+                        }
+                    }
+
                 },
             ],
             "landlord_id" => [
@@ -75,13 +108,25 @@ class InvoiceCreateRequest extends FormRequest
                 "numeric",
                 "exists:landlords,id",
                 function ($attribute, $value, $fail) {
+                    $client_id = request()->input('client_id');
                     $tenantId = request()->input('tenant_id');
-                    if (empty($value) && empty($tenantId)) {
-                        $fail('Either tenant_id or landlord_id is required.');
+                    $business_type = request()->input('business_type');
+                    if($business_type == "property") {
+
+                        if (empty($value) && empty($tenantId)) {
+                            $fail('Either tenant_id or landlord_id is required.');
+                        }
+                        if (!empty($value) && !empty($tenantId)) {
+                            $fail('Only one of tenant_id or landlord_id should have a value.');
+                        }
                     }
-                    if (!empty($value) && !empty($tenantId)) {
-                        $fail('Only one of tenant_id or landlord_id should have a value.');
+                    else {
+                        if (!empty($value)) {
+                            $fail('for business type normal you can not select a landlord.');
+                        }
                     }
+
+
                 },
             ],
 

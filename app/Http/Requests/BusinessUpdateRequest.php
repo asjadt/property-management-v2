@@ -63,6 +63,7 @@ class BusinessUpdateRequest extends FormRequest
             "business.account_number" => "nullable|string",
             "business.sort_code" => "nullable|string",
             "business.pin" => "required|string",
+            "business.type" => "required|string|in:normal,property",
 
             // 'business.images' => 'nullable|array',
             // 'business.images.*' => 'nullable|string',

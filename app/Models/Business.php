@@ -35,6 +35,7 @@ class Business extends Model
        "account_number",
        "sort_code",
        "pin" ,
+       "type" ,
     ];
 
     public function owner(){

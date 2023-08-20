@@ -56,6 +56,10 @@ class CreateBusinessesTable extends Migration
             // $table->enum('status', ['status1', 'status2',  'status3'])->default("status1");
             $table->boolean("is_active")->default(false);
 
+
+            $table->enum('type', ['normal', 'property'])->default("normal");
+
+
             $table->unsignedBigInteger("owner_id");
             $table->foreign('owner_id')->references('id')->on('users')->onDelete('cascade');
             $table->unsignedBigInteger("created_by")->nullable(true);

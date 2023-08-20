@@ -159,9 +159,13 @@ public function createInvoiceImage(ImageUploadRequest $request)
 
  *
  * *  *  @OA\Property(property="note", type="string", format="string",example="note"),
+ *  * *  *  @OA\Property(property="business_type", type="string", format="string",example="note"),
+ *
  *  *  * *  @OA\Property(property="landlord_id", type="number", format="number",example="1"),
  *  * *  @OA\Property(property="property_id", type="number", format="number",example="1"),
  *  * *  @OA\Property(property="tenant_id", type="number", format="number",example="1"),
+ * *  * *  @OA\Property(property="client_id", type="number", format="number",example="1"),
+ *
 
  *     *  * *  @OA\Property(property="invoice_items", type="string", format="array",example={
  *{"name":"name","description":"description","quantity":"1","price":"1.1","tax":"20","amount":"300"},
@@ -456,10 +460,12 @@ public function createInvoice(InvoiceCreateRequest $request)
  *  * *  @OA\Property(property="footer_text", type="string", format="string",example="footer_text"),
  *  *  *  * *  @OA\Property(property="shareable_link", type="string", format="string",example="shareable_link"),
  *  *  @OA\Property(property="note", type="string", format="string",example="note"),
- *
+ *   *  * *  *  @OA\Property(property="business_type", type="string", format="string",example="note"),
  *  * *  @OA\Property(property="property_id", type="number", format="number",example="1"),
  *  *  *  * *  @OA\Property(property="landlord_id", type="number", format="number",example="1"),
  *  * *  @OA\Property(property="tenant_id", type="number", format="number",example="1"),
+ *  *  * *  @OA\Property(property="client_id", type="number", format="number",example="1"),
+ *
 
  *     *  * *  @OA\Property(property="invoice_items", type="string", format="array",example={
  *{"id":"1","name":"name","description":"description","quantity":"1","price":"1.1","tax":"20","amount":"300"},
@@ -556,6 +562,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                     "property_id",
                     "landlord_id",
                     "tenant_id",
+                    "client_id",
                     "discount_description",
                     "discound_type",
                     "discount_amount",
@@ -1152,6 +1159,10 @@ public function updateInvoice(InvoiceUpdateRequest $request)
    if (!empty($request->tenant_id)) {
        $invoiceQuery =   $invoiceQuery->where("invoices.tenant_id", $request->tenant_id);
    }
+   if (!empty($request->client_id)) {
+    $invoiceQuery =   $invoiceQuery->where("invoices.client_id", $request->client_id);
+}
+
 
    if (!empty($request->property_id)) {
        $invoiceQuery =   $invoiceQuery->where("invoices.property_id", $request->property_id);
@@ -1284,6 +1295,14 @@ $invoiceQuery = $invoiceQuery->orderBy("invoices.id",$request->order_by);
 * example="1"
 * ),
  * *  @OA\Parameter(
+* name="client_id",
+* in="query",
+* description="client_id",
+* required=true,
+* example="1"
+* ),
+
+ * *  @OA\Parameter(
 * name="property_id",
 * in="query",
 * description="property_id",
@@ -1405,6 +1424,10 @@ public function getInvoices($perPage, Request $request)
     //     if (!empty($request->tenant_id)) {
     //         $invoiceQuery =   $invoiceQuery->where("invoices.tenant_id", $request->tenant_id);
     //     }
+        //     if (!empty($request->client_id)) {
+    //         $invoiceQuery =   $invoiceQuery->where("invoices.client_id", $request->client_id);
+    //     }
+
 
     //     if (!empty($request->property_id)) {
     //         $invoiceQuery =   $invoiceQuery->where("invoices.property_id", $request->property_id);
@@ -1530,6 +1553,14 @@ public function getInvoices($perPage, Request $request)
 * required=true,
 * example="1"
 * ),
+ * *  @OA\Parameter(
+* name="client_id",
+* in="query",
+* description="client_id",
+* required=true,
+* example="1"
+* ),
+
  * *  @OA\Parameter(
 * name="property_id",
 * in="query",

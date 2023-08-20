@@ -20,6 +20,11 @@ return [
                 "repair_category_update",
                 "repair_category_view",
                 "repair_category_delete",
+
+                "bill_item_create",
+                "bill_item_update",
+                "bill_item_view",
+                "bill_item_delete",
             ],
         ],
         [
@@ -27,6 +32,8 @@ return [
             "permissions" => [
                 "payment_type_view",
                 "repair_category_view",
+                "bill_item_view",
+
             ],
         ],
 
@@ -50,6 +57,11 @@ return [
        "repair_category_update",
        "repair_category_view",
        "repair_category_delete",
+
+       "bill_item_create",
+       "bill_item_update",
+       "bill_item_view",
+       "bill_item_delete",
 
     ],
 

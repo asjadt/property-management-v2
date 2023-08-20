@@ -80,7 +80,11 @@ class BillItemController extends Controller
         try {
             $this->storeActivity($request,"");
             return DB::transaction(function () use ($request) {
-
+                if (!$request->user()->hasPermissionTo('bill_item_create')) {
+                    return response()->json([
+                        "message" => "You can not perform this action"
+                    ], 401);
+                }
 
 
                 $insertableData = $request->validated();
@@ -169,7 +173,11 @@ class BillItemController extends Controller
         try {
             $this->storeActivity($request,"");
             return  DB::transaction(function () use ($request) {
-
+                if (!$request->user()->hasPermissionTo('bill_item_update')) {
+                    return response()->json([
+                        "message" => "You can not perform this action"
+                    ], 401);
+                }
                 $updatableData = $request->validated();
 
                 // $affiliationPrev = BillItem::where([
@@ -300,10 +308,14 @@ class BillItemController extends Controller
     {
         try {
             $this->storeActivity($request,"");
-
+            if (!$request->user()->hasPermissionTo('bill_item_view')) {
+                return response()->json([
+                    "message" => "You can not perform this action"
+                ], 401);
+            }
             // $automobilesQuery = AutomobileMake::with("makes");
 
-            $bill_itemQuery =  BillItem::where(["created_by" => $request->user()->id]);
+            $bill_itemQuery = new BillItem();
 
             if (!empty($request->search_key)) {
                 $bill_itemQuery = $bill_itemQuery->where(function ($query) use ($request) {
@@ -392,11 +404,15 @@ class BillItemController extends Controller
     {
         try {
             $this->storeActivity($request,"");
-
+            if (!$request->user()->hasPermissionTo('bill_item_view')) {
+                return response()->json([
+                    "message" => "You can not perform this action"
+                ], 401);
+            }
 
             $bill_item = BillItem::where([
                 "generated_id" => $id,
-                "created_by" => $request->user()->id
+                // "created_by" => $request->user()->id
             ])
             ->first();
 
@@ -484,20 +500,12 @@ class BillItemController extends Controller
         try {
             $this->storeActivity($request,"");
 
-            $business = Business::where([
-                "owner_id" => $request->user()->id
-              ])->first();
-
-            if(!$business) {
+            if (!$request->user()->hasPermissionTo('bill_item_delete')) {
                 return response()->json([
-                 "message" => "you don't have a valid business"
-                ],401);
-             }
-             if(!($business->pin == $request->header("pin"))) {
-                 return response()->json([
-                     "message" => "invalid pin"
-                    ],401);
-             }
+                    "message" => "You can not perform this action"
+                ], 401);
+            }
+
 
             $bill_item = BillItem::where([
                 "id" => $id,

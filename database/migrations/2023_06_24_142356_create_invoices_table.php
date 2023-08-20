@@ -17,7 +17,7 @@ class CreateInvoicesTable extends Migration
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
             $table->string('generated_id')->nullable();
-            
+
             $table->string("logo")->nullable();
             $table->string("invoice_title");
             $table->string("invoice_summary")->nullable();
@@ -59,6 +59,10 @@ class CreateInvoicesTable extends Migration
 
             $table->unsignedBigInteger("tenant_id")->nullable();
             $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('set null');
+
+
+            $table->unsignedBigInteger("client_id")->nullable();
+            $table->foreign('client_id')->references('id')->on('clients')->onDelete('set null');
 
 
 

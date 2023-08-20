@@ -68,7 +68,7 @@ class AuthRegisterBusinessRequest extends FormRequest
 
             "business.pin" => "required|string",
 
-
+            "business.type" => "required|string|in:normal,property",
 
 
 
