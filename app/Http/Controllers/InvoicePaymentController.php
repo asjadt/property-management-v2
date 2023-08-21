@@ -101,7 +101,7 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
 
             $invoiceDateWithTime = Carbon::createFromFormat('Y-m-d', $insertableData["payment_date"]);
             $invoiceDateWithTime->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
-            $insertableData["payment_date"] =    $invoiceDateWithTime;
+            $insertableData["payment_date"] =  $invoiceDateWithTime;
 
             if(empty($insertableData["receipt_by"])) {
                 $insertableData["receipt_by"] = $request->user()->first_Name . " " . $request->user()->last_Name;

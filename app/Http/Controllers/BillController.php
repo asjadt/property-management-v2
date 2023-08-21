@@ -14,6 +14,7 @@ use App\Models\BillSaleItem;
 use App\Models\Business;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
+use App\Models\InvoicePayment;
 use App\Models\InvoiceReminder;
 use Carbon\Carbon;
 use DateTime;
@@ -124,11 +125,19 @@ class BillController extends Controller
               $insertableData = $request->validated();
               $insertableData["created_by"] = $request->user()->id;
 
-              $invoiceDateWithTime = Carbon::createFromFormat('Y-m-d', $insertableData["invoice_date"]);
+              $invoiceDateWithTime = Carbon::createFromFormat('Y-m-d', $insertableData["create_date"]);
               $invoiceDateWithTime->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
-              $insertableData["invoice_date"] =    $invoiceDateWithTime;
+              $insertableData["create_date"] =    $invoiceDateWithTime;
 
               $bill =  Bill::create($insertableData);
+              if(!$bill) {
+                throw new Exception("something went wrong");
+            }
+
+            $bill->generated_id = Str::random(4) . $bill->id . Str::random(4);
+            $bill->shareable_link =  env("FRONT_END_URL_DASHBOARD")."/share/invoice/". Str::random(4) . "-". $bill->generated_id ."-" . Str::random(4);
+
+            $bill->save();
 
               $bill_items = collect($insertableData["bill_items"])->map(function ($item)use ($bill) {
 
@@ -253,6 +262,7 @@ class BillController extends Controller
           "total_amount"=>$bill->payabble_amount,
 
           "bill_id" => $bill->id,
+          'created_by' => $request->user()->id
 
       ];
 
@@ -315,6 +325,51 @@ class BillController extends Controller
         });
 
         $invoice->invoice_items()->createMany($invoiceItems->all());
+
+        $invoice_data = [
+            "logo"=> $business->logo,
+            "invoice_title"=> $business->invoice_title,
+
+            "invoice_reference" => $invoice_reference,
+            "business_name"=>$business->name,
+            "business_address"=>$business->address_line_1,
+
+            "invoice_date"=>$bill->create_date,
+
+            "footer_text"=>$business->footer_text,
+
+
+            "property_id"=>$bill->property_id,
+
+            "status"=>"paid",
+
+            "landlord_id" =>  $bill->landlord_id,
+
+            "sub_total"=>$bill->payabble_amount,
+            "total_amount"=>$bill->payabble_amount,
+
+            "bill_id" => $bill->id,
+
+        ];
+      $invoice_payment =  InvoicePayment::create([
+            "amount" => $bill->payabble_amount,
+            "payment_method" => "Bill Adjustment",
+            "payment_date" => $bill->create_date ,
+            "note" => "note",
+            "invoice_id" => $invoice->id,
+            "receipt_by" => $request->user()->id
+        ]);
+
+        if(!$invoice_payment) {
+            throw new Exception("something went wrong");
+        }
+        $invoice_payment->generated_id = Str::random(4) . $invoice_payment->id . Str::random(4);
+
+        $invoice_payment->shareable_link = env("FRONT_END_URL_DASHBOARD")."/share/receipt/". Str::random(4) . "-". $invoice_payment->generated_id ."-" . Str::random(4);
+
+        $invoice_payment->save();
+
+
 
     }
 

@@ -15,7 +15,8 @@ class CreateBillsTable extends Migration
     {
         Schema::create('bills', function (Blueprint $table) {
             $table->id();
-
+            $table->string('generated_id')->nullable();
+            $table->string("shareable_link")->nullable();
             $table->dateTime("create_date");
 
             $table->unsignedBigInteger("property_id")->nullable();
