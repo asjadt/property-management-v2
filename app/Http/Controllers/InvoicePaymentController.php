@@ -49,6 +49,7 @@ class InvoicePaymentController extends Controller
  *  *            @OA\Property(property="note", type="string", format="string",example="note"),
  *
  *            @OA\Property(property="invoice_id", type="number", format="number",example="1"),
+ *    *            @OA\Property(property="receipt_by", type="string", format="string",example="receipt_by"),
 
  *
  *         ),
@@ -101,6 +102,10 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
             $invoiceDateWithTime = Carbon::createFromFormat('Y-m-d', $insertableData["payment_date"]);
             $invoiceDateWithTime->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
             $insertableData["payment_date"] =    $invoiceDateWithTime;
+
+            if(empty($insertableData["receipt_by"])) {
+                $insertableData["receipt_by"] = $request->user()->first_Name . " " . $request->user()->last_Name;
+            }
 
             $invoice = Invoice::where([
                 "id" => $insertableData["invoice_id"],
@@ -211,6 +216,7 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
  *            @OA\Property(property="payment_date", type="string", format="string",example="2019-06-29"),
  *  *  *            @OA\Property(property="note", type="string", format="string",example="note"),
  *            @OA\Property(property="invoice_id", type="number", format="number",example="1"),
+ *    *            @OA\Property(property="receipt_by", type="string", format="string",example="receipt_by"),
  *
  *         ),
  *      ),
@@ -259,6 +265,10 @@ public function updateInvoicePayment(InvoicePaymentUpdateRequest $request)
             $invoiceDateWithTime = Carbon::createFromFormat('Y-m-d', $updatableData["payment_date"]);
             $invoiceDateWithTime->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
             $updatableData["payment_date"] =    $invoiceDateWithTime;
+
+            if(empty($updatableData["receipt_by"])) {
+                $updatableData["receipt_by"] = $request->user()->first_Name . " " . $request->user()->last_Name;
+            }
 
             // $affiliationPrev = InvoicePayments::where([
             //     "id" => $updatableData["id"]
@@ -322,7 +332,8 @@ public function updateInvoicePayment(InvoicePaymentUpdateRequest $request)
                     "payment_method",
                     "payment_date",
                     "invoice_id",
-                    "note"
+                    "note",
+                    "receipt_by"
                 ])->toArray()
             )
                 // ->with("somthing")

@@ -40,7 +40,9 @@ class ReceiptController extends Controller
       *             @OA\Property(property="property_address", type="string", format="string",example="property_address"),
      *            @OA\Property(property="amount", type="number", format="number",example="100"),
      *            @OA\Property(property="receipt_by", type="string", format="string",example="receipt_by"),
-     *  * *  @OA\Property(property="receipt_date", type="string", format="boolean",example="2019-06-29"),
+     *  * *  @OA\Property(property="receipt_date", type="string", format="string",example="2019-06-29"),
+     * *  * *  @OA\Property(property="notes", type="string", format="string",example="notes"),
+     *
      *
      *         ),
      *      ),
@@ -88,6 +90,11 @@ class ReceiptController extends Controller
 
                 $insertableData = $request->validated();
                 $insertableData["created_by"] = $request->user()->id;
+
+                if(empty($insertableData["receipt_by"])) {
+                    $insertableData["receipt_by"] = $request->user()->first_Name . " " . $request->user()->last_Name;
+                }
+
                 $receipt =  Receipt::create($insertableData);
                 $receipt->generated_id = Str::random(4) . $receipt->id . Str::random(4);
                 $receipt->save();
@@ -133,6 +140,8 @@ class ReceiptController extends Controller
      *            @OA\Property(property="amount", type="number", format="number",example="100"),
      *            @OA\Property(property="receipt_by", type="string", format="string",example="receipt_by"),
      *  * *  @OA\Property(property="receipt_date", type="string", format="boolean",example="2019-06-29"),
+     *     *  * *  @OA\Property(property="notes", type="string", format="tring",example="notes"),
+     *
      *
      *         ),
      *      ),
@@ -195,7 +204,9 @@ class ReceiptController extends Controller
                 //  }
 
 
-
+                if(empty($updatableData["receipt_by"])) {
+                    $updatableData["receipt_by"] = $request->user()->first_Name . " " . $request->user()->last_Name;
+                }
 
                 $receipt  =  tap(Receipt::where(["id" => $updatableData["id"], "created_by" => $request->user()->id]))->update(
                     collect($updatableData)->only([
@@ -205,7 +216,7 @@ class ReceiptController extends Controller
                         'amount',
                         'receipt_by',
                         'receipt_date',
-                        "created_by"
+                        "notes"
                     ])->toArray()
                 )
                     // ->with("somthing")

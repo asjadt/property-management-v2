@@ -475,7 +475,7 @@ public function getProperties($perPage, Request $request)
 
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $propertyQuery =  Property::with("property_tenants")
+        $propertyQuery =  Property::with("property_tenants","landlord")
         ->leftJoin('property_tenants', 'properties.id', '=', 'property_tenants.property_id')
         ->leftJoin('tenants', 'property_tenants.tenant_id', '=', 'tenants.id')
         ->where(["properties.created_by" => $request->user()->id]);
@@ -631,7 +631,7 @@ public function getProperties($perPage, Request $request)
 
          // $automobilesQuery = AutomobileMake::with("makes");
 
-         $propertyQuery =  Property::with("property_tenants")
+         $propertyQuery =  Property::with("property_tenants","landlord")
          ->leftJoin('property_tenants', 'properties.id', '=', 'property_tenants.property_id')
          ->leftJoin('tenants', 'property_tenants.tenant_id', '=', 'tenants.id')
          ->where(["properties.created_by" => $request->user()->id]);
@@ -675,7 +675,7 @@ public function getProperties($perPage, Request $request)
 
          $properties = $propertyQuery
          ->groupBy("properties.id")
-         ->select("properties.id","properties.address")
+         ->select("properties.*")
 
          ->orderBy("properties.address",$request->order_by)->get();
 

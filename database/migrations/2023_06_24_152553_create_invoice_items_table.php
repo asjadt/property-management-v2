@@ -28,6 +28,10 @@ class CreateInvoiceItemsTable extends Migration
 
             $table->unsignedBigInteger("repair_id")->nullable();
             $table->foreign('repair_id')->references('id')->on('repairs')->onDelete('set null');
+
+            $table->unsignedBigInteger("sale_id")->nullable();
+            $table->foreign('sale_id')->references('id')->on('sale_items')->onDelete('set null');
+
             $table->timestamps();
 
         });

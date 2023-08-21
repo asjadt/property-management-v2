@@ -21,6 +21,10 @@ class CreateReceiptsTable extends Migration
             $table->double("amount");
             $table->string("property_address");
             $table->string("tenant_name")->nullable();
+
+            $table->text("notes")->nullable();
+
+
             $table->unsignedBigInteger("tenant_id")->nullable();
             $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('cascade');
             $table->unsignedBigInteger("created_by");

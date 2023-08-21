@@ -14,7 +14,8 @@ class InvoicePayment extends Model
         "payment_date",
         "note",
         "invoice_id",
-        "shareable_link"
+        "shareable_link",
+        "receipt_by"
     ];
 
     public function invoice(){

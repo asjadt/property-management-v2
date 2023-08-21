@@ -22,6 +22,8 @@ class CreateInvoicePaymentsTable extends Migration
             $table->date("payment_date");
             $table->string("note")->nullable();
             $table->string("shareable_link");
+            $table->string("receipt_by");
+
 
             $table->unsignedBigInteger("invoice_id");
             $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');

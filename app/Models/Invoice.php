@@ -31,6 +31,7 @@ class Invoice extends Model
         "discount_amount",
         "due_date",
         "status",
+        "bill_id",
         "created_by"
     ];
 

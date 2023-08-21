@@ -30,6 +30,7 @@ class InvoicePaymentCreateRequest extends FormRequest
             "note"=>"nullable|string",
 
             "invoice_id"=>"required|numeric|exists:invoices,id",
+            "receipt_by" => "nullable|string"
         ];
 
         // return [

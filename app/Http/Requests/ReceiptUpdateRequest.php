@@ -48,8 +48,9 @@ class ReceiptUpdateRequest extends FormRequest
             ],
             'property_address' => "required|string|exists:properties,address",
             'amount' => "required|numeric",
-            'receipt_by' => "required|string",
+            'receipt_by' => "nullable|string",
             'receipt_date' => "required|date",
+            'notes' => "nullable|string",
         ];
     }
 }

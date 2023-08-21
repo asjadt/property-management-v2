@@ -3,6 +3,7 @@
 use App\Http\Controllers\AffiliationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AutomobilesController;
+use App\Http\Controllers\BillController;
 use App\Http\Controllers\BillItemController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\client\ClientBasicController;
@@ -58,6 +59,7 @@ use App\Models\JobBid;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -286,6 +288,39 @@ Route::delete('/v1.0/repairs/{id}', [RepairController::class, "deleteRepairById"
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // Repair management section
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// Invoice management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+Route::post('/v1.0/bills', [BillController::class, "createBill"]);
+Route::put('/v1.0/bills', [BillController::class, "updateBill"]);
+
+Route::get('/v1.0/bills/{perPage}', [BillController::class, "getBills"]);
+
+Route::get('/v1.0/bills/get/all', [BillController::class, "getAllBills"]);
+
+Route::get('/v1.0/bills/get/single/{id}', [BillController::class, "getBillById"]);
+
+
+Route::delete('/v1.0/bills/{id}', [BillController::class, "deleteInvoiceById"]);
+
+
+Route::get('/v1.0/bills/generate/invoice-reference', [BillController::class, "generateInvoiceReference"]);
+
+
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+// Invoice management section
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
 
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

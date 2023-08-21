@@ -69,7 +69,13 @@ class CreateInvoicesTable extends Migration
             $table->unsignedBigInteger("created_by");
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
 
-            $table->softDeletes();
+
+            $table->unsignedBigInteger("bill_id")->nullable();
+            $table->foreign('bill_id')->references('id')->on('bills')->onDelete('cascade');
+
+
+
+
             $table->timestamps();
         });
     }
