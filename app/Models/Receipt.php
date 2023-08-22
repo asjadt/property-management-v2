@@ -30,4 +30,7 @@ class Receipt extends Model
     public function property() {
         return $this->belongsTo(Property::class,'property_address','address');
     }
+    public function receipt_sale_items(){
+        return $this->hasMany(Receipt::class,'receipt_id', 'id');
+    }
 }

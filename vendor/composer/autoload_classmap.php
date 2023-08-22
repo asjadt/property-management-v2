@@ -263,6 +263,7 @@ return array(
     'App\\Models\\Question' => $baseDir . '/app/Models/Question.php',
     'App\\Models\\QusetionStar' => $baseDir . '/app/Models/QusetionStar.php',
     'App\\Models\\Receipt' => $baseDir . '/app/Models/Receipt.php',
+    'App\\Models\\ReceiptSaleItem' => $baseDir . '/app/Models/ReceiptSaleItem.php',
     'App\\Models\\Repair' => $baseDir . '/app/Models/Repair.php',
     'App\\Models\\RepairCategory' => $baseDir . '/app/Models/RepairCategory.php',
     'App\\Models\\RepairImage' => $baseDir . '/app/Models/RepairImage.php',

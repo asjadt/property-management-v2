@@ -878,6 +878,7 @@ class ComposerStaticInit21d3eeeef4e11a73df45b8701b58e483
         'App\\Models\\Question' => __DIR__ . '/../..' . '/app/Models/Question.php',
         'App\\Models\\QusetionStar' => __DIR__ . '/../..' . '/app/Models/QusetionStar.php',
         'App\\Models\\Receipt' => __DIR__ . '/../..' . '/app/Models/Receipt.php',
+        'App\\Models\\ReceiptSaleItem' => __DIR__ . '/../..' . '/app/Models/ReceiptSaleItem.php',
         'App\\Models\\Repair' => __DIR__ . '/../..' . '/app/Models/Repair.php',
         'App\\Models\\RepairCategory' => __DIR__ . '/../..' . '/app/Models/RepairCategory.php',
         'App\\Models\\RepairImage' => __DIR__ . '/../..' . '/app/Models/RepairImage.php',

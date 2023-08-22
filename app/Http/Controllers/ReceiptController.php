@@ -42,6 +42,11 @@ class ReceiptController extends Controller
      *            @OA\Property(property="receipt_by", type="string", format="string",example="receipt_by"),
      *  * *  @OA\Property(property="receipt_date", type="string", format="string",example="2019-06-29"),
      * *  * *  @OA\Property(property="notes", type="string", format="string",example="notes"),
+     *    *     *  * *  @OA\Property(property="sale_items", type="string", format="array",example={
+   *{"sale_id":"1","item":"item","description":"description","amount":"10.1"},
+    *{"sale_id":"2","item":"item","description":"description","amount":"10.1"},
+   * }),
+   *
      *
      *
      *         ),
@@ -98,7 +103,33 @@ class ReceiptController extends Controller
                 $receipt =  Receipt::create($insertableData);
                 $receipt->generated_id = Str::random(4) . $receipt->id . Str::random(4);
                 $receipt->save();
+                $sale_items = collect($insertableData["sale_items"])->map(function ($item)use ($receipt) {
 
+                    // $sale_items_exists =    BillSaleItem::where([
+                    //         "sale_id" => $item["sale_id"]
+                    //     ])
+                    //    ->whereNotIn("bill_id",[$bill->id])
+                    //     ->first();
+                    //     if($sale_items_exists) {
+                    //         $error =  [
+                    //             "message" => "The given data was invalid.",
+                    //             "errors" => ["sale_items"=>["invalid item"]]
+                    //      ];
+                    //         throw new Exception(json_encode($error),422);
+                    //     }
+
+
+
+                return [
+                    "item" => $item["item"],
+                    "description" => $item["description"],
+                    "amount" => $item["amount"],
+                    "sale_id" => $item["sale_id"],
+
+                ];
+            });
+
+            $receipt->receipt_sale_items()->createMany($sale_items->all());
 
                 return response($receipt, 201);
 
@@ -141,6 +172,11 @@ class ReceiptController extends Controller
      *            @OA\Property(property="receipt_by", type="string", format="string",example="receipt_by"),
      *  * *  @OA\Property(property="receipt_date", type="string", format="boolean",example="2019-06-29"),
      *     *  * *  @OA\Property(property="notes", type="string", format="tring",example="notes"),
+     *    *     *  * *  @OA\Property(property="sale_items", type="string", format="array",example={
+   *{"sale_id":"1","item":"item","description":"description","amount":"10.1"},
+    *{"sale_id":"2","item":"item","description":"description","amount":"10.1"},
+   * }),
+   *
      *
      *
      *         ),
@@ -222,6 +258,35 @@ class ReceiptController extends Controller
                     // ->with("somthing")
 
                     ->first();
+
+                    $receipt->receipt_sale_items()->delete();
+                    $sale_items = collect($updatableData["sale_items"])->map(function ($item)use ($receipt) {
+
+                        // $sale_items_exists =    BillSaleItem::where([
+                        //         "sale_id" => $item["sale_id"]
+                        //     ])
+                        //    ->whereNotIn("bill_id",[$bill->id])
+                        //     ->first();
+                        //     if($sale_items_exists) {
+                        //         $error =  [
+                        //             "message" => "The given data was invalid.",
+                        //             "errors" => ["sale_items"=>["invalid item"]]
+                        //      ];
+                        //         throw new Exception(json_encode($error),422);
+                        //     }
+
+
+
+                    return [
+                        "item" => $item["item"],
+                        "description" => $item["description"],
+                        "amount" => $item["amount"],
+                        "sale_id" => $item["sale_id"],
+
+                    ];
+                });
+
+                $receipt->receipt_sale_items()->createMany($sale_items->all());
 
                 return response($receipt, 200);
             });
