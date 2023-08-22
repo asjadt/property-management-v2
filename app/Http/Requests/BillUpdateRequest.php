@@ -13,7 +13,7 @@ class BillUpdateRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,35 @@ class BillUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            "id"=>"required|numeric|exists:bills,id",
+            "create_date"=>"required|date",
+            "property_id"=>"required|numeric|exists:properties,id",
+            "landlord_id"=>"nullable|numeric|exists:landlords,id",
+
+            "payment_mode"=>"required|string",
+            "payabble_amount"=>"required|numeric",
+            "remarks"=>"nullable|string",
+
+            "bill_items" => "required|array",
+            "bill_items.*.bill_item_id" => "required|numeric|exists:bill_items,id",
+            "bill_items.*.item" => "required|string",
+            "bill_items.*.description" => "nullable|string",
+            "bill_items.*.amount" => "required|numeric",
+
+
+            "sale_items" => "nullable|array",
+            "sale_items.*.sale_id" => "required|numeric|exists:sale_items,id",
+            "sale_items.*.item" => "required|string",
+            "sale_items.*.description" => "nullable|string",
+            "sale_items.*.amount" => "required|numeric",
+
+
+            "repair_items" => "nullable|array",
+            "repair_items.*.repair_id" => "required|numeric|exists:repairs,id",
+            "repair_items.*.item" => "required|string",
+            "repair_items.*.description" => "nullable|string",
+            "repair_items.*.amount" => "required|numeric",
+
         ];
     }
 }

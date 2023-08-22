@@ -39,14 +39,14 @@ class BillCreateRequest extends FormRequest
             "bill_items.*.amount" => "required|numeric",
 
 
-            "sale_items" => "required|array",
+            "sale_items" => "nullable|array",
             "sale_items.*.sale_id" => "required|numeric|exists:sale_items,id",
             "sale_items.*.item" => "required|string",
             "sale_items.*.description" => "nullable|string",
             "sale_items.*.amount" => "required|numeric",
 
 
-            "repair_items" => "required|array",
+            "repair_items" => "nullable|array",
             "repair_items.*.repair_id" => "required|numeric|exists:repairs,id",
             "repair_items.*.item" => "required|string",
             "repair_items.*.description" => "nullable|string",

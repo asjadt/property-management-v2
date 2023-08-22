@@ -283,7 +283,7 @@ $datediff = $now - $user_created_date;
             $user->permissions = $user->getAllPermissions()->pluck('name');
             $user->roles = $user->roles->pluck('name');
 
-
+            $user->business =  $user->business;
 
 
             return response()->json(['data' => $user,   "ok" => true], 200);
@@ -930,7 +930,7 @@ public function getUser (Request $request) {
         $user->token = auth()->user()->createToken('authToken')->accessToken;
         $user->permissions = $user->getAllPermissions()->pluck('name');
         $user->roles = $user->roles->pluck('name');
-
+        $user->business =  $user->business;
 
 
         return response()->json(

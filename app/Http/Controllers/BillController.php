@@ -241,15 +241,15 @@ class BillController extends Controller
 
         $invoice_data = [
           "logo"=> $business->logo,
-          "invoice_title"=> $business->invoice_title,
+          "invoice_title"=> (!empty($business->invoice_title)?$business->invoice_title:"Invoice"),
 
           "invoice_reference" => $invoice_reference,
           "business_name"=>$business->name,
           "business_address"=>$business->address_line_1,
 
           "invoice_date"=>$bill->create_date,
-
-          "footer_text"=>$business->footer_text,
+          "due_date" => $bill->create_date,
+          "footer_text"=>(!empty($business->footer_text)?$business->footer_text:"Thanks for business with us"),
 
 
           "property_id"=>$bill->property_id,
@@ -326,36 +326,12 @@ class BillController extends Controller
 
         $invoice->invoice_items()->createMany($invoiceItems->all());
 
-        $invoice_data = [
-            "logo"=> $business->logo,
-            "invoice_title"=> $business->invoice_title,
 
-            "invoice_reference" => $invoice_reference,
-            "business_name"=>$business->name,
-            "business_address"=>$business->address_line_1,
-
-            "invoice_date"=>$bill->create_date,
-
-            "footer_text"=>$business->footer_text,
-
-
-            "property_id"=>$bill->property_id,
-
-            "status"=>"paid",
-
-            "landlord_id" =>  $bill->landlord_id,
-
-            "sub_total"=>$bill->payabble_amount,
-            "total_amount"=>$bill->payabble_amount,
-
-            "bill_id" => $bill->id,
-
-        ];
       $invoice_payment =  InvoicePayment::create([
             "amount" => $bill->payabble_amount,
             "payment_method" => "Bill Adjustment",
             "payment_date" => $bill->create_date ,
-            "note" => "note",
+            "note" => "Invoice cleared against BiLL ID " . $bill->id,
             "invoice_id" => $invoice->id,
             "receipt_by" => $request->user()->id
         ]);
@@ -409,56 +385,37 @@ class BillController extends Controller
    *         required=true,
    *         @OA\JsonContent(
    *            required={"id","name","description","logo"},
-   *     *             @OA\Property(property="id", type="number", format="number",example="1"),
-    *  *             @OA\Property(property="logo", type="string", format="string",example="image.jpg"),
-    *             @OA\Property(property="invoice_title", type="string", format="string",example="invoice_title"),
-   *            @OA\Property(property="invoice_summary", type="string", format="string",example="invoice_summary"),
+    *  *             @OA\Property(property="create_date", type="string", format="string",example="2019-06-29"),
+    *             @OA\Property(property="property_id", type="number", format="number",example="1"),
+   *            @OA\Property(property="landlord_id", type="number", format="number",example="1"),
    *
-   *  *         *  *     *  * *  @OA\Property(property="reminder_dates", type="string", format="array",example={"0","15","30"
+   *
+   *  *  *            @OA\Property(property="payment_mode", type="string", format="string",example="card"),
+   *
+   *
+   *            @OA\Property(property="payabble_amount", type="number", format="number",example="10.10"),
+   *
+   *  * *  @OA\Property(property="remarks", type="string", format="string",example="remarks"),
+   *
+   *
+   *
+   *
+   *
+   *     *  * *  @OA\Property(property="bill_items", type="string", format="array",example={
+   *{"bill_item_id":"1","item":"item","description":"description","amount":"10.1"},
+    *{"bill_item_id":"2","item":"item","description":"description","amount":"10.1"},
    * }),
    *
-   *  *  *  *            @OA\Property(property="send_reminder", type="number", format="number",example="0"),
-   *
-   *            @OA\Property(property="business_name", type="string", format="string",example="business_name"),
-   *  * *  @OA\Property(property="business_address", type="string", format="string",example="business_address"),
-   *  *  * *  @OA\Property(property="sub_total", type="number", format="number",example="900"),
-   *  * *  @OA\Property(property="total_amount", type="number", format="number",example="900"),
-   *  * *  @OA\Property(property="invoice_date", type="string", format="string",example="2019-06-29"),
-
-   *
-   *
-   *  *  *  *  * *  @OA\Property(property="discount_description", type="string", format="string",example="description"),
-   *  *  *  * *  @OA\Property(property="discound_type", type="string", format="string",example="fixed"),
-   *  *  *  * *  @OA\Property(property="discount_amount", type="number", format="number",example="10"),
-   *  *  *  * *  @OA\Property(property="due_date", type="string", format="string",example="2019-06-29"),
-   *
-   *
-   *
-   *
-   *  *  *  * *  @OA\Property(property="invoice_reference", type="string", format="string",example="57856465"),
-   *     *  *  * *  @OA\Property(property="status", type="string", format="string",example="draft"),
-   *  * *  @OA\Property(property="footer_text", type="string", format="string",example="footer_text"),
-   *  *  *  * *  @OA\Property(property="shareable_link", type="string", format="string",example="shareable_link"),
-   *  *  @OA\Property(property="note", type="string", format="string",example="note"),
-   *   *  * *  *  @OA\Property(property="business_type", type="string", format="string",example="note"),
-   *  * *  @OA\Property(property="property_id", type="number", format="number",example="1"),
-   *  *  *  * *  @OA\Property(property="landlord_id", type="number", format="number",example="1"),
-   *  * *  @OA\Property(property="tenant_id", type="number", format="number",example="1"),
-   *  *  * *  @OA\Property(property="client_id", type="number", format="number",example="1"),
-   *
-
-   *     *  * *  @OA\Property(property="invoice_items", type="string", format="array",example={
-   *{"id":"1","name":"name","description":"description","quantity":"1","price":"1.1","tax":"20","amount":"300"},
-    *{"id":"","name":"name","description":"description","quantity":"1","price":"1.1","tax":"20","amount":"300"}
-   *
+   *     *  * *  @OA\Property(property="sale_items", type="string", format="array",example={
+   *{"sale_id":"1","item":"item","description":"description","amount":"10.1"},
+    *{"sale_id":"2","item":"item","description":"description","amount":"10.1"},
    * }),
    *
-   *
-   *  *  *     *  * *  @OA\Property(property="invoice_payments", type="string", format="array",example={
-   *{"id":"1","amount":"10","payment_method":"payment_method","payment_date":"2019-06-29"},
-   *{"id":"","amount":"10","payment_method":"payment_method","payment_date":"2019-06-29"}
-   *
+   *    *     *  * *  @OA\Property(property="repair_items", type="string", format="array",example={
+   *{"repair_id":"1","item":"item","description":"description","amount":"10.1"},
+    *{"repair_id":"2","item":"item","description":"description","amount":"10.1"},
    * }),
+   *
    *
    *         ),
    *      ),
@@ -501,204 +458,277 @@ class BillController extends Controller
       try {
           $this->storeActivity($request,"");
           return  DB::transaction(function () use ($request) {
+            $business = Business::where([
+                "owner_id" => $request->user()->id
+              ])->first();
 
               $updatableData = $request->validated();
 
-              // $invoiceDateWithTime = Carbon::createFromFormat('Y-m-d', $updatableData["invoice_date"]);
-              // $invoiceDateWithTime->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
-              // $updatableData["invoice_date"] =    $invoiceDateWithTime;
-              $reference_no_exists =  DB::table( 'invoices' )->where([
-                  'invoice_reference'=> $updatableData['invoice_reference'],
-                  "created_by" => $request->user()->id
-               ]
-               )
-               ->whereNotIn('id', [$updatableData["id"]])->exists();
-               if ($reference_no_exists) {
-                  $error =  [
-                         "message" => "The given data was invalid.",
-                         "errors" => ["invoice_reference"=>["The invoice reference has already been taken."]]
-                  ];
-                     throw new Exception(json_encode($error),422);
-                 }
+              $bill  =  tap(Bill::where([
+                "bills.id" => $updatableData["id"],
+                "bills.created_by" => $request->user()->id
+            ]))->update(
+                collect($updatableData)->only([
+                    'create_date',
+                    'property_id',
+                    'landlord_id',
+                    'payment_mode',
+                    "payabble_amount",
+                    "remarks",
+                ])->toArray()
+            )
+                ->first();
 
+                $bill->bill_bill_items()->delete();
+                $bill_items = collect($updatableData["bill_items"])->map(function ($item)use ($bill) {
 
-              $invoice  =  tap(Invoice::where([
-                  "invoices.id" => $updatableData["id"],
-                  "invoices.created_by" => $request->user()->id
-              ]))->update(
-                  collect($updatableData)->only([
-                      "logo",
-                      "invoice_title",
-                      "invoice_summary",
-                      "invoice_reference",
-                      "business_name",
-                      "business_address",
-                      "sub_total",
-                      "total_amount",
-                      "invoice_date",
-                      "footer_text",
-
-                      "note",
-                      "property_id",
-                      "landlord_id",
-                      "tenant_id",
-                      "client_id",
-                      "discount_description",
-                      "discound_type",
-                      "discount_amount",
-                      "due_date",
+                    // $bill_item_exists =    BillBillItem::where([
+                    //         "bill_item_id" => $item["bill_item_id"]
+                    //     ])
+                    //    ->whereNotIn("bill_id",[$bill->id])
+                    //     ->first();
+                    //     if($bill_item_exists) {
+                    //         $error =  [
+                    //             "message" => "The given data was invalid.",
+                    //             "errors" => ["bill_items"=>["invalid item"]]
+                    //      ];
+                    //         throw new Exception(json_encode($error),422);
+                    //     }
 
 
 
+                return [
+                    "item" => $item["item"],
+                    "description" => $item["description"],
+                    "amount" => $item["amount"],
+                    "bill_item_id" => $item["bill_item_id"],
 
-                  ])->toArray()
-              )
+                ];
+            });
 
+            $bill->bill_bill_items()->createMany($bill_items->all());
 
-                  ->first();
+            $bill->bill_sale_items()->delete();
+            $sale_items = collect($updatableData["sale_items"])->map(function ($item)use ($bill) {
 
-
-                  if(!$invoice) {
-                      throw new Exception("something went wrong");
-                  }
-                  if(!empty($updatableData["status"])) {
-                      if(($invoice->status == "draft" || $invoice->status == "unsent") && ( $updatableData["status"] == "draft" || $updatableData["status"] == "unsent")) {
-                          $invoice->status = $updatableData["status"];
-                          $invoice->save();
-                      }
-
-                  }
-                  $invoice->invoice_items()->delete();
-                  $invoiceItemsData = collect($updatableData["invoice_items"])->map(function ($item)use ($invoice) {
-                      if(!empty($item["repair_id"])) {
-                      $invoice_item_exists =    InvoiceItem::where([
-                              "repair_id" => $item["repair_id"]
-                          ])
-                         ->whereNotIn("invoice_id",[$invoice->id])
-                          ->first();
-                          if($invoice_item_exists) {
-                              $error =  [
-                                  "message" => "The given data was invalid.",
-                                  "errors" => ["automobile_make_id"=>["This garage does not support this make"]]
-                           ];
-                              throw new Exception(json_encode($error),422);
-                          }
-
-                      }
-
-                      return [
-                          // "id" => $item["id"],
-                          "name" => $item["name"],
-                          "description" => $item["description"],
-                          "quantity" => $item["quantity"],
-                          "price" => $item["price"],
-                          "tax" => $item["tax"],
-                          "amount" => $item["amount"],
-                          "invoice_id" => $invoice->id,
-                          "repair_id" => !empty($item["repair_id"])?$item["repair_id"]:NULL,
-                      ];
-                  });
+                // $sale_items_exists =    BillSaleItem::where([
+                //         "sale_id" => $item["sale_id"]
+                //     ])
+                //    ->whereNotIn("bill_id",[$bill->id])
+                //     ->first();
+                //     if($sale_items_exists) {
+                //         $error =  [
+                //             "message" => "The given data was invalid.",
+                //             "errors" => ["sale_items"=>["invalid item"]]
+                //      ];
+                //         throw new Exception(json_encode($error),422);
+                //     }
 
 
-                  $invoice->invoice_items()->upsert($invoiceItemsData->all(), ['id',"invoice_id"], ['name', 'description', 'quantity', 'price', 'tax', 'amount',"invoice_id"]);
+
+            return [
+                "item" => $item["item"],
+                "description" => $item["description"],
+                "amount" => $item["amount"],
+                "sale_id" => $item["sale_id"],
+
+            ];
+        });
+
+        $bill->bill_sale_items()->createMany($sale_items->all());
+
+ $bill->bill_repair_items()->delete();
+        $repair_items = collect($updatableData["repair_items"])->map(function ($item)use ($bill) {
+
+            $repair_items_exists =    BillRepairItem::where([
+                    "repair_id" => $item["repair_id"]
+                ])
+               ->whereNotIn("bill_id",[$bill->id])
+                ->first();
+                if($repair_items_exists) {
+                    $error =  [
+                        "message" => "The given data was invalid.",
+                        "errors" => ["repair_items"=>["invalid item"]]
+                 ];
+                    throw new Exception(json_encode($error),422);
+                }
 
 
-                  // $invoicePayments = collect($updatableData["invoice_payments"])->map(function ($item)use ($invoice) {
-                  //     return [
-                  //         "id" => $item["id"],
-                  //         "amount" => $item["amount"],
-                  //         "payment_method" => $item["payment_method"],
-                  //         "payment_date" => $item["payment_date"],
-                  //         "invoice_id" => $invoice->id
-                  //     ];
-                  // });
-                  // $sum_payment_amounts = $invoicePayments->sum('amount');
 
-                  // if($sum_payment_amounts > $invoice->total_amount) {
-                  //     $error =  [
-                  //         "message" => "The given data was invalid.",
-                  //         "errors" => ["invoice_payments"=>["payment is more than total amount"]]
-                  //  ];
-                  //     throw new Exception(json_encode($error),422);
-                  // }
+        return [
+            "item" => $item["item"],
+            "description" => $item["description"],
+            "amount" => $item["amount"],
+            "repair_id" => $item["repair_id"],
+
+        ];
+    });
+
+    $bill->bill_repair_items()->createMany($repair_items->all());
 
 
-                  // $invoice->invoice_payments()->upsert($invoicePayments->all(), ['id',"invoice_id"], ['amount', 'payment_method', 'payment_date', 'invoice_id']);
+                if(!empty($repair_items->all()) || !empty($sale_items->all())) {
+
+                    $invoice_data = [
+                        "logo"=> $business->logo,
+                        "invoice_title"=> $business->invoice_title,
+
+                        "business_name"=>$business->name,
+                        "business_address"=>$business->address_line_1,
+
+                        "invoice_date"=>$bill->create_date,
+                        "due_date" => $bill->create_date,
+
+                        "footer_text"=>$business->footer_text,
 
 
-                  // if($sum_payment_amounts == $invoice->total_amount) {
-                  //    $invoice->status = "paid";
-                  //    $invoice->invoice_reminder()->delete();
-                  //    $invoice->save();
-                  // }
-                  // else {
+                        "property_id"=>$bill->property_id,
 
-                  //  }
+                        "status"=>"paid",
 
+                        "landlord_id" =>  $bill->landlord_id,
 
-                   if(!empty($updatableData["reminder_dates"]) &&  $invoice->status != "paid") {
+                        "sub_total"=>$bill->payabble_amount,
+                        "total_amount"=>$bill->payabble_amount,
 
-                      InvoiceReminder::where([
-                          "invoice_id" => $invoice->id
-                      ])
-                      ->delete();
-                      foreach($updatableData["reminder_dates"] as $reminder_date_amount) {
+                        "bill_id" => $bill->id,
 
-                          $due_date = DateTime::createFromFormat('Y-m-d', $updatableData["due_date"]);
-                          if ($due_date !== false) {
-                              $due_date->modify(($reminder_date_amount . ' days'));
-                              $reminder_date = $due_date->format('Y-m-d');
-                          } else {
-                              // Handle invalid input date format
-                              // You can throw an exception, log an error, or provide a default value
-                              $reminder_date = null; // or set a default value
-                          }
-
-           InvoiceReminder::create([
-              "reminder_date_amount" => $reminder_date_amount,
-              "reminder_status" => "not_sent",
-              "send_reminder" => !empty($updatableData["send_reminder"])?$updatableData["send_reminder"]:0,
-              "reminder_date" =>$reminder_date,
-              "invoice_id" => $invoice->id,
-              "created_by" => $invoice->created_by
-          ]);
-
-                      }
-
-
-                  }
+                    ];
 
 
 
 
+            $invoice  =  tap(Invoice::where([
+                "invoices.id" => $updatableData["id"],
+                "invoices.created_by" => $request->user()->id
+            ]))->update(
+                collect($invoice_data)->only([
+                    "logo",
+                    "invoice_title",
+                    "invoice_summary",
+                    "invoice_reference",
+                    "business_name",
+                    "business_address",
+                    "sub_total",
+                    "total_amount",
+                    "invoice_date",
+                    "footer_text",
 
-                  $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder")
-                  ->where([
-                      "id" => $invoice->id,
-                      "invoices.created_by" => $request->user()->id
-                  ])
-                  ->select("invoices.*",
-                  DB::raw('
-                      COALESCE(
-                          (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
-                          0
-                      ) AS total_paid
-                  '),
-                  DB::raw('
-                      COALESCE(
-                          invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
-                          invoices.total_amount
-                      ) AS total_due
-                  ')
-              )
+                    "note",
+                    "property_id",
+                    "landlord_id",
+                    "tenant_id",
+                    "client_id",
+                    "discount_description",
+                    "discound_type",
+                    "discount_amount",
+                    "due_date",
 
-                  ->first();
 
-                  if(!$invoice) {
-               return response()->json([
-          "message" => "no invoice found"
-          ],404);
-                  }
+
+
+                ])->toArray()
+            )
+
+
+                ->first();
+
+                     $invoice_items_data = $repair_items->merge($sale_items);
+                     $invoice->invoice_items()->delete();
+                    $invoiceItems = $invoice_items_data->map(function ($item)use ($invoice) {
+                        if(!empty($item["repair_id"])) {
+                            $invoice_item_exists =    InvoiceItem::where([
+                                    "repair_id" => $item["repair_id"]
+                                ])
+                               ->whereNotIn("invoice_id",[$invoice->id])
+                                ->first();
+                                if($invoice_item_exists) {
+                                    $error =  [
+                                        "message" => "The given data was invalid.",
+                                        "errors" => ["invoice_items"=>["invalid repair item"]]
+                                 ];
+                                    throw new Exception(json_encode($error),422);
+                                }
+
+                    }
+                //     if(!empty($item["sale_id"])) {
+                //         $invoice_item_exists =    InvoiceItem::where([
+                //                 "sale_id" => $item["sale_id"]
+                //             ])
+                //            ->whereNotIn("invoice_id",[$invoice->id])
+                //             ->first();
+                //             if($invoice_item_exists) {
+                //                 $error =  [
+                //                     "message" => "The given data was invalid.",
+                //                     "errors" => ["invoice_items"=>["invalid sale item"]]
+                //              ];
+                //                 throw new Exception(json_encode($error),422);
+                //             }
+
+                // }
+
+
+                        return [
+                            "name" => $item["item"],
+                            "description" => $item["description"],
+                            "quantity" => 1,
+                            "price" => $item["amount"],
+                            "tax" => 0,
+                            "amount" => $item["amount"],
+                            "repair_id" => !empty($item["repair_id"])?$item["repair_id"]:NULL,
+                            "sale_id" => !empty($item["sale_id"])?$item["sale_id"]:NULL,
+                        ];
+                    });
+
+                    $invoice->invoice_items()->createMany($invoiceItems->all());
+
+                    InvoicePayment::where(
+                        [
+                            "invoice_id" => $invoice->id
+                        ]
+                    )
+                    ->delete();
+                  $invoice_payment =  InvoicePayment::create([
+                        "amount" => $bill->payabble_amount,
+                        "payment_method" => "Bill Adjustment",
+                        "payment_date" => $bill->create_date ,
+                        "note" => "Invoice cleared against BiLL ID " . $bill->id,
+                        "invoice_id" => $invoice->id,
+                        "receipt_by" => $request->user()->id
+                    ]);
+
+                    if(!$invoice_payment) {
+                        throw new Exception("something went wrong");
+                    }
+                    $invoice_payment->generated_id = Str::random(4) . $invoice_payment->id . Str::random(4);
+
+                    $invoice_payment->shareable_link = env("FRONT_END_URL_DASHBOARD")."/share/receipt/". Str::random(4) . "-". $invoice_payment->generated_id ."-" . Str::random(4);
+
+                    $invoice_payment->save();
+
+
+                }
+                else {
+                    Invoice::where([
+                        "invoices.bill_id" => $updatableData["id"],
+                        "invoices.created_by" => $request->user()->id
+                    ])->delete();
+                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

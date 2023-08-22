@@ -136,6 +136,7 @@ class InvoiceUpdateRequest extends FormRequest
             "invoice_items.*.tax" => "required|numeric",
             "invoice_items.*.amount" => "required|numeric",
             "invoice_items.*.repair_id" => "nullable|numeric",
+            "invoice_items.*.sale_id" => "nullable|numeric",
 
 
             "sub_total"=>"required|numeric",

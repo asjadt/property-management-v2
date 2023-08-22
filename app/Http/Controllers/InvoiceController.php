@@ -12,6 +12,7 @@ use App\Http\Requests\InvoiceUpdateRequest;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Mail\SendInvoiceEmail;
+use App\Models\Bill;
 use App\Models\Business;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
@@ -282,6 +283,7 @@ public function createInvoice(InvoiceCreateRequest $request)
                     "tax" => $item["tax"],
                     "amount" => $item["amount"],
                     "repair_id" => !empty($item["repair_id"])?$item["repair_id"]:NULL,
+                    "sale_id" => !empty($item["sale_id"])?$item["sale_id"]:NULL,
 
                 ];
             });
@@ -616,6 +618,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                         "amount" => $item["amount"],
                         "invoice_id" => $invoice->id,
                         "repair_id" => !empty($item["repair_id"])?$item["repair_id"]:NULL,
+                        "sale_id" => !empty($item["sale_id"])?$item["sale_id"]:NULL,
                     ];
                 });
 
@@ -721,6 +724,33 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                 }
 
 
+
+                // if(!empty($invoice->bill_id) ) {
+                //     $bill_data = [
+                //         "create_date"=>$invoice->invoice_date,
+                //         "property_id"=>$invoice->property_id,
+                //         "landlord_id"=>$invoice->landlord_id,
+                //         "landlord_id" => $invoice->landlord_id,
+                //          "payabble_amount" => $invoice->total_amount
+                //     ];
+
+
+                //     $bill  =  tap(Bill::where([
+                //         "bills.id" => $updatableData["id"],
+                //         "bills.created_by" => $request->user()->id
+                //     ]))->update(
+                //         collect($bill_data)->only([
+                //             'create_date',
+                //             'property_id',
+                //             'landlord_id',
+                //             "payabble_amount",
+                //             "remarks",
+                //         ])->toArray()
+                //     )
+                //         ->first();
+
+
+                // }
 
 
 
@@ -1115,7 +1145,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
  public function invoiceQuery(Request $request) {
    // $automobilesQuery = AutomobileMake::with("makes");
 
-   $invoiceQuery = Invoice::with("invoice_items","invoice_payments","invoice_reminder","tenant","landlord")
+   $invoiceQuery = Invoice::with("invoice_items","invoice_payments","invoice_reminder","tenant","landlord","client")
    ->where([
         "invoices.created_by" => $request->user()->id
    ]);
@@ -1786,7 +1816,7 @@ public function getInvoiceById($id, Request $request)
         $this->storeActivity($request,"");
 
 
-        $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder","tenant","landlord","property")
+        $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder","tenant","landlord","property","client")
         ->where([
             "generated_id" => $id,
             "invoices.created_by" => $request->user()->id
@@ -1883,7 +1913,7 @@ public function getInvoiceById($id, Request $request)
          $this->storeActivity($request,"");
 
 
-         $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder","tenant","landlord","property")
+         $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder","tenant","landlord","property","client")
          ->where([
              "invoice_reference" => $reference,
              "invoices.created_by" => $request->user()->id
@@ -2124,7 +2154,7 @@ public function deleteInvoiceItemById($invoice_id,$id, Request $request)
 "message" => "no invoice item found"
 ],404);
         }
-        $invoice_item->forceDelete();
+        $invoice_item->delete();
 
         return response()->json(["ok" => true], 200);
     } catch (Exception $e) {

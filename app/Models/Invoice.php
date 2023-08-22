@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Invoice extends Model
 {
 
-    use HasFactory,SoftDeletes;
+    use HasFactory;
     protected $fillable = [
         "logo",
         "invoice_title",
@@ -26,6 +26,7 @@ class Invoice extends Model
         "property_id",
         "landlord_id",
         "tenant_id",
+        "client_id",
         "discount_description",
         "discound_type",
         "discount_amount",
@@ -51,6 +52,9 @@ class Invoice extends Model
     }
     public function landlord(){
         return $this->belongsTo(Landlord::class,'landlord_id', 'id');
+    }
+    public function client(){
+        return $this->belongsTo(Client::class,'client_id', 'id');
     }
     public function property(){
         return $this->belongsTo(Property::class,'property_id', 'id');

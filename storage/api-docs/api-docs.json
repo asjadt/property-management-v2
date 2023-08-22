@@ -4193,114 +4193,10 @@
                                     "logo"
                                 ],
                                 "properties": {
-                                    "id": {
-                                        "type": "number",
-                                        "format": "number",
-                                        "example": "1"
-                                    },
-                                    "logo": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "image.jpg"
-                                    },
-                                    "invoice_title": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "invoice_title"
-                                    },
-                                    "invoice_summary": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "invoice_summary"
-                                    },
-                                    "reminder_dates": {
-                                        "type": "string",
-                                        "format": "array",
-                                        "example": [
-                                            "0",
-                                            "15",
-                                            "30"
-                                        ]
-                                    },
-                                    "send_reminder": {
-                                        "type": "number",
-                                        "format": "number",
-                                        "example": "0"
-                                    },
-                                    "business_name": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "business_name"
-                                    },
-                                    "business_address": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "business_address"
-                                    },
-                                    "sub_total": {
-                                        "type": "number",
-                                        "format": "number",
-                                        "example": "900"
-                                    },
-                                    "total_amount": {
-                                        "type": "number",
-                                        "format": "number",
-                                        "example": "900"
-                                    },
-                                    "invoice_date": {
+                                    "create_date": {
                                         "type": "string",
                                         "format": "string",
                                         "example": "2019-06-29"
-                                    },
-                                    "discount_description": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "description"
-                                    },
-                                    "discound_type": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "fixed"
-                                    },
-                                    "discount_amount": {
-                                        "type": "number",
-                                        "format": "number",
-                                        "example": "10"
-                                    },
-                                    "due_date": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "2019-06-29"
-                                    },
-                                    "invoice_reference": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "57856465"
-                                    },
-                                    "status": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "draft"
-                                    },
-                                    "footer_text": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "footer_text"
-                                    },
-                                    "shareable_link": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "shareable_link"
-                                    },
-                                    "note": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "note"
-                                    },
-                                    "business_type": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "note"
                                     },
                                     "property_id": {
                                         "type": "number",
@@ -4312,55 +4208,72 @@
                                         "format": "number",
                                         "example": "1"
                                     },
-                                    "tenant_id": {
+                                    "payment_mode": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "card"
+                                    },
+                                    "payabble_amount": {
                                         "type": "number",
                                         "format": "number",
-                                        "example": "1"
+                                        "example": "10.10"
                                     },
-                                    "client_id": {
-                                        "type": "number",
-                                        "format": "number",
-                                        "example": "1"
+                                    "remarks": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "remarks"
                                     },
-                                    "invoice_items": {
+                                    "bill_items": {
                                         "type": "string",
                                         "format": "array",
                                         "example": [
                                             {
-                                                "id": "1",
-                                                "name": "name",
+                                                "bill_item_id": "1",
+                                                "item": "item",
                                                 "description": "description",
-                                                "quantity": "1",
-                                                "price": "1.1",
-                                                "tax": "20",
-                                                "amount": "300"
+                                                "amount": "10.1"
                                             },
                                             {
-                                                "id": "",
-                                                "name": "name",
+                                                "bill_item_id": "2",
+                                                "item": "item",
                                                 "description": "description",
-                                                "quantity": "1",
-                                                "price": "1.1",
-                                                "tax": "20",
-                                                "amount": "300"
+                                                "amount": "10.1"
                                             }
                                         ]
                                     },
-                                    "invoice_payments": {
+                                    "sale_items": {
                                         "type": "string",
                                         "format": "array",
                                         "example": [
                                             {
-                                                "id": "1",
-                                                "amount": "10",
-                                                "payment_method": "payment_method",
-                                                "payment_date": "2019-06-29"
+                                                "sale_id": "1",
+                                                "item": "item",
+                                                "description": "description",
+                                                "amount": "10.1"
                                             },
                                             {
-                                                "id": "",
-                                                "amount": "10",
-                                                "payment_method": "payment_method",
-                                                "payment_date": "2019-06-29"
+                                                "sale_id": "2",
+                                                "item": "item",
+                                                "description": "description",
+                                                "amount": "10.1"
+                                            }
+                                        ]
+                                    },
+                                    "repair_items": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            {
+                                                "repair_id": "1",
+                                                "item": "item",
+                                                "description": "description",
+                                                "amount": "10.1"
+                                            },
+                                            {
+                                                "repair_id": "2",
+                                                "item": "item",
+                                                "description": "description",
+                                                "amount": "10.1"
                                             }
                                         ]
                                     }
