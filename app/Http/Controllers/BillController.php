@@ -746,7 +746,7 @@ class BillController extends Controller
    public function billQuery(Request $request) {
      // $automobilesQuery = AutomobileMake::with("makes");
 
-     $billQuery = Bill::with("bill_bill_items","bill_sale_items","bill_repair_items")
+     $billQuery = Bill::with("bill_bill_items","bill_sale_items","bill_repair_items","landlord","property")
      ->leftJoin('invoices', 'invoices.bill_id', '=', 'bills.id')
      ->where([
           "bills.created_by" => $request->user()->id
@@ -1236,7 +1236,7 @@ class BillController extends Controller
           $this->storeActivity($request,"");
 
 
-          $bill = Bill::with("bill_bill_items","bill_sale_items","bill_repair_items")
+          $bill = Bill::with("bill_bill_items","bill_sale_items","bill_repair_items","landlord","property")
           ->where([
               "generated_id" => $id,
               "bills.created_by" => $request->user()->id

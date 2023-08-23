@@ -32,5 +32,13 @@ class Bill extends Model
         }
 
 
+        public function landlord(){
+            return $this->belongsTo(Landlord::class,'landlord_id', 'id');
+        }
+
+        public function property(){
+            return $this->belongsTo(Property::class,'property_id', 'id');
+        }
+
 
 }
