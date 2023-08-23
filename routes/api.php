@@ -307,7 +307,7 @@ Route::get('/v1.0/bills/get/all', [BillController::class, "getAllBills"]);
 Route::get('/v1.0/bills/get/single/{id}', [BillController::class, "getBillById"]);
 
 
-Route::delete('/v1.0/bills/{id}', [BillController::class, "deleteInvoiceById"]);
+Route::delete('/v1.0/bills/{id}', [BillController::class, "deleteBillById"]);
 
 
 Route::get('/v1.0/bills/generate/invoice-reference', [BillController::class, "generateInvoiceReference"]);
