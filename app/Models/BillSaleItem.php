@@ -12,7 +12,7 @@ class BillSaleItem extends Model
         'item',
         'description',
         'amount',
-        'repair_id',
+        'sale_id',
         "bill_id",
         ];
 }

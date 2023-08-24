@@ -19,7 +19,7 @@ class CreateBillBillItemsTable extends Migration
             $table->string("item");
             $table->string("description")->nullable();
             $table->double("amount")->default(0);
-            $table->unsignedBigInteger("bill_item_id")->nullable();
+            $table->unsignedBigInteger("bill_item_id");
             $table->foreign('bill_item_id')->references('id')->on('bill_items')->onDelete('set null');
 
             $table->unsignedBigInteger("bill_id");

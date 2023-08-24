@@ -286,7 +286,7 @@ $datediff = $now - $user_created_date;
             $user->business =  $user->business;
 
 
-            return response()->json(['data' => $user,   "ok" => true], 200);
+            return response()->json($user, 200);
         } catch (Exception $e) {
 
             return $this->sendError($e, 500,$request);
@@ -1293,7 +1293,7 @@ try{
 
 
             $user->roles = $user->roles->pluck('name');
-
+            $user->business = $user->business;
 
             return response($user, 200);
         } catch(Exception $e){

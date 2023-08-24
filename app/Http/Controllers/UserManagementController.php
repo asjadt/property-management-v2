@@ -717,12 +717,9 @@ class UserManagementController extends Controller
 
             }
 
+            $user->business = $user->business;
 
-
-        return response([
-            "user" => $user,
-            "business" => $business
-        ], 201);
+        return response($user, 201);
         });
         } catch(Exception $e){
 
@@ -1164,7 +1161,7 @@ class UserManagementController extends Controller
             // ->whereHas('roles', function ($query) {
             //     // return $query->where('name','!=', 'customer');
             // });
-
+            $user->business = $user->business;
 
             return response()->json($user, 200);
         } catch(Exception $e){

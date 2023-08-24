@@ -594,12 +594,14 @@ class BillController extends Controller
                         "bill_id" => $bill->id,
 
                     ];
+$invoice_prev = Invoice::where([
+    "invoices.bill_id" => $updatableData["id"],
+    "invoices.created_by" => $request->user()->id
+])->first();
 
-
-
-
+           if($invoice_prev) {
             $invoice  =  tap(Invoice::where([
-                "invoices.id" => $updatableData["id"],
+                "invoices.bill_id" => $updatableData["id"],
                 "invoices.created_by" => $request->user()->id
             ]))->update(
                 collect($invoice_data)->only([
@@ -632,6 +634,11 @@ class BillController extends Controller
 
 
                 ->first();
+           } else {
+            $invoice  = Invoice::create($invoice_data);
+           }
+
+
 
                      $invoice_items_data = $repair_items->merge($sale_items);
                      $invoice->invoice_items()->delete();
@@ -753,6 +760,43 @@ class BillController extends Controller
      ])
    ;
 
+   if (!empty($request->landlord_id)) {
+    $billQuery =   $billQuery->where("bills.landlord_id", $request->landlord_id);
+}
+
+
+if (!empty($request->start_date)) {
+    $billQuery = $billQuery->whereDate('bills.create_date', ">=", $request->start_date);
+}
+
+if (!empty($request->end_date)) {
+    $billQuery = $billQuery->whereDate('bills.create_date', "<=", $request->end_date);
+}
+
+
+if (!empty($request->min_amount)) {
+    $billQuery = $billQuery->where('bills.payabble_amount', ">=", $request->min_amount);
+}
+
+if (!empty($request->max_amount)) {
+    $billQuery = $billQuery->where('bills.payabble_amount', "<=", $request->max_amount);
+}
+
+if(!empty($request->search_key)) {
+    $billQuery = $billQuery->where(function($query) use ($request){
+        $term = $request->search_key;
+        $query->whereHas('bill_bill_items', function ($query) use ($request) {
+            $query->where('item', 'like', '%' . $request->search_key . '%');
+        });
+        $query->orWhereHas('bill_sale_items', function ($query) use ($request) {
+            $query->where('item', 'like', '%' . $request->search_key . '%');
+        });
+        $query->orWhereHas('bill_repair_items', function ($query) use ($request) {
+            $query->where('item', 'like', '%' . $request->search_key . '%');
+        });
+    });
+
+}
 
 
 
@@ -785,9 +829,7 @@ class BillController extends Controller
          $billQuery =   $billQuery->where("invoices.invoice_reference", "like", "%" . $request->invoice_reference . "%");
      }
 
-     if (!empty($request->landlord_id)) {
-         $billQuery =   $billQuery->where("bills.landlord_id", $request->landlord_id);
-     }
+
      if (!empty($request->tenant_id)) {
          $billQuery =   $billQuery->where("invoices.tenant_id", $request->tenant_id);
      }
@@ -812,13 +854,6 @@ class BillController extends Controller
 
 
 
-     if (!empty($request->start_date)) {
-         $billQuery = $billQuery->where('bills.created_at', ">=", $request->start_date);
-     }
-
-     if (!empty($request->end_date)) {
-         $billQuery = $billQuery->where('bills.created_at', "<=", $request->end_date);
-     }
 
      $billQuery = $billQuery
      ->select(
@@ -1073,6 +1108,21 @@ class BillController extends Controller
   * required=true,
   * example="1"
   * ),
+   * *  @OA\Parameter(
+  * name="min_amount",
+  * in="query",
+  * description="min_amount",
+  * required=true,
+  * example="1"
+  * ),
+   * *  @OA\Parameter(
+  * name="max_amount",
+  * in="query",
+  * description="max_amount",
+  * required=true,
+  * example="1"
+  * ),
+
    * *  @OA\Parameter(
   * name="tenant_id",
   * in="query",
