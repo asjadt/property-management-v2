@@ -28,9 +28,12 @@ class CreateBillsTable extends Migration
 
             $table->string("payment_mode");
             $table->double("payabble_amount");
+            $table->double("deduction");
+
             $table->string("remarks")->nullable();
 
 
+            
             $table->unsignedBigInteger("created_by");
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();

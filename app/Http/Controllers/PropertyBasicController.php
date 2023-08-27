@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
+use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\InvoicePayment;
 use App\Models\Landlord;
@@ -115,7 +116,7 @@ class PropertyBasicController extends Controller
             //      $request["end_date"] = $firstDayOfYear->format('Y-m-d');
             //  }
 
-             if(empty($request->end_date)){
+             if(!empty($request->end_date)){
                 //  $todayDate = Carbon::now();
                 //  $request["end_date"] = $todayDate->format('Y-m-d');
                  $request['next_day'] = date('Y-m-d', strtotime($request->end_date) + 86400);
@@ -321,7 +322,14 @@ class PropertyBasicController extends Controller
      * in="query",
      * description="landlord_id",
      * required=true,
-     * example="landlord_id"
+     * example="1"
+     * ),
+     *    * *  @OA\Parameter(
+     * name="client_id",
+     * in="query",
+     * description="client_id",
+     * required=true,
+     * example="1"
      * ),
      *      summary="This method is to get activities ",
      *      description="This method is to get activities",
@@ -371,7 +379,7 @@ class PropertyBasicController extends Controller
             //     $firstDayOfYear = Carbon::now()->startOfYear();
             //     $request["end_date"] = $firstDayOfYear->format('Y-m-d');
             // }
-            if(empty($request->end_date)){
+            if(!empty($request->end_date)){
                 //  $todayDate = Carbon::now();
                 //  $request["end_date"] = $todayDate->format('Y-m-d');
                  $request['next_day'] = date('Y-m-d', strtotime($request->end_date) + 86400);
@@ -586,13 +594,119 @@ class PropertyBasicController extends Controller
                     "section_2" => $activitiesPaginated,
                     "opening_balance" => ($total_past_invoice_amount - $total_past_invoice_payment_amount)
                 ], 200);
-            } else {
+            } else if ($request->client_id) {
+                $client = Client::where([
+                    "id" => $request->client_id,
+                    "created_by" => $request->user()->id
+                ])
+                    ->first();
+                if (!$client) {
+                    return response()->json([
+                        "message" => "no client found"
+                    ], 404);
+                }
+
+                // opening balance calculate start
+                $total_past_invoice_amount = Invoice::where([
+                    "invoices.client_id" => $client->id,
+                    "invoices.created_by" => $request->user()->id
+                ])
+                    ->when(!empty($request->start_date), function ($query) use ($request) {
+                        return $query->where('invoices.invoice_date', "<", $request->start_date);
+                    })
+                    ->sum("invoices.total_amount");
+                $total_past_invoice_payment_amount = InvoicePayment::leftJoin('invoices', 'invoices.id', '=', 'invoice_payments.invoice_id')
+                    ->where([
+                        "invoices.client_id" => $client->id,
+                        "invoices.created_by" => $request->user()->id
+                    ])
+                    ->when(!empty($request->start_date), function ($query) use ($request) {
+                        return $query->where('invoice_payments.payment_date', "<", $request->start_date);
+                    })
+                    ->when(!empty($request->property_ids), function ($query) use ($request) {
+                        $null_filter = collect(array_filter($request->property_ids))->values();
+                        $property_ids =  $null_filter->all();
+                        return $query->whereIn("invoices.property_id",$property_ids);
+                    })
+                    ->sum("invoice_payments.amount");
+
+                // opening balance end
+
+
+                $invoiceQuery = Invoice::where([
+                    "invoices.client_id" => $client->id,
+                    "invoices.created_by" => $request->user()->id
+                ])
+                    ->when(!empty($request->start_date), function ($query) use ($request) {
+                        return $query->where('invoices.invoice_date', ">=", $request->start_date);
+                    })
+                    ->when(!empty($request->end_date), function ($query) use ($request) {
+                        return $query->where('invoices.invoice_date', "<",  $request['next_day'] );
+                    })
+                    ->when(!empty($request->property_ids), function ($query) use ($request) {
+                        $null_filter = collect(array_filter($request->property_ids))->values();
+                        $property_ids =  $null_filter->all();
+                        return $query->whereIn("invoices.property_id",$property_ids);
+                    })
+                    ->select('invoices.id', 'invoices.total_amount', 'invoices.invoice_date as created_at', 'invoices.invoice_reference', DB::raw("'invoice' as type"), 'invoices.due_date as due_date');
+
+                $invoicePaymentQuery = InvoicePayment::leftJoin('invoices', 'invoices.id', '=', 'invoice_payments.invoice_id')
+                    ->where([
+                        "invoices.client_id" => $client->id,
+                        "invoices.created_by" => $request->user()->id
+                    ])
+                    ->when(!empty($request->start_date), function ($query) use ($request) {
+                        return $query->where('invoice_payments.payment_date', ">=", $request->start_date);
+                    })
+                    ->when(!empty($request->end_date), function ($query) use ($request) {
+                        return $query->where('invoice_payments.payment_date', "<",  $request['next_day'] );
+                    })
+                    ->when(!empty($request->property_ids), function ($query) use ($request) {
+                        $null_filter = collect(array_filter($request->property_ids))->values();
+                        $property_ids =  $null_filter->all();
+                        return $query->whereIn("invoices.property_id",$property_ids);
+                    })
+                    ->select('invoice_payments.invoice_id', 'invoice_payments.amount as total_amount', 'invoice_payments.payment_date as created_at', 'invoices.invoice_reference', DB::raw("'invoice_payment' as type"), 'invoices.due_date as due_date');
+
+
+
+                $activitiesQuery = $invoiceQuery
+                    ->unionAll($invoicePaymentQuery)
+                    ->orderBy('created_at', 'asc');
+
+
+                $activitiesPaginated = $activitiesQuery->paginate($perPage);
+
+
+
+
+                $section_1["invoice_payment_total_amount"] =   collect($activitiesPaginated->items())->filter(function ($item) {
+                    return $item->type == 'invoice_payment';
+                })->sum("total_amount");
+
+                $section_1["invoice_total_amount"] =   collect($activitiesPaginated->items())->filter(function ($item) {
+                    return $item->type == 'invoice';
+                })->sum("total_amount");
+
+                $section_1["start_date"] = $request->start_date;
+                $section_1["end_date"] = $request->end_date;
+                $section_1["client"] = $client;
+                return response()->json([
+                    "section_1" => $section_1,
+                    "section_2" => $activitiesPaginated,
+                    "opening_balance" => ($total_past_invoice_amount - $total_past_invoice_payment_amount)
+                ], 200);
+            }
+
+            else {
                 $error =  [
                     "message" => "The given data was invalid.",
                     "errors" => [
                         "property_id" => ["property must be selected if landlord or tenant is not selected."],
                         "tenant_id" => ["tenant must be selected if landlord or property is not selected."],
-                        "landlord_id" => ["landlord must be selected if tenant or property is not selected."]
+                        "landlord_id" => ["landlord must be selected if tenant or property is not selected."],
+                        "client_id" => ["landlord must be selected if business is other"]
+
                     ]
                 ];
                 throw new Exception(json_encode($error), 422);

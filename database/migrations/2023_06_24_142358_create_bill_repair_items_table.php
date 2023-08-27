@@ -20,7 +20,7 @@ class CreateBillRepairItemsTable extends Migration
             $table->string("item");
             $table->string("description")->nullable();
             $table->double("amount")->default(0);
-            $table->unsignedBigInteger("repair_id");
+            $table->unsignedBigInteger("repair_id")->nullable();
             $table->foreign('repair_id')->references('id')->on('repairs')->onDelete('set null');
 
             $table->unsignedBigInteger("bill_id");

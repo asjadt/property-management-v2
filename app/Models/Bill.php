@@ -15,6 +15,7 @@ class Bill extends Model
         'landlord_id',
         'payment_mode',
         "payabble_amount",
+        "deduction",
         "remarks",
         "created_by"
         ];

@@ -54,6 +54,8 @@ class BillController extends Controller
    *
    *
    *            @OA\Property(property="payabble_amount", type="number", format="number",example="10.10"),
+   *  *            @OA\Property(property="deduction", type="number", format="number",example="10.10"),
+   *
    *
    *  * *  @OA\Property(property="remarks", type="string", format="string",example="remarks"),
    *
@@ -258,8 +260,8 @@ class BillController extends Controller
 
           "landlord_id" =>  $bill->landlord_id,
 
-          "sub_total"=>$bill->payabble_amount,
-          "total_amount"=>$bill->payabble_amount,
+          "sub_total"=>$bill->deduction,
+          "total_amount"=>$bill->deduction,
 
           "bill_id" => $bill->id,
           'created_by' => $request->user()->id
@@ -328,7 +330,7 @@ class BillController extends Controller
 
 
       $invoice_payment =  InvoicePayment::create([
-            "amount" => $bill->payabble_amount,
+            "amount" => $bill->deduction,
             "payment_method" => "Bill Adjustment",
             "payment_date" => $bill->create_date ,
             "note" => "Invoice cleared against BiLL ID " . $bill->id,
@@ -394,6 +396,7 @@ class BillController extends Controller
    *
    *
    *            @OA\Property(property="payabble_amount", type="number", format="number",example="10.10"),
+   *    *            @OA\Property(property="deduction", type="number", format="number",example="10.10"),
    *
    *  * *  @OA\Property(property="remarks", type="string", format="string",example="remarks"),
    *
@@ -474,6 +477,7 @@ class BillController extends Controller
                     'landlord_id',
                     'payment_mode',
                     "payabble_amount",
+                    "deduction",
                     "remarks",
                 ])->toArray()
             )
@@ -588,8 +592,8 @@ class BillController extends Controller
 
                         "landlord_id" =>  $bill->landlord_id,
 
-                        "sub_total"=>$bill->payabble_amount,
-                        "total_amount"=>$bill->payabble_amount,
+                        "sub_total"=>$bill->deduction,
+                        "total_amount"=>$bill->deduction,
 
                         "bill_id" => $bill->id,
 
@@ -696,7 +700,7 @@ $invoice_prev = Invoice::where([
                     )
                     ->delete();
                   $invoice_payment =  InvoicePayment::create([
-                        "amount" => $bill->payabble_amount,
+                        "amount" => $bill->deduction,
                         "payment_method" => "Bill Adjustment",
                         "payment_date" => $bill->create_date ,
                         "note" => "Invoice cleared against BiLL ID " . $bill->id,

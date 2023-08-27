@@ -30,6 +30,8 @@ class BillCreateRequest extends FormRequest
 
             "payment_mode"=>"required|string",
             "payabble_amount"=>"required|numeric",
+            "deduction"=>"required|numeric",
+
             "remarks"=>"nullable|string",
 
             "bill_items" => "required|array",
