@@ -186,18 +186,18 @@ class LandlordController extends Controller
 
                 // for($i=0;$i<500;$i++) {
                 //     $landlord =  Landlord::create([
-                //         'first_Name'=>Str::random(4),
-                //         'last_Name'=> Str::random(4),
-                //         'phone'=> Str::random(4),
+                //         'first_Name'=> $insertableData["first_Name"] . Str::random(4),
+                //         'last_Name'=> $insertableData["last_Name"] . Str::random(4),
+                //         'phone'=> $insertableData["phone"] . Str::random(4),
                 //         'image',
-                //         'address_line_1'=>Str::random(4),
+                //         'address_line_1'=>$insertableData["address_line_1"] . Str::random(4),
                 //         'address_line_2',
-                //         'country'=>Str::random(4),
-                //         'city'=>Str::random(4),
-                //         'postcode'=>Str::random(4),
-                //         "lat"=>Str::random(4),
-                //         "long"=>Str::random(4),
-                //         'email'=>Str::random(4),
+                //         'country'=>$insertableData["country"] . Str::random(4),
+                //         'city'=>$insertableData["city"] . Str::random(4),
+                //         'postcode'=>$insertableData["postcode"] . Str::random(4),
+                //         "lat"=>$insertableData["lat"] . Str::random(4),
+                //         "long"=>$insertableData["long"] . Str::random(4),
+                //         'email'=>$insertableData["email"] . Str::random(4),
                 //         "created_by"=>$request->user()->id,
                 //          'is_active'=>1
                 //     ]);
@@ -406,7 +406,7 @@ class LandlordController extends Controller
 *      required=true,
 *      example="1,2"
 * ),
- *   
+ *
  * *  @OA\Parameter(
 * name="min_total_due",
 * in="query",
@@ -488,8 +488,17 @@ class LandlordController extends Controller
             if (!empty($request->search_key)) {
                 $landlordQuery = $landlordQuery->where(function ($query) use ($request) {
                     $term = $request->search_key;
-                    $query->where("landlords.first_Name", "like", "%" . $term . "%");
-                    $query->orWhere("landlords.last_Name", "like", "%" . $term . "%");
+                    $terms = preg_split('/\s+/', $term); // Split search term by any whitespace
+
+    foreach ($terms as $individualTerm) {
+        $query->orWhere(function ($innerQuery) use ($individualTerm) {
+            $innerQuery->where("landlords.first_Name", "like", "%" . $individualTerm . "%");
+            $innerQuery->orWhere("landlords.last_Name", "like", "%" . $individualTerm . "%");
+        });
+    }
+
+
+
                     $query->orWhere("landlords.phone", "like", "%" . $term . "%");
                     $query->orWhere("landlords.address_line_1", "like", "%" . $term . "%");
                     $query->orWhere("landlords.address_line_2", "like", "%" . $term . "%");
@@ -781,8 +790,16 @@ class LandlordController extends Controller
              if (!empty($request->search_key)) {
                  $landlordQuery = $landlordQuery->where(function ($query) use ($request) {
                      $term = $request->search_key;
-                     $query->where("landlords.first_Name", "like", "%" . $term . "%");
-                     $query->orWhere("landlords.last_Name", "like", "%" . $term . "%");
+                     $terms = preg_split('/\s+/', $term); // Split search term by any whitespace
+
+                     foreach ($terms as $individualTerm) {
+                         $query->orWhere(function ($innerQuery) use ($individualTerm) {
+                             $innerQuery->where("landlords.first_Name", "like", "%" . $individualTerm . "%");
+                             $innerQuery->orWhere("landlords.last_Name", "like", "%" . $individualTerm . "%");
+                         });
+                     }
+
+
                      $query->orWhere("landlords.phone", "like", "%" . $term . "%");
 
 

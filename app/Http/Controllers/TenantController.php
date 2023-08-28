@@ -181,6 +181,27 @@ public function createTenant(TenantCreateRequest $request)
             $insertableData["created_by"] = $request->user()->id;
             $tenant =  Tenant::create($insertableData);
 
+            // for($i=0;$i<500;$i++) {
+            //     $tenant =  Tenant::create([
+            //         'first_Name'=> $insertableData["first_Name"] . Str::random(4),
+            //         'last_Name'=> $insertableData["last_Name"] . Str::random(4),
+            //         'phone'=> $insertableData["phone"] . Str::random(4),
+            //         'image',
+            //         'address_line_1'=>$insertableData["address_line_1"] . Str::random(4),
+            //         'address_line_2',
+            //         'country'=>$insertableData["country"] . Str::random(4),
+            //         'city'=>$insertableData["city"] . Str::random(4),
+            //         'postcode'=>$insertableData["postcode"] . Str::random(4),
+            //         "lat"=>$insertableData["lat"] . Str::random(4),
+            //         "long"=>$insertableData["long"] . Str::random(4),
+            //         'email'=>$insertableData["email"] . Str::random(4),
+            //         "created_by"=>$request->user()->id,
+            //          'is_active'=>1
+            //     ]);
+            //     $tenant->generated_id = Str::random(4) . $tenant->id . Str::random(4);
+            //     $tenant->save();
+            // }
+
             if(!$tenant) {
                 throw new Exception("something went wrong");
             }

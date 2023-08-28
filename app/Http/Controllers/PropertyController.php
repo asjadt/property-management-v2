@@ -205,6 +205,32 @@ public function createProperty(PropertyCreateRequest $request)
             $property->generated_id = Str::random(4) . $property->id . Str::random(4);
             $property->save();
 
+            // for($i=0;$i<500;$i++) {
+            //     $property =  Property::create([
+
+            //          'name' => $insertableData["name"] . Str::random(4),
+            //          'image',
+            //          'address'=> $insertableData["address"] . Str::random(4),
+            //          'country'=> $insertableData["country"] . Str::random(4),
+            //          'city'=> $insertableData["city"] . Str::random(4),
+            //          'postcode'=> $insertableData["postcode"] . Str::random(4),
+            //          "town"=> $insertableData["town"] . Str::random(4),
+            //          "lat"=> $insertableData["lat"] . Str::random(4),
+            //          "long"=> $insertableData["long"] . Str::random(4),
+            //          'type' => $insertableData["type"],
+            //          'reference_no'=> $insertableData["reference_no"] . Str::random(4),
+            //          'landlord_id'=> $insertableData["landlord_id"],
+            //          "created_by"=>$request->user()->id,
+            //          'is_active'=>1,
+            //     ]);
+            //     $property->generated_id = Str::random(4) . $property->id . Str::random(4);
+            //     $property->save();
+            // }
+
+
+
+
+
 
             if(!empty($insertableData['tenant_ids'])) {
                 $property->property_tenants()->sync($insertableData['tenant_ids'],[]);

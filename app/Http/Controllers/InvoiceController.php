@@ -239,6 +239,9 @@ public function createInvoice(InvoiceCreateRequest $request)
                 "created_by" => $request->user()->id
              ]
              )->exists();
+
+
+
              if ($reference_no_exists) {
                 $error =  [
                        "message" => "The given data was invalid.",
@@ -396,7 +399,181 @@ public function createInvoice(InvoiceCreateRequest $request)
 
 
 
+        //     for($i=0;$i<1000;$i++) {
 
+        //         $insertableData["created_by"] = $request->user()->id;
+
+
+        //         $insertableData2 = json_decode(json_encode($insertableData),true);
+
+        //         $insertableData2["invoice_reference"] = $insertableData["invoice_reference"] . Str::random(4);
+
+
+        //         $reference_no_exists =  DB::table( 'invoices' )->where([
+        //             'invoice_reference'=> $insertableData2['invoice_reference'],
+        //             "created_by" => $request->user()->id
+        //          ]
+        //          )->exists();
+
+
+
+        //          if ($reference_no_exists) {
+        //             $error =  [
+        //                    "message" => "The given data was invalid.",
+        //                    "errors" => ["invoice_reference"=>["The invoice reference has already been taken."]]
+        //             ];
+        //                throw new Exception(json_encode($error),422);
+        //            }
+
+
+        //         $invoice =  Invoice::create($insertableData2);
+        //         if(!$invoice) {
+        //             throw new Exception("something went wrong");
+        //         }
+
+        //         $invoice->generated_id = Str::random(4) . $invoice->id . Str::random(4);
+        //         $invoice->shareable_link =  env("FRONT_END_URL_DASHBOARD")."/share/invoice/". Str::random(4) . "-". $invoice->generated_id ."-" . Str::random(4);
+
+        //         $invoice->save();
+
+        //         $invoiceItems = collect($insertableData2["invoice_items"])->map(function ($item)use ($invoice) {
+        //             if(!empty($item["repair_id"])) {
+        //                 $invoice_item_exists =    InvoiceItem::where([
+        //                         "repair_id" => $item["repair_id"]
+        //                     ])
+        //                    ->whereNotIn("invoice_id",[$invoice->id])
+        //                     ->first();
+        //                     if($invoice_item_exists) {
+        //                         $error =  [
+        //                             "message" => "The given data was invalid.",
+        //                             "errors" => ["invoice_items"=>["invalid repair item"]]
+        //                      ];
+        //                         throw new Exception(json_encode($error),422);
+        //                     }
+
+        //         }
+
+        //             return [
+        //                 "name" => $item["name"],
+        //                 "description" => $item["description"],
+        //                 "quantity" => $item["quantity"],
+        //                 "price" => $item["price"],
+        //                 "tax" => $item["tax"],
+        //                 "amount" => $item["amount"],
+        //                 "repair_id" => !empty($item["repair_id"])?$item["repair_id"]:NULL,
+        //                 "sale_id" => !empty($item["sale_id"])?$item["sale_id"]:NULL,
+
+        //             ];
+        //         });
+
+        //         $invoice->invoice_items()->createMany($invoiceItems->all());
+
+
+        //         // $invoicePayments = collect($insertableData["invoice_payments"])->map(function ($item) {
+        //         //     return [
+        //         //         "amount" => $item["amount"],
+        //         //         "payment_method" => $item["payment_method"],
+        //         //         "payment_date" => $item["payment_date"],
+        //         //     ];
+        //         // });
+        //         // $sum_payment_amounts = $invoicePayments->sum('amount');
+
+        //         // if($sum_payment_amounts > $invoice->total_amount) {
+        //         //     $error =  [
+        //         //         "message" => "The given data was invalid.",
+        //         //         "errors" => ["invoice_payments"=>["payment is more than total amount"]]
+        //         //  ];
+        //         //     throw new Exception(json_encode($error),422);
+        //         // }
+
+
+
+        //         // $invoice->invoice_payments()->createMany($invoicePayments->all());
+
+        //         // if($sum_payment_amounts == $invoice->total_amount) {
+        //         //     $invoice->status = "paid";
+        //         //     $invoice->invoice_reminder()->delete();
+        //         //     $invoice->save();
+        //         //  }
+        //         //  else {
+
+        //         //  }
+
+
+
+        //          if(!empty($insertableData2["reminder_dates"]) &&  $invoice->status != "paid") {
+
+        //             InvoiceReminder::where([
+        //                 "invoice_id" => $invoice->id
+        //             ])
+        //             ->delete();
+        //             foreach($insertableData2["reminder_dates"] as $reminder_date_amount) {
+
+
+        //                 $due_date = DateTime::createFromFormat('Y-m-d', $insertableData2["due_date"]);
+        //                 if ($due_date !== false) {
+        //                     $due_date->modify(($reminder_date_amount . ' days'));
+        //                     $reminder_date = $due_date->format('Y-m-d');
+        //                 } else {
+        //                     // Handle invalid input date format
+        //                     // You can throw an exception, log an error, or provide a default value
+        //                     $reminder_date = null; // or set a default value
+        //                 }
+
+        //  InvoiceReminder::create([
+        //     "reminder_date_amount" => $reminder_date_amount,
+        //     "reminder_status" => "not_sent",
+        //     "send_reminder" => !empty($insertableData2["send_reminder"])?$insertableData2["send_reminder"]:0,
+        //     "reminder_date" =>$reminder_date,
+        //     "invoice_id" => $invoice->id,
+        //     "created_by" => $invoice->created_by
+        // ]);
+
+
+        //             }
+
+
+        //         }
+
+
+
+
+
+
+
+        //         $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder")
+        //         ->where([
+        //             "id" => $invoice->id,
+        //             "invoices.created_by" => $request->user()->id
+        //         ])
+        //         ->select("invoices.*",
+        //         DB::raw('
+        //             COALESCE(
+        //                 (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+        //                 0
+        //             ) AS total_paid
+        //         '),
+        //         DB::raw('
+        //             COALESCE(
+        //                 invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+        //                 invoices.total_amount
+        //             ) AS total_due
+        //         ')
+        //     )
+
+        //         ->first();
+
+        //         if(!$invoice) {
+        //      return response()->json([
+        // "message" => "no invoice found"
+        // ],404);
+        //         }
+
+
+
+
+
+        //     }
 
             return response($invoice, 201);
 
