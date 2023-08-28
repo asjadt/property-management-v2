@@ -28,7 +28,7 @@ class AuthRegisterBusinessRequest extends FormRequest
             'user.last_Name' => 'required|string|max:255',
             'user.email' => 'required|string|email|max:255|unique:users,email',
             'user.password' => 'required|confirmed|string|min:6',
-            'user.phone' => 'required|string',
+            'user.phone' => 'nullable|string',
             'user.image' => 'nullable|string',
 
             'business.name' => 'required|string|max:255',
