@@ -71,8 +71,8 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
-
+Route::get('/v1.0/receipts/get/single/{id}', [ReceiptController::class, "getReceiptById"]);
+Route::get('/v1.0/invoices/get/single/{id}', [InvoiceController::class, "getInvoiceById"]);
 Route::post('/v1.0/register', [AuthController::class, "register"]);
 Route::post('/v1.0/login', [AuthController::class, "login"]);
 Route::post('/v1.0/token-regenerate', [AuthController::class, "regenerateToken"]);
@@ -338,7 +338,7 @@ Route::get('/v1.0/invoices/{perPage}', [InvoiceController::class, "getInvoices"]
 
 Route::get('/v1.0/invoices/get/all', [InvoiceController::class, "getAllInvoices"]);
 
-Route::get('/v1.0/invoices/get/single/{id}', [InvoiceController::class, "getInvoiceById"]);
+
 Route::get('/v1.0/invoices/get/single-by-reference/{reference}', [InvoiceController::class, "getInvoiceByReference"]);
 
 
@@ -413,7 +413,7 @@ Route::delete('/v1.0/invoice-reminders/without-pin/{id}', [InvoiceReminderContro
 Route::post('/v1.0/receipts', [ReceiptController::class, "createReceipt"]);
 Route::put('/v1.0/receipts', [ReceiptController::class, "updateReceipt"]);
 Route::get('/v1.0/receipts/{perPage}', [ReceiptController::class, "getReceipts"]);
-Route::get('/v1.0/receipts/get/single/{id}', [ReceiptController::class, "getReceiptById"]);
+
 Route::delete('/v1.0/receipts/{id}', [ReceiptController::class, "deleteReceiptById"]);
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // receipt management section

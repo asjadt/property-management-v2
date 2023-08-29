@@ -490,10 +490,10 @@ public function getInvoicePayments($perPage, Request $request)
             $invoice_paymentQuery = $invoice_paymentQuery->where('invoice_payments.payment_method', $request->payment_method);
         }
         if (!empty($request->start_date)) {
-            $invoice_paymentQuery = $invoice_paymentQuery->where('invoice_payments.created_at', ">=", $request->start_date);
+            $invoice_paymentQuery = $invoice_paymentQuery->where('invoice_payments.payment_date', ">=", $request->start_date);
         }
         if (!empty($request->end_date)) {
-            $invoice_paymentQuery = $invoice_paymentQuery->where('invoice_payments.created_at', "<=", $request->end_date);
+            $invoice_paymentQuery = $invoice_paymentQuery->where('invoice_payments.payment_date', "<=", $request->end_date);
         }
 
         if (!empty($request->min_amount)) {

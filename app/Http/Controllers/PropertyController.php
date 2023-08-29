@@ -379,7 +379,9 @@ public function updateProperty(PropertyUpdateRequest $request)
                         ],404);
 
                 }
+                $property->property_tenants()->detach();
                 if(!empty($updatableData['tenant_ids'])) {
+
                     $property->property_tenants()->sync($updatableData['tenant_ids'],[]);
                 }
 
