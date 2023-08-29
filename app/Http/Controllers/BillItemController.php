@@ -11,6 +11,7 @@ use App\Models\Business;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class BillItemController extends Controller
@@ -505,7 +506,11 @@ class BillItemController extends Controller
                     "message" => "You can not perform this action"
                 ], 401);
             }
-
+            if (!Hash::check($request->header("password"), $request->user()->password)) {
+                return response()->json([
+                    "message" => "Invalid password"
+                ], 401);
+            }
 
             $bill_item = BillItem::where([
                 "id" => $id,

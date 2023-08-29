@@ -1146,11 +1146,7 @@ class UserManagementController extends Controller
                 ],401);
            }
 
-        if (!Hash::check($request->header("password"), $request->user()->password)) {
-            return response()->json([
-                "message" => "Invalid password"
-            ], 401);
-        }
+
 
 
             $user = User::with("roles")
@@ -1233,6 +1229,11 @@ class UserManagementController extends Controller
                    "message" => "You can not perform this action"
                 ],401);
            }
+           if (!Hash::check($request->header("password"), $request->user()->password)) {
+            return response()->json([
+                "message" => "Invalid password"
+            ], 401);
+        }
            $user = User::where([
             "id" => $id
        ])

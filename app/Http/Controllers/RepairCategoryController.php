@@ -12,6 +12,7 @@ use App\Models\RepairCategory;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class RepairCategoryController extends Controller
@@ -586,6 +587,11 @@ public function deleteRepairCategoryById($id, Request $request)
             ], 401);
         }
 
+        if (!Hash::check($request->header("password"), $request->user()->password)) {
+            return response()->json([
+                "message" => "Invalid password"
+            ], 401);
+        }
 
         // $business = Business::where([
         //     "owner_id" => $request->user()->id
