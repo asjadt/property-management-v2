@@ -10,6 +10,7 @@ use App\Http\Utils\UserActivityUtil;
 use App\Models\Business;
 use App\Models\Invoice;
 use App\Models\InvoiceReminder;
+use Carbon\Carbon;
 use DateTime;
 use Exception;
 use Illuminate\Http\Request;
@@ -308,22 +309,6 @@ public function updateInvoiceReminder(InvoiceReminderUpdateForm $request)
 
             $updatableData = $request->validated();
             $updatableData["reminder_status"] = "not_sent";
-            // $affiliationPrev = InvoiceReminder::where([
-            //     "id" => $updatableData["id"]
-            //    ]);
-
-            //    if(!$request->user()->hasRole('superadmin')) {
-            //     $affiliationPrev =    $affiliationPrev->where([
-            //         "created_by" =>$request->user()->id
-            //     ]);
-            // }
-            // $affiliationPrev = $affiliationPrev->first();
-            //  if(!$affiliationPrev) {
-            //         return response()->json([
-            //            "message" => "you did not create this affiliation."
-            //         ],404);
-            //  }
-
 
 
 
@@ -331,22 +316,31 @@ public function updateInvoiceReminder(InvoiceReminderUpdateForm $request)
             ->where([
                 "invoice_reminders.id" => $updatableData["id"],
                 "invoices.created_by" => $request->user()->id
-            ])->first();
+            ])
+            ->select("invoice_reminders.*")
+            ->first();
 
 
 
-            $invoice_reminder_date = new DateTime($invoice_reminder->reminder_date);
-            $updatableData_date = new DateTime($updatableData["reminder_date"]);
+            // $invoice_reminder_date = new DateTime($invoice_reminder->reminder_date);
+            // $updatableData_date = new DateTime($updatableData["reminder_date"]);
 
-            // Extract day components from the dates.
-            $invoice_reminder_day = (int)$invoice_reminder_date->format('d');
-            $updatableData_day = (int)$updatableData_date->format('d');
+            // // Extract day components from the dates.
+            // $invoice_reminder_day = (int)$invoice_reminder_date->format('d');
+            // $updatableData_day = (int)$updatableData_date->format('d');
 
-            // Compare the day components.
-            if ($invoice_reminder_day !== $updatableData_day) {
+            // // Compare the day components.
+            // if ($invoice_reminder_day !== $updatableData_day) {
 
-                $invoice_reminder->reminder_date_amount = NULL;
-            }
+            //     $invoice_reminder->reminder_date_amount = NULL;
+            // }
+
+            $startDate = Carbon::parse($invoice_reminder->invoice->due_date);
+$endDate = Carbon::parse($updatableData["reminder_date"]);
+
+$invoice_reminder->reminder_date_amount = $endDate->diffInDays($startDate);
+
+
             $invoice_reminder->send_reminder = $updatableData["send_reminder"];
             $invoice_reminder->reminder_date = $updatableData["reminder_date"];
 
