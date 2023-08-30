@@ -1996,7 +1996,7 @@ public function getInvoiceById($id, Request $request)
         $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder","tenant","landlord","property","client")
         ->where([
             "generated_id" => $id,
-            "invoices.created_by" => $request->user()->id
+            // "invoices.created_by" => $request->user()->id
         ])
         ->select("invoices.*",
         DB::raw('

@@ -521,7 +521,7 @@ class ReceiptController extends Controller
             with("property","tenant")
             ->where([
                 "generated_id" => $id,
-                "created_by" => $request->user()->id
+                // "created_by" => $request->user()->id
 
             ])
             ->first();
