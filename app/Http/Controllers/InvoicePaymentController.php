@@ -688,6 +688,13 @@ public function getInvoicePaymentById($invoice_id,$id, Request $request)
          }
 
 
+        $sum_payment_amounts = $invoice_payment->invoice->invoice_payments()
+        ->where('id', '!=', $invoice_payment->id)
+        ->sum('amount');
+
+        $invoice_payment->invoice_due = $invoice_payment->invoice->total_amount - $sum_payment_amounts;
+
+
          return response()->json($invoice_payment, 200);
      } catch (Exception $e) {
 
