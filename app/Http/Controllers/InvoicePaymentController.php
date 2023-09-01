@@ -123,11 +123,15 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
 
 
             if($invoice_due < $insertableData["amount"]) {
-                $error =  [
-                    "message" => "The given data was invalid.",
-                    "errors" => ["amount"=>["amount is more than total amount"]]
-             ];
-                throw new Exception(json_encode($error),422);
+                $invoice->status = "overpaid";
+                $invoice->invoice_reminder()->delete();
+                $invoice->save();
+
+            //     $error =  [
+            //         "message" => "The given data was invalid.",
+            //         "errors" => ["amount"=>["amount is more than total amount"]]
+            //  ];
+            //     throw new Exception(json_encode($error),422);
             }
            else if($invoice_due == $insertableData["amount"]) {
                $invoice->status = "paid";
@@ -304,11 +308,15 @@ public function updateInvoicePayment(InvoicePaymentUpdateRequest $request)
 
 
             if($invoice_due < $updatableData["amount"]) {
-                $error =  [
-                    "message" => "The given data was invalid.",
-                    "errors" => ["amount"=>["amount is more than total amount"]]
-             ];
-                throw new Exception(json_encode($error),422);
+                $invoice->status = "overpaid";
+                $invoice->invoice_reminder()->delete();
+                $invoice->save();
+
+            //     $error =  [
+            //         "message" => "The given data was invalid.",
+            //         "errors" => ["amount"=>["amount is more than total amount"]]
+            //  ];
+            //     throw new Exception(json_encode($error),422);
             }
            else if($invoice_due == $updatableData["amount"]) {
                $invoice->status = "paid";
