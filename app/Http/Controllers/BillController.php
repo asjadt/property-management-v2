@@ -572,30 +572,43 @@ class BillController extends Controller
 
 
                 if(!empty($repair_items->all()) || !empty($sale_items->all())) {
+                    $current_number = 1; // Start from 0001
+
+                    do {
+                        $invoice_reference = str_pad($current_number, 4, '0', STR_PAD_LEFT);
+                        $current_number++; // Increment the current number for the next iteration
+                    } while (
+                        DB::table('invoices')->where([
+                            'invoice_reference' => $invoice_reference,
+                            'created_by' => $request->user()->id
+                        ])->exists()
+                    );
 
                     $invoice_data = [
                         "logo"=> $business->logo,
-                        "invoice_title"=> $business->invoice_title,
+          "invoice_title"=> (!empty($business->invoice_title)?$business->invoice_title:"Invoice"),
 
-                        "business_name"=>$business->name,
-                        "business_address"=>$business->address_line_1,
+          "invoice_reference" => $invoice_reference,
 
-                        "invoice_date"=>$bill->create_date,
-                        "due_date" => $bill->create_date,
+          "business_name"=>$business->name,
+          "business_address"=>$business->address_line_1,
 
-                        "footer_text"=>$business->footer_text,
+          "invoice_date"=>$bill->create_date,
+          "due_date" => $bill->create_date,
+          "footer_text"=>(!empty($business->footer_text)?$business->footer_text:"Thanks for business with us"),
 
 
-                        "property_id"=>$bill->property_id,
+          "property_id"=>$bill->property_id,
 
-                        "status"=>"paid",
+          "status"=>"paid",
 
-                        "landlord_id" =>  $bill->landlord_id,
+          "landlord_id" =>  $bill->landlord_id,
 
-                        "sub_total"=>$bill->deduction,
-                        "total_amount"=>$bill->deduction,
+          "sub_total"=>$bill->deduction,
+          "total_amount"=>$bill->deduction,
 
-                        "bill_id" => $bill->id,
+          "bill_id" => $bill->id,
+          'created_by' => $request->user()->id
 
                     ];
 $invoice_prev = Invoice::where([
@@ -612,7 +625,6 @@ $invoice_prev = Invoice::where([
                     "logo",
                     "invoice_title",
                     "invoice_summary",
-                    "invoice_reference",
                     "business_name",
                     "business_address",
                     "sub_total",
@@ -640,6 +652,10 @@ $invoice_prev = Invoice::where([
                 ->first();
            } else {
             $invoice  = Invoice::create($invoice_data);
+            $invoice->generated_id = Str::random(4) . $invoice->id . Str::random(4);
+            $invoice->shareable_link =  env("FRONT_END_URL_DASHBOARD")."/share/invoice/". Str::random(4) . "-". $invoice->generated_id ."-" . Str::random(4);
+
+            $invoice->save();
            }
 
 

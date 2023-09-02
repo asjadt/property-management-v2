@@ -451,7 +451,7 @@ class UserManagementController extends Controller
     $user =  User::create($insertableData['user']);
     $user->email_verified_at = now();
     $user->save();
-    $user->assignRole('property_dealer');
+    $user->assignRole('user');
    // end user info ##############
 
 
@@ -667,7 +667,7 @@ class UserManagementController extends Controller
 
         }
 
-        $user->syncRoles(["property_dealer"]);
+        $user->syncRoles(["user"]);
 
 
 
@@ -1051,7 +1051,7 @@ class UserManagementController extends Controller
                 ],401);
            }
 
-            $usersQuery = User::with("roles");
+            $usersQuery = User::with("roles","business");
             // ->whereHas('roles', function ($query) {
             //     // return $query->where('name','!=', 'customer');
             // });

@@ -28,7 +28,7 @@ return [
             ],
         ],
         [
-            "role" => "property_dealer",
+            "role" => "user",
             "permissions" => [
                 "payment_type_view",
                 "repair_category_view",
@@ -40,7 +40,7 @@ return [
     ],
     "roles" => [
         "superadmin",
-        "property_dealer"
+        "user"
     ],
     "permissions" => [
        "user_create",

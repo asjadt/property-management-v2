@@ -869,6 +869,36 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                 }
 
 
+           
+                $sum_payment_amounts = $invoice->invoice_payments()->sum('amount');
+                $invoice_due = $invoice->total_amount - $sum_payment_amounts;
+
+
+
+                if($invoice_due < 0) {
+                    $invoice->status = "overpaid";
+                    $invoice->invoice_reminder()->delete();
+                    $invoice->save();
+
+
+                }
+               else if($invoice_due == 0) {
+                   $invoice->status = "paid";
+                   $invoice->invoice_reminder()->delete();
+                   $invoice->save();
+                }
+                else  if ($invoice_due > 0 && $sum_payment_amounts > 0) {
+                    $invoice->status = "partial";
+                    $invoice->save();
+                 }
+                 else if($invoice->last_sent_date) {
+                    $invoice->status = "sent";
+                    $invoice->save();
+                 }
+                 else {
+                    $invoice->status = "unsent";
+                    $invoice->save();
+                 }
 
 
 

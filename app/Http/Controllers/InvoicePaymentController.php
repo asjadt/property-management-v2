@@ -114,7 +114,7 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
             ])
             ->first();
             if(!$invoice) {
-                 return response()->json(["message" => "no invoice found or you did not create the invoice"]);
+                 return response()->json(["message" => "no invoice found or you did not create the invoice"],404);
             }
 
             $sum_payment_amounts = $invoice->invoice_payments()->sum('amount');
@@ -697,7 +697,7 @@ public function getInvoicePaymentById($invoice_id,$id, Request $request)
 
 
         $sum_payment_amounts = $invoice_payment->invoice->invoice_payments()
-        ->where('id', '!=', $invoice_payment->id)
+        // ->where('id', '!=', $invoice_payment->id)
         ->sum('amount');
 
         $invoice_payment->invoice_due = $invoice_payment->invoice->total_amount - $sum_payment_amounts;
@@ -808,7 +808,7 @@ public function deleteInvoicePaymentById($invoice_id,$id, Request $request)
             "invoice_payments.invoice_id" => $invoice_id,
             "invoices.created_by" => $request->user()->id
         ])
-        ->select("invoice_payments.id")
+        ->select("invoice_payments.id","invoice_payments.invoice_id")
         ->first();
 
         if(!$invoice_payment) {
@@ -816,7 +816,49 @@ public function deleteInvoicePaymentById($invoice_id,$id, Request $request)
 "message" => "no invoice payment found"
 ],404);
         }
+
+
+        $invoice = Invoice::where([
+            "id" => $invoice_payment->invoice_id,
+            "invoices.created_by" => $request->user()->id
+
+        ])
+        ->first();
+        if(!$invoice) {
+             return response()->json(["message" => "no invoice found or you did not create the invoice" . $invoice_payment->invoice_id . " " . $request->user()->id ],404);
+        }
         $invoice_payment->delete();
+        $sum_payment_amounts = $invoice->invoice_payments()->sum('amount');
+        $invoice_due = $invoice->total_amount - $sum_payment_amounts;
+
+
+
+        if($invoice_due < 0) {
+            $invoice->status = "overpaid";
+            $invoice->invoice_reminder()->delete();
+            $invoice->save();
+
+
+        }
+       else if($invoice_due == 0) {
+           $invoice->status = "paid";
+           $invoice->invoice_reminder()->delete();
+           $invoice->save();
+        }
+        else  if ($invoice_due > 0 && $sum_payment_amounts > 0) {
+            $invoice->status = "partial";
+            $invoice->save();
+         }
+         else if($invoice->last_sent_date) {
+            $invoice->status = "sent";
+            $invoice->save();
+         }
+         else {
+            $invoice->status = "unsent";
+            $invoice->save();
+         }
+
+
 
         return response()->json(["ok" => true], 200);
     } catch (Exception $e) {
@@ -917,7 +959,7 @@ public function deleteInvoicePaymentById($invoice_id,$id, Request $request)
              "invoice_payments.id" => $id,
              "invoices.created_by" => $request->user()->id
          ])
-         ->select("invoice_payments.id")
+         ->select("invoice_payments.id","invoice_payments.invoice_id")
          ->first();
 
          if(!$invoice_payment) {
@@ -925,7 +967,54 @@ public function deleteInvoicePaymentById($invoice_id,$id, Request $request)
  "message" => "no invoice payment found"
  ],404);
          }
-         $invoice_payment->delete();
+
+
+         $invoice = Invoice::where([
+            "id" => $invoice_payment->invoice_id,
+            "invoices.created_by" => $request->user()->id
+
+        ])
+        ->first();
+
+        if(!$invoice) {
+             return response()->json(["message" => "no invoice found or you did not create the invoice" . $invoice_payment->invoice_id . " " . $request->user()->id ],404);
+        }
+        $invoice_payment->delete();
+        $sum_payment_amounts = $invoice->invoice_payments()->sum('amount');
+        $invoice_due = $invoice->total_amount - $sum_payment_amounts;
+
+
+
+        if($invoice_due < 0) {
+            $invoice->status = "overpaid";
+            $invoice->invoice_reminder()->delete();
+            $invoice->save();
+
+        //     $error =  [
+        //         "message" => "The given data was invalid.",
+        //         "errors" => ["amount"=>["amount is more than total amount"]]
+        //  ];
+        //     throw new Exception(json_encode($error),422);
+        }
+       else if($invoice_due == 0) {
+           $invoice->status = "paid";
+           $invoice->invoice_reminder()->delete();
+           $invoice->save();
+        }
+        else  if ($invoice_due > 0 && $sum_payment_amounts > 0) {
+            $invoice->status = "partial";
+            $invoice->save();
+         }
+         else if($invoice->last_sent_date) {
+            $invoice->status = "sent";
+            $invoice->save();
+         }
+         else {
+            $invoice->status = "unsent";
+            $invoice->save();
+         }
+
+
 
          return response()->json(["ok" => true], 200);
      } catch (Exception $e) {
