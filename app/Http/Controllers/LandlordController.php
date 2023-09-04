@@ -480,7 +480,7 @@ class LandlordController extends Controller
             $this->storeActivity($request,"");
             $currentDate = Carbon::now();
             $endDate = $currentDate->copy()->addDays(15);
-            // $automobilesQuery = AutomobileMake::with("makes");
+
 
             $landlordQuery =  Landlord::leftJoin('properties', 'landlords.id', '=', 'properties.landlord_id')
             ->where(["landlords.created_by" => $request->user()->id]);

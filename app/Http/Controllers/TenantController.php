@@ -9,6 +9,7 @@ use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Business;
 use App\Models\Tenant;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -451,8 +452,9 @@ public function getTenants($perPage, Request $request)
 {
     try {
         $this->storeActivity($request,"");
+        $currentDate = Carbon::now();
+        $endDate = $currentDate->copy()->addDays(15);
 
-        // $automobilesQuery = AutomobileMake::with("makes");
 
         $tenantQuery =  Tenant::leftJoin('property_tenants', 'tenants.id', '=', 'property_tenants.tenant_id')
         ->leftJoin('properties', 'property_tenants.property_id', '=', 'properties.id')
@@ -507,9 +509,125 @@ public function getTenants($perPage, Request $request)
 
         $tenants = $tenantQuery
         ->groupBy("tenants.id")
+
         ->select(
             "tenants.*",
-            "properties.name as property_name"
+            "properties.name as property_name",
+            DB::raw('
+         COALESCE(
+             (SELECT COUNT(property_tenants.tenant_id) FROM property_tenants WHERE property_tenants.tenant_id = tenants.id),
+             0
+         ) AS total_properties
+         '),
+
+         DB::raw(
+
+            '
+         COALESCE(
+             (SELECT SUM(invoices.total_amount) FROM invoices WHERE invoices.tenant_id = tenants.id),
+             0
+         ) AS total_amount
+         '
+
+         ),
+         DB::raw('
+         COALESCE(
+             (SELECT COUNT(invoices.id) FROM invoices WHERE invoices.tenant_id = tenants.id),
+             0
+         ) AS total_invoices
+         '),
+         DB::raw(
+            '
+         COALESCE(
+             (SELECT SUM(invoice_payments.amount) FROM invoices
+             LEFT JOIN
+                invoice_payments ON invoices.id = invoice_payments.invoice_id
+             WHERE invoices.tenant_id = tenants.id),
+             0
+         ) AS total_paid
+         '
+         ),
+         DB::raw(
+            '
+            COALESCE(
+            COALESCE(
+                (SELECT SUM(invoices.total_amount) FROM invoices WHERE invoices.tenant_id = tenants.id),
+                0
+            )
+            -
+            COALESCE(
+                (SELECT SUM(invoice_payments.amount) FROM invoices
+                LEFT JOIN
+                   invoice_payments ON invoices.id = invoice_payments.invoice_id
+                WHERE invoices.tenant_id = tenants.id),
+                0
+            )
+         )
+         as total_due
+
+         '
+            ),
+
+            DB::raw(
+                '
+                COALESCE(
+                COALESCE(
+                    (SELECT SUM(invoices.total_amount) FROM invoices
+                    WHERE  invoices.tenant_id = tenants.id
+                    AND invoices.due_date >= "' . $currentDate . '"
+                    AND invoices.due_date <= "' . $endDate . '"
+
+                ),
+                    0
+                )
+                -
+                COALESCE(
+                    (SELECT SUM(invoice_payments.amount) FROM invoices
+                    LEFT JOIN
+                       invoice_payments ON invoices.id = invoice_payments.invoice_id
+                    WHERE invoices.tenant_id = tenants.id
+                    AND invoices.due_date >= "' . $currentDate . '"
+                    AND invoices.due_date <= "' . $endDate . '"
+
+                ),
+                    0
+                )
+             )
+             as total_due_next_15_days
+
+             '
+            ),
+            DB::raw(
+                '
+                COALESCE(
+                COALESCE(
+                    (SELECT SUM(invoices.total_amount) FROM invoices
+                    WHERE  invoices.tenant_id = tenants.id
+                    AND invoices.due_date < "' . today() . '"
+
+
+                ),
+                    0
+                )
+                -
+                COALESCE(
+                    (SELECT SUM(invoice_payments.amount) FROM invoices
+                    LEFT JOIN
+                       invoice_payments ON invoices.id = invoice_payments.invoice_id
+                    WHERE invoices.tenant_id = tenants.id
+                    AND invoices.due_date < "' . today() . '"
+
+
+                ),
+                    0
+                )
+             )
+             as total_over_due
+
+             '
+            ),
+
+
         )
         ->orderBy("tenants.first_Name",$request->order_by)->paginate($perPage);
 
