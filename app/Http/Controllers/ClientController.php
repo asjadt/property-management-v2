@@ -9,6 +9,7 @@ use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Business;
 use App\Models\Client;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -431,7 +432,8 @@ public function getClients($perPage, Request $request)
     try {
         $this->storeActivity($request,"");
 
-        // $automobilesQuery = AutomobileMake::with("makes");
+        $currentDate = Carbon::now();
+        $endDate = $currentDate->copy()->addDays(15);
 
         $clientQuery =  Client::where([
             "clients.created_by" => $request->user()->id
@@ -484,8 +486,119 @@ public function getClients($perPage, Request $request)
 
         $clients = $clientQuery
         ->groupBy("clients.id")
+
         ->select(
             "clients.*",
+
+
+
+         DB::raw(
+
+            '
+         COALESCE(
+             (SELECT SUM(invoices.total_amount) FROM invoices WHERE invoices.client_id = clients.id),
+             0
+         ) AS total_amount
+         '
+
+         ),
+         DB::raw('
+         COALESCE(
+             (SELECT COUNT(invoices.id) FROM invoices WHERE invoices.client_id = clients.id),
+             0
+         ) AS total_invoices
+         '),
+         DB::raw(
+            '
+         COALESCE(
+             (SELECT SUM(invoice_payments.amount) FROM invoices
+             LEFT JOIN
+                invoice_payments ON invoices.id = invoice_payments.invoice_id
+             WHERE invoices.client_id = clients.id),
+             0
+         ) AS total_paid
+         '
+         ),
+         DB::raw(
+            '
+            COALESCE(
+            COALESCE(
+                (SELECT SUM(invoices.total_amount) FROM invoices WHERE invoices.client_id = clients.id),
+                0
+            )
+            -
+            COALESCE(
+                (SELECT SUM(invoice_payments.amount) FROM invoices
+                LEFT JOIN
+                   invoice_payments ON invoices.id = invoice_payments.invoice_id
+                WHERE invoices.client_id = clients.id),
+                0
+            )
+         )
+         as total_due
+
+         '
+            ),
+
+            DB::raw(
+                '
+                COALESCE(
+                COALESCE(
+                    (SELECT SUM(invoices.total_amount) FROM invoices
+                    WHERE  invoices.client_id = clients.id
+                    AND invoices.due_date >= "' . $currentDate . '"
+                    AND invoices.due_date <= "' . $endDate . '"
+
+                ),
+                    0
+                )
+                -
+                COALESCE(
+                    (SELECT SUM(invoice_payments.amount) FROM invoices
+                    LEFT JOIN
+                       invoice_payments ON invoices.id = invoice_payments.invoice_id
+                    WHERE invoices.client_id = clients.id
+                    AND invoices.due_date >= "' . $currentDate . '"
+                    AND invoices.due_date <= "' . $endDate . '"
+
+                ),
+                    0
+                )
+             )
+             as total_due_next_15_days
+
+             '
+            ),
+            DB::raw(
+                '
+                COALESCE(
+                COALESCE(
+                    (SELECT SUM(invoices.total_amount) FROM invoices
+                    WHERE  invoices.client_id = clients.id
+                    AND invoices.due_date < "' . today() . '"
+
+
+                ),
+                    0
+                )
+                -
+                COALESCE(
+                    (SELECT SUM(invoice_payments.amount) FROM invoices
+                    LEFT JOIN
+                       invoice_payments ON invoices.id = invoice_payments.invoice_id
+                    WHERE invoices.client_id = clients.id
+                    AND invoices.due_date < "' . today() . '"
+
+
+                ),
+                    0
+                )
+             )
+             as total_over_due
+
+             '
+            ),
+
 
         )
         ->orderBy("clients.first_Name",$request->order_by)->paginate($perPage);
