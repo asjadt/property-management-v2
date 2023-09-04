@@ -173,30 +173,32 @@ class PropertyBasicController extends Controller
 
                     ->select('invoices.id', 'invoices.total_amount', 'invoices.invoice_date as created_at', 'invoices.invoice_reference', DB::raw("'invoice' as type"), 'invoices.due_date as due_date');
 
-                $invoicePaymentQuery = InvoicePayment::leftJoin('invoices', 'invoices.id', '=', 'invoice_payments.invoice_id')
-                    ->where([
-                        "invoices.property_id" => $property->id,
-                        "invoices.created_by" => $request->user()->id
-                    ])
-                    ->when(!empty($request->start_date), function ($query) use ($request) {
-                        return $query->where('invoice_payments.payment_date', ">=", $request->start_date);
-                    })
-                    ->when(!empty($request->end_date), function ($query) use ($request) {
-                        return $query->where('invoice_payments.payment_date', "<", $request["next_day"]);
-                    })
+                // $invoicePaymentQuery = InvoicePayment::leftJoin('invoices', 'invoices.id', '=', 'invoice_payments.invoice_id')
+                //     ->where([
+                //         "invoices.property_id" => $property->id,
+                //         "invoices.created_by" => $request->user()->id
+                //     ])
+                //     ->when(!empty($request->start_date), function ($query) use ($request) {
+                //         return $query->where('invoice_payments.payment_date', ">=", $request->start_date);
+                //     })
+                //     ->when(!empty($request->end_date), function ($query) use ($request) {
+                //         return $query->where('invoice_payments.payment_date', "<", $request["next_day"]);
+                //     })
 
-                    ->select('invoice_payments.invoice_id', 'invoice_payments.amount as total_amount', 'invoice_payments.payment_date as created_at', 'invoices.invoice_reference', DB::raw("'invoice_payment' as type"), 'invoices.due_date as due_date');
+                //     ->select('invoice_payments.invoice_id', 'invoice_payments.amount as total_amount', 'invoice_payments.payment_date as created_at', 'invoices.invoice_reference', DB::raw("'invoice_payment' as type"), 'invoices.due_date as due_date');
 
 
 
                 $activitiesQuery = $invoiceQuery
-                    ->unionAll($invoicePaymentQuery)
+                    // ->unionAll($invoicePaymentQuery)
                     ->orderBy('created_at', 'asc');
 
 
                 $activities = $activitiesQuery->get();
 
-
+                foreach($activities as $key=>$item){
+                    $activities[$key]->invoice_payments =  $activities[$key]->invoice_payments;
+                }
 
 
                 $section_1["invoice_payment_total_amount"] =   collect($activities)->filter(function ($item) {
