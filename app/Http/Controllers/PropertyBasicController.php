@@ -189,7 +189,19 @@ class PropertyBasicController extends Controller
                         return $query->where('invoices.invoice_date', "<", $request["next_day"]);
                     })
 
-                    ->select('invoices.id', 'invoices.total_amount', 'invoices.invoice_date as created_at', 'invoices.invoice_reference', DB::raw("'invoice' as type"), 'invoices.due_date as due_date');
+                    ->select('invoices.id', 'invoices.total_amount', 'invoices.invoice_date as created_at', 'invoices.invoice_reference', DB::raw("'invoice' as type"), 'invoices.due_date as due_date',
+                    DB::raw(
+                        '
+                     COALESCE(
+                         (SELECT SUM(invoice_payments.amount) FROM invoices
+                         LEFT JOIN
+                            invoice_payments ON invoices.id = invoice_payments.invoice_id
+                         WHERE invoices.client_id = clients.id),
+                         0
+                     ) AS total_paid
+                     '
+                     )
+                );
 
                 // $invoicePaymentQuery = InvoicePayment::leftJoin('invoices', 'invoices.id', '=', 'invoice_payments.invoice_id')
                 //     ->where([
@@ -220,7 +232,7 @@ class PropertyBasicController extends Controller
 
 
                 $section_1["invoice_payment_total_amount"] =   collect($activities)->filter(function ($item) {
-                    return $item->type == 'invoice_payment';
+                    return $item->type == 'invoice';
                 })->sum("total_amount");
 
                 $section_1["invoice_total_amount"] =   collect($activities)->filter(function ($item) {
@@ -481,7 +493,20 @@ class PropertyBasicController extends Controller
                         $property_ids =  $null_filter->all();
                         return $query->whereIn("invoices.property_id",$property_ids);
                     })
-                     ->select('invoices.id', 'invoices.total_amount', 'invoices.invoice_date as created_at', 'invoices.invoice_reference', DB::raw("'invoice' as type"), 'invoices.due_date as due_date');
+                     ->select('invoices.id', 'invoices.total_amount', 'invoices.invoice_date as created_at', 'invoices.invoice_reference', DB::raw("'invoice' as type"), 'invoices.due_date as due_date',
+
+                     DB::raw(
+                        '
+                     COALESCE(
+                         (SELECT SUM(invoice_payments.amount) FROM invoices
+                         LEFT JOIN
+                            invoice_payments ON invoices.id = invoice_payments.invoice_id
+                         WHERE invoices.client_id = clients.id),
+                         0
+                     ) AS total_paid
+                     '
+                     )
+                    );
 
                 // $invoicePaymentQuery = InvoicePayment::leftJoin('invoices', 'invoices.id', '=', 'invoice_payments.invoice_id')
                 //     ->where([
@@ -516,7 +541,7 @@ class PropertyBasicController extends Controller
 
 
                 $section_1["invoice_payment_total_amount"] =   collect($activitiesPaginated->items())->filter(function ($item) {
-                    return $item->type == 'invoice_payment';
+                    return $item->type == 'invoice';
                 })->sum("total_amount");
 
                 $section_1["invoice_total_amount"] =   collect($activitiesPaginated->items())->filter(function ($item) {
@@ -607,7 +632,19 @@ class PropertyBasicController extends Controller
                         $property_ids =  $null_filter->all();
                         return $query->whereIn("invoices.property_id",$property_ids);
                     })
-                     ->select('invoices.id', 'invoices.total_amount', 'invoices.invoice_date as created_at', 'invoices.invoice_reference', DB::raw("'invoice' as type"), 'invoices.due_date as due_date');
+                     ->select('invoices.id', 'invoices.total_amount', 'invoices.invoice_date as created_at', 'invoices.invoice_reference', DB::raw("'invoice' as type"), 'invoices.due_date as due_date',
+                     DB::raw(
+                        '
+                     COALESCE(
+                         (SELECT SUM(invoice_payments.amount) FROM invoices
+                         LEFT JOIN
+                            invoice_payments ON invoices.id = invoice_payments.invoice_id
+                         WHERE invoices.client_id = clients.id),
+                         0
+                     ) AS total_paid
+                     '
+                     )
+                    );
 
                 // $invoicePaymentQuery = InvoicePayment::leftJoin('invoices', 'invoices.id', '=', 'invoice_payments.invoice_id')
                 //     ->where([
@@ -642,7 +679,7 @@ class PropertyBasicController extends Controller
                 }
 
                 $section_1["invoice_payment_total_amount"] =   collect($activitiesPaginated->items())->filter(function ($item) {
-                    return $item->type == 'invoice_payment';
+                    return $item->type == 'invoice';
                 })->sum("total_amount");
 
                 $section_1["invoice_total_amount"] =   collect($activitiesPaginated->items())->filter(function ($item) {
@@ -729,7 +766,19 @@ class PropertyBasicController extends Controller
                         $property_ids =  $null_filter->all();
                         return $query->whereIn("invoices.property_id",$property_ids);
                     })
-                     ->select('invoices.id', 'invoices.total_amount', 'invoices.invoice_date as created_at', 'invoices.invoice_reference', DB::raw("'invoice' as type"), 'invoices.due_date as due_date');
+                     ->select('invoices.id', 'invoices.total_amount', 'invoices.invoice_date as created_at', 'invoices.invoice_reference', DB::raw("'invoice' as type"), 'invoices.due_date as due_date',
+                     DB::raw(
+                        '
+                     COALESCE(
+                         (SELECT SUM(invoice_payments.amount) FROM invoices
+                         LEFT JOIN
+                            invoice_payments ON invoices.id = invoice_payments.invoice_id
+                         WHERE invoices.client_id = clients.id),
+                         0
+                     ) AS total_paid
+                     '
+                     )
+                    );
 
                 // $invoicePaymentQuery = InvoicePayment::leftJoin('invoices', 'invoices.id', '=', 'invoice_payments.invoice_id')
                 //     ->where([
@@ -764,7 +813,7 @@ foreach($activitiesPaginated->items() as $key=>$item){
 
 
                 $section_1["invoice_payment_total_amount"] =   collect($activitiesPaginated->items())->filter(function ($item) {
-                    return $item->type == 'invoice_payment';
+                    return $item->type == 'invoice';
                 })->sum("total_amount");
 
                 $section_1["invoice_total_amount"] =   collect($activitiesPaginated->items())->filter(function ($item) {

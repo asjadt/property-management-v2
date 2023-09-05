@@ -57,8 +57,11 @@ class AuthRegisterBusinessRequest extends FormRequest
             "business.invoice_title" => "nullable|string",
 
             "business.footer_text" => "nullable|string",
+            "business.receipt_footer" => "nullable|string",
 
             "business.is_reference_manual" => "required|boolean",
+            "business.receipt_footer" => "nullable|string",
+
 
             "business.account_name" => "nullable|string",
             "business.account_number" => "nullable|string",

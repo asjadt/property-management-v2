@@ -34,6 +34,7 @@ class CreateBusinessesTable extends Migration
             $table->string("invoice_title")->nullable();
             $table->string("footer_text")->nullable();
             $table->boolean("is_reference_manual")->default(0);
+            $table->text('receipt_footer')->nullable();
 
             $table->string("account_name")->nullable();
             $table->string("account_number")->nullable();
@@ -45,7 +46,6 @@ class CreateBusinessesTable extends Migration
             $table->string("pin");
 
             $table->string("image")->nullable();
-
 
 
 

@@ -365,6 +365,8 @@ class UserManagementController extends Controller
      * "invoice_title":"invoice_title",
      * "footer_text":"footer_text",
      * "is_reference_manual":"1",
+     * * "receipt_footer":"t srt stgh st h",
+     *
      * "account_name":"thdht rth s",
      * "account_number":"fdghdgh",
      * "sort_code":"sort_coderthdrfth",
@@ -532,6 +534,8 @@ class UserManagementController extends Controller
      *   "invoice_title":"invoice_title",
      *  "footer_text":"footer_text",
      * "is_reference_manual":"1",
+     *  * "receipt_footer":"receipt_footer",
+     *
      *   * "account_name":"thdht rth s",
      * "account_number":"fdghdgh",
      * "sort_code":"sort_coderthdrfth",
@@ -698,6 +702,7 @@ class UserManagementController extends Controller
                 "invoice_title",
                 "footer_text",
                "is_reference_manual",
+               "receipt_footer",
                "account_name" ,
                "account_number",
                "sort_code",

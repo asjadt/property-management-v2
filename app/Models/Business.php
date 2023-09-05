@@ -31,6 +31,7 @@ class Business extends Model
         "invoice_title",
         "footer_text",
        "is_reference_manual",
+       "receipt_footer",
        "account_name" ,
        "account_number",
        "sort_code",
