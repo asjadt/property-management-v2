@@ -17,7 +17,8 @@ class Receipt extends Model
         'amount',
         'receipt_by',
         'receipt_date',
-        "created_by"
+        "created_by",
+        "notes"
     ];
 
     public function tenant() {

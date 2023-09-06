@@ -7,6 +7,9 @@ use App\Http\Requests\ReceiptUpdateRequest;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Business;
+use App\Models\Invoice;
+use App\Models\InvoiceItem;
+use App\Models\InvoicePayment;
 use App\Models\Receipt;
 use Exception;
 use Illuminate\Http\Request;
@@ -91,6 +94,9 @@ class ReceiptController extends Controller
             $this->storeActivity($request,"");
             return DB::transaction(function () use ($request) {
 
+                $business = Business::where([
+                    "owner_id" => $request->user()->id
+                  ])->first();
 
 
                 $insertableData = $request->validated();
@@ -130,6 +136,110 @@ class ReceiptController extends Controller
             });
 
             $receipt->receipt_sale_items()->createMany($sale_items->all());
+
+
+            if(!empty($sale_items->all())) {
+
+                $current_number = 1; // Start from 0001
+
+                do {
+                    $invoice_reference = str_pad($current_number, 4, '0', STR_PAD_LEFT);
+                    $current_number++; // Increment the current number for the next iteration
+                } while (
+                    DB::table('invoices')->where([
+                        'invoice_reference' => $invoice_reference,
+                        'created_by' => $request->user()->id
+                    ])->exists()
+                );
+
+$status = "partial";
+if($sale_items->sum('amount') == $receipt->amount) {
+    $status = "paid";
+}
+else if($sale_items->sum('amount') > $receipt->amount) {
+    $status = "overpaid";
+}
+else {
+    $status = "partial";
+}
+                $invoice_data = [
+                  "logo"=> $business->logo,
+                  "invoice_title"=> (!empty($business->invoice_title)?$business->invoice_title:"Invoice"),
+
+                  "invoice_reference" => $invoice_reference,
+                  "business_name"=>$business->name,
+                  "business_address"=>$business->address_line_1,
+
+                  "invoice_date"=>$receipt->receipt_date,
+                  "due_date" => $receipt->receipt_date,
+                  "footer_text"=>(!empty($business->footer_text)?$business->footer_text:"Thanks for business with us"),
+
+
+                  "property_id"=> $receipt->property->id,
+
+                  "status"=>$status,
+
+                  "tenant_id" =>  $receipt->tenant_id,
+
+                  "sub_total"=> $sale_items->sum('amount'),
+                  "total_amount"=>$sale_items->sum('amount'),
+
+                  'created_by' => $request->user()->id
+
+              ];
+
+              // Bill Adjustment
+                $invoice =  Invoice::create($invoice_data);
+                if(!$invoice) {
+                    throw new Exception("something went wrong");
+                }
+
+                $invoice->generated_id = Str::random(4) . $invoice->id . Str::random(4);
+                $invoice->shareable_link =  env("FRONT_END_URL_DASHBOARD")."/share/invoice/". Str::random(4) . "-". $invoice->generated_id ."-" . Str::random(4);
+
+                $invoice->save();
+
+
+
+                $invoiceItems = $sale_items->map(function ($item)use ($invoice) {
+
+                    return [
+                        "name" => $item["item"],
+                        "description" => $item["description"],
+                        "quantity" => 1,
+                        "price" => $item["amount"],
+                        "tax" => 0,
+                        "amount" => $item["amount"],
+                        "repair_id" => !empty($item["repair_id"])?$item["repair_id"]:NULL,
+                        "sale_id" => !empty($item["sale_id"])?$item["sale_id"]:NULL,
+                    ];
+                });
+
+                $invoice->invoice_items()->createMany($invoiceItems->all());
+
+
+              $invoice_payment =  InvoicePayment::create([
+                    "amount" => $receipt->amount,
+                    "payment_method" => "Bill Adjustment",
+                    "payment_date" => $receipt->receipt_date ,
+                    "note" => $receipt->notes,
+                    "invoice_id" => $invoice->id,
+                    "receipt_by" => $request->user()->id
+                ]);
+
+                if(!$invoice_payment) {
+                    throw new Exception("something went wrong");
+                }
+                $invoice_payment->generated_id = Str::random(4) . $invoice_payment->id . Str::random(4);
+
+                $invoice_payment->shareable_link = env("FRONT_END_URL_DASHBOARD")."/share/receipt/". Str::random(4) . "-". $invoice_payment->generated_id ."-" . Str::random(4);
+
+                $invoice_payment->save();
+
+
+
+            }
+
 
                 return response($receipt, 201);
 
