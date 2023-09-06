@@ -196,7 +196,7 @@ class PropertyBasicController extends Controller
                          (SELECT SUM(invoice_payments.amount) FROM invoices
                          LEFT JOIN
                             invoice_payments ON invoices.id = invoice_payments.invoice_id
-                         WHERE invoices.client_id = clients.id),
+                         ),
                          0
                      ) AS total_paid
                      '

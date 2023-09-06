@@ -328,25 +328,21 @@ public function updateInvoicePayment(InvoicePaymentUpdateRequest $request)
                 $invoice->save();
              }
 
-            $invoice_payment  =  tap(InvoicePayment::leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
-            ->where([
-                "invoice_payments.id" => $updatableData["id"],
-                "invoices.created_by" => $request->user()->id
-            ])
+             $invoice_payment = InvoicePayment::leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
+             ->where([
+                 "invoice_payments.id" => $updatableData["id"],
+                 "invoices.created_by" => $request->user()->id
+             ])
+         ->update([
+             "invoice_payments.amount" => $updatableData["amount"],
+             "invoice_payments.payment_method" => $updatableData["payment_method"],
+             "invoice_payments.payment_date" => $updatableData["payment_date"],
+             "invoice_payments.invoice_id" => $updatableData["invoice_id"],
+             "invoice_payments.note" => $updatableData["note"], // Use an alias to specify the 'note' column
+             "invoice_payments.receipt_by" => $updatableData["receipt_by"]
+         ]);
 
-            )->update(
-                collect($updatableData)->only([
-                    "amount",
-                    "payment_method",
-                    "payment_date",
-                    "invoice_id",
-                    "note",
-                    "receipt_by"
-                ])->toArray()
-            )
-                // ->with("somthing")
-
-                ->first();
+         $invoice_payment = InvoicePayment::find($updatableData["id"]);
 
             return response($invoice_payment, 200);
         });
