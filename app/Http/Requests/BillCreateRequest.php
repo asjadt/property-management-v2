@@ -25,6 +25,8 @@ class BillCreateRequest extends FormRequest
     {
         return [
             "create_date"=>"required|date",
+            "payment_date"=>"required|date",
+
             "property_id"=>"required|numeric|exists:properties,id",
             "landlord_id"=>"nullable|numeric|exists:landlords,id",
 

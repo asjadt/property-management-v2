@@ -26,6 +26,8 @@ class BillUpdateRequest extends FormRequest
         return [
             "id"=>"required|numeric|exists:bills,id",
             "create_date"=>"required|date",
+            "payment_date"=>"required|date",
+
             "property_id"=>"required|numeric|exists:properties,id",
             "landlord_id"=>"nullable|numeric|exists:landlords,id",
 

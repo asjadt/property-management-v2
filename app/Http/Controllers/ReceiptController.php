@@ -45,6 +45,7 @@ class ReceiptController extends Controller
      *            @OA\Property(property="receipt_by", type="string", format="string",example="receipt_by"),
      *  * *  @OA\Property(property="receipt_date", type="string", format="string",example="2019-06-29"),
      * *  * *  @OA\Property(property="notes", type="string", format="string",example="notes"),
+     *  * *  * *  @OA\Property(property="payment_method", type="string", format="string",example="payment_method"),
      *    *     *  * *  @OA\Property(property="sale_items", type="string", format="array",example={
    *{"sale_id":"1","item":"item","description":"description","amount":"10.1"},
     *{"sale_id":"2","item":"item","description":"description","amount":"10.1"},
@@ -220,7 +221,7 @@ else {
 
               $invoice_payment =  InvoicePayment::create([
                     "amount" => $receipt->amount,
-                    "payment_method" => "Bill Adjustment",
+                    "payment_method" => $receipt->payment_method,
                     "payment_date" => $receipt->receipt_date ,
                     "note" => $receipt->notes,
                     "invoice_id" => $invoice->id,
@@ -282,6 +283,8 @@ else {
      *            @OA\Property(property="receipt_by", type="string", format="string",example="receipt_by"),
      *  * *  @OA\Property(property="receipt_date", type="string", format="boolean",example="2019-06-29"),
      *     *  * *  @OA\Property(property="notes", type="string", format="tring",example="notes"),
+     *   *     *  * *  @OA\Property(property="payment_method", type="string", format="tring",example="payment_method"),
+     *
      *    *     *  * *  @OA\Property(property="sale_items", type="string", format="array",example={
    *{"sale_id":"1","item":"item","description":"description","amount":"10.1"},
     *{"sale_id":"2","item":"item","description":"description","amount":"10.1"},
@@ -362,7 +365,8 @@ else {
                         'amount',
                         'receipt_by',
                         'receipt_date',
-                        "notes"
+                        "notes",
+                        "payment_method"
                     ])->toArray()
                 )
                     // ->with("somthing")

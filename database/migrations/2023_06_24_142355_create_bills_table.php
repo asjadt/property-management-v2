@@ -18,6 +18,10 @@ class CreateBillsTable extends Migration
             $table->string('generated_id')->nullable();
             $table->string("shareable_link")->nullable();
             $table->dateTime("create_date");
+            $table->dateTime("payment_date");
+
+            $table->dateTime("payment_date");
+
 
             $table->unsignedBigInteger("property_id")->nullable();
             $table->foreign('property_id')->references('id')->on('properties')->onDelete('set null');
@@ -33,7 +37,7 @@ class CreateBillsTable extends Migration
             $table->string("remarks")->nullable();
 
 
-            
+
             $table->unsignedBigInteger("created_by");
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();

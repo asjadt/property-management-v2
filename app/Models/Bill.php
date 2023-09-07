@@ -11,6 +11,7 @@ class Bill extends Model
 
     protected $fillable = [
         'create_date',
+        "payment_date",
         'property_id',
         'landlord_id',
         'payment_mode',

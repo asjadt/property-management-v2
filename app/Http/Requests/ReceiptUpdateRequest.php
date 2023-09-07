@@ -51,7 +51,9 @@ class ReceiptUpdateRequest extends FormRequest
             'receipt_by' => "nullable|string",
             'receipt_date' => "required|date",
             'notes' => "nullable|string",
-            
+            'payment_method' => "required|string",
+
+
             "sale_items" => "nullable|array",
             "sale_items.*.sale_id" => "required|numeric|exists:sale_items,id",
             "sale_items.*.item" => "required|string",

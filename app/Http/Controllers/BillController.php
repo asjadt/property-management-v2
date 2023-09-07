@@ -46,6 +46,8 @@ class BillController extends Controller
    *         @OA\JsonContent(
    *            required={"name","description","logo"},
    *  *             @OA\Property(property="create_date", type="string", format="string",example="2019-06-29"),
+   *    *  *             @OA\Property(property="payment_date", type="string", format="string",example="2019-06-29"),
+   *
     *             @OA\Property(property="property_id", type="number", format="number",example="1"),
    *            @OA\Property(property="landlord_id", type="number", format="number",example="1"),
    *
@@ -130,6 +132,10 @@ class BillController extends Controller
               $invoiceDateWithTime = Carbon::createFromFormat('Y-m-d', $insertableData["create_date"]);
               $invoiceDateWithTime->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
               $insertableData["create_date"] =    $invoiceDateWithTime;
+              $invoicePaymentDateWithTime = Carbon::createFromFormat('Y-m-d', $insertableData["payment_date"]);
+              $invoicePaymentDateWithTime->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
+              $insertableData["payment_date"] =    $invoicePaymentDateWithTime;
+
 
               $bill =  Bill::create($insertableData);
               if(!$bill) {
@@ -332,7 +338,7 @@ class BillController extends Controller
       $invoice_payment =  InvoicePayment::create([
             "amount" => $bill->deduction,
             "payment_method" => "Bill Adjustment",
-            "payment_date" => $bill->create_date ,
+            "payment_date" => $bill->payment_date ,
             "note" => "Invoice cleared against BiLL ID " . $bill->id,
             "invoice_id" => $invoice->id,
             "receipt_by" => $request->user()->id
@@ -388,6 +394,8 @@ class BillController extends Controller
    *         @OA\JsonContent(
    *            required={"id","name","description","logo"},
     *  *             @OA\Property(property="create_date", type="string", format="string",example="2019-06-29"),
+        *  *             @OA\Property(property="payment_date", type="string", format="string",example="2019-06-29"),
+
     *             @OA\Property(property="property_id", type="number", format="number",example="1"),
    *            @OA\Property(property="landlord_id", type="number", format="number",example="1"),
    *
@@ -473,6 +481,7 @@ class BillController extends Controller
             ]))->update(
                 collect($updatableData)->only([
                     'create_date',
+                    "payment_date",
                     'property_id',
                     'landlord_id',
                     'payment_mode',
@@ -718,7 +727,7 @@ $invoice_prev = Invoice::where([
                   $invoice_payment =  InvoicePayment::create([
                         "amount" => $bill->deduction,
                         "payment_method" => "Bill Adjustment",
-                        "payment_date" => $bill->create_date ,
+                        "payment_date" => $bill->payment_date ,
                         "note" => "Invoice cleared against BiLL ID " . $bill->id,
                         "invoice_id" => $invoice->id,
                         "receipt_by" => $request->user()->id

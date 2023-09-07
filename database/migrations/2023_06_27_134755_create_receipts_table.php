@@ -23,6 +23,8 @@ class CreateReceiptsTable extends Migration
             $table->string("tenant_name")->nullable();
 
             $table->text("notes")->nullable();
+            $table->text("payment_method");
+
 
 
             $table->unsignedBigInteger("tenant_id")->nullable();
