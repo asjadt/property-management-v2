@@ -157,7 +157,7 @@ $status = "partial";
 if($sale_items->sum('amount') == $receipt->amount) {
     $status = "paid";
 }
-else if($sale_items->sum('amount') > $receipt->amount) {
+else if($sale_items->sum('amount') < $receipt->amount) {
     $status = "overpaid";
 }
 else {
