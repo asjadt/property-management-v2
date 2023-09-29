@@ -869,7 +869,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                 }
 
 
-           
+
                 $sum_payment_amounts = $invoice->invoice_payments()->sum('amount');
                 $invoice_due = $invoice->total_amount - $sum_payment_amounts;
 
@@ -1365,7 +1365,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 
    if(!empty($request->status)) {
        if($request->status == "unpaid") {
-           $invoiceQuery =      $invoiceQuery->whereNotIn("status", ['draft','paid']);
+           $invoiceQuery =      $invoiceQuery->whereNotIn("status", ['draft','paid','overpaid']);
        }
       else if($request->status == "next_15_days_invoice_due") {
            $currentDate = Carbon::now();

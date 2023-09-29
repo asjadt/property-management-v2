@@ -65,10 +65,10 @@
                     <div class="col" style="margin: auto">
                         <img style="
                         width: 200px;
-                        height: 200px;
+                        height: auto;
                         object-fit: contain;
                         margin-bottom: 20px;
-                        " class="business_logo  " src="https://i.ibb.co/M8YmF13/Porsche-logo-PNG2.png" alt="">
+                        " class="business_logo  " src="{{(env('APP_URL').$invoice->logo)}}" alt="">
                     </div>
 
                 </div>
@@ -191,7 +191,7 @@
         <div class="row">
             <div class="col" style="margin: auto">
                 <div style="margin: 50px 0px;width: 100%;"   class="d-flex justify-content-center align-items-center text-center">
-                    <a style="
+                    <a href="{{($invoice_payment->shareable_link)}}" style="
                     padding: 12px 50px;
                     border-radius: 30px;
                     background-color: #0575b4;
@@ -199,7 +199,6 @@
                     font-size: 18px;
                     font-weight: bold;
                     border: none;
-
                     ">View Invoice</a>
 
                 </div>
