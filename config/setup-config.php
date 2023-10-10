@@ -25,6 +25,9 @@ return [
                 "bill_item_update",
                 "bill_item_view",
                 "bill_item_delete",
+
+                "template_update",
+                "template_view"
             ],
         ],
         [
@@ -62,6 +65,10 @@ return [
        "bill_item_update",
        "bill_item_view",
        "bill_item_delete",
+
+
+       "template_update",
+       "template_view"
 
     ],
 

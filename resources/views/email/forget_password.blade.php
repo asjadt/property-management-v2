@@ -38,6 +38,6 @@
         <p>If you did not request to reset your password, please ignore this email. Your account will remain secure and no changes will be made.</p>
         <p>If you have any questions or concerns, please do not hesitate to reach out to us at {{ $contactEmail }}. We're here to help!</p>
         <p>Best regards,</p>
-        <p>{{env('APP_NAME')}}</p>
+        <p>{{ $user->business->name }}</p>
     </body>
 </html>
