@@ -56,7 +56,7 @@ class ReceiptCreateRequest extends FormRequest
 
 
             "sale_items" => "nullable|array",
-            "sale_items.*.sale_id" => "required|numeric|exists:sale_items,id",
+            "sale_items.*.sale_id" => "nullable|numeric|exists:sale_items,id",
             "sale_items.*.item" => "required|string",
             "sale_items.*.description" => "nullable|string",
             "sale_items.*.amount" => "required|numeric",

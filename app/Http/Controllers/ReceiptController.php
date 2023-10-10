@@ -225,7 +225,7 @@ else {
                     "payment_date" => $receipt->receipt_date ,
                     "note" => $receipt->notes,
                     "invoice_id" => $invoice->id,
-                    "receipt_by" => $request->user()->id
+                    "receipt_by" => $receipt->receipt_by
                 ]);
 
                 if(!$invoice_payment) {
