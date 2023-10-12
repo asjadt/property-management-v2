@@ -640,20 +640,14 @@ public function getTenants($perPage, Request $request)
 /**
  *
  * @OA\Get(
- *      path="/v1.0/tenants/optimized/{perPage}",
- *      operationId="getTenantsOptimized",
+ *      path="/v1.0/tenants/get/all/optimized",
+ *      operationId="getAllTenantsOptimized",
  *      tags={"property_management.tenant_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
 
- *              @OA\Parameter(
- *         name="perPage",
- *         in="path",
- *         description="perPage",
- *         required=true,
- *  example="6"
- *      ),
+
  *      * *  @OA\Parameter(
 * name="start_date",
 * in="query",
@@ -734,7 +728,7 @@ public function getTenants($perPage, Request $request)
  *     )
  */
 
- public function getTenantsOptimized($perPage, Request $request)
+ public function getAllTenantsOptimized( Request $request)
  {
      try {
          $this->storeActivity($request,"");
@@ -802,7 +796,7 @@ public function getTenants($perPage, Request $request)
              "tenants.first_Name",
              "tenants.last_Name",
          )
-         ->orderBy("tenants.first_Name",$request->order_by)->paginate($perPage);
+         ->orderBy("tenants.first_Name",$request->order_by)->get();
 
          return response()->json($tenants, 200);
      } catch (Exception $e) {

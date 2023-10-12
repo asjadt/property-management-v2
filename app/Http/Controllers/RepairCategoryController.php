@@ -427,20 +427,14 @@ public function getRepairCategories($perPage, Request $request)
 /**
  *
  * @OA\Get(
- *      path="/v1.0/repair-categories/optimized/{perPage}",
- *      operationId="getRepairCategoriesOptimized",
+ *      path="/v1.0/repair-categories/get/all/optimized",
+ *      operationId="getAllRepairCategoriesOptimized",
  *      tags={"property_management.repair_category_management"},
  *       security={
  *           {"bearerAuth": {}}
  *       },
 
- *              @OA\Parameter(
- *         name="perPage",
- *         in="path",
- *         description="perPage",
- *         required=true,
- *  example="6"
- *      ),
+
  *      * *  @OA\Parameter(
 * name="start_date",
 * in="query",
@@ -507,7 +501,7 @@ public function getRepairCategories($perPage, Request $request)
  *     )
  */
 
- public function getRepairCategoriesOptimized($perPage, Request $request)
+ public function getAllRepairCategoriesOptimized( Request $request)
  {
      try {
          $this->storeActivity($request,"");
@@ -537,11 +531,13 @@ public function getRepairCategories($perPage, Request $request)
 
          $repair_categories = $repair_categoryQuery
          ->select(
-            "repair_categories.name",
+            "repair_categories.id",
             "repair_categories.generated_id",
             "repair_categories.name",
+
+
             )
-         ->orderBy("id",$request->order_by)->paginate($perPage);
+         ->orderBy("id",$request->order_by)->get();
 
          return response()->json($repair_categories, 200);
      } catch (Exception $e) {

@@ -211,7 +211,7 @@ Route::post('/v1.0/tenant-image', [TenantController::class, "createTenantImage"]
 Route::post('/v1.0/tenants', [TenantController::class, "createTenant"]);
 Route::put('/v1.0/tenants', [TenantController::class, "updateTenant"]);
 Route::get('/v1.0/tenants/{perPage}', [TenantController::class, "getTenants"]);
-Route::get('/v1.0/tenants/optimized/{perPage}', [TenantController::class, "getTenantsOptimized"]);
+Route::get('/v1.0/tenants/get/all/optimized', [TenantController::class, "getAllTenantsOptimized"]);
 
 Route::get('/v1.0/tenants/get/single/{id}', [TenantController::class, "getTenantById"]);
 Route::delete('/v1.0/tenants/{id}', [TenantController::class, "deleteTenantById"]);
@@ -267,7 +267,7 @@ Route::post('/v1.0/repair-category-icon', [RepairCategoryController::class, "cre
 Route::post('/v1.0/repair-categories', [RepairCategoryController::class, "createRepairCategory"]);
 Route::put('/v1.0/repair-categories', [RepairCategoryController::class, "updateRepairCategory"]);
 Route::get('/v1.0/repair-categories/{perPage}', [RepairCategoryController::class, "getRepairCategories"]);
-Route::get('/v1.0/repair-categories/optimized/{perPage}', [RepairCategoryController::class, "getRepairCategoriesOptimized"]);
+Route::get('/v1.0/repair-categories/get/all/optimized', [RepairCategoryController::class, "getAllRepairCategoriesOptimized"]);
 Route::get('/v1.0/repair-categories/get/single/{id}', [RepairCategoryController::class, "getRepairCategoryById"]);
 Route::delete('/v1.0/repair-categories/{id}', [RepairCategoryController::class, "deleteRepairCategoryById"]);
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

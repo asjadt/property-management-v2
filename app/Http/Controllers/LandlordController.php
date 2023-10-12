@@ -1416,18 +1416,19 @@ class LandlordController extends Controller
             }
              $currentDate = Carbon::now();
              $endDate = $currentDate->copy()->addDays(15);
-             $landlordQuery = $landlordQuery
 
-             ->select(
-                 "landlords.id",
-                 "landlords.generated_id",
-                 'landlords.first_Name',
-                 'landlords.last_Name',
 
-             );
+
 
 
            $landlords =  $landlordQuery
+           ->select(
+            "landlords.id",
+            "landlords.generated_id",
+            'landlords.first_Name',
+            'landlords.last_Name',
+
+        )
            ->groupBy("landlords.id")
            ->orderBy("landlords.first_Name",$request->order_by)->get();
 
