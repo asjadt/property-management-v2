@@ -424,6 +424,132 @@ public function getRepairCategories($perPage, Request $request)
 }
 
 
+/**
+ *
+ * @OA\Get(
+ *      path="/v1.0/repair-categories/optimized/{perPage}",
+ *      operationId="getRepairCategoriesOptimized",
+ *      tags={"property_management.repair_category_management"},
+ *       security={
+ *           {"bearerAuth": {}}
+ *       },
+
+ *              @OA\Parameter(
+ *         name="perPage",
+ *         in="path",
+ *         description="perPage",
+ *         required=true,
+ *  example="6"
+ *      ),
+ *      * *  @OA\Parameter(
+* name="start_date",
+* in="query",
+* description="start_date",
+* required=true,
+* example="2019-06-29"
+* ),
+ * *  @OA\Parameter(
+* name="end_date",
+* in="query",
+* description="end_date",
+* required=true,
+* example="2019-06-29"
+* ),
+ * *  @OA\Parameter(
+* name="order_by",
+* in="query",
+* description="order_by",
+* required=true,
+* example="ASC"
+* ),
+ * *  @OA\Parameter(
+* name="search_key",
+* in="query",
+* description="search_key",
+* required=true,
+* example="search_key"
+* ),
+ *      summary="This method is to get repair categories ",
+ *      description="This method is to get repair categories",
+ *
+
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *       @OA\JsonContent(),
+ *       ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ * @OA\JsonContent(),
+ *      ),
+ *        @OA\Response(
+ *          response=422,
+ *          description="Unprocesseble Content",
+ *    @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *   @OA\JsonContent()
+ * ),
+ *  * @OA\Response(
+ *      response=400,
+ *      description="Bad Request",
+ *   *@OA\JsonContent()
+ *   ),
+ * @OA\Response(
+ *      response=404,
+ *      description="not found",
+ *   *@OA\JsonContent()
+ *   )
+ *      )
+ *     )
+ */
+
+ public function getRepairCategoriesOptimized($perPage, Request $request)
+ {
+     try {
+         $this->storeActivity($request,"");
+         if (!$request->user()->hasPermissionTo('repair_category_view')) {
+             return response()->json([
+                 "message" => "You can not perform this action"
+             ], 401);
+         }
+
+         // $automobilesQuery = AutomobileMake::with("makes");
+
+         $repair_categoryQuery =  new RepairCategory();
+
+         if (!empty($request->search_key)) {
+             $repair_categoryQuery = $repair_categoryQuery->where(function ($query) use ($request) {
+                 $term = $request->search_key;
+                 $query->where("name", "like", "%" . $term . "%");
+             });
+         }
+
+         if (!empty($request->start_date)) {
+             $repair_categoryQuery = $repair_categoryQuery->where('created_at', ">=", $request->start_date);
+         }
+         if (!empty($request->end_date)) {
+             $repair_categoryQuery = $repair_categoryQuery->where('created_at', "<=", $request->end_date);
+         }
+
+         $repair_categories = $repair_categoryQuery
+         ->select(
+            "repair_categories.name",
+            "repair_categories.generated_id",
+            "repair_categories.name",
+            )
+         ->orderBy("id",$request->order_by)->paginate($perPage);
+
+         return response()->json($repair_categories, 200);
+     } catch (Exception $e) {
+
+         return $this->sendError($e, 500,$request);
+     }
+ }
+
 
 /**
  *

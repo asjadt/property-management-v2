@@ -1256,6 +1256,187 @@ class LandlordController extends Controller
          }
      }
 
+     /**
+     *
+     * @OA\Get(
+     *      path="/v1.0/landlords/get/all/optimized",
+     *      operationId="getAllLandlordsOptimized",
+     *      tags={"property_management.landlord_management"},
+     *       security={
+     *           {"bearerAuth": {}}
+     *       },
+
+
+     *      * *  @OA\Parameter(
+* name="start_date",
+* in="query",
+* description="start_date",
+* required=true,
+* example="2019-06-29"
+* ),
+     * *  @OA\Parameter(
+* name="end_date",
+* in="query",
+* description="end_date",
+* required=true,
+* example="2019-06-29"
+* ),
+ * *  @OA\Parameter(
+* name="order_by",
+* in="query",
+* description="order_by",
+* required=true,
+* example="ASC"
+* ),
+     * *  @OA\Parameter(
+* name="search_key",
+* in="query",
+* description="search_key",
+* required=true,
+* example="search_key"
+* ),
+ * *  @OA\Parameter(
+* name="min_total_due",
+* in="query",
+* description="min_total_due",
+* required=true,
+* example="1"
+* ),
+ * *  @OA\Parameter(
+* name="max_total_due",
+* in="query",
+* description="max_total_due",
+* required=true,
+* example="1"
+* ),
+ * *  @OA\Parameter(
+* name="min_total_over_due",
+* in="query",
+* description="min_total_over_due",
+* required=true,
+* example="1"
+* ),
+ * *  @OA\Parameter(
+* name="max_total_over_due",
+* in="query",
+* description="max_total_over_due",
+* required=true,
+* example="1"
+* ),
+     *      summary="This method is to get all landlords ",
+     *      description="This method is to get all landlords",
+     *
+
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       @OA\JsonContent(),
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     * @OA\JsonContent(),
+     *      ),
+     *        @OA\Response(
+     *          response=422,
+     *          description="Unprocesseble Content",
+     *    @OA\JsonContent(),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *   @OA\JsonContent()
+     * ),
+     *  * @OA\Response(
+     *      response=400,
+     *      description="Bad Request",
+     *   *@OA\JsonContent()
+     *   ),
+     * @OA\Response(
+     *      response=404,
+     *      description="not found",
+     *   *@OA\JsonContent()
+     *   )
+     *      )
+     *     )
+     */
+
+     public function getAllLandlordsOptimized(Request $request)
+     {
+         try {
+             $this->storeActivity($request,"");
+
+             // $automobilesQuery = AutomobileMake::with("makes");
+
+             $landlordQuery =  Landlord::
+             leftJoin('properties', 'landlords.id', '=', 'properties.landlord_id')
+             ->where(["created_by" => $request->user()->id]);
+
+             if (!empty($request->search_key)) {
+                 $landlordQuery = $landlordQuery->where(function ($query) use ($request) {
+                     $term = $request->search_key;
+                     $terms = preg_split('/\s+/', $term); // Split search term by any whitespace
+
+                     foreach ($terms as $individualTerm) {
+                         $query->orWhere(function ($innerQuery) use ($individualTerm) {
+                             $innerQuery->where("landlords.first_Name", "like", "%" . $individualTerm . "%");
+                             $innerQuery->orWhere("landlords.last_Name", "like", "%" . $individualTerm . "%");
+                         });
+                     }
+
+
+                     $query->orWhere("landlords.phone", "like", "%" . $term . "%");
+
+
+                    //  $query->orWhere("landlords.address_line_1", "like", "%" . $term . "%");
+                    //  $query->orWhere("landlords.address_line_2", "like", "%" . $term . "%");
+                    //  $query->orWhere("landlords.country", "like", "%" . $term . "%");
+                    //  $query->orWhere("landlords.city", "like", "%" . $term . "%");
+                    //  $query->orWhere("landlords.postcode", "like", "%" . $term . "%");
+                    //  $query->orWhere("landlords.email", "like", "%" . $term . "%");
+                 });
+             }
+
+             if (!empty($request->start_date)) {
+                 $landlordQuery = $landlordQuery->where('created_at', ">=", $request->start_date);
+             }
+             if (!empty($request->end_date)) {
+                 $landlordQuery = $landlordQuery->where('created_at', "<=", $request->end_date);
+             }
+             if(!empty($request->property_id)){
+                $landlordQuery = $landlordQuery->where('properties.id',$request->property_id);
+            }
+            if(!empty($request->property_ids)) {
+                $null_filter = collect(array_filter($request->property_ids))->values();
+            $property_ids =  $null_filter->all();
+                if(count($property_ids)) {
+                    $landlordQuery =   $landlordQuery->whereIn("properties.id",$property_ids);
+                }
+
+            }
+             $currentDate = Carbon::now();
+             $endDate = $currentDate->copy()->addDays(15);
+             $landlordQuery = $landlordQuery
+
+             ->select(
+                 "landlords.id",
+                 "landlords.generated_id",
+                 'landlords.first_Name',
+                 'landlords.last_Name',
+
+             );
+
+
+           $landlords =  $landlordQuery
+           ->groupBy("landlords.id")
+           ->orderBy("landlords.first_Name",$request->order_by)->get();
+
+             return response()->json($landlords, 200);
+         } catch (Exception $e) {
+
+             return $this->sendError($e, 500,$request);
+         }
+     }
 
 
  /**

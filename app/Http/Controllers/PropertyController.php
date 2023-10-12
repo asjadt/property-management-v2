@@ -715,6 +715,171 @@ public function getProperties($perPage, Request $request)
  }
 
 
+/**
+ *
+ * @OA\Get(
+ *      path="/v1.0/properties/get/all/optimized",
+ *      operationId="getAllPropertiesOptimized",
+ *      tags={"property_management.property_management"},
+ *       security={
+ *           {"bearerAuth": {}}
+ *       },
+
+
+ *      * *  @OA\Parameter(
+* name="start_date",
+* in="query",
+* description="start_date",
+* required=true,
+* example="2019-06-29"
+* ),
+ * *  @OA\Parameter(
+* name="end_date",
+* in="query",
+* description="end_date",
+* required=true,
+* example="2019-06-29"
+* ),
+ * *  @OA\Parameter(
+* name="order_by",
+* in="query",
+* description="order_by",
+* required=true,
+* example="ASC"
+* ),
+ * *  @OA\Parameter(
+* name="search_key",
+* in="query",
+* description="search_key",
+* required=true,
+* example="search_key"
+* ),
+ * *  @OA\Parameter(
+* name="address",
+* in="query",
+* description="address",
+* required=true,
+* example="address"
+* ),
+ * *  @OA\Parameter(
+* name="landlord_id",
+* in="query",
+* description="landlord_id",
+* required=true,
+* example="1"
+* ),
+ * *  @OA\Parameter(
+* name="tenant_id",
+* in="query",
+* description="tenant_id",
+* required=true,
+* example="1"
+* ),
+ *      summary="This method is to get properties ",
+ *      description="This method is to get properties",
+ *
+
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *       @OA\JsonContent(),
+ *       ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ * @OA\JsonContent(),
+ *      ),
+ *        @OA\Response(
+ *          response=422,
+ *          description="Unprocesseble Content",
+ *    @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *   @OA\JsonContent()
+ * ),
+ *  * @OA\Response(
+ *      response=400,
+ *      description="Bad Request",
+ *   *@OA\JsonContent()
+ *   ),
+ * @OA\Response(
+ *      response=404,
+ *      description="not found",
+ *   *@OA\JsonContent()
+ *   )
+ *      )
+ *     )
+ */
+
+ public function getAllPropertiesOptimized( Request $request)
+ {
+     try {
+         $this->storeActivity($request,"");
+
+         // $automobilesQuery = AutomobileMake::with("makes");
+
+         $propertyQuery =  Property::
+         leftJoin('property_tenants', 'properties.id', '=', 'property_tenants.property_id')
+         ->leftJoin('tenants', 'property_tenants.tenant_id', '=', 'tenants.id')
+         ->where(["properties.created_by" => $request->user()->id]);
+
+         if (!empty($request->search_key)) {
+             $propertyQuery = $propertyQuery->where(function ($query) use ($request) {
+                 $term = $request->search_key;
+
+                 $query->where("properties.reference_no", "like", "%" . $term . "%");
+                 $query->orWhere("properties.address", "like", "%" . $term . "%");
+                 $query->orWhere("properties.type", "like", "%" . $term . "%");
+
+
+                //  $query->orWhere("properties.name", "like", "%" . $term . "%");
+
+                //  $query->orWhere("properties.country", "like", "%" . $term . "%");
+                //  $query->orWhere("properties.city", "like", "%" . $term . "%");
+                //  $query->orWhere("properties.postcode", "like", "%" . $term . "%");
+                //  $query->orWhere("properties.town", "like", "%" . $term . "%");
+
+
+             });
+         }
+
+         if (!empty($request->landlord_id)) {
+            $propertyQuery =  $propertyQuery->where("properties.landlord_id", $request->landlord_id );
+        }
+        if (!empty($request->tenant_id)) {
+            $propertyQuery =  $propertyQuery->where("tenants.id", $request->tenant_id );
+        }
+         if (!empty($request->address)) {
+             $propertyQuery =  $propertyQuery->where("properties.address", "like", "%" . $request->address . "%");
+         }
+
+         if (!empty($request->start_date)) {
+             $propertyQuery = $propertyQuery->where('properties.created_at', ">=", $request->start_date);
+         }
+         if (!empty($request->end_date)) {
+             $propertyQuery = $propertyQuery->where('properties.created_at', "<=", $request->end_date);
+         }
+
+         $properties = $propertyQuery
+         ->groupBy("properties.id")
+         ->select(
+            "properties.id",
+            "properties.generated_id",
+            "properties.address",
+
+         )
+
+         ->orderBy("properties.address",$request->order_by)->get();
+
+         return response()->json($properties, 200);
+     } catch (Exception $e) {
+
+         return $this->sendError($e, 500,$request);
+     }
+ }
+
 
 /**
  *
