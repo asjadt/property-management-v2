@@ -191,6 +191,8 @@ Route::post('/v1.0/landlords', [LandlordController::class, "createLandlord"]);
 Route::put('/v1.0/landlords', [LandlordController::class, "updateLandlord"]);
 
 Route::get('/v1.0/landlords/{perPage}', [LandlordController::class, "getLandlords"]);
+Route::get('/v1.0/landlords/optimized/{perPage}', [LandlordController::class, "getLandlordsOptimized"]);
+
 Route::get('/v1.0/landlords/get/all', [LandlordController::class, "getAllLandlords"]);
 Route::get('/v1.0/landlords/get/single/{id}', [LandlordController::class, "getLandlordById"]);
 Route::delete('/v1.0/landlords/{id}', [LandlordController::class, "deleteLandlordById"]);

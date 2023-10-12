@@ -1348,12 +1348,120 @@ public function updateInvoice(InvoiceUpdateRequest $request)
          return $this->sendError($e, 500,$request);
      }
  }
-
  public function invoiceQuery(Request $request) {
+    // $automobilesQuery = AutomobileMake::with("makes");
+
+    $invoiceQuery = Invoice::with("invoice_items")
+ //    with("invoice_items","invoice_payments","invoice_reminder","tenant","landlord","client")
+    ->where([
+         "invoices.created_by" => $request->user()->id
+    ]);
+    // ->leftJoin('users', 'invoices.created_by', '=', 'users.id')
+
+
+
+
+
+
+    if(!empty($request->status)) {
+        if($request->status == "unpaid") {
+            $invoiceQuery =      $invoiceQuery->whereNotIn("status", ['draft','paid','overpaid']);
+        }
+       else if($request->status == "next_15_days_invoice_due") {
+            $currentDate = Carbon::now();
+            $endDate = $currentDate->copy()->addDays(15);
+            $invoiceQuery =      $invoiceQuery->whereNotIn("status", ['draft','paid']);
+            $invoiceQuery =      $invoiceQuery->whereDate('invoices.due_date', '>=', $currentDate);
+            $invoiceQuery =      $invoiceQuery->whereDate('invoices.due_date', '<=', $endDate);
+        }
+        else {
+            $invoiceQuery =      $invoiceQuery->where("status", $request->status);
+        }
+
+     }
+
+
+
+
+
+
+
+    if (!empty($request->invoice_reference)) {
+        $invoiceQuery =   $invoiceQuery->where("invoices.invoice_reference", "like", "%" . $request->invoice_reference . "%");
+    }
+
+    if (!empty($request->landlord_id)) {
+        $invoiceQuery =   $invoiceQuery->where("invoices.landlord_id", $request->landlord_id);
+    }
+    if (!empty($request->tenant_id)) {
+        $invoiceQuery =   $invoiceQuery->where("invoices.tenant_id", $request->tenant_id);
+    }
+    if (!empty($request->client_id)) {
+     $invoiceQuery =   $invoiceQuery->where("invoices.client_id", $request->client_id);
+ }
+
+
+    if (!empty($request->property_id)) {
+        $invoiceQuery =   $invoiceQuery->where("invoices.property_id", $request->property_id);
+    }
+
+
+    if(!empty($request->property_ids)) {
+        $null_filter = collect(array_filter($request->property_ids))->values();
+    $property_ids =  $null_filter->all();
+        if(count($property_ids)) {
+            $invoiceQuery =   $invoiceQuery->whereIn("invoices.property_id",$property_ids);
+        }
+
+    }
+
+
+    // if (!empty($request->search_key)) {
+    //     $invoiceQuery = $invoiceQuery->where(function ($query) use ($request) {
+    //         $term = $request->search_key;
+    //         $query->where("name", "like", "%" . $term . "%");
+    //     });
+    // }
+
+    if (!empty($request->start_date)) {
+        $invoiceQuery = $invoiceQuery->where('invoices.created_at', ">=", $request->start_date);
+    }
+
+    if (!empty($request->end_date)) {
+        $invoiceQuery = $invoiceQuery->where('invoices.created_at', "<=", $request->end_date);
+    }
+
+    $invoiceQuery = $invoiceQuery
+    ->select("invoices.*",
+    DB::raw('
+        COALESCE(
+            (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+            0
+        ) AS total_paid
+    '),
+    DB::raw('
+        COALESCE(
+            invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+            invoices.total_amount
+        ) AS total_due
+    ')
+ );
+ if(!empty($request->min_total_due)) {
+     $invoiceQuery = $invoiceQuery->havingRaw("total_due >= " . $request->min_total_due . "");
+ }
+ if(!empty($request->max_total_due)) {
+     $invoiceQuery = $invoiceQuery->havingRaw("total_due <= " . $request->max_total_due . "");
+ }
+ $invoiceQuery = $invoiceQuery->orderBy("invoices.id",$request->order_by);
+    return $invoiceQuery;
+
+  }
+ public function invoiceQuery2(Request $request) {
    // $automobilesQuery = AutomobileMake::with("makes");
 
-   $invoiceQuery = Invoice::with("invoice_items","invoice_payments","invoice_reminder","tenant","landlord","client")
-   ->where([
+   $invoiceQuery = Invoice::
+//    with("invoice_items","invoice_payments","invoice_reminder","tenant","landlord","client")
+   where([
         "invoices.created_by" => $request->user()->id
    ]);
    // ->leftJoin('users', 'invoices.created_by', '=', 'users.id')
@@ -1432,7 +1540,16 @@ public function updateInvoice(InvoiceUpdateRequest $request)
    }
 
    $invoiceQuery = $invoiceQuery
-   ->select("invoices.*",
+   ->select(
+      "invoices.id",
+                 "invoices.generated_id",
+                 "invoices.business_address",
+                 "invoices.status",
+                 "invoices.invoice_date",
+                 "invoices.invoice_reference",
+                 "invoices.due_date",
+                 "invoices.total_amount",
+                 "property_id",
    DB::raw('
        COALESCE(
            (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
@@ -1611,7 +1728,7 @@ public function getInvoices($perPage, Request $request)
     try {
         $this->storeActivity($request,"");
 
-        $invoices = $this->invoiceQuery($request)->paginate($perPage);
+        $invoices = $this->invoiceQuery2($request)->paginate($perPage);
         return response()->json($invoices, 200);
 
     //   $invoices = $this->invoiceQuery($request)->paginate($perPage);

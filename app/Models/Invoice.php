@@ -10,6 +10,7 @@ class Invoice extends Model
 {
 
     use HasFactory;
+
     protected $fillable = [
         "logo",
         "invoice_title",
