@@ -676,10 +676,10 @@ public function getInvoicePaymentById($invoice_id,$id, Request $request)
 
 
          $invoice_payment = InvoicePayment::with("invoice")
-         ->leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
+        //  ->leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
          ->where([
              "invoice_payments.generated_id" => $id,
-             "invoices.created_by" => $request->user()->id
+
          ])
          ->select("invoice_payments.*")
 
