@@ -60,7 +60,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
-
+Route::get('/v1.0/invoices/get/pdf/test', [InvoiceController::class, "getInvoicesPdfTest"]);
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -346,6 +346,8 @@ Route::put('/v1.0/invoices/mark/send', [InvoiceController::class, "invoiceMarkSe
 
 Route::put('/v1.0/invoices/send', [InvoiceController::class, "sendInvoice"]);
 Route::get('/v1.0/invoices/{perPage}', [InvoiceController::class, "getInvoices"]);
+Route::get('/v1.0/invoices/get/pdf', [InvoiceController::class, "getInvoicesPdf"]);
+
 
 Route::get('/v1.0/invoices/get/all', [InvoiceController::class, "getAllInvoices"]);
 
