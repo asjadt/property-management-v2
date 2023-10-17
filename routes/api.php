@@ -61,6 +61,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/v1.0/invoices/get/pdf/test', [InvoiceController::class, "getInvoicesPdfTest"]);
+Route::get('/v1.0/bills/get/all/pdf/test', [BillController::class, "getAllBillsPdfTest"]);
 /*
 |--------------------------------------------------------------------------
 | API Routes

@@ -23,6 +23,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use PDF;
 
 class BillController extends Controller
 {
@@ -778,7 +779,136 @@ $invoice_prev = Invoice::where([
       }
   }
 
+  public function billQueryTest(Request $request) {
+    // $automobilesQuery = AutomobileMake::with("makes");
 
+    $billQuery = Bill::with("bill_bill_items","bill_sale_items","bill_repair_items","landlord","property")
+    ->leftJoin('invoices', 'invoices.bill_id', '=', 'bills.id')
+
+  ;
+
+  if (!empty($request->landlord_id)) {
+   $billQuery =   $billQuery->where("bills.landlord_id", $request->landlord_id);
+}
+
+
+if (!empty($request->start_date)) {
+   $billQuery = $billQuery->whereDate('bills.create_date', ">=", $request->start_date);
+}
+
+if (!empty($request->end_date)) {
+   $billQuery = $billQuery->whereDate('bills.create_date', "<=", $request->end_date);
+}
+
+
+if (!empty($request->min_amount)) {
+   $billQuery = $billQuery->where('bills.payabble_amount', ">=", $request->min_amount);
+}
+
+if (!empty($request->max_amount)) {
+   $billQuery = $billQuery->where('bills.payabble_amount', "<=", $request->max_amount);
+}
+
+if(!empty($request->search_key)) {
+   $billQuery = $billQuery->where(function($query) use ($request){
+       $term = $request->search_key;
+       $query->whereHas('bill_bill_items', function ($query) use ($request) {
+           $query->where('item', 'like', '%' . $request->search_key . '%');
+       });
+       $query->orWhereHas('bill_sale_items', function ($query) use ($request) {
+           $query->where('item', 'like', '%' . $request->search_key . '%');
+       });
+       $query->orWhereHas('bill_repair_items', function ($query) use ($request) {
+           $query->where('item', 'like', '%' . $request->search_key . '%');
+       });
+   });
+
+}
+
+
+
+
+
+    if(!empty($request->status)) {
+        if($request->status == "unpaid") {
+            $billQuery =      $billQuery->whereNotIn("invoices.status", ['draft','paid']);
+        }
+       else if($request->status == "next_15_days_invoice_due") {
+            $currentDate = Carbon::now();
+            $endDate = $currentDate->copy()->addDays(15);
+            $billQuery =      $billQuery->whereNotIn("invoices.status", ['draft','paid']);
+            $billQuery =      $billQuery->whereDate('invoices.due_date', '>=', $currentDate);
+            $billQuery =      $billQuery->whereDate('invoices.due_date', '<=', $endDate);
+        }
+        else {
+            $billQuery =      $billQuery->where("status", $request->status);
+        }
+
+     }
+
+
+
+
+
+
+
+    if (!empty($request->invoice_reference)) {
+        $billQuery =   $billQuery->where("invoices.invoice_reference", "like", "%" . $request->invoice_reference . "%");
+    }
+
+
+    if (!empty($request->tenant_id)) {
+        $billQuery =   $billQuery->where("invoices.tenant_id", $request->tenant_id);
+    }
+    if (!empty($request->client_id)) {
+     $billQuery =   $billQuery->where("invoices.client_id", $request->client_id);
+ }
+
+
+    if (!empty($request->property_id)) {
+        $billQuery =   $billQuery->where("bills.property_id", $request->property_id);
+    }
+
+
+    if(!empty($request->property_ids)) {
+        $null_filter = collect(array_filter($request->property_ids))->values();
+    $property_ids =  $null_filter->all();
+        if(count($property_ids)) {
+            $billQuery =   $billQuery->whereIn("bills.property_id",$property_ids);
+        }
+
+    }
+
+
+
+
+    $billQuery = $billQuery
+    ->select(
+       "bills.*",
+       // "invoices.*",
+   //  DB::raw('
+   //      COALESCE(
+   //          (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+   //          0
+   //      ) AS total_paid
+   //  '),
+   //  DB::raw('
+   //      COALESCE(
+   //          invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+   //          invoices.total_amount
+   //      ) AS total_due
+   //  ')
+ );
+//   if(!empty($request->min_total_due)) {
+//       $billQuery = $billQuery->havingRaw("total_due >= " . $request->min_total_due . "");
+//   }
+//   if(!empty($request->max_total_due)) {
+//       $billQuery = $billQuery->havingRaw("total_due <= " . $request->max_total_due . "");
+//   }
+ $billQuery = $billQuery->orderBy("bills.id",$request->order_by);
+    return $billQuery;
+
+  }
    public function billQuery(Request $request) {
      // $automobilesQuery = AutomobileMake::with("makes");
 
@@ -1250,7 +1380,183 @@ if(!empty($request->search_key)) {
            return $this->sendError($e, 500,$request);
        }
    }
+  /**
+   *
+   * @OA\Get(
+   *      path="/v1.0/bills/get/all",
+   *      operationId="getAllBillsPdfTest",
+   *      tags={"property_management.bill_management"},
+   *       security={
+   *           {"bearerAuth": {}}
+   *       },
 
+
+    *      * *  @OA\Parameter(
+  * name="start_date",
+  * in="query",
+  * description="start_date",
+  * required=true,
+  * example="2019-06-29"
+  * ),
+   * *  @OA\Parameter(
+  * name="end_date",
+  * in="query",
+  * description="end_date",
+  * required=true,
+  * example="2019-06-29"
+  * ),
+   * *  @OA\Parameter(
+  * name="order_by",
+  * in="query",
+  * description="order_by",
+  * required=true,
+  * example="ASC"
+  * ),
+   * *  @OA\Parameter(
+  * name="search_key",
+  * in="query",
+  * description="search_key",
+  * required=true,
+  * example="search_key"
+  * ),
+   * *  @OA\Parameter(
+  * name="status",
+  * in="query",
+  * description="status",
+  * required=true,
+  * example="status"
+  * ),
+
+   * *  @OA\Parameter(
+  * name="invoice_reference",
+  * in="query",
+  * description="invoice_reference",
+  * required=true,
+  * example="1374"
+  * ),
+
+   * *  @OA\Parameter(
+  * name="landlord_id",
+  * in="query",
+  * description="landlord_id",
+  * required=true,
+  * example="1"
+  * ),
+   * *  @OA\Parameter(
+  * name="min_amount",
+  * in="query",
+  * description="min_amount",
+  * required=true,
+  * example="1"
+  * ),
+   * *  @OA\Parameter(
+  * name="max_amount",
+  * in="query",
+  * description="max_amount",
+  * required=true,
+  * example="1"
+  * ),
+
+   * *  @OA\Parameter(
+  * name="tenant_id",
+  * in="query",
+  * description="tenant_id",
+  * required=true,
+  * example="1"
+  * ),
+   * *  @OA\Parameter(
+  * name="client_id",
+  * in="query",
+  * description="client_id",
+  * required=true,
+  * example="1"
+  * ),
+
+   * *  @OA\Parameter(
+  * name="property_id",
+  * in="query",
+  * description="property_id",
+  * required=true,
+  * example="1"
+  * ),
+
+  *  @OA\Parameter(
+  *      name="property_ids[]",
+  *      in="query",
+  *      description="property_ids",
+  *      required=true,
+  *      example="1,2"
+  * ),
+   * *  @OA\Parameter(
+  * name="min_total_due",
+  * in="query",
+  * description="min_total_due",
+  * required=true,
+  * example="1"
+  * ),
+   * *  @OA\Parameter(
+  * name="total_due_max",
+  * in="query",
+  * description="total_due",
+  * required=true,
+  * example="1"
+  * ),
+
+
+   *      summary="This method is to get bills ",
+   *      description="This method is to get bills",
+   *
+
+   *      @OA\Response(
+   *          response=200,
+   *          description="Successful operation",
+   *       @OA\JsonContent(),
+   *       ),
+   *      @OA\Response(
+   *          response=401,
+   *          description="Unauthenticated",
+   * @OA\JsonContent(),
+   *      ),
+   *        @OA\Response(
+   *          response=422,
+   *          description="Unprocesseble Content",
+   *    @OA\JsonContent(),
+   *      ),
+   *      @OA\Response(
+   *          response=403,
+   *          description="Forbidden",
+   *   @OA\JsonContent()
+   * ),
+   *  * @OA\Response(
+   *      response=400,
+   *      description="Bad Request",
+   *   *@OA\JsonContent()
+   *   ),
+   * @OA\Response(
+   *      response=404,
+   *      description="not found",
+   *   *@OA\JsonContent()
+   *   )
+   *      )
+   *     )
+   */
+
+   public function getAllBillsPdfTest( Request $request)
+   {
+       try {
+           $this->storeActivity($request,"");
+            $bills = $this->billQueryTest($request)->get();
+            $pdf = PDF::loadView('pdf.bills', ["bills"=>$bills]);
+
+            return $pdf->stream(); // Stream the PDF content
+
+
+
+       } catch (Exception $e) {
+
+           return $this->sendError($e, 500,$request);
+       }
+   }
 
 
   /**
