@@ -286,7 +286,7 @@ class BillController extends Controller
 
         $invoice->save();
 
-         $invoice_items_data = $repair_items->merge($sale_items);
+        $invoice_items_data = $sale_items->merge($repair_items);
 
         $invoiceItems = $invoice_items_data->map(function ($item)use ($invoice) {
             if(!empty($item["repair_id"])) {
@@ -670,7 +670,9 @@ $invoice_prev = Invoice::where([
 
 
 
-                     $invoice_items_data = $repair_items->merge($sale_items);
+
+                     $invoice_items_data = $sale_items->merge($repair_items);
+
                      $invoice->invoice_items()->delete();
                     $invoiceItems = $invoice_items_data->map(function ($item)use ($invoice) {
                         if(!empty($item["repair_id"])) {
@@ -885,6 +887,9 @@ if(!empty($request->search_key)) {
     $billQuery = $billQuery
     ->select(
        "bills.*",
+       "invoices.id",
+       "invoices.generated_id",
+       "invoices.invoice_reference"
        // "invoices.*",
    //  DB::raw('
    //      COALESCE(
@@ -1017,6 +1022,9 @@ if(!empty($request->search_key)) {
      $billQuery = $billQuery
      ->select(
         "bills.*",
+        "invoices.id",
+        "invoices.generated_id",
+        "invoices.invoice_reference"
         // "invoices.*",
     //  DB::raw('
     //      COALESCE(
@@ -1627,7 +1635,10 @@ if(!empty($request->search_key)) {
               "bills.created_by" => $request->user()->id
           ])
           ->select(
-            "bills.*"
+            "bills.*",
+            "invoices.id",
+            "invoices.generated_id",
+            "invoices.invoice_reference"
         //     "invoices.*",
         //   DB::raw('
         //       COALESCE(
