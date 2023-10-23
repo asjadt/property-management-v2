@@ -14,9 +14,12 @@ use App\Http\Utils\UserActivityUtil;
 use App\Mail\SendInvoiceEmail;
 use App\Models\Bill;
 use App\Models\Business;
+use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\InvoiceReminder;
+use App\Models\Landlord;
+use App\Models\Tenant;
 use Carbon\Carbon;
 use DateTime;
 use Exception;
@@ -2113,8 +2116,67 @@ return $pdf->stream(); // Stream the PDF content
          $this->storeActivity($request,"");
 
          $invoices = $this->invoiceQueryTest($request)->get();
+         $business =   Business::where([
+            // "owner_id" => $request->user()->id
+            "owner_id" => 2
+          ])->first();
 
-$pdf = PDF::loadView('pdf.invoice', ["invoices"=>$invoices]);
+      $data =    ["invoices"=>$invoices,"business"=>$business];
+
+          if (!empty($request->landlord_id)) {
+            $landlord = Landlord::where([
+                "id" => $request->landlord_id,
+                // "created_by" => $request->user()->id
+            ])
+                ->first();
+            if (!$landlord) {
+                return response()->json([
+                    "message" => "no landlord found"
+                ], 404);
+            }
+            $data["client"] = $landlord;
+        }
+        else   if (!empty($request->tenant_id)) {
+            $tenant = Tenant::where([
+                "id" => $request->tenant_id,
+                // "created_by" => $request->user()->id
+            ])
+                ->first();
+            if (!$tenant) {
+                return response()->json([
+                    "message" => "no tenant found"
+                ], 404);
+            }
+            $data["client"] = $tenant;
+        }
+        else if ($request->client_id) {
+            $client = Client::where([
+                "id" => $request->client_id,
+                // "created_by" => $request->user()->id
+            ])
+                ->first();
+            if (!$client) {
+                return response()->json([
+                    "message" => "no client found"
+                ], 404);
+            }
+            $data["client"] = $client;
+        }
+        else {
+            $error =  [
+                "message" => "The given data was invalid.",
+                "errors" => [
+
+                    "tenant_id" => ["tenant must be selected if landlord or client_id is not selected."],
+                    "landlord_id" => ["landlord must be selected if tenant or client_id is not selected."],
+                    "client_id" => ["client must be selected if business is other"]
+
+                ]
+            ];
+            throw new Exception(json_encode($error), 422);
+        }
+
+$pdf = PDF::loadView('pdf.invoice', $data);
 
 return $pdf->stream(); // Stream the PDF content
 

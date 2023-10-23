@@ -885,10 +885,11 @@ if(!empty($request->search_key)) {
 
 
     $billQuery = $billQuery
+    ->groupBy("bills.id")
     ->select(
        "bills.*",
-       "invoices.id",
-       "invoices.generated_id",
+       "invoices.id as invoice_id",
+       "invoices.generated_id as invoice_generated_id",
        "invoices.invoice_reference"
        // "invoices.*",
    //  DB::raw('
@@ -1020,10 +1021,11 @@ if(!empty($request->search_key)) {
 
 
      $billQuery = $billQuery
+     ->groupBy("bills.id")
      ->select(
         "bills.*",
-        "invoices.id",
-        "invoices.generated_id",
+        "invoices.id as invoice_id",
+        "invoices.generated_id as invoice_generated_id",
         "invoices.invoice_reference"
         // "invoices.*",
     //  DB::raw('
@@ -1630,14 +1632,16 @@ if(!empty($request->search_key)) {
 
 
           $bill = Bill::with("bill_bill_items","bill_sale_items","bill_repair_items","landlord","property")
+          ->leftJoin('invoices', 'invoices.bill_id', '=', 'bills.id')
           ->where([
-              "generated_id" => $id,
+              "bills.generated_id" => $id,
               "bills.created_by" => $request->user()->id
           ])
+          ->groupBy("bills.id")
           ->select(
             "bills.*",
-            "invoices.id",
-            "invoices.generated_id",
+            "invoices.id as invoice_id",
+            "invoices.generated_id as invoice_generated_id",
             "invoices.invoice_reference"
         //     "invoices.*",
         //   DB::raw('

@@ -807,7 +807,7 @@ foreach($activitiesPaginated->items() as $key=>$item){
                         "property_id" => ["property must be selected if landlord or tenant is not selected."],
                         "tenant_id" => ["tenant must be selected if landlord or property is not selected."],
                         "landlord_id" => ["landlord must be selected if tenant or property is not selected."],
-                        "client_id" => ["landlord must be selected if business is other"]
+                        "client_id" => ["client must be selected if business is other"]
 
                     ]
                 ];
