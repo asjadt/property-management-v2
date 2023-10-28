@@ -1270,7 +1270,7 @@ try{
             } else {
                 unset($updatableData['password']);
             }
-            $updatableData['is_active'] = true;
+            // $updatableData['is_active'] = true;
             $updatableData['remember_token'] = Str::random(10);
             $user  =  tap(User::where(["id" => $request->user()->id]))->update(collect($updatableData)->only([
                 'first_Name' ,

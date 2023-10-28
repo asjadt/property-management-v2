@@ -415,6 +415,7 @@ class BillItemController extends Controller
                 "generated_id" => $id,
                 // "created_by" => $request->user()->id
             ])
+            // ->orderBy(,"ASC")
             ->first();
 
             if(!$bill_item) {
