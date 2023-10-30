@@ -229,6 +229,7 @@ Route::post('/v1.0/client-image', [ClientController::class, "createClientImage"]
 Route::post('/v1.0/clients', [ClientController::class, "createClient"]);
 Route::put('/v1.0/clients', [ClientController::class, "updateClient"]);
 Route::get('/v1.0/clients/{perPage}', [ClientController::class, "getClients"]);
+Route::get('/v1.0/clients/get/all/optimized', [ClientController::class, "getAllClientsOptimized"]);
 Route::get('/v1.0/clients/get/single/{id}', [ClientController::class, "getClientById"]);
 Route::delete('/v1.0/clients/{id}', [ClientController::class, "deleteClientById"]);
 

@@ -610,7 +610,173 @@ public function getClients($perPage, Request $request)
     }
 }
 
+/**
+ *
+ * @OA\Get(
+ *      path="/v1.0/clients/get/all/optimized",
+ *      operationId="getAllClientsOptimized",
+ *      tags={"property_management.client_management"},
+ *       security={
+ *           {"bearerAuth": {}}
+ *       },
 
+
+ *      * *  @OA\Parameter(
+* name="start_date",
+* in="query",
+* description="start_date",
+* required=true,
+* example="2019-06-29"
+* ),
+ * *  @OA\Parameter(
+* name="end_date",
+* in="query",
+* description="end_date",
+* required=true,
+* example="2019-06-29"
+* ),
+ * *  @OA\Parameter(
+* name="order_by",
+* in="query",
+* description="order_by",
+* required=true,
+* example="ASC"
+* ),
+ * *  @OA\Parameter(
+* name="search_key",
+* in="query",
+* description="search_key",
+* required=true,
+* example="search_key"
+* ),
+ * *  @OA\Parameter(
+* name="property_id",
+* in="query",
+* description="property_id",
+* required=true,
+* example="1"
+* ),
+*  @OA\Parameter(
+*      name="property_ids[]",
+*      in="query",
+*      description="property_ids",
+*      required=true,
+*      example="1,2"
+* ),
+ *      summary="This method is to get clients ",
+ *      description="This method is to get clients",
+ *
+
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *       @OA\JsonContent(),
+ *       ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ * @OA\JsonContent(),
+ *      ),
+ *        @OA\Response(
+ *          response=422,
+ *          description="Unprocesseble Content",
+ *    @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *   @OA\JsonContent()
+ * ),
+ *  * @OA\Response(
+ *      response=400,
+ *      description="Bad Request",
+ *   *@OA\JsonContent()
+ *   ),
+ * @OA\Response(
+ *      response=404,
+ *      description="not found",
+ *   *@OA\JsonContent()
+ *   )
+ *      )
+ *     )
+ */
+
+ public function getAllClientsOptimized( Request $request)
+ {
+     try {
+         $this->storeActivity($request,"");
+         $currentDate = Carbon::now();
+         $endDate = $currentDate->copy()->addDays(15);
+
+
+         $clientQuery =  Client::leftJoin('property_clients', 'clients.id', '=', 'property_clients.client_id')
+         ->leftJoin('properties', 'property_clients.property_id', '=', 'properties.id')
+         ->where([
+             "clients.created_by" => $request->user()->id
+         ]);
+
+         if (!empty($request->search_key)) {
+             $clientQuery = $clientQuery->where(function ($query) use ($request) {
+                 $term = $request->search_key;
+                 // $query->where("properties.name", "like", "%" . $term . "%");
+                 $query->orWhere("clients.first_Name", "like", "%" . $term . "%");
+                 $query->orWhere("clients.last_Name", "like", "%" . $term . "%");
+                 $query->orWhere("clients.email", "like", "%" . $term . "%");
+                 // $query->orWhere("clients.address_line_1", "like", "%" . $term . "%");
+                 // $query->orWhere("clients.address_line_2", "like", "%" . $term . "%");
+
+
+
+                 // $query->orWhere("clients.phone", "like", "%" . $term . "%");
+                 // $query->orWhere("clients.country", "like", "%" . $term . "%");
+                 // $query->orWhere("clients.city", "like", "%" . $term . "%");
+                 // $query->orWhere("clients.postcode", "like", "%" . $term . "%");
+
+
+
+
+
+
+             });
+         }
+         if(!empty($request->property_id)){
+             $clientQuery = $clientQuery->where('properties.id',$request->property_id);
+         }
+         if(!empty($request->property_ids)) {
+             $null_filter = collect(array_filter($request->property_ids))->values();
+         $property_ids =  $null_filter->all();
+             if(count($property_ids)) {
+                 $clientQuery =   $clientQuery->whereIn("properties.id",$property_ids);
+             }
+
+         }
+
+         if (!empty($request->start_date)) {
+             $clientQuery = $clientQuery->where('clients.created_at', ">=", $request->start_date);
+         }
+         if (!empty($request->end_date)) {
+             $clientQuery = $clientQuery->where('clients.created_at', "<=", $request->end_date);
+         }
+
+
+
+         $clients = $clientQuery
+         ->groupBy("clients.id")
+
+         ->select(
+             "clients.id",
+             "clients.generated_id",
+             "clients.first_Name",
+             "clients.last_Name",
+         )
+         ->orderBy("clients.first_Name",$request->order_by)->get();
+
+         return response()->json($clients, 200);
+     } catch (Exception $e) {
+
+         return $this->sendError($e, 500,$request);
+     }
+ }
 
 /**
  *
