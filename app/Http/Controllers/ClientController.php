@@ -710,7 +710,7 @@ public function getClients($perPage, Request $request)
 
 
          $clientQuery =  Client::leftJoin('property_clients', 'clients.id', '=', 'property_clients.client_id')
-         ->leftJoin('properties', 'property_clients.property_id', '=', 'properties.id')
+
          ->where([
              "clients.created_by" => $request->user()->id
          ]);
@@ -739,17 +739,8 @@ public function getClients($perPage, Request $request)
 
              });
          }
-         if(!empty($request->property_id)){
-             $clientQuery = $clientQuery->where('properties.id',$request->property_id);
-         }
-         if(!empty($request->property_ids)) {
-             $null_filter = collect(array_filter($request->property_ids))->values();
-         $property_ids =  $null_filter->all();
-             if(count($property_ids)) {
-                 $clientQuery =   $clientQuery->whereIn("properties.id",$property_ids);
-             }
 
-         }
+
 
          if (!empty($request->start_date)) {
              $clientQuery = $clientQuery->where('clients.created_at', ">=", $request->start_date);
