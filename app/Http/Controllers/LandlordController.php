@@ -1065,7 +1065,7 @@ class LandlordController extends Controller
 
              $landlordQuery =  Landlord::with('properties',"properties.property_tenants")
              ->leftJoin('properties', 'landlords.id', '=', 'properties.landlord_id')
-             ->where(["created_by" => $request->user()->id]);
+             ->where(["landlords.created_by" => $request->user()->id]);
 
              if (!empty($request->search_key)) {
                  $landlordQuery = $landlordQuery->where(function ($query) use ($request) {
@@ -1093,10 +1093,10 @@ class LandlordController extends Controller
              }
 
              if (!empty($request->start_date)) {
-                 $landlordQuery = $landlordQuery->where('created_at', ">=", $request->start_date);
+                 $landlordQuery = $landlordQuery->where('landlords.created_at', ">=", $request->start_date);
              }
              if (!empty($request->end_date)) {
-                 $landlordQuery = $landlordQuery->where('created_at', "<=", $request->end_date);
+                 $landlordQuery = $landlordQuery->where('landlords.created_at', "<=", $request->end_date);
              }
              if(!empty($request->property_id)){
                 $landlordQuery = $landlordQuery->where('properties.id',$request->property_id);
@@ -1366,11 +1366,12 @@ class LandlordController extends Controller
          try {
              $this->storeActivity($request,"");
 
+
              // $automobilesQuery = AutomobileMake::with("makes");
 
              $landlordQuery =  Landlord::
              leftJoin('properties', 'landlords.id', '=', 'properties.landlord_id')
-             ->where(["created_by" => $request->user()->id]);
+             ->where(["landlords.created_by" => $request->user()->id]);
 
              if (!empty($request->search_key)) {
                  $landlordQuery = $landlordQuery->where(function ($query) use ($request) {
@@ -1398,10 +1399,10 @@ class LandlordController extends Controller
              }
 
              if (!empty($request->start_date)) {
-                 $landlordQuery = $landlordQuery->where('created_at', ">=", $request->start_date);
+                 $landlordQuery = $landlordQuery->where('landlords.created_at', ">=", $request->start_date);
              }
              if (!empty($request->end_date)) {
-                 $landlordQuery = $landlordQuery->where('created_at', "<=", $request->end_date);
+                 $landlordQuery = $landlordQuery->where('landlords.created_at', "<=", $request->end_date);
              }
              if(!empty($request->property_id)){
                 $landlordQuery = $landlordQuery->where('properties.id',$request->property_id);
