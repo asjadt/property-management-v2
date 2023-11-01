@@ -36,6 +36,7 @@ class SaleItemController extends Controller
  *            required={"name","description","logo"},
  *  *             @OA\Property(property="name", type="string", format="string",example="name"),
   *             @OA\Property(property="description", type="string", format="string",example="description"),
+    *             @OA\Property(property="is_default", type="boolean", format="boolean",example="is_default"),
  *            @OA\Property(property="price", type="number", format="number",example="10.10"),
 
  *
@@ -126,6 +127,8 @@ public function createSaleItem(SaleItemCreateRequest $request)
  *     *             @OA\Property(property="id", type="number", format="number",example="1"),
   *  *             @OA\Property(property="name", type="string", format="string",example="name"),
   *             @OA\Property(property="description", type="string", format="string",example="description"),
+  *             @OA\Property(property="is_default", type="boolean", format="boolean",example="is_default"),
+
  *            @OA\Property(property="price", type="number", format="number",example="10.10"),
  *
  *         ),
@@ -199,6 +202,7 @@ public function updateSaleItem(SaleItemUpdateRequest $request)
                     'name',
     'description',
     'price',
+    "is_default"
 
                 ])->toArray()
             )

@@ -12,6 +12,7 @@ class SaleItem extends Model
     protected $fillable = [
     'name',
     'description',
+    'is_default',
     'price',
     'created_by'
     ];
