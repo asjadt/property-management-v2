@@ -76,7 +76,7 @@ class BusinessUpdateRequest extends FormRequest
 
 
 
-            "sale_items" => "nullable|array",
+            "sale_items" => "required|array",
             "sale_items.*.sale_id" => "nullable|numeric|exists:sale_items,id",
             "sale_items.*.item" => "required|string",
             "sale_items.*.description" => "nullable|string",
