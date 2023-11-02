@@ -18,7 +18,6 @@ class CreateBillItemsTable extends Migration
             $table->string('generated_id')->nullable();
             $table->string("name");
             $table->text("description")->nullable();
-            $table->boolean("is_default");
             $table->double("price");
             $table->unsignedBigInteger("created_by");
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');

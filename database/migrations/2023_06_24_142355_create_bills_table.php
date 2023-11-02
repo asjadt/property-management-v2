@@ -20,7 +20,6 @@ class CreateBillsTable extends Migration
             $table->dateTime("create_date");
             $table->dateTime("payment_date");
 
-            $table->dateTime("payment_date");
 
 
             $table->unsignedBigInteger("property_id")->nullable();

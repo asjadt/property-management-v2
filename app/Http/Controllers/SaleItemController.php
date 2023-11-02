@@ -36,7 +36,7 @@ class SaleItemController extends Controller
  *            required={"name","description","logo"},
  *  *             @OA\Property(property="name", type="string", format="string",example="name"),
   *             @OA\Property(property="description", type="string", format="string",example="description"),
-    *             @OA\Property(property="is_default", type="boolean", format="boolean",example="is_default"),
+
  *            @OA\Property(property="price", type="number", format="number",example="10.10"),
 
  *
@@ -127,7 +127,7 @@ public function createSaleItem(SaleItemCreateRequest $request)
  *     *             @OA\Property(property="id", type="number", format="number",example="1"),
   *  *             @OA\Property(property="name", type="string", format="string",example="name"),
   *             @OA\Property(property="description", type="string", format="string",example="description"),
-  *             @OA\Property(property="is_default", type="boolean", format="boolean",example="is_default"),
+
 
  *            @OA\Property(property="price", type="number", format="number",example="10.10"),
  *
@@ -202,7 +202,7 @@ public function updateSaleItem(SaleItemUpdateRequest $request)
                     'name',
     'description',
     'price',
-    "is_default"
+
 
                 ])->toArray()
             )
@@ -307,25 +307,32 @@ public function getSaleItems($perPage, Request $request)
 
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $sale_itemQuery =  SaleItem::where(["created_by" => $request->user()->id]);
+        $sale_itemQuery =  SaleItem::where(["sale_items.created_by" => $request->user()->id])
+        ->leftJoin('business_defaults', function($join) use($request) {
+            $join->on('sale_items.id', '=', 'business_defaults.entity_id')
+                 ->where('business_defaults.entity_type', '=', 'sale_item')
+                 ->where('business_defaults.business_owner_id', '=', $request->user()->id);
+        });
 
         if (!empty($request->search_key)) {
             $sale_itemQuery = $sale_itemQuery->where(function ($query) use ($request) {
                 $term = $request->search_key;
-                $query->where("name", "like", "%" . $term . "%");
-                $query->orWhere("description", "like", "%" . $term . "%");
-                $query->orWhere("price", "like", "%" . $term . "%");
+                $query->where("sale_items.name", "like", "%" . $term . "%");
+                $query->orWhere("sale_items.description", "like", "%" . $term . "%");
+                $query->orWhere("sale_items.price", "like", "%" . $term . "%");
             });
         }
 
         if (!empty($request->start_date)) {
-            $sale_itemQuery = $sale_itemQuery->where('created_at', ">=", $request->start_date);
+            $sale_itemQuery = $sale_itemQuery->where('sale_items.created_at', ">=", $request->start_date);
         }
         if (!empty($request->end_date)) {
-            $sale_itemQuery = $sale_itemQuery->where('created_at', "<=", $request->end_date);
+            $sale_itemQuery = $sale_itemQuery->where('sale_items.created_at', "<=", $request->end_date);
         }
 
-        $sale_items = $sale_itemQuery->orderBy("id",$request->order_by)->paginate($perPage);
+        $sale_items = $sale_itemQuery->orderBy("sale_items.id",$request->order_by)
+        ->select("sale_items.*",    DB::raw('CASE WHEN business_defaults.id IS NOT NULL THEN 1 ELSE 0 END AS is_default'))
+        ->paginate($perPage);
 
         return response()->json($sale_items, 200);
     } catch (Exception $e) {

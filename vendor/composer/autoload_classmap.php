@@ -216,6 +216,7 @@ return array(
     'App\\Models\\BookingPackage' => $baseDir . '/app/Models/BookingPackage.php',
     'App\\Models\\BookingSubService' => $baseDir . '/app/Models/BookingSubService.php',
     'App\\Models\\Business' => $baseDir . '/app/Models/Business.php',
+    'App\\Models\\BusinessDefault' => $baseDir . '/app/Models/BusinessDefault.php',
     'App\\Models\\Client' => $baseDir . '/app/Models/Client.php',
     'App\\Models\\Coupon' => $baseDir . '/app/Models/Coupon.php',
     'App\\Models\\EmailTemplate' => $baseDir . '/app/Models/EmailTemplate.php',

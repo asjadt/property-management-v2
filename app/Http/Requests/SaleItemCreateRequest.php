@@ -27,7 +27,7 @@ class SaleItemCreateRequest extends FormRequest
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' =>'required|numeric',
-            // "is_default" =>
+
         ];
     }
 }

@@ -11,6 +11,8 @@ use App\Http\Requests\UserUpdateRequest;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Business;
+use App\Models\BusinessDefault;
+use App\Models\SaleItem;
 use App\Models\User;
 use DateTime;
 use Exception;
@@ -381,7 +383,17 @@ class UserManagementController extends Controller
      * }),
      *
      *
-     *
+     *   *
+   *     *  * *  @OA\Property(property="bill_items", type="string", format="array",example={
+   *{"bill_item_id":"1"},
+    *{"bill_item_id":"2"},
+   * }),
+   *
+   *     *  * *  @OA\Property(property="sale_items", type="string", format="array",example={
+   *{"sale_id":"1","item":"item","description":"description","amount":"10.1"},
+    *{"sale_id":"2","item":"item","description":"description","amount":"10.1"},
+   * })
+   *
 
      *
      *         ),
@@ -466,6 +478,57 @@ class UserManagementController extends Controller
         $business =  Business::create($insertableData['business']);
 
 
+        foreach($insertableData['bill_items'] as $request_bill_item) {
+            BusinessDefault::create([
+                'entity_type' => "bill_item",
+                'entity_id' => $request_bill_item["bill_item_id"],
+                'business_owner_id' => $user->id
+            ]);
+        }
+
+        foreach($insertableData['sale_items'] as $request_sale_item) {
+
+            if(empty($request_sale_item["sale_id"])) {
+                $sale_item =  SaleItem::create([
+                    'name' => $request_sale_item["item"],
+                    'description' => $request_sale_item["description"],
+                    'price' => $request_sale_item["amount"],
+                    'created_by' => $user->id
+                    ]);
+                    $request_sale_item["sale_id"] = $sale_item->id;
+            } else {
+                SaleItem::where([
+                    "id" => $request_sale_item["sale_id"],
+                    'created_by' => $user->id
+                    ])
+                    ->update([
+                        'name' => $request_sale_item["item"],
+                        'description' => $request_sale_item["description"],
+                        'price' => $request_sale_item["amount"],
+                        ]);
+            }
+
+
+
+
+
+            BusinessDefault::create([
+                'entity_type' => "sale_item",
+                'entity_id' => $request_sale_item["sale_id"],
+                'business_owner_id' => $user->id
+            ]);
+        }
+
+        // foreach($insertableData['business_defaults'] as $business_default) {
+        //     $business_default["business_owner_id"]  = $user->id;
+        //     BusinessDefault::create($business_default);
+
+        // }
+
+
+
+
+
 
 
   // end business info ##############
@@ -548,6 +611,15 @@ class UserManagementController extends Controller
      *
      * }),
      *
+     *  *     *  * *  @OA\Property(property="bill_items", type="string", format="array",example={
+   *{"bill_item_id":"1"},
+    *{"bill_item_id":"2"},
+   * }),
+   *
+   *     *  * *  @OA\Property(property="sale_items", type="string", format="array",example={
+   *{"sale_id":"1","item":"item","description":"description","amount":"10.1"},
+    *{"sale_id":"2","item":"item","description":"description","amount":"10.1"},
+   * })
 
      *
      *
@@ -721,6 +793,58 @@ class UserManagementController extends Controller
                 ],404);
 
             }
+            BusinessDefault::where([
+                'entity_type' => "bill_item",
+                'business_owner_id' => $user->id
+            ])
+            ->delete();
+            foreach($updatableData['bill_items'] as $request_bill_item) {
+
+                BusinessDefault::create([
+                    'entity_type' => "bill_item",
+                    'entity_id' => $request_bill_item["bill_item_id"],
+                    'business_owner_id' => $user->id
+                ]);
+            }
+            BusinessDefault::where([
+                'entity_type' => "sale_item",
+                'business_owner_id' => $user->id
+            ])
+            ->delete();
+            foreach($updatableData['sale_items'] as $request_sale_item) {
+
+                if(empty($request_sale_item["sale_id"])) {
+                    $sale_item =  SaleItem::create([
+                        'name' => $request_sale_item["item"],
+                        'description' => $request_sale_item["description"],
+                        'price' => $request_sale_item["amount"],
+                        'created_by' => $user->id
+                        ]);
+                        $request_sale_item["sale_id"] = $sale_item->id;
+                } else {
+                    SaleItem::where([
+                        "id" => $request_sale_item["sale_id"],
+                        'created_by' => $user->id
+                        ])
+                        ->update([
+                            'name' => $request_sale_item["item"],
+                            'description' => $request_sale_item["description"],
+                            'price' => $request_sale_item["amount"],
+                            ]);
+                }
+
+
+
+
+                BusinessDefault::create([
+                    'entity_type' => "sale_item",
+                    'entity_id' => $request_sale_item["sale_id"],
+                    'business_owner_id' => $user->id
+                ]);
+            }
+
+
+
 
             $user->business = $user->business;
 

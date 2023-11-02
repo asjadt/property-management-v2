@@ -316,25 +316,29 @@ class BillItemController extends Controller
             }
             // $automobilesQuery = AutomobileMake::with("makes");
 
-            $bill_itemQuery = new BillItem();
+            $bill_itemQuery =  BillItem::leftJoin('business_defaults', function($join) use($request) {
+                $join->on('bill_items.id', '=', 'business_defaults.entity_id')
+                     ->where('business_defaults.entity_type', '=', 'bill_item')
+                     ->where('business_defaults.business_owner_id', '=', $request->user()->id);
+            });;
 
             if (!empty($request->search_key)) {
                 $bill_itemQuery = $bill_itemQuery->where(function ($query) use ($request) {
                     $term = $request->search_key;
-                    $query->where("name", "like", "%" . $term . "%");
-                    $query->orWhere("description", "like", "%" . $term . "%");
-                    $query->orWhere("price", "like", "%" . $term . "%");
+                    $query->where("bill_items.name", "like", "%" . $term . "%");
+                    $query->orWhere("bill_items.description", "like", "%" . $term . "%");
+                    $query->orWhere("bill_items.price", "like", "%" . $term . "%");
                 });
             }
 
             if (!empty($request->start_date)) {
-                $bill_itemQuery = $bill_itemQuery->where('created_at', ">=", $request->start_date);
+                $bill_itemQuery = $bill_itemQuery->where('bill_items.created_at', ">=", $request->start_date);
             }
             if (!empty($request->end_date)) {
-                $bill_itemQuery = $bill_itemQuery->where('created_at', "<=", $request->end_date);
+                $bill_itemQuery = $bill_itemQuery->where('bill_items.created_at', "<=", $request->end_date);
             }
 
-            $bill_items = $bill_itemQuery->orderBy("id",$request->order_by)->paginate($perPage);
+            $bill_items = $bill_itemQuery->orderBy("bill_items.id",$request->order_by)->select("bill_items.*",    DB::raw('CASE WHEN business_defaults.id IS NOT NULL THEN 1 ELSE 0 END AS is_default'))->paginate($perPage);
 
             return response()->json($bill_items, 200);
         } catch (Exception $e) {

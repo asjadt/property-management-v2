@@ -1952,7 +1952,7 @@ public function getInvoices($perPage, Request $request)
  *
  * @OA\Get(
  *      path="/v1.0/invoices/get/pdf",
- *      operationId="getInvoices",
+ *      operationId="getInvoicesPdf",
  *      tags={"property_management.invoice_management"},
  *       security={
  *           {"bearerAuth": {}}

@@ -861,6 +861,7 @@ class ComposerStaticInit21d3eeeef4e11a73df45b8701b58e483
         'App\\Models\\BookingPackage' => __DIR__ . '/../..' . '/app/Models/BookingPackage.php',
         'App\\Models\\BookingSubService' => __DIR__ . '/../..' . '/app/Models/BookingSubService.php',
         'App\\Models\\Business' => __DIR__ . '/../..' . '/app/Models/Business.php',
+        'App\\Models\\BusinessDefault' => __DIR__ . '/../..' . '/app/Models/BusinessDefault.php',
         'App\\Models\\Client' => __DIR__ . '/../..' . '/app/Models/Client.php',
         'App\\Models\\Coupon' => __DIR__ . '/../..' . '/app/Models/Coupon.php',
         'App\\Models\\EmailTemplate' => __DIR__ . '/../..' . '/app/Models/EmailTemplate.php',
