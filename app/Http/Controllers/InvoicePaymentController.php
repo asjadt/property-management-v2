@@ -877,13 +877,7 @@ public function deleteInvoicePaymentById($invoice_id,$id, Request $request)
  *           {"bearerAuth": {}},
  *            {"pin": {}}
  *       },
- * *              @OA\Parameter(
- *         name="invoice_id",
- *         in="path",
- *         description="invoice_id",
- *         required=true,
- *  example="1"
- *      ),
+
  *              @OA\Parameter(
  *         name="id",
  *         in="path",
