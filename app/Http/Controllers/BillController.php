@@ -773,7 +773,7 @@ $invoice_prev = Invoice::where([
 
 
 
-              return response($invoice, 200);
+              return response($bill, 200);
           });
       } catch (Exception $e) {
           error_log($e->getMessage());
