@@ -1,0 +1,58 @@
+name: Test Before Push
+on:
+  push:
+    branches:
+      - main # Adjust this to match your main branch name
+
+jobs:
+  test:
+    name: Run API tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          path: api-tests # Specify the desired path to clone the repository
+
+      - name: Install JDK 11 and JRE
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openjdk-11-jdk default-jre
+
+      - name: Set up JDK environment variables
+        run: |
+          echo 'export JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"' >> $GITHUB_ENV
+          echo 'export PATH="$JAVA_HOME/bin:$PATH"' >> $GITHUB_ENV
+
+      - name: Print Java version
+        run: |
+          echo $JAVA_HOME
+          echo $PATH
+          java -version
+
+
+
+      - name: Force clone api-tests repository
+        run: |
+          rm -rf api-tests
+          git clone https://github.com/asjadt/api-tests.git
+
+      - name: List contents of api-tests directory again
+        run: ls ./api-tests
+
+
+      - name: Bill Flow Api Test
+        run: |
+           cd api-tests && mvn test -Dtest=invoiceApiTest.flow.CommonFlow#BillFlow
+
+      - name: Invoice Flow Api Test
+        run: |
+           cd api-tests && mvn test -Dtest=invoiceApiTest.flow.CommonFlow#InvoiceFlow
+
+      - name: Receipt Api Test
+        run: |
+           cd api-tests && mvn test -Dtest=invoiceApiTest.flow.CommonFlow#ReceiptFlow
+
+
+
