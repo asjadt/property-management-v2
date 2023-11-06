@@ -108,8 +108,7 @@ class ReceiptController extends Controller
                 }
 
                 $receipt =  Receipt::create($insertableData);
-                $receipt->generated_id = Str::random(4) . $receipt->id . Str::random(4);
-                $receipt->save();
+
                 $sale_items = collect($insertableData["sale_items"])->map(function ($item)use ($receipt) {
 
                     // $sale_items_exists =    BillSaleItem::where([
@@ -194,6 +193,9 @@ else {
                 if(!$invoice) {
                     throw new Exception("something went wrong");
                 }
+                $receipt->generated_id = Str::random(4) . $receipt->id . Str::random(4);
+                $receipt->invoice_id = $invoice->id;
+                $receipt->save();
 
                 $invoice->generated_id = Str::random(4) . $invoice->id . Str::random(4);
                 $invoice->shareable_link =  env("FRONT_END_URL_DASHBOARD")."/share/invoice/". Str::random(4) . "-". $invoice->generated_id ."-" . Str::random(4);

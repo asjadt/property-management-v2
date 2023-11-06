@@ -26,7 +26,7 @@ class CreateReceiptsTable extends Migration
             $table->text("payment_method");
 
 
-
+            $table->unsignedBigInteger("invoice_id")->nullable();
             $table->unsignedBigInteger("tenant_id")->nullable();
             $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('cascade');
             $table->unsignedBigInteger("created_by");
