@@ -320,7 +320,7 @@ class BillItemController extends Controller
                 $join->on('bill_items.id', '=', 'business_defaults.entity_id')
                      ->where('business_defaults.entity_type', '=', 'bill_item')
                      ->where('business_defaults.business_owner_id', '=', $request->user()->id);
-            });;
+            });
 
             if (!empty($request->search_key)) {
                 $bill_itemQuery = $bill_itemQuery->where(function ($query) use ($request) {
