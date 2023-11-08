@@ -1439,37 +1439,46 @@ class UserManagementController extends Controller
 
 
 
-            $user = User::with("roles")
+            $user = User::with("roles","business")
             ->where([
                 "id" => $id
             ])
             ->first();
+            if (!$user) {
+                return response()->json([
+                    "message" => "no user found"
+                ], 404);
+            }
 
             // ->whereHas('roles', function ($query) {
             //     // return $query->where('name','!=', 'customer');
             // });
-            $user->business = $user->business;
-
-            $user->business->default_sale_items = SaleItem::leftJoin('business_defaults', function($join) use($user) {
-                $join->on('sale_items.id', '=', 'business_defaults.entity_id')
-                     ->where('business_defaults.entity_type', '=', 'sale_item')
-                     ->where('business_defaults.business_owner_id', '=', $user->id);
-            })
-             ->whereNotNull('business_defaults.entity_type')
-             ->select(
-                "sale_items.*"
-             )->get();
 
 
-            $user->business->default_bill_items   =  BillItem::leftJoin('business_defaults', function($join) use($user) {
-                $join->on('bill_items.id', '=', 'business_defaults.entity_id')
-                     ->where('business_defaults.entity_type', '=', 'bill_item')
-                     ->where('business_defaults.business_owner_id', '=', $user->id);
-            })
-            ->whereNotNull('business_defaults.entity_type')
-            ->select(
-               "bill_items.*"
-            )->get();
+            if(!empty($user->business)) {
+
+                $user->business[0]->default_sale_items = SaleItem::leftJoin('business_defaults', function($join) use($user) {
+                    $join->on('sale_items.id', '=', 'business_defaults.entity_id')
+                         ->where('business_defaults.entity_type', '=', 'sale_item')
+                         ->where('business_defaults.business_owner_id', '=', $user->id);
+                })
+                 ->whereNotNull('business_defaults.entity_type')
+                 ->select(
+                    "sale_items.*"
+                 )->get();
+
+
+                $user->business[0]->default_bill_items   =  BillItem::leftJoin('business_defaults', function($join) use($user) {
+                    $join->on('bill_items.id', '=', 'business_defaults.entity_id')
+                         ->where('business_defaults.entity_type', '=', 'bill_item')
+                         ->where('business_defaults.business_owner_id', '=', $user->id);
+                })
+                ->whereNotNull('business_defaults.entity_type')
+                ->select(
+                   "bill_items.*"
+                )->get();
+            }
+
 
             return response()->json($user, 200);
         } catch(Exception $e){
