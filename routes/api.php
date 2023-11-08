@@ -466,6 +466,7 @@ Route::delete('/v1.0/receipts/{id}', [ReceiptController::class, "deleteReceiptBy
 
 Route::post('/v1.0/auth/register-with-business', [UserManagementController::class, "registerUserWithBusiness"]);
 Route::put('/v1.0/auth/update-user-with-business', [UserManagementController::class, "updateBusiness"]);
+Route::put('/v1.0/auth/update-business-defaults', [UserManagementController::class, "updateBusinessDefaults"]);
 
 Route::post('/v1.0/users', [UserManagementController::class, "createUser"]);
 Route::put('/v1.0/users', [UserManagementController::class, "updateUser"]);

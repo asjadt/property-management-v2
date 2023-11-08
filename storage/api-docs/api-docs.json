@@ -4198,6 +4198,11 @@
                                         "format": "string",
                                         "example": "2019-06-29"
                                     },
+                                    "payment_date": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "2019-06-29"
+                                    },
                                     "property_id": {
                                         "type": "number",
                                         "format": "number",
@@ -4214,6 +4219,11 @@
                                         "example": "card"
                                     },
                                     "payabble_amount": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "10.10"
+                                    },
+                                    "deduction": {
                                         "type": "number",
                                         "format": "number",
                                         "example": "10.10"
@@ -4362,6 +4372,11 @@
                                         "format": "string",
                                         "example": "2019-06-29"
                                     },
+                                    "payment_date": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "2019-06-29"
+                                    },
                                     "property_id": {
                                         "type": "number",
                                         "format": "number",
@@ -4378,6 +4393,11 @@
                                         "example": "card"
                                     },
                                     "payabble_amount": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "10.10"
+                                    },
+                                    "deduction": {
                                         "type": "number",
                                         "format": "number",
                                         "example": "10.10"
@@ -4724,6 +4744,20 @@
                         "name": "landlord_id",
                         "in": "query",
                         "description": "landlord_id",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "min_amount",
+                        "in": "query",
+                        "description": "min_amount",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "max_amount",
+                        "in": "query",
+                        "description": "max_amount",
                         "required": true,
                         "example": "1"
                     },
@@ -6472,6 +6506,115 @@
                         "required": true,
                         "example": "6"
                     },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "start_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "end_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "description": "order_by",
+                        "required": true,
+                        "example": "ASC"
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "search_key",
+                        "required": true,
+                        "example": "search_key"
+                    },
+                    {
+                        "name": "property_id",
+                        "in": "query",
+                        "description": "property_id",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "property_ids[]",
+                        "in": "query",
+                        "description": "property_ids",
+                        "required": true,
+                        "example": "1,2"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/clients/get/all/optimized": {
+            "get": {
+                "tags": [
+                    "property_management.client_management"
+                ],
+                "summary": "This method is to get clients ",
+                "description": "This method is to get clients",
+                "operationId": "getAllClientsOptimized",
+                "parameters": [
                     {
                         "name": "start_date",
                         "in": "query",
@@ -14848,6 +14991,164 @@
                 ]
             }
         },
+        "/v1.0/invoices/get/pdf": {
+            "get": {
+                "tags": [
+                    "property_management.invoice_management"
+                ],
+                "summary": "This method is to get invoices ",
+                "description": "This method is to get invoices",
+                "operationId": "getInvoicesPdf",
+                "parameters": [
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "start_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "end_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "description": "order_by",
+                        "required": true,
+                        "example": "ASC"
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "search_key",
+                        "required": true,
+                        "example": "search_key"
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "status",
+                        "required": true,
+                        "example": "status"
+                    },
+                    {
+                        "name": "invoice_reference",
+                        "in": "query",
+                        "description": "invoice_reference",
+                        "required": true,
+                        "example": "1374"
+                    },
+                    {
+                        "name": "landlord_id",
+                        "in": "query",
+                        "description": "landlord_id",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "tenant_id",
+                        "in": "query",
+                        "description": "tenant_id",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "client_id",
+                        "in": "query",
+                        "description": "client_id",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "property_id",
+                        "in": "query",
+                        "description": "property_id",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "min_total_due",
+                        "in": "query",
+                        "description": "min_total_due",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "max_total_due",
+                        "in": "query",
+                        "description": "max_total_due",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "property_ids[]",
+                        "in": "query",
+                        "description": "property_ids",
+                        "required": true,
+                        "example": "1,2"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/v1.0/invoices/get/all": {
             "get": {
                 "tags": [
@@ -16060,13 +16361,6 @@
                 "description": "This method is to delete invoice by id",
                 "operationId": "deleteInvoicePaymentByIdV2",
                 "parameters": [
-                    {
-                        "name": "invoice_id",
-                        "in": "path",
-                        "description": "invoice_id",
-                        "required": true,
-                        "example": "1"
-                    },
                     {
                         "name": "id",
                         "in": "path",
@@ -19216,6 +19510,150 @@
                 ]
             }
         },
+        "/v1.0/landlords/optimized/{perPage}": {
+            "get": {
+                "tags": [
+                    "property_management.landlord_management"
+                ],
+                "summary": "This method is to get landlords ",
+                "description": "This method is to get landlords",
+                "operationId": "getLandlordsOptimized",
+                "parameters": [
+                    {
+                        "name": "perPage",
+                        "in": "path",
+                        "description": "perPage",
+                        "required": true,
+                        "example": "6"
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "start_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "end_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "description": "order_by",
+                        "required": true,
+                        "example": "ASC"
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "search_key",
+                        "required": true,
+                        "example": "search_key"
+                    },
+                    {
+                        "name": "property_id",
+                        "in": "query",
+                        "description": "property_id",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "property_ids[]",
+                        "in": "query",
+                        "description": "property_ids",
+                        "required": true,
+                        "example": "1,2"
+                    },
+                    {
+                        "name": "min_total_due",
+                        "in": "query",
+                        "description": "min_total_due",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "max_total_due",
+                        "in": "query",
+                        "description": "max_total_due",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "min_total_over_due",
+                        "in": "query",
+                        "description": "min_total_over_due",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "max_total_over_due",
+                        "in": "query",
+                        "description": "max_total_over_due",
+                        "required": true,
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/v1.0/landlords/get/all": {
             "get": {
                 "tags": [
@@ -19224,6 +19662,129 @@
                 "summary": "This method is to get all landlords ",
                 "description": "This method is to get all landlords",
                 "operationId": "getAllLandlords",
+                "parameters": [
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "start_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "end_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "description": "order_by",
+                        "required": true,
+                        "example": "ASC"
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "search_key",
+                        "required": true,
+                        "example": "search_key"
+                    },
+                    {
+                        "name": "min_total_due",
+                        "in": "query",
+                        "description": "min_total_due",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "max_total_due",
+                        "in": "query",
+                        "description": "max_total_due",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "min_total_over_due",
+                        "in": "query",
+                        "description": "min_total_over_due",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "max_total_over_due",
+                        "in": "query",
+                        "description": "max_total_over_due",
+                        "required": true,
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/landlords/get/all/optimized": {
+            "get": {
+                "tags": [
+                    "property_management.landlord_management"
+                ],
+                "summary": "This method is to get all landlords ",
+                "description": "This method is to get all landlords",
+                "operationId": "getAllLandlordsOptimized",
                 "parameters": [
                     {
                         "name": "start_date",
@@ -22049,7 +22610,14 @@
                         "in": "query",
                         "description": "landlord_id",
                         "required": true,
-                        "example": "landlord_id"
+                        "example": "1"
+                    },
+                    {
+                        "name": "client_id",
+                        "in": "query",
+                        "description": "client_id",
+                        "required": true,
+                        "example": "1"
                     }
                 ],
                 "responses": {
@@ -22803,6 +23371,122 @@
                 ]
             }
         },
+        "/v1.0/properties/get/all/optimized": {
+            "get": {
+                "tags": [
+                    "property_management.property_management"
+                ],
+                "summary": "This method is to get properties ",
+                "description": "This method is to get properties",
+                "operationId": "getAllPropertiesOptimized",
+                "parameters": [
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "start_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "end_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "description": "order_by",
+                        "required": true,
+                        "example": "ASC"
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "search_key",
+                        "required": true,
+                        "example": "search_key"
+                    },
+                    {
+                        "name": "address",
+                        "in": "query",
+                        "description": "address",
+                        "required": true,
+                        "example": "address"
+                    },
+                    {
+                        "name": "landlord_id",
+                        "in": "query",
+                        "description": "landlord_id",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "tenant_id",
+                        "in": "query",
+                        "description": "tenant_id",
+                        "required": true,
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/v1.0/properties/get/single/{id}": {
             "get": {
                 "tags": [
@@ -23152,6 +23836,29 @@
                                         "type": "string",
                                         "format": "tring",
                                         "example": "notes"
+                                    },
+                                    "payment_method": {
+                                        "type": "string",
+                                        "format": "tring",
+                                        "example": "payment_method"
+                                    },
+                                    "sale_items": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            {
+                                                "sale_id": "1",
+                                                "item": "item",
+                                                "description": "description",
+                                                "amount": "10.1"
+                                            },
+                                            {
+                                                "sale_id": "2",
+                                                "item": "item",
+                                                "description": "description",
+                                                "amount": "10.1"
+                                            }
+                                        ]
                                     }
                                 },
                                 "type": "object"
@@ -23267,6 +23974,29 @@
                                         "type": "string",
                                         "format": "string",
                                         "example": "notes"
+                                    },
+                                    "payment_method": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "payment_method"
+                                    },
+                                    "sale_items": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            {
+                                                "sale_id": "1",
+                                                "item": "item",
+                                                "description": "description",
+                                                "amount": "10.1"
+                                            },
+                                            {
+                                                "sale_id": "2",
+                                                "item": "item",
+                                                "description": "description",
+                                                "amount": "10.1"
+                                            }
+                                        ]
                                     }
                                 },
                                 "type": "object"
@@ -23893,6 +24623,101 @@
                         "required": true,
                         "example": "6"
                     },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "start_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "end_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "description": "order_by",
+                        "required": true,
+                        "example": "ASC"
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "search_key",
+                        "required": true,
+                        "example": "search_key"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/repair-categories/get/all/optimized": {
+            "get": {
+                "tags": [
+                    "property_management.repair_category_management"
+                ],
+                "summary": "This method is to get repair categories ",
+                "description": "This method is to get repair categories",
+                "operationId": "getAllRepairCategoriesOptimized",
+                "parameters": [
                     {
                         "name": "start_date",
                         "in": "query",
@@ -30486,6 +31311,115 @@
                 ]
             }
         },
+        "/v1.0/tenants/get/all/optimized": {
+            "get": {
+                "tags": [
+                    "property_management.tenant_management"
+                ],
+                "summary": "This method is to get tenants ",
+                "description": "This method is to get tenants",
+                "operationId": "getAllTenantsOptimized",
+                "parameters": [
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "start_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "end_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "description": "order_by",
+                        "required": true,
+                        "example": "ASC"
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "search_key",
+                        "required": true,
+                        "example": "search_key"
+                    },
+                    {
+                        "name": "property_id",
+                        "in": "query",
+                        "description": "property_id",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "property_ids[]",
+                        "in": "query",
+                        "description": "property_ids",
+                        "required": true,
+                        "example": "1,2"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/v1.0/tenants/get/single/{id}": {
             "get": {
                 "tags": [
@@ -31183,6 +32117,7 @@
                                             "invoice_title": "invoice_title",
                                             "footer_text": "footer_text",
                                             "is_reference_manual": "1",
+                                            "receipt_footer": "t srt stgh st h",
                                             "account_name": "thdht rth s",
                                             "account_number": "fdghdgh",
                                             "sort_code": "sort_coderthdrfth",
@@ -31191,6 +32126,36 @@
                                             "logo": "https://images.unsplash.com/photo-1671410714831-969877d103b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
                                             "image": "https://images.unsplash.com/photo-1671410714831-969877d103b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80"
                                         }
+                                    },
+                                    "bill_items": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            {
+                                                "bill_item_id": "1"
+                                            },
+                                            {
+                                                "bill_item_id": "2"
+                                            }
+                                        ]
+                                    },
+                                    "sale_items": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            {
+                                                "sale_id": "1",
+                                                "item": "item",
+                                                "description": "description",
+                                                "amount": "10.1"
+                                            },
+                                            {
+                                                "sale_id": "2",
+                                                "item": "item",
+                                                "description": "description",
+                                                "amount": "10.1"
+                                            }
+                                        ]
                                     }
                                 },
                                 "type": "object"
@@ -31308,6 +32273,7 @@
                                             "invoice_title": "invoice_title",
                                             "footer_text": "footer_text",
                                             "is_reference_manual": "1",
+                                            "receipt_footer": "receipt_footer",
                                             "account_name": "thdht rth s",
                                             "account_number": "fdghdgh",
                                             "sort_code": "sort_coderthdrfth",
@@ -31316,6 +32282,152 @@
                                             "logo": "https://images.unsplash.com/photo-1671410714831-969877d103b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
                                             "image": "https://images.unsplash.com/photo-1671410714831-969877d103b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80"
                                         }
+                                    },
+                                    "bill_items": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            {
+                                                "bill_item_id": "1"
+                                            },
+                                            {
+                                                "bill_item_id": "2"
+                                            }
+                                        ]
+                                    },
+                                    "sale_items": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            {
+                                                "sale_id": "1",
+                                                "item": "item",
+                                                "description": "description",
+                                                "amount": "10.1"
+                                            },
+                                            {
+                                                "sale_id": "2",
+                                                "item": "item",
+                                                "description": "description",
+                                                "amount": "10.1"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/auth/update-business-defaults": {
+            "put": {
+                "tags": [
+                    "user_management"
+                ],
+                "summary": "This method is to update business defaults",
+                "description": "This method is to update business defaults",
+                "operationId": "updateBusinessDefaults",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "user",
+                                    "business"
+                                ],
+                                "properties": {
+                                    "business_id": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "1"
+                                    },
+                                    "bill_items": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            {
+                                                "bill_item_id": "1"
+                                            },
+                                            {
+                                                "bill_item_id": "2"
+                                            }
+                                        ]
+                                    },
+                                    "sale_items": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            {
+                                                "sale_id": "1",
+                                                "item": "item",
+                                                "description": "description",
+                                                "amount": "10.1"
+                                            },
+                                            {
+                                                "sale_id": "2",
+                                                "item": "item",
+                                                "description": "description",
+                                                "amount": "10.1"
+                                            }
+                                        ]
                                     }
                                 },
                                 "type": "object"

@@ -71,16 +71,16 @@ class BusinessUpdateRequest extends FormRequest
             // 'business.images.*' => 'nullable|string',
 
 
-            "bill_items" => "required|array",
-            "bill_items.*.bill_item_id" => "required|numeric|exists:bill_items,id",
+            // "bill_items" => "required|array",
+            // "bill_items.*.bill_item_id" => "required|numeric|exists:bill_items,id",
 
 
 
-            "sale_items" => "required|array",
-            "sale_items.*.sale_id" => "nullable|numeric|exists:sale_items,id",
-            "sale_items.*.item" => "required|string",
-            "sale_items.*.description" => "nullable|string",
-            "sale_items.*.amount" => "required|numeric",
+            // "sale_items" => "required|array",
+            // "sale_items.*.sale_id" => "nullable|numeric|exists:sale_items,id",
+            // "sale_items.*.item" => "required|string",
+            // "sale_items.*.description" => "nullable|string",
+            // "sale_items.*.amount" => "required|numeric",
 
 
 
