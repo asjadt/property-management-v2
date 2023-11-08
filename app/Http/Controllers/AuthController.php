@@ -18,14 +18,12 @@ use App\Mail\VerifyMail;
 use App\Models\AutomobileCategory;
 use App\Models\AutomobileMake;
 use App\Models\AutomobileModel;
-use App\Models\BillItem;
 use App\Models\Garage;
 use App\Models\GarageAutomobileMake;
 use App\Models\GarageAutomobileModel;
 use App\Models\GarageGallery;
 use App\Models\GarageService;
 use App\Models\GarageSubService;
-use App\Models\SaleItem;
 use App\Models\Service;
 use App\Models\SubService;
 use App\Models\User;
@@ -1004,27 +1002,6 @@ public function getUser (Request $request) {
             ->first();
 
 
-
-            // $user->business->default_sale_items = SaleItem::leftJoin('business_defaults', function($join) use($user) {
-            //     $join->on('sale_items.id', '=', 'business_defaults.entity_id')
-            //          ->where('business_defaults.entity_type', '=', 'sale_item')
-            //          ->where('business_defaults.business_owner_id', '=', $user->id);
-            // })
-            //  ->whereNotNull('business_defaults.entity_type')
-            //  ->select(
-            //     "sale_items.*"
-            //  )->get();
-
-
-            // $user->business->default_bill_items   =  BillItem::leftJoin('business_defaults', function($join) use($user) {
-            //     $join->on('bill_items.id', '=', 'business_defaults.entity_id')
-            //          ->where('business_defaults.entity_type', '=', 'bill_item')
-            //          ->where('business_defaults.business_owner_id', '=', $user->id);
-            // })
-            // ->whereNotNull('business_defaults.entity_type')
-            // ->select(
-            //    "bill_items.*"
-            // )->get();
 
 
             return response()->json(

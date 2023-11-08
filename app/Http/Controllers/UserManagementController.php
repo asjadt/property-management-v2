@@ -11,6 +11,7 @@ use App\Http\Requests\UserToggleRequest;
 use App\Http\Requests\UserUpdateRequest;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
+use App\Models\BillItem;
 use App\Models\Business;
 use App\Models\BusinessDefault;
 use App\Models\SaleItem;
@@ -1443,10 +1444,32 @@ class UserManagementController extends Controller
                 "id" => $id
             ])
             ->first();
+
             // ->whereHas('roles', function ($query) {
             //     // return $query->where('name','!=', 'customer');
             // });
             $user->business = $user->business;
+
+            $user->business->default_sale_items = SaleItem::leftJoin('business_defaults', function($join) use($user) {
+                $join->on('sale_items.id', '=', 'business_defaults.entity_id')
+                     ->where('business_defaults.entity_type', '=', 'sale_item')
+                     ->where('business_defaults.business_owner_id', '=', $user->id);
+            })
+             ->whereNotNull('business_defaults.entity_type')
+             ->select(
+                "sale_items.*"
+             )->get();
+
+
+            $user->business->default_bill_items   =  BillItem::leftJoin('business_defaults', function($join) use($user) {
+                $join->on('bill_items.id', '=', 'business_defaults.entity_id')
+                     ->where('business_defaults.entity_type', '=', 'bill_item')
+                     ->where('business_defaults.business_owner_id', '=', $user->id);
+            })
+            ->whereNotNull('business_defaults.entity_type')
+            ->select(
+               "bill_items.*"
+            )->get();
 
             return response()->json($user, 200);
         } catch(Exception $e){
