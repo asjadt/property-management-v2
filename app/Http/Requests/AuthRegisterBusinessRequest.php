@@ -75,12 +75,12 @@ class AuthRegisterBusinessRequest extends FormRequest
 
 
 
-            "bill_items" => "required|array",
+            "bill_items" => "present|array",
             "bill_items.*.bill_item_id" => "required|numeric|exists:bill_items,id",
 
 
 
-            "sale_items" => "required|array",
+            "sale_items" => "present|array",
             "sale_items.*.sale_id" => "nullable|numeric|exists:sale_items,id",
             "sale_items.*.item" => "required|string",
             "sale_items.*.description" => "nullable|string",
