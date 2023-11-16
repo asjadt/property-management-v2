@@ -62,12 +62,18 @@ class InvoiceUpdateRequest extends FormRequest
                     $tenantId = request()->input('tenant_id');
 
                     $business_type = request()->input('business_type');
-                    if($business_type == "property_dealer") {
-                        if (!empty($value)) {
-                            $fail('for business type property dealer you can not select client.');
-                        }
+                    // if($business_type == "property_dealer") {
+                    //     if (!empty($value)) {
+                    //         $fail('for business type property dealer you can not select client.');
+                    //     }
 
-                    } else {
+                    // } else {
+                    //     if (empty($value)) {
+                    //         $fail('for business type other you must select a client.');
+                    //     }
+
+                    // }
+                    if($business_type != "property_dealer")  {
                         if (empty($value)) {
                             $fail('for business type other you must select a client.');
                         }
@@ -84,15 +90,20 @@ class InvoiceUpdateRequest extends FormRequest
                     $client_id = request()->input('client_id');
                     $landlordId = request()->input('landlord_id');
                     $business_type = request()->input('business_type');
-                    if($business_type == "property_dealer") {
-                        if (empty($value) && empty($landlordId)) {
-                            $fail('Either tenant_id or landlord_id is required.');
-                        }
-                        if (!empty($value) && !empty($landlordId)) {
-                            $fail('Only one of tenant_id or landlord_id should have a value.');
-                        }
-                    }
-                    else {
+                    // if($business_type == "property_dealer") {
+                    //     if (empty($value) && empty($landlordId)) {
+                    //         $fail('Either tenant_id or landlord_id is required.');
+                    //     }
+                    //     if (!empty($value) && !empty($landlordId)) {
+                    //         $fail('Only one of tenant_id or landlord_id should have a value.');
+                    //     }
+                    // }
+                    // else {
+                    //     if (!empty($value)) {
+                    //         $fail('for business type other you can not select a tenant.');
+                    //     }
+                    // }
+                    if($business_type != "property_dealer") {
                         if (!empty($value)) {
                             $fail('for business type other you can not select a tenant.');
                         }
@@ -108,22 +119,26 @@ class InvoiceUpdateRequest extends FormRequest
                     $client_id = request()->input('client_id');
                     $tenantId = request()->input('tenant_id');
                     $business_type = request()->input('business_type');
-                    if($business_type == "property_dealer") {
+                    // if($business_type == "property_dealer") {
 
-                        if (empty($value) && empty($tenantId)) {
-                            $fail('Either tenant_id or landlord_id is required.');
-                        }
-                        if (!empty($value) && !empty($tenantId)) {
-                            $fail('Only one of tenant_id or landlord_id should have a value.');
-                        }
-                    }
-                    else {
+                    //     if (empty($value) && empty($tenantId)) {
+                    //         $fail('Either tenant_id or landlord_id is required.');
+                    //     }
+                    //     if (!empty($value) && !empty($tenantId)) {
+                    //         $fail('Only one of tenant_id or landlord_id should have a value.');
+                    //     }
+                    // }
+                    // else {
+                    //     if (!empty($value)) {
+                    //         $fail('for business type other you can not select a landlord.');
+                    //     }
+                    // }
+
+                    if($business_type != "property_dealer")  {
                         if (!empty($value)) {
                             $fail('for business type other you can not select a landlord.');
                         }
                     }
-
-
                 },
             ],
 
