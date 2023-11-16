@@ -497,6 +497,8 @@ class UserManagementController extends Controller
                     'price' => $request_sale_item["amount"],
                     'created_by' => $user->id
                     ]);
+                    $sale_item->generated_id = Str::random(4) . $sale_item->id . Str::random(4);
+                    $sale_item->save();
                     $request_sale_item["sale_id"] = $sale_item->id;
             } else {
                 SaleItem::where([
@@ -983,6 +985,8 @@ class UserManagementController extends Controller
                         'price' => $request_sale_item["amount"],
                         'created_by' => $business->owner_id
                         ]);
+                        $sale_item->generated_id = Str::random(4) . $sale_item->id . Str::random(4);
+                        $sale_item->save();
                         $request_sale_item["sale_id"] = $sale_item->id;
                 } else {
                     SaleItem::where([
