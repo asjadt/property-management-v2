@@ -53,6 +53,10 @@ Route::get("/migrate",function(Request $request) {
     Artisan::call('migrate');
     return "migrated";
 });
+Route::get("/custom-command",function(Request $request) {
+    Artisan::call('config:clear');
+    return "done";
+});
 
 
 

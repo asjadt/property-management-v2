@@ -464,7 +464,16 @@ $datediff = $now - $user_created_date;
             $user->resetPasswordExpires = Carbon::now()->subDays(-1);
             $user->save();
 
-            Mail::to($insertableData["email"])->send(new ForgetPasswordMail($user,$insertableData["client_site"]));
+              $result = Mail::to($insertableData["email"])->send(new ForgetPasswordMail($user, $insertableData["client_site"]));
+
+            if (count(Mail::failures()) > 0) {
+                // Handle failed recipients and log the error messages
+                foreach (Mail::failures() as $emailFailure) {
+
+                }
+                throw new Exception("Failed to send email to:" . $emailFailure);
+            }
+
 
 
             return response()->json([
