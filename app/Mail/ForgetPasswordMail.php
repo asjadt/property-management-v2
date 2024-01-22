@@ -7,8 +7,10 @@ use App\Models\EmailTemplateWrapper;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Log\Logger;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class ForgetPasswordMail extends Mailable
 {
@@ -59,7 +61,7 @@ class ForgetPasswordMail extends Mailable
         $html_content =  str_replace("[FirstName]", $this->user->first_Name, $html_content );
         $html_content =  str_replace("[LastName]", $this->user->last_Name, $html_content );
         $html_content =  str_replace("[FullName]", ($this->user->first_Name. " " .$this->user->last_Name), $html_content );
-
+        $html_content =  str_replace("[APPURL]", (env("APP_URL")), $html_content );
 
         $html_content =  str_replace("[AccountVerificationLink]", (env('APP_URL').'/activate/'.$this->user->email_verify_token), $html_content);
         $business = $this->user->business()->first();
@@ -106,7 +108,7 @@ class ForgetPasswordMail extends Mailable
         // $html_final = json_decode($email_template_wrapper->template);
         // $html_final =  str_replace("[content]", $html_content, $html_final);
 
-
+        Log::info('This is an informational message.');
 
 
         return $this->view('email.dynamic_mail',["html_content"=>$html_content])

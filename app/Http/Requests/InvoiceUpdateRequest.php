@@ -56,7 +56,7 @@ class InvoiceUpdateRequest extends FormRequest
             "client_id" => [
                 "nullable",
                 "numeric",
-                "exists:tenants,id",
+                "exists:clients,id",
                 function ($attribute, $value, $fail) {
                     $landlordId = request()->input('landlord_id');
                     $tenantId = request()->input('tenant_id');
