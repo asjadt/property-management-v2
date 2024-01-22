@@ -872,14 +872,14 @@ foreach($activitiesPaginated->items() as $key=>$item){
             $this->storeActivity($request, "");
 
 
-            $data["total_paid_amount"] = Invoice::leftJoin('invoice_payments', 'invoice_payments.invoice_id', '=', 'invoices.id')
+            $data["total_paid_amount"] = (int) Invoice::leftJoin('invoice_payments', 'invoice_payments.invoice_id', '=', 'invoices.id')
                 ->where([
                     "invoices.created_by" => $request->user()->id
                 ])
                 ->where("invoices.status", "!=", "draft")
                 ->sum("invoice_payments.amount");
 
-            $data["total_paid_invoice_count"] = Invoice::where([
+            $data["total_paid_invoice_count"] = (int) Invoice::where([
                 "invoices.created_by" => $request->user()->id
             ])
                 ->where("invoices.status", "!=", "draft")
@@ -896,7 +896,7 @@ foreach($activitiesPaginated->items() as $key=>$item){
                 ->count();
 
 
-            $data["total_invoice_amount"] = Invoice::where([
+            $data["total_invoice_amount"] = (int) Invoice::where([
                 "invoices.created_by" => $request->user()->id
             ])
                 ->where("invoices.status", "!=", "draft")
@@ -908,7 +908,7 @@ foreach($activitiesPaginated->items() as $key=>$item){
 
 
 
-            $data["total_due_invoice_count"] = Invoice::where([
+            $data["total_due_invoice_count"] = (int) Invoice::where([
                 "invoices.created_by" => $request->user()->id
             ])
                 ->where("invoices.status", "!=", "draft")
@@ -938,7 +938,7 @@ foreach($activitiesPaginated->items() as $key=>$item){
                 )
                 ->havingRaw('total_due > 0')
                 ->get();
-            $data["total_due_invoice_amount"] =  $data["total_due_invoice_amount"]->sum("total_due");
+            $data["total_due_invoice_amount"] =  (int) $data["total_due_invoice_amount"]->sum("total_due");
             $data["total_overdue_invoice_count"] = Invoice::where([
                 "invoices.created_by" => $request->user()->id
             ])
@@ -969,11 +969,11 @@ foreach($activitiesPaginated->items() as $key=>$item){
                 )
                 ->havingRaw('total_due > 0')
                 ->get();
-            $data["total_overdue_invoice_amount"] =  $data["total_overdue_invoice_amount"]->sum("total_due");
+            $data["total_overdue_invoice_amount"] =  (int) $data["total_overdue_invoice_amount"]->sum("total_due");
             $currentDate = Carbon::now();
             $endDate = $currentDate->copy()->addDays(15);
 
-            $data["next_15_days_invoice_due_dates"] = Invoice::where([
+            $data["next_15_days_invoice_due_dates"] = (int) Invoice::where([
                 "invoices.created_by" => $request->user()->id
             ])
                 ->where("invoices.status", "!=", "draft")
@@ -1010,7 +1010,7 @@ COALESCE(
 
                 ->havingRaw('total_due > 0')
                 ->get();
-            $data["next_15_days_invoice_due_amounts"] = $data["next_15_days_invoice_due_amounts"]->sum('total_due');
+            $data["next_15_days_invoice_due_amounts"] = (int)$data["next_15_days_invoice_due_amounts"]->sum('total_due');
 
 
 
