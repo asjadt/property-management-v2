@@ -104,10 +104,12 @@ class UserManagementController extends Controller
 
              $insertableData = $request->validated();
 
-             $location =  config("setup-config.business_image_location");
+             $location = config("setup-config.business_image_location");
 
-             $new_file_name = time() . '_' . str_replace(' ', '_', $insertableData["image"]->getClientOriginalName());
+             // Generate a new file name with PNG extension
+             $new_file_name = time() . '_' . str_replace(' ', '_', pathinfo($insertableData["image"]->getClientOriginalName(), PATHINFO_FILENAME)) . '.png';
 
+             // Move the file to the specified location with the new name and PNG extension
              $insertableData["image"]->move(public_path($location), $new_file_name);
 
 
