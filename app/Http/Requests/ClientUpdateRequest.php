@@ -32,9 +32,9 @@ class ClientUpdateRequest extends FormRequest
             'image' => 'nullable|string',
             'address_line_1' => 'nullable|string',
             'address_line_2' => 'nullable|string',
-            'country' => 'required|string',
-            'city' => 'required|string',
-            'postcode' => 'required|string',
+            'country' => 'nullable|string',
+            'city' => 'nullable|string',
+            'postcode' => 'nullable|string',
             'lat' => 'nullable|string',
             'long' => 'nullable|string',
 
