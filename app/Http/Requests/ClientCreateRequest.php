@@ -25,8 +25,10 @@ class ClientCreateRequest extends FormRequest
     {
         return [
 
-            'first_Name' => 'required|string|max:255',
-            'last_Name' => 'required|string|max:255',
+            'first_Name' => 'nullable|string|max:255',
+            'last_Name' => 'nullable|string|max:255',
+            'company_name' => 'nullable|string|max:255',
+
             'email' => 'required|string|email|max:255|unique:tenants,email',
             'phone' => 'nullable|string',
             'image' => 'nullable|string',

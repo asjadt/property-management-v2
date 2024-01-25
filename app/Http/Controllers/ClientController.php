@@ -123,6 +123,8 @@ public function createClientImage(ImageUploadRequest $request)
  *            required={"name","description","logo"},
  *  *             @OA\Property(property="image", type="string", format="string",example="image.jpg"),
   *             @OA\Property(property="first_Name", type="string", format="string",example="Rifat"),
+    *             @OA\Property(property="company_name", type="string", format="string",example="Rifat"),
+
  *            @OA\Property(property="last_Name", type="string", format="string",example="Al"),
  *            @OA\Property(property="email", type="string", format="string",example="rifatalashwad0@gmail.com"),
  *  * *  @OA\Property(property="phone", type="string", format="boolean",example="01771034383"),
@@ -225,6 +227,7 @@ public function createClient(ClientCreateRequest $request)
  *     *             @OA\Property(property="id", type="number", format="number",example="1"),
  *      *  *             @OA\Property(property="image", type="string", format="string",example="image.jpg"),
  *             @OA\Property(property="first_Name", type="string", format="string",example="Rifat"),
+    *             @OA\Property(property="company_name", type="string", format="string",example="Rifat"),
  *            @OA\Property(property="last_Name", type="string", format="string",example="Al"),
  *            @OA\Property(property="email", type="string", format="string",example="rifatalashwad0@gmail.com"),
  *  * *  @OA\Property(property="phone", type="string", format="boolean",example="01771034383"),
@@ -302,6 +305,7 @@ public function updateClient(ClientUpdateRequest $request)
             $client  =  tap(Client::where(["id" => $updatableData["id"], "created_by" => $request->user()->id]))->update(
                 collect($updatableData)->only([
                     'first_Name',
+                    "company_name",
         'last_Name',
         'phone',
         'image',
@@ -443,8 +447,11 @@ public function getClients($perPage, Request $request)
             $clientQuery = $clientQuery->where(function ($query) use ($request) {
                 $term = $request->search_key;
                 // $query->where("properties.name", "like", "%" . $term . "%");
+                $query->orWhere("clients.", "like", "%" . $term . "%");
                 $query->orWhere("clients.first_Name", "like", "%" . $term . "%");
                 $query->orWhere("clients.last_Name", "like", "%" . $term . "%");
+                $query->orWhere("clients.company_name", "like", "%" . $term . "%");
+
                 $query->orWhere("clients.email", "like", "%" . $term . "%");
                 // $query->orWhere("clients.address_line_1", "like", "%" . $term . "%");
                 // $query->orWhere("clients.address_line_2", "like", "%" . $term . "%");
@@ -758,6 +765,8 @@ public function getClients($perPage, Request $request)
              "clients.id",
              "clients.generated_id",
              "clients.first_Name",
+             "clients.company_name",
+
              "clients.last_Name",
          )
          ->orderBy("clients.first_Name",$request->order_by)->get();
