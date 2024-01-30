@@ -447,7 +447,7 @@ public function getClients($perPage, Request $request)
             $clientQuery = $clientQuery->where(function ($query) use ($request) {
                 $term = $request->search_key;
                 // $query->where("properties.name", "like", "%" . $term . "%");
-                $query->orWhere("clients.", "like", "%" . $term . "%");
+                // $query->orWhere("clients.", "like", "%" . $term . "%");
                 $query->orWhere("clients.first_Name", "like", "%" . $term . "%");
                 $query->orWhere("clients.last_Name", "like", "%" . $term . "%");
                 $query->orWhere("clients.company_name", "like", "%" . $term . "%");
