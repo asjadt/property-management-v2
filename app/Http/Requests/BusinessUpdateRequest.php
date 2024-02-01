@@ -35,7 +35,7 @@ class BusinessUpdateRequest extends FormRequest
             'user.image' => 'nullable',
 
             'business.id' => 'required|numeric|required|exists:businesses,id',
-            'business.name' => 'required|string|max:255',
+            'business.name' => 'nullable|string|max:255',
             'business.about' => 'nullable|string',
             'business.web_page' => 'nullable|string',
             'business.phone' => 'nullable|string',
@@ -49,7 +49,7 @@ class BusinessUpdateRequest extends FormRequest
             'business.country' => 'nullable|string',
             'business.city' => 'nullable|string',
             'business.postcode' => 'nullable|string',
-            'business.address_line_1' => 'required|string',
+            'business.address_line_1' => 'nullable|string',
             'business.address_line_2' => 'nullable|string',
 
 
