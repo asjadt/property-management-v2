@@ -24,7 +24,10 @@ class Client extends Model
         "long",
         'email',
         "created_by",
-         'is_active'
+         'is_active',
+
+         "note",
+         "mobile",
     ];
 
 }

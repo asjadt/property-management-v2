@@ -39,6 +39,10 @@ class ClientUpdateRequest extends FormRequest
             'lat' => 'nullable|string',
             'long' => 'nullable|string',
 
+          
+            "note" => "nullable|string",
+            "mobile" => "nullable|string",
+
         ];
     }
 }

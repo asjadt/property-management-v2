@@ -39,6 +39,11 @@ class ClientCreateRequest extends FormRequest
             'postcode' => 'nullable|string',
             'lat' => 'nullable|string',
             'long' => 'nullable|string',
+
+
+            "note" => "nullable|string",
+            "mobile" => "nullable|string",
+
         ];
     }
 }

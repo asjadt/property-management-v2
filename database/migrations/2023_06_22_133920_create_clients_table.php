@@ -36,6 +36,8 @@ class CreateClientsTable extends Migration
             $table->unsignedBigInteger("created_by");
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
 
+            $table->text('note')->nullable();
+            $table->string('mobile')->nullable();
 
             $table->softDeletes();
             $table->timestamps();

@@ -135,6 +135,8 @@ public function createClientImage(ImageUploadRequest $request)
  *  * *  @OA\Property(property="postcode", type="string", format="boolean",example="1207"),
  *     *  * *  @OA\Property(property="lat", type="string", format="boolean",example="1207"),
  *     *  * *  @OA\Property(property="long", type="string", format="boolean",example="1207"),
+ * *     *  * *  @OA\Property(property="note", type="string", format="boolean",example="1207"),
+ * *     *  * *  @OA\Property(property="mobile", type="string", format="boolean",example="1207")
  *
  *         ),
  *      ),
@@ -236,8 +238,10 @@ public function createClient(ClientCreateRequest $request)
  *  * *  @OA\Property(property="country", type="string", format="boolean",example="Bangladesh"),
  *  * *  @OA\Property(property="city", type="string", format="boolean",example="Dhaka"),
  *  * *  @OA\Property(property="postcode", type="string", format="boolean",example="1207"),
- *     *  * *  @OA\Property(property="lat", type="string", format="boolean",example="1207"),
- *     *  * *  @OA\Property(property="long", type="string", format="boolean",example="1207"),
+ *    @OA\Property(property="lat", type="string", format="boolean",example="1207"),
+ *  @OA\Property(property="long", type="string", format="boolean",example="1207"),
+ *   @OA\Property(property="note", type="string", format="boolean",example="1207"),
+ * *      @OA\Property(property="mobile", type="string", format="boolean",example="1207")
  *
  *         ),
  *      ),
@@ -317,6 +321,12 @@ public function updateClient(ClientUpdateRequest $request)
         "lat",
         "long",
         'email',
+
+
+        "note",
+        "mobile",
+
+
                 ])->toArray()
             )
                 // ->with("somthing")
