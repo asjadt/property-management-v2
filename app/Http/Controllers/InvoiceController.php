@@ -1545,7 +1545,10 @@ public function updateInvoice(InvoiceUpdateRequest $request)
     }
 
     $invoiceQuery = $invoiceQuery
-    ->select("invoices.*",
+    ->groupBy("invoices.id")
+    ->select(
+        "invoices.*",
+
     DB::raw('
         COALESCE(
             (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
@@ -1576,8 +1579,8 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 //    with("invoice_items","invoice_payments","invoice_reminder","tenant","landlord","client")
    where([
         "invoices.created_by" => $request->user()->id
-   ]);
-   // ->leftJoin('users', 'invoices.created_by', '=', 'users.id')
+   ])
+    ->leftJoin('clients', 'invoices.client_id', '=', 'clients.id');
 
 
 
@@ -1627,6 +1630,18 @@ public function updateInvoice(InvoiceUpdateRequest $request)
    }
 
 
+   if (!empty($request->company_name)) {
+    $invoiceQuery =   $invoiceQuery
+    ->whereHas("client",function($query) use($request) {
+        $query->where("clients.company_name", $request->company_name);
+
+    });
+
+}
+
+
+
+
    if(!empty($request->property_ids)) {
        $null_filter = collect(array_filter($request->property_ids))->values();
    $property_ids =  $null_filter->all();
@@ -1655,6 +1670,8 @@ public function updateInvoice(InvoiceUpdateRequest $request)
    $invoiceQuery = $invoiceQuery
    ->select(
       "invoices.id",
+      "clients.company_name as company_name",
+      "clients.id as client_id",
                  "invoices.generated_id",
                  "invoices.business_address",
                  "invoices.status",
@@ -1767,6 +1784,13 @@ $invoiceQuery = $invoiceQuery->orderBy("invoices.id",$request->order_by);
 * description="client_id",
 * required=true,
 * example="1"
+* ),
+*   @OA\Parameter(
+* name="company_name",
+* in="query",
+* description="company_name",
+* required=true,
+* example="company_name"
 * ),
 
  * *  @OA\Parameter(
