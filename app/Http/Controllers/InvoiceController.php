@@ -1465,11 +1465,12 @@ public function updateInvoice(InvoiceUpdateRequest $request)
     // $automobilesQuery = AutomobileMake::with("makes");
 
     $invoiceQuery = Invoice::with("invoice_items")
+
  //    with("invoice_items","invoice_payments","invoice_reminder","tenant","landlord","client")
     ->where([
          "invoices.created_by" => $request->user()->id
-    ]);
-    // ->leftJoin('users', 'invoices.created_by', '=', 'users.id')
+    ])
+    ->leftJoin('clients', 'invoices.client_id', '=', 'clients.id');
 
 
 
@@ -1514,6 +1515,17 @@ public function updateInvoice(InvoiceUpdateRequest $request)
  }
 
 
+ if (!empty($request->company_name)) {
+    $invoiceQuery =   $invoiceQuery
+    ->whereHas("client",function($query) use($request) {
+        $query->where("clients.company_name", $request->company_name);
+
+    });
+
+}
+
+
+
     if (!empty($request->property_id)) {
         $invoiceQuery =   $invoiceQuery->where("invoices.property_id", $request->property_id);
     }
@@ -1548,6 +1560,8 @@ public function updateInvoice(InvoiceUpdateRequest $request)
     ->groupBy("invoices.id")
     ->select(
         "invoices.*",
+        "clients.company_name as company_name",
+        "clients.id as client_id",
 
     DB::raw('
         COALESCE(
@@ -1668,6 +1682,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
    }
 
    $invoiceQuery = $invoiceQuery
+   ->groupBy("invoices.id")
    ->select(
       "invoices.id",
       "clients.company_name as company_name",
@@ -2288,6 +2303,14 @@ return $pdf->stream(); // Stream the PDF content
 * description="client_id",
 * required=true,
 * example="1"
+* ),
+
+*   @OA\Parameter(
+* name="company_name",
+* in="query",
+* description="company_name",
+* required=true,
+* example="company_name"
 * ),
 
  * *  @OA\Parameter(
