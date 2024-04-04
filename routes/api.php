@@ -60,6 +60,42 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
+
+
+
+
+
+
+
+// Define route for GET method
+Route::get('/health', function () {
+    return response()->json(['status' => 'Server is up and running'], 200);
+});
+
+// Define route for POST method
+Route::post('/health', function () {
+    return response()->json(['status' => 'Server is up and running'], 200);
+});
+
+// Define route for PUT method
+Route::put('/health', function () {
+    return response()->json(['status' => 'Server is up and running'], 200);
+});
+
+// Define route for DELETE method
+Route::delete('/health', function () {
+    return response()->json(['status' => 'Server is up and running'], 200);
+});
+
+// Define route for PATCH method
+Route::patch('/health', function () {
+    return response()->json(['status' => 'Server is up and running'], 200);
+});
+
+
+
+
+
 Route::get('/v1.0/invoices/get/pdf/test', [InvoiceController::class, "getInvoicesPdfTest"]);
 Route::get('/v1.0/bills/get/all/pdf/test', [BillController::class, "getAllBillsPdfTest"]);
 /*
