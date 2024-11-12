@@ -53,6 +53,16 @@ class CreatePropertiesTable extends Migration
             $table->unsignedBigInteger("created_by");
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
 
+            $table->date('date_of_instruction')->nullable();
+            $table->string('howDetached')->nullable();  // Title is displayed
+            $table->string('propertyFloor')->nullable();  // Title is displayed
+            $table->double('min_price')->nullable();
+            $table->double('max_price')->nullable();
+            $table->string('purpose')->nullable();
+            $table->string('property_door_no')->nullable();
+            $table->string('property_road')->nullable();
+            $table->string('county')->nullable();
+
 
             $table->softDeletes();
             $table->timestamps();

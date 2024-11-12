@@ -280,6 +280,8 @@ Route::delete('/v1.0/clients/{id}', [ClientController::class, "deleteClientById"
 
 Route::post('/v1.0/property-image', [PropertyController::class, "createPropertyImage"]);
 Route::post('/v1.0/properties', [PropertyController::class, "createProperty"]);
+Route::post('/v2.0/properties', [PropertyController::class, "createPropertyV2"]);
+
 Route::put('/v1.0/properties', [PropertyController::class, "updateProperty"]);
 Route::get('/v1.0/properties/{perPage}', [PropertyController::class, "getProperties"]);
 

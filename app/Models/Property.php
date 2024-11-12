@@ -25,6 +25,15 @@ class Property extends Model
         'landlord_id',
         "created_by",
         'is_active',
+        'date_of_instruction', // Added field
+        'howDetached',          // Added field
+        'propertyFloor',        // Added field
+        'min_price',            // Added field
+        'max_price',            // Added field
+        'purpose',              // Added field
+        'property_door_no',     // Added field
+        'property_road',        // Added field
+        'county',               // Added field
     ];
     public function property_tenants() {
         return $this->belongsToMany(Tenant::class, 'property_tenants', 'property_id', 'tenant_id');
