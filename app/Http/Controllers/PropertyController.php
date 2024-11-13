@@ -247,7 +247,7 @@ class PropertyController extends Controller
 
     /**
  * @OA\Post(
- *      path="/v2.0/properties",  // Update version to v2.0
+ *      path="/v2.0/properties",  
  *      operationId="createPropertyV2",
  *      tags={"property_management.property_management"},
  *      security={

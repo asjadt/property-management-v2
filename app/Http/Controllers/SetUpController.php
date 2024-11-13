@@ -76,7 +76,7 @@ return "swagger generated";
         'country'=> "Bangladesh",
         'city'=> "Dhaka",
         'postcode'=> "1207",
-        'email'=> "admin@gmail.com",
+        'email'=> "asjadtariq@gmail.com",
         'password'=>Hash::make("12345678We"),
         "email_verified_at"=>now(),
         'is_active' => 1
