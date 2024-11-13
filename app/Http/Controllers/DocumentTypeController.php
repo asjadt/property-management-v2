@@ -2,30 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\PaymentTypeCreateRequest;
-use App\Http\Requests\PaymentTypeUpdateRequest;
+use App\Http\Requests\DocumentTypeCreateRequest;
+use App\Http\Requests\DocumentTypeUpdateRequest;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
-use App\Models\PaymentType;
+use App\Models\DocumentType;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class PaymentTypeController extends Controller
+class DocumentTypeController extends Controller
 {
     use ErrorUtil, UserActivityUtil;
 
     /**
      *
      * @OA\Post(
-     *      path="/v1.0/payment-types",
-     *      operationId="createPaymentType",
-     *      tags={"property_management.payment_type_management"},
+     *      path="/v1.0/document-types",
+     *      operationId="createDocumentType",
+     *      tags={"property_management.document_type_management"},
      *       security={
      *           {"bearerAuth": {}}
      *       },
-     *      summary="This method is to store payment type",
-     *      description="This method is to store payment type",
+     *      summary="This method is to store document type",
+     *      description="This method is to store document type",
      *
      *  @OA\RequestBody(
      *         required=true,
@@ -71,12 +71,12 @@ class PaymentTypeController extends Controller
      *     )
      */
 
-    public function createPaymentType(PaymentTypeCreateRequest $request)
+    public function createDocumentType(DocumentTypeCreateRequest $request)
     {
         try {
             $this->storeActivity($request, "");
             return DB::transaction(function () use ($request) {
-                if (!$request->user()->hasPermissionTo('payment_type_create')) {
+                if (!$request->user()->hasPermissionTo('document_type_create')) {
                     return response()->json([
                         "message" => "You can not perform this action"
                     ], 401);
@@ -84,10 +84,10 @@ class PaymentTypeController extends Controller
 
                 $insertableData = $request->validated();
 
-                $payment_type =  PaymentType::create($insertableData);
+                $document_type =  DocumentType::create($insertableData);
 
 
-                return response($payment_type, 201);
+                return response($document_type, 201);
             });
         } catch (Exception $e) {
             error_log($e->getMessage());
@@ -98,14 +98,14 @@ class PaymentTypeController extends Controller
     /**
      *
      * @OA\Put(
-     *      path="/v1.0/payment-types",
-     *      operationId="updatePaymentType",
-     *      tags={"property_management.payment_type_management"},
+     *      path="/v1.0/document-types",
+     *      operationId="updateDocumentType",
+     *      tags={"property_management.document_type_management"},
      *       security={
      *           {"bearerAuth": {}}
      *       },
-     *      summary="This method is to update payment type",
-     *      description="This method is to update payment type",
+     *      summary="This method is to update document type",
+     *      description="This method is to update document type",
      *
      *  @OA\RequestBody(
      *         required=true,
@@ -152,12 +152,12 @@ class PaymentTypeController extends Controller
      *     )
      */
 
-    public function updatePaymentType(PaymentTypeUpdateRequest $request)
+    public function updateDocumentType(DocumentTypeUpdateRequest $request)
     {
         try {
             $this->storeActivity($request, "");
             return  DB::transaction(function () use ($request) {
-                if (!$request->user()->hasPermissionTo('payment_type_update')) {
+                if (!$request->user()->hasPermissionTo('document_type_update')) {
                     return response()->json([
                         "message" => "You can not perform this action"
                     ], 401);
@@ -166,7 +166,7 @@ class PaymentTypeController extends Controller
 
 
 
-                $fuel_station  =  tap(PaymentType::where(["id" => $updatableData["id"]]))->update(
+                $fuel_station  =  tap(DocumentType::where(["id" => $updatableData["id"]]))->update(
                     collect($updatableData)->only([
                         "name",
                         "description",
@@ -187,9 +187,9 @@ class PaymentTypeController extends Controller
     /**
      *
      * @OA\Get(
-     *      path="/v1.0/payment-types/{perPage}",
-     *      operationId="getPaymentTypes",
-     *      tags={"property_management.payment_type_management"},
+     *      path="/v1.0/document-types/{perPage}",
+     *      operationId="getDocumentTypes",
+     *      tags={"property_management.document_type_management"},
      *       security={
      *           {"bearerAuth": {}}
      *       },
@@ -229,8 +229,8 @@ class PaymentTypeController extends Controller
      * required=true,
      * example="search_key"
      * ),
-     *      summary="This method is to get payment types ",
-     *      description="This method is to get payment types",
+     *      summary="This method is to get document types ",
+     *      description="This method is to get document types",
      *
 
      *      @OA\Response(
@@ -267,11 +267,11 @@ class PaymentTypeController extends Controller
      *     )
      */
 
-    public function getPaymentTypes($perPage, Request $request)
+    public function getDocumentTypes($perPage, Request $request)
     {
         try {
             $this->storeActivity($request, "");
-            if (!$request->user()->hasPermissionTo('payment_type_view')) {
+            if (!$request->user()->hasPermissionTo('document_type_view')) {
                 return response()->json([
                     "message" => "You can not perform this action"
                 ], 401);
@@ -279,23 +279,23 @@ class PaymentTypeController extends Controller
 
 
 
-            $paymentTypeQuery = new PaymentType();
+            $documentTypeQuery = new DocumentType();
 
             if (!empty($request->search_key)) {
-                $paymentTypeQuery = $paymentTypeQuery->where(function ($query) use ($request) {
+                $documentTypeQuery = $documentTypeQuery->where(function ($query) use ($request) {
                     $term = $request->search_key;
                     $query->where("name", "like", "%" . $term . "%");
                 });
             }
 
             if (!empty($request->start_date)) {
-                $paymentTypeQuery = $paymentTypeQuery->where('created_at', ">=", $request->start_date);
+                $documentTypeQuery = $documentTypeQuery->where('created_at', ">=", $request->start_date);
             }
             if (!empty($request->end_date)) {
-                $paymentTypeQuery = $paymentTypeQuery->where('created_at', "<=", $request->end_date);
+                $documentTypeQuery = $documentTypeQuery->where('created_at', "<=", $request->end_date);
             }
-            $payment_types = $paymentTypeQuery->orderBy("id", $request->order_by)->paginate($perPage);
-            return response()->json($payment_types, 200);
+            $document_types = $documentTypeQuery->orderBy("id", $request->order_by)->paginate($perPage);
+            return response()->json($document_types, 200);
         } catch (Exception $e) {
 
             return $this->sendError($e, 500, $request);
@@ -304,9 +304,9 @@ class PaymentTypeController extends Controller
     /**
      *
      * @OA\Get(
-     *      path="/v1.0/payment-types/get/all",
-     *      operationId="getAllPaymentTypes",
-     *      tags={"property_management.payment_type_management"},
+     *      path="/v1.0/document-types/get/all",
+     *      operationId="getAllDocumentTypes",
+     *      tags={"property_management.document_type_management"},
      *       security={
      *           {"bearerAuth": {}}
      *       },
@@ -339,8 +339,8 @@ class PaymentTypeController extends Controller
      * required=true,
      * example="search_key"
      * ),
-     *      summary="This method is to get all payment types ",
-     *      description="This method is to get all payment types",
+     *      summary="This method is to get all document types ",
+     *      description="This method is to get all document types",
      *
 
      *      @OA\Response(
@@ -377,11 +377,11 @@ class PaymentTypeController extends Controller
      *     )
      */
 
-    public function getAllPaymentTypes(Request $request)
+    public function getAllDocumentTypes(Request $request)
     {
         try {
             $this->storeActivity($request, "");
-            if (!$request->user()->hasPermissionTo('payment_type_view')) {
+            if (!$request->user()->hasPermissionTo('document_type_view')) {
                 return response()->json([
                     "message" => "You can not perform this action"
                 ], 401);
@@ -389,23 +389,23 @@ class PaymentTypeController extends Controller
 
 
 
-            $paymentTypeQuery = new PaymentType();
+            $documentTypeQuery = new DocumentType();
 
             if (!empty($request->search_key)) {
-                $paymentTypeQuery = $paymentTypeQuery->where(function ($query) use ($request) {
+                $documentTypeQuery = $documentTypeQuery->where(function ($query) use ($request) {
                     $term = $request->search_key;
                     $query->where("name", "like", "%" . $term . "%");
                 });
             }
 
             if (!empty($request->start_date)) {
-                $paymentTypeQuery = $paymentTypeQuery->where('created_at', ">=", $request->start_date);
+                $documentTypeQuery = $documentTypeQuery->where('created_at', ">=", $request->start_date);
             }
             if (!empty($request->end_date)) {
-                $paymentTypeQuery = $paymentTypeQuery->where('created_at', "<=", $request->end_date);
+                $documentTypeQuery = $documentTypeQuery->where('created_at', "<=", $request->end_date);
             }
-            $payment_types = $paymentTypeQuery->orderBy("name", "ASC")->get();
-            return response()->json($payment_types, 200);
+            $document_types = $documentTypeQuery->orderBy("name", "ASC")->get();
+            return response()->json($document_types, 200);
         } catch (Exception $e) {
 
             return $this->sendError($e, 500, $request);
@@ -415,9 +415,9 @@ class PaymentTypeController extends Controller
     /**
      *
      *     @OA\Delete(
-     *      path="/v1.0/payment-types/{id}",
-     *      operationId="deletePaymentTypeById",
-     *      tags={"property_management.payment_type_management"},
+     *      path="/v1.0/document-types/{id}",
+     *      operationId="deleteDocumentTypeById",
+     *      tags={"property_management.document_type_management"},
      *       security={
      *           {"bearerAuth": {}}
      *       },
@@ -466,18 +466,18 @@ class PaymentTypeController extends Controller
      *     )
      */
 
-    public function deletePaymentTypeById($id, Request $request)
+    public function deleteDocumentTypeById($id, Request $request)
     {
 
         try {
             $this->storeActivity($request, "");
-            if (!$request->user()->hasPermissionTo('payment_type_delete')) {
+            if (!$request->user()->hasPermissionTo('document_type_delete')) {
                 return response()->json([
                     "message" => "You can not perform this action"
                 ], 401);
             }
 
-            PaymentType::where([
+            DocumentType::where([
                 "id" => $id
             ])
                 ->delete();

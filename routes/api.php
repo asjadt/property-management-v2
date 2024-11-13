@@ -15,6 +15,7 @@ use App\Http\Controllers\client\ClientReviewController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\DashboardManagementController;
+use App\Http\Controllers\DocumentTypeController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\EmailTemplateWrapperController;
 use App\Http\Controllers\FuelStationController;
@@ -189,6 +190,18 @@ Route::delete('/v1.0/payment-types/{id}', [PaymentTypeController::class, "delete
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// payment type management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Route::post('/v1.0/document-types', [DocumentTypeController::class, "createDocumentType"]);
+Route::put('/v1.0/document-types', [DocumentTypeController::class, "updateDocumentType"]);
+Route::get('/v1.0/document-types/{perPage}', [DocumentTypeController::class, "getDocumentTypes"]);
+Route::get('/v1.0/document-types/get/all', [DocumentTypeController::class, "getAllDocumentTypes"]);
+Route::delete('/v1.0/document-types/{id}', [DocumentTypeController::class, "deleteDocumentTypeById"]);
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+// payment type management section
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 

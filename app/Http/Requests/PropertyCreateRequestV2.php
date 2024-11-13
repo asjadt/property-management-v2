@@ -26,6 +26,8 @@ class PropertyCreateRequestV2 extends FormRequest
         return [
             'name' => "nullable|string",
             'image' => "nullable|string",
+            'images' => "present|array",
+            'images.*' => "string",
             'address' => "nullable|string",
             'country' => "required|string",
             'city' => "required|string",

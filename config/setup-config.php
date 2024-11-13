@@ -16,6 +16,11 @@ return [
                 "payment_type_view",
                 "payment_type_delete",
 
+                "document_type_create",
+                "document_type_update",
+                "document_type_view",
+                "document_type_delete",
+
                 "repair_category_create",
                 "repair_category_update",
                 "repair_category_view",
@@ -55,6 +60,11 @@ return [
        "payment_type_update",
        "payment_type_view",
        "payment_type_delete",
+
+       "document_type_create",
+       "document_type_update",
+       "document_type_view",
+       "document_type_delete",
 
        "repair_category_create",
        "repair_category_update",

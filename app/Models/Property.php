@@ -13,6 +13,7 @@ class Property extends Model
     protected $fillable = [
         'name',
         'image',
+        'images',
         'address',
         'country',
         'city',
@@ -34,6 +35,9 @@ class Property extends Model
         'property_door_no',     // Added field
         'property_road',        // Added field
         'county',               // Added field
+    ];
+    protected $casts = [
+        'images' => 'array',
     ];
     public function property_tenants() {
         return $this->belongsToMany(Tenant::class, 'property_tenants', 'property_id', 'tenant_id');
