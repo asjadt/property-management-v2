@@ -13,6 +13,7 @@ class DocumentType extends Model
         "icon",
         "description",
         "is_active",
+        "created_by"
 
     ];
 }

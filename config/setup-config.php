@@ -42,6 +42,12 @@ return [
                 "repair_category_view",
                 "bill_item_view",
 
+
+                "document_type_create",
+                "document_type_update",
+                "document_type_view",
+                "document_type_delete",
+
             ],
         ],
 

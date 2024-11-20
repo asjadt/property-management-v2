@@ -83,6 +83,7 @@ class DocumentTypeController extends Controller
                 }
 
                 $request_data = $request->validated();
+                $request_data["created_by"] = auth()->user()->id;
 
                 $document_type =  DocumentType::create($request_data);
 
@@ -280,7 +281,9 @@ class DocumentTypeController extends Controller
 
 
 
-            $documentTypeQuery = new DocumentType();
+            $documentTypeQuery =  DocumentType::where([
+                "created_by" => auth()->user()->id
+            ]);
 
             if (!empty($request->search_key)) {
                 $documentTypeQuery = $documentTypeQuery->where(function ($query) use ($request) {
@@ -390,7 +393,9 @@ class DocumentTypeController extends Controller
 
 
 
-            $documentTypeQuery = new DocumentType();
+            $documentTypeQuery =  DocumentType::where([
+                "created_by" => auth()->user()->id
+            ]);
 
             if (!empty($request->search_key)) {
                 $documentTypeQuery = $documentTypeQuery->where(function ($query) use ($request) {
@@ -480,6 +485,9 @@ class DocumentTypeController extends Controller
 
             DocumentType::where([
                 "id" => $id
+            ])
+            ->where([
+                "created_by" => auth()->user()->id
             ])
                 ->delete();
 
