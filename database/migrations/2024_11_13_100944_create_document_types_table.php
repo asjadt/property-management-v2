@@ -23,6 +23,7 @@ class CreateDocumentTypesTable extends Migration
         });
     }
 
+
     /**
      * Reverse the migrations.
      *
