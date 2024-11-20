@@ -83,9 +83,9 @@ class FuelStationServiceController extends Controller
                     ], 401);
                 }
 
-                $insertableData = $request->validated();
+                $request_data = $request->validated();
 
-                $fuel_station =  FuelStationService::create($insertableData);
+                $fuel_station =  FuelStationService::create($request_data);
 
 
 

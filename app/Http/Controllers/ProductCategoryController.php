@@ -83,9 +83,9 @@ class ProductCategoryController extends Controller
               ],401);
          }
 
-         $insertableData = $request->validated();
+         $request_data = $request->validated();
 
-         $product_category =  ProductCategory::create($insertableData);
+         $product_category =  ProductCategory::create($request_data);
 
 
 

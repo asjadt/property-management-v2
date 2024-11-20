@@ -127,18 +127,18 @@ class BillController extends Controller
                 "owner_id" => $request->user()->id
               ])->first();
 
-              $insertableData = $request->validated();
-              $insertableData["created_by"] = $request->user()->id;
+              $request_data = $request->validated();
+              $request_data["created_by"] = $request->user()->id;
 
-              $invoiceDateWithTime = Carbon::createFromFormat('Y-m-d', $insertableData["create_date"]);
+              $invoiceDateWithTime = Carbon::createFromFormat('Y-m-d', $request_data["create_date"]);
               $invoiceDateWithTime->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
-              $insertableData["create_date"] =    $invoiceDateWithTime;
-              $invoicePaymentDateWithTime = Carbon::createFromFormat('Y-m-d', $insertableData["payment_date"]);
+              $request_data["create_date"] =    $invoiceDateWithTime;
+              $invoicePaymentDateWithTime = Carbon::createFromFormat('Y-m-d', $request_data["payment_date"]);
               $invoicePaymentDateWithTime->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
-              $insertableData["payment_date"] =    $invoicePaymentDateWithTime;
+              $request_data["payment_date"] =    $invoicePaymentDateWithTime;
 
 
-              $bill =  Bill::create($insertableData);
+              $bill =  Bill::create($request_data);
               if(!$bill) {
                 throw new Exception("something went wrong");
             }
@@ -148,7 +148,7 @@ class BillController extends Controller
 
             $bill->save();
 
-              $bill_items = collect($insertableData["bill_items"])->map(function ($item)use ($bill) {
+              $bill_items = collect($request_data["bill_items"])->map(function ($item)use ($bill) {
 
                     // $bill_item_exists =    BillBillItem::where([
                     //         "bill_item_id" => $item["bill_item_id"]
@@ -163,7 +163,7 @@ class BillController extends Controller
                     //         throw new Exception(json_encode($error),422);
                     //     }
 
-                    
+
 
 
 
@@ -178,7 +178,7 @@ class BillController extends Controller
 
             $bill->bill_bill_items()->createMany($bill_items->all());
 
-            $sale_items = collect($insertableData["sale_items"])->map(function ($item)use ($bill) {
+            $sale_items = collect($request_data["sale_items"])->map(function ($item)use ($bill) {
 
                 // $sale_items_exists =    BillSaleItem::where([
                 //         "sale_id" => $item["sale_id"]
@@ -206,7 +206,7 @@ class BillController extends Controller
 
         $bill->bill_sale_items()->createMany($sale_items->all());
 
-        $repair_items = collect($insertableData["repair_items"])->map(function ($item)use ($bill) {
+        $repair_items = collect($request_data["repair_items"])->map(function ($item)use ($bill) {
 
             $repair_items_exists =    BillRepairItem::where([
                     "repair_id" => $item["repair_id"]

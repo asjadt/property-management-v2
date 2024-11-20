@@ -91,11 +91,11 @@ class GarageAffiliationController extends Controller
                 }
 
 
-                $insertableData = $request->validated();
+                $request_data = $request->validated();
 
 
 
-                    if (!$this->garageOwnerCheck($insertableData["garage_id"])) {
+                    if (!$this->garageOwnerCheck($request_data["garage_id"])) {
                         return response()->json([
                             "message" => "you are not the owner of the garage or the requested garage does not exist."
                         ], 401);
@@ -106,7 +106,7 @@ class GarageAffiliationController extends Controller
 
 
 
-                $garage_affiliation =  GarageAffiliation::create($insertableData);
+                $garage_affiliation =  GarageAffiliation::create($request_data);
 
 
                 return response($garage_affiliation, 201);

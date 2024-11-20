@@ -102,11 +102,11 @@ use ErrorUtil,GarageUtil,UserActivityUtil;
                     "message" => "you are not the owner of the garage or the requested garage does not exist."
                 ], 401);
             }
-            $insertableData = $request->validated();
+            $request_data = $request->validated();
 
             $location =  config("setup-config.garage_gallery_location");
-            if(!empty($insertableData["images"])) {
-                foreach($insertableData["images"] as $image){
+            if(!empty($request_data["images"])) {
+                foreach($request_data["images"] as $image){
                     $new_file_name = time() . '_' . $image->getClientOriginalName();
                     $image->move(public_path($location), $new_file_name);
 

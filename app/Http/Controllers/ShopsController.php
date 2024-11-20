@@ -89,13 +89,13 @@ class ShopsController extends Controller
  {
      try{
         $this->storeActivity($request,"");
-         $insertableData = $request->validated();
+         $request_data = $request->validated();
 
          $location =  config("setup-config.shop_gallery_location");
 
-         $new_file_name = time() . '_' . $insertableData["image"]->getClientOriginalName();
+         $new_file_name = time() . '_' . $request_data["image"]->getClientOriginalName();
 
-         $insertableData["image"]->move(public_path($location), $new_file_name);
+         $request_data["image"]->move(public_path($location), $new_file_name);
 
 
          return response()->json(["image" => $new_file_name,"location" => $location,"full_location"=>("/".$location."/".$new_file_name)], 200);
@@ -179,13 +179,13 @@ class ShopsController extends Controller
         try{
 
             $this->storeActivity($request,"");
-            $insertableData = $request->validated();
+            $request_data = $request->validated();
 
             $location =  config("setup-config.garage_shop_location");
 
             $images = [];
-            if(!empty($insertableData["images"])) {
-                foreach($insertableData["images"] as $image){
+            if(!empty($request_data["images"])) {
+                foreach($request_data["images"] as $image){
                     $new_file_name = time() . '_' . $image->getClientOriginalName();
                     $image->move(public_path($location), $new_file_name);
 
@@ -325,25 +325,25 @@ class ShopsController extends Controller
             "message" => "You can not perform this action"
          ],401);
     }
-     $insertableData = $request->validated();
+     $request_data = $request->validated();
 
 // user info starts ##############
- $insertableData['user']['password'] = Hash::make($insertableData['user']['password']);
- $insertableData['user']['remember_token'] = Str::random(10);
- $insertableData['user']['is_active'] = true;
- $insertableData['user']['created_by'] = $request->user()->id;
- $user =  User::create($insertableData['user']);
+ $request_data['user']['password'] = Hash::make($request_data['user']['password']);
+ $request_data['user']['remember_token'] = Str::random(10);
+ $request_data['user']['is_active'] = true;
+ $request_data['user']['created_by'] = $request->user()->id;
+ $user =  User::create($request_data['user']);
  $user->assignRole('shop_owner');
 // end user info ##############
 
 
 //  shop info ##############
-     $insertableData['shop']['status'] = "pending";
-     $insertableData['shop']['owner_id'] = $user->id;
-     $insertableData['shop']['created_by'] = $request->user()->id;
-     $shop =  Shop::create($insertableData['shop']);
-     if(!empty($insertableData["images"])) {
-        foreach($insertableData["images"] as $shop_images){
+     $request_data['shop']['status'] = "pending";
+     $request_data['shop']['owner_id'] = $user->id;
+     $request_data['shop']['created_by'] = $request->user()->id;
+     $shop =  Shop::create($request_data['shop']);
+     if(!empty($request_data["images"])) {
+        foreach($request_data["images"] as $shop_images){
             ShopGallery::create([
                 "image" => $shop_images,
                 "shop_id" =>$shop->id,

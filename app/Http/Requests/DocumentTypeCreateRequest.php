@@ -25,6 +25,7 @@ class DocumentTypeCreateRequest extends FormRequest
     {
         return [
             "name" => "required|string",
+            "icon" => "nullable|string",
             "description" => "nullable|string",
             "is_active" => "nullable|boolean",
         ];

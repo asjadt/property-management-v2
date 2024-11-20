@@ -47,6 +47,12 @@ class SetUpController extends Controller
         return "automobile refreshed";
 
     }
+
+    public function migrate(Request $request) {
+        $this->storeActivity($request, "DUMMY activity","DUMMY description");
+        Artisan::call('check:migrate');
+        return "migrated";
+            }
     public function swaggerRefresh() {
 Artisan::call('l5-swagger:generate');
 return "swagger generated";

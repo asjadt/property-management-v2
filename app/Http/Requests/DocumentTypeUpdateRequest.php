@@ -26,6 +26,8 @@ class DocumentTypeUpdateRequest extends FormRequest
         return [
             "id" => "required|numeric",
             "name" => "required|string",
+            "icon" => "nullable|string",
+
             "description" => "nullable|string",
             "is_active" => "nullable|boolean"
         ];

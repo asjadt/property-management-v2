@@ -92,10 +92,10 @@ class AutomobilesController extends Controller
                  ],401);
             }
 
-            $insertableData = $request->validated();
+            $request_data = $request->validated();
 
 
-            $automobile =  AutomobileCategory::create($insertableData);
+            $automobile =  AutomobileCategory::create($request_data);
 
 
             return response($automobile, 201);
@@ -626,10 +626,10 @@ class AutomobilesController extends Controller
                  ],401);
             }
 
-            $insertableData = $request->validated();
+            $request_data = $request->validated();
 
 
-            $automobile =  AutomobileMake::create($insertableData);
+            $automobile =  AutomobileMake::create($request_data);
 
 
             return response($automobile, 201);
@@ -1295,10 +1295,10 @@ class AutomobilesController extends Controller
                  ],401);
             }
 
-            $insertableData = $request->validated();
+            $request_data = $request->validated();
 
 
-            $automobile =  AutomobileModel::create($insertableData);
+            $automobile =  AutomobileModel::create($request_data);
 
 
             return response($automobile, 201);
@@ -1846,10 +1846,10 @@ class AutomobilesController extends Controller
                  ],401);
             }
 
-            $insertableData = $request->validated();
+            $request_data = $request->validated();
 
 
-            $automobile =  AutomobileModelVariant::create($insertableData);
+            $automobile =  AutomobileModelVariant::create($request_data);
 
 
             return response($automobile, 201);
@@ -2313,9 +2313,9 @@ class AutomobilesController extends Controller
                  ],401);
             }
 
-            $insertableData = $request->validated();
+            $request_data = $request->validated();
 
-            $automobile =  AutomobileFuelType::create($insertableData);
+            $automobile =  AutomobileFuelType::create($request_data);
 
 
             return response($automobile, 201);

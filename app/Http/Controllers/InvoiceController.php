@@ -100,15 +100,15 @@ public function createInvoiceImage(ImageUploadRequest $request)
     try{
         $this->storeActivity($request,"");
 
-        $insertableData = $request->validated();
+        $request_data = $request->validated();
 
         $location = config("setup-config.invoice_image");
 
         // Generate a new file name with PNG extension
-        $new_file_name = time() . '_' . str_replace(' ', '_', pathinfo($insertableData["image"]->getClientOriginalName(), PATHINFO_FILENAME)) . '.png';
+        $new_file_name = time() . '_' . str_replace(' ', '_', pathinfo($request_data["image"]->getClientOriginalName(), PATHINFO_FILENAME)) . '.png';
 
         // Move the file to the specified location with the new name and PNG extension
-        $insertableData["image"]->move(public_path($location), $new_file_name);
+        $request_data["image"]->move(public_path($location), $new_file_name);
 
 
 
@@ -233,16 +233,16 @@ public function createInvoice(InvoiceCreateRequest $request)
         return DB::transaction(function () use ($request) {
 
 
-            $insertableData = $request->validated();
-            $insertableData["created_by"] = $request->user()->id;
+            $request_data = $request->validated();
+            $request_data["created_by"] = $request->user()->id;
 
-            $invoiceDateWithTime = Carbon::createFromFormat('Y-m-d', $insertableData["invoice_date"]);
+            $invoiceDateWithTime = Carbon::createFromFormat('Y-m-d', $request_data["invoice_date"]);
             $invoiceDateWithTime->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
-            $insertableData["invoice_date"] =    $invoiceDateWithTime;
+            $request_data["invoice_date"] =    $invoiceDateWithTime;
 
 
             $reference_no_exists =  DB::table( 'invoices' )->where([
-                'invoice_reference'=> $insertableData['invoice_reference'],
+                'invoice_reference'=> $request_data['invoice_reference'],
                 "created_by" => $request->user()->id
              ]
              )->exists();
@@ -258,7 +258,7 @@ public function createInvoice(InvoiceCreateRequest $request)
                }
 
 
-            $invoice =  Invoice::create($insertableData);
+            $invoice =  Invoice::create($request_data);
             if(!$invoice) {
                 throw new Exception("something went wrong");
             }
@@ -268,7 +268,7 @@ public function createInvoice(InvoiceCreateRequest $request)
 
             $invoice->save();
 
-            $invoiceItems = collect($insertableData["invoice_items"])->map(function ($item)use ($invoice) {
+            $invoiceItems = collect($request_data["invoice_items"])->map(function ($item)use ($invoice) {
                 if(!empty($item["repair_id"])) {
                     $invoice_item_exists =    InvoiceItem::where([
                             "repair_id" => $item["repair_id"]
@@ -301,7 +301,7 @@ public function createInvoice(InvoiceCreateRequest $request)
             $invoice->invoice_items()->createMany($invoiceItems->all());
 
 
-            // $invoicePayments = collect($insertableData["invoice_payments"])->map(function ($item) {
+            // $invoicePayments = collect($request_data["invoice_payments"])->map(function ($item) {
             //     return [
             //         "amount" => $item["amount"],
             //         "payment_method" => $item["payment_method"],
@@ -333,16 +333,16 @@ public function createInvoice(InvoiceCreateRequest $request)
 
 
 
-             if(!empty($insertableData["reminder_dates"]) &&  $invoice->status != "paid") {
+             if(!empty($request_data["reminder_dates"]) &&  $invoice->status != "paid") {
 
                 InvoiceReminder::where([
                     "invoice_id" => $invoice->id
                 ])
                 ->delete();
-                foreach($insertableData["reminder_dates"] as $reminder_date_amount) {
+                foreach($request_data["reminder_dates"] as $reminder_date_amount) {
 
 
-                    $due_date = DateTime::createFromFormat('Y-m-d', $insertableData["due_date"]);
+                    $due_date = DateTime::createFromFormat('Y-m-d', $request_data["due_date"]);
                     if ($due_date !== false) {
                         $due_date->modify(($reminder_date_amount . ' days'));
                         $reminder_date = $due_date->format('Y-m-d');
@@ -355,7 +355,7 @@ public function createInvoice(InvoiceCreateRequest $request)
      InvoiceReminder::create([
         "reminder_date_amount" => $reminder_date_amount,
         "reminder_status" => "not_sent",
-        "send_reminder" => !empty($insertableData["send_reminder"])?$insertableData["send_reminder"]:0,
+        "send_reminder" => !empty($request_data["send_reminder"])?$request_data["send_reminder"]:0,
         "reminder_date" =>$reminder_date,
         "invoice_id" => $invoice->id,
         "created_by" => $invoice->created_by
@@ -408,16 +408,16 @@ public function createInvoice(InvoiceCreateRequest $request)
 
         //     for($i=0;$i<1000;$i++) {
 
-        //         $insertableData["created_by"] = $request->user()->id;
+        //         $request_data["created_by"] = $request->user()->id;
 
 
-        //         $insertableData2 = json_decode(json_encode($insertableData),true);
+        //         $request_data2 = json_decode(json_encode($request_data),true);
 
-        //         $insertableData2["invoice_reference"] = $insertableData["invoice_reference"] . Str::random(4);
+        //         $request_data2["invoice_reference"] = $request_data["invoice_reference"] . Str::random(4);
 
 
         //         $reference_no_exists =  DB::table( 'invoices' )->where([
-        //             'invoice_reference'=> $insertableData2['invoice_reference'],
+        //             'invoice_reference'=> $request_data2['invoice_reference'],
         //             "created_by" => $request->user()->id
         //          ]
         //          )->exists();
@@ -433,7 +433,7 @@ public function createInvoice(InvoiceCreateRequest $request)
         //            }
 
 
-        //         $invoice =  Invoice::create($insertableData2);
+        //         $invoice =  Invoice::create($request_data2);
         //         if(!$invoice) {
         //             throw new Exception("something went wrong");
         //         }
@@ -443,7 +443,7 @@ public function createInvoice(InvoiceCreateRequest $request)
 
         //         $invoice->save();
 
-        //         $invoiceItems = collect($insertableData2["invoice_items"])->map(function ($item)use ($invoice) {
+        //         $invoiceItems = collect($request_data2["invoice_items"])->map(function ($item)use ($invoice) {
         //             if(!empty($item["repair_id"])) {
         //                 $invoice_item_exists =    InvoiceItem::where([
         //                         "repair_id" => $item["repair_id"]
@@ -476,7 +476,7 @@ public function createInvoice(InvoiceCreateRequest $request)
         //         $invoice->invoice_items()->createMany($invoiceItems->all());
 
 
-        //         // $invoicePayments = collect($insertableData["invoice_payments"])->map(function ($item) {
+        //         // $invoicePayments = collect($request_data["invoice_payments"])->map(function ($item) {
         //         //     return [
         //         //         "amount" => $item["amount"],
         //         //         "payment_method" => $item["payment_method"],
@@ -508,16 +508,16 @@ public function createInvoice(InvoiceCreateRequest $request)
 
 
 
-        //          if(!empty($insertableData2["reminder_dates"]) &&  $invoice->status != "paid") {
+        //          if(!empty($request_data2["reminder_dates"]) &&  $invoice->status != "paid") {
 
         //             InvoiceReminder::where([
         //                 "invoice_id" => $invoice->id
         //             ])
         //             ->delete();
-        //             foreach($insertableData2["reminder_dates"] as $reminder_date_amount) {
+        //             foreach($request_data2["reminder_dates"] as $reminder_date_amount) {
 
 
-        //                 $due_date = DateTime::createFromFormat('Y-m-d', $insertableData2["due_date"]);
+        //                 $due_date = DateTime::createFromFormat('Y-m-d', $request_data2["due_date"]);
         //                 if ($due_date !== false) {
         //                     $due_date->modify(($reminder_date_amount . ' days'));
         //                     $reminder_date = $due_date->format('Y-m-d');
@@ -530,7 +530,7 @@ public function createInvoice(InvoiceCreateRequest $request)
         //  InvoiceReminder::create([
         //     "reminder_date_amount" => $reminder_date_amount,
         //     "reminder_status" => "not_sent",
-        //     "send_reminder" => !empty($insertableData2["send_reminder"])?$insertableData2["send_reminder"]:0,
+        //     "send_reminder" => !empty($request_data2["send_reminder"])?$request_data2["send_reminder"]:0,
         //     "reminder_date" =>$reminder_date,
         //     "invoice_id" => $invoice->id,
         //     "created_by" => $invoice->created_by

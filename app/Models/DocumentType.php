@@ -10,6 +10,7 @@ class DocumentType extends Model
     use HasFactory;
     protected $fillable = [
         "name",
+        "icon",
         "description",
         "is_active",
 

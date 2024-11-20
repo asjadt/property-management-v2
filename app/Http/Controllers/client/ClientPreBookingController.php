@@ -111,15 +111,15 @@ class ClientPreBookingController extends Controller
             return DB::transaction(function () use ($request) {
                 $this->storeActivity($request,"");
 
-                $insertableData = $request->validated();
+                $request_data = $request->validated();
 
-                $insertableData["customer_id"] = auth()->user()->id;
-                $insertableData["status"] = "pending";
+                $request_data["customer_id"] = auth()->user()->id;
+                $request_data["status"] = "pending";
 
 
 
                 $automobile_make = AutomobileMake::where([
-                    "id" =>  $insertableData["automobile_make_id"]
+                    "id" =>  $request_data["automobile_make_id"]
                 ])
                     ->first();
                 if (!$automobile_make) {
@@ -131,7 +131,7 @@ class ClientPreBookingController extends Controller
                     throw new Exception(json_encode($error),422);
                 }
                 $automobile_model = AutomobileModel::where([
-                    "id" => $insertableData["automobile_model_id"],
+                    "id" => $request_data["automobile_model_id"],
                     "automobile_make_id" => $automobile_make->id
                 ])
                     ->first();
@@ -148,12 +148,12 @@ class ClientPreBookingController extends Controller
 
 
 
-                $pre_booking =  PreBooking::create($insertableData);
+                $pre_booking =  PreBooking::create($request_data);
 
 
 
 
-                foreach ($insertableData["pre_booking_sub_service_ids"] as $index=>$sub_service_id) {
+                foreach ($request_data["pre_booking_sub_service_ids"] as $index=>$sub_service_id) {
                     $sub_service =  SubService::where([
                             "id" => $sub_service_id,
 
@@ -647,10 +647,10 @@ class ClientPreBookingController extends Controller
             $this->storeActivity($request,"");
             return DB::transaction(function () use ($request) {
 
-                $insertableData = $request->validated();
+                $request_data = $request->validated();
 
                 $pre_booking  = PreBooking::where([
-                    "id" => $insertableData["pre_booking_id"],
+                    "id" => $request_data["pre_booking_id"],
                     "customer_id" => auth()->user()->id,
                 ])
                     ->first();
@@ -663,7 +663,7 @@ class ClientPreBookingController extends Controller
                 }
 
                 $job_bid  = JobBid::where([
-                    "id" => $insertableData["job_bid_id"],
+                    "id" => $request_data["job_bid_id"],
                     "pre_booking_id" => $pre_booking->id,
                 ])
                     ->first();
@@ -675,7 +675,7 @@ class ClientPreBookingController extends Controller
                     ], 404);
                 }
 
-                if (!$insertableData["is_confirmed"]) {
+                if (!$request_data["is_confirmed"]) {
 
 $job_bid->status = "rejected";
 $job_bid->save();
@@ -698,7 +698,7 @@ $job_bid->save();
                 } else {
 
 
-                    $insertableData["customer_id"] = auth()->user()->id;
+                    $request_data["customer_id"] = auth()->user()->id;
 
 
                     $booking = Booking::create([

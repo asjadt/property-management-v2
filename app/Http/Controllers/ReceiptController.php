@@ -100,16 +100,16 @@ class ReceiptController extends Controller
                   ])->first();
 
 
-                $insertableData = $request->validated();
-                $insertableData["created_by"] = $request->user()->id;
+                $request_data = $request->validated();
+                $request_data["created_by"] = $request->user()->id;
 
-                if(empty($insertableData["receipt_by"])) {
-                    $insertableData["receipt_by"] = $request->user()->first_Name . " " . $request->user()->last_Name;
+                if(empty($request_data["receipt_by"])) {
+                    $request_data["receipt_by"] = $request->user()->first_Name . " " . $request->user()->last_Name;
                 }
 
-                $receipt =  Receipt::create($insertableData);
+                $receipt =  Receipt::create($request_data);
 
-                $sale_items = collect($insertableData["sale_items"])->map(function ($item)use ($receipt) {
+                $sale_items = collect($request_data["sale_items"])->map(function ($item)use ($receipt) {
 
                     // $sale_items_exists =    BillSaleItem::where([
                     //         "sale_id" => $item["sale_id"]

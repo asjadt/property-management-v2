@@ -128,11 +128,11 @@ class JobController extends Controller
             ->first();
 
             // $coupon_discount = false;
-            // if(!empty($insertableData["coupon_code"])){
+            // if(!empty($request_data["coupon_code"])){
             //     $coupon_discount = $this->getDiscount(
-            //         $insertableData["garage_id"],
-            //         $insertableData["coupon_code"],
-            //         $insertableData["price"]
+            //         $request_data["garage_id"],
+            //         $request_data["coupon_code"],
+            //         $request_data["price"]
             //     );
             // }
 

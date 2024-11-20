@@ -88,9 +88,9 @@ class EmailTemplateController extends Controller
                     ], 401);
                 }
 
-                $insertableData = $request->validated();
-                $insertableData["wrapper_id"]  = !empty($insertableData["wrapper_id"])?$insertableData["wrapper_id"]:1;
-                $template =  EmailTemplate::create($insertableData);
+                $request_data = $request->validated();
+                $request_data["wrapper_id"]  = !empty($request_data["wrapper_id"])?$request_data["wrapper_id"]:1;
+                $template =  EmailTemplate::create($request_data);
 
 
 

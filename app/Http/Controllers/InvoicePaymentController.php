@@ -96,19 +96,19 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
 
 
 
-            $insertableData = $request->validated();
-            $insertableData["created_by"] = $request->user()->id;
+            $request_data = $request->validated();
+            $request_data["created_by"] = $request->user()->id;
 
-            $invoiceDateWithTime = Carbon::createFromFormat('Y-m-d', $insertableData["payment_date"]);
+            $invoiceDateWithTime = Carbon::createFromFormat('Y-m-d', $request_data["payment_date"]);
             $invoiceDateWithTime->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
-            $insertableData["payment_date"] =  $invoiceDateWithTime;
+            $request_data["payment_date"] =  $invoiceDateWithTime;
 
-            if(empty($insertableData["receipt_by"])) {
-                $insertableData["receipt_by"] = $request->user()->first_Name . " " . $request->user()->last_Name;
+            if(empty($request_data["receipt_by"])) {
+                $request_data["receipt_by"] = $request->user()->first_Name . " " . $request->user()->last_Name;
             }
 
             $invoice = Invoice::where([
-                "id" => $insertableData["invoice_id"],
+                "id" => $request_data["invoice_id"],
                 "invoices.created_by" => $request->user()->id
 
             ])
@@ -122,7 +122,7 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
 
 
 
-            if($invoice_due < $insertableData["amount"]) {
+            if($invoice_due < $request_data["amount"]) {
                 $invoice->status = "overpaid";
                 $invoice->invoice_reminder()->delete();
                 $invoice->save();
@@ -133,7 +133,7 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
             //  ];
             //     throw new Exception(json_encode($error),422);
             }
-           else if($invoice_due == $insertableData["amount"]) {
+           else if($invoice_due == $request_data["amount"]) {
                $invoice->status = "paid";
                $invoice->invoice_reminder()->delete();
                $invoice->save();
@@ -145,7 +145,7 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
 
 
 
-            $invoice_payment =  InvoicePayment::create($insertableData);
+            $invoice_payment =  InvoicePayment::create($request_data);
 
             if(!$invoice_payment) {
                 throw new Exception("something went wrong");

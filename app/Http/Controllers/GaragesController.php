@@ -99,13 +99,13 @@ class GaragesController extends Controller
         try{
             $this->storeActivity($request,"");
 
-            $insertableData = $request->validated();
+            $request_data = $request->validated();
 
             $location =  config("setup-config.garage_gallery_location");
 
             $images = [];
-            if(!empty($insertableData["images"])) {
-                foreach($insertableData["images"] as $image){
+            if(!empty($request_data["images"])) {
+                foreach($request_data["images"] as $image){
                     $new_file_name = time() . '_' . str_replace(' ', '_', $image->getClientOriginalName());
                     $image->move(public_path($location), $new_file_name);
 
@@ -268,26 +268,26 @@ class GaragesController extends Controller
                "message" => "You can not perform this action"
             ],401);
        }
-        $insertableData = $request->validated();
+        $request_data = $request->validated();
 
    // user info starts ##############
-    $insertableData['user']['password'] = Hash::make($insertableData['user']['password']);
-    $insertableData['user']['remember_token'] = Str::random(10);
-    $insertableData['user']['is_active'] = true;
-    $insertableData['user']['created_by'] = $request->user()->id;
-    $user =  User::create($insertableData['user']);
+    $request_data['user']['password'] = Hash::make($request_data['user']['password']);
+    $request_data['user']['remember_token'] = Str::random(10);
+    $request_data['user']['is_active'] = true;
+    $request_data['user']['created_by'] = $request->user()->id;
+    $user =  User::create($request_data['user']);
     $user->assignRole('garage_owner');
    // end user info ##############
 
 
   //  garage info ##############
-        $insertableData['garage']['status'] = "pending";
-        $insertableData['garage']['owner_id'] = $user->id;
-        $insertableData['garage']['created_by'] = $request->user()->id;
-        $garage =  Garage::create($insertableData['garage']);
+        $request_data['garage']['status'] = "pending";
+        $request_data['garage']['owner_id'] = $user->id;
+        $request_data['garage']['created_by'] = $request->user()->id;
+        $garage =  Garage::create($request_data['garage']);
 
-        if(!empty($insertableData["images"])) {
-            foreach($insertableData["images"] as $garage_images){
+        if(!empty($request_data["images"])) {
+            foreach($request_data["images"] as $garage_images){
                 GarageGallery::create([
                     "image" => $garage_images,
                     "garage_id" =>$garage->id,
@@ -299,7 +299,7 @@ class GaragesController extends Controller
   // end garage info ##############
 
   // create services
-     $serviceUpdate = $this->createGarageServices($insertableData['service'],$garage->id);
+     $serviceUpdate = $this->createGarageServices($request_data['service'],$garage->id);
 
      if(!$serviceUpdate["success"]){
         throw new Exception($serviceUpdate["message"]);

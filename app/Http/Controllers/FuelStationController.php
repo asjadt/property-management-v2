@@ -100,17 +100,17 @@ class FuelStationController extends Controller
                     ], 401);
                 }
 
-                $insertableData = $request->validated();
+                $request_data = $request->validated();
 
-                $insertableData["created_by"] = $request->user()->id;
+                $request_data["created_by"] = $request->user()->id;
 
-                $fuel_station =  FuelStation::create($insertableData);
+                $fuel_station =  FuelStation::create($request_data);
 
-                if(empty($insertableData["options"])) {
-                    $insertableData["options"]  = [];
+                if(empty($request_data["options"])) {
+                    $request_data["options"]  = [];
                 }
 
-                foreach($insertableData["options"] as $option) {
+                foreach($request_data["options"] as $option) {
 
                     FuelStationOption::create([
                         "fuel_station_id"=>$fuel_station->id,

@@ -98,20 +98,20 @@ class GaragePackageController extends Controller
                 }
 
 
-                $insertableData = $request->validated();
+                $request_data = $request->validated();
 
 
-                    if (!$this->garageOwnerCheck($insertableData["garage_id"])) {
+                    if (!$this->garageOwnerCheck($request_data["garage_id"])) {
                         return response()->json([
                             "message" => "you are not the owner of the garage or the requested garage does not exist."
                         ], 401);
                     }
 
 
-                    $garage_package = GaragePackage::create($insertableData);
+                    $garage_package = GaragePackage::create($request_data);
 
 
-                    foreach ($insertableData["sub_service_ids"] as $index=>$sub_service_id) {
+                    foreach ($request_data["sub_service_ids"] as $index=>$sub_service_id) {
                         $garage_sub_service =  GarageSubService::leftJoin('garage_services', 'garage_sub_services.garage_service_id', '=', 'garage_services.id')
                             ->where([
                                 "garage_sub_services.sub_service_id" => $sub_service_id,

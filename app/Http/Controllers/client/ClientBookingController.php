@@ -107,13 +107,13 @@ class ClientBookingController extends Controller
         try {
             $this->storeActivity($request,"");
             return DB::transaction(function () use ($request) {
-                $insertableData = $request->validated();
+                $request_data = $request->validated();
 
-                $insertableData["customer_id"] = auth()->user()->id;
-                $insertableData["status"] = "pending";
+                $request_data["customer_id"] = auth()->user()->id;
+                $request_data["status"] = "pending";
 
                 $garage = Garage::where([
-                    "id" => $insertableData["garage_id"]
+                    "id" => $request_data["garage_id"]
                 ])
                     ->first();
 
@@ -130,8 +130,8 @@ class ClientBookingController extends Controller
 
 
                 $garage_make = GarageAutomobileMake::where([
-                    "automobile_make_id" => $insertableData["automobile_make_id"],
-                    "garage_id"=>$insertableData["garage_id"]
+                    "automobile_make_id" => $request_data["automobile_make_id"],
+                    "garage_id"=>$request_data["garage_id"]
                 ])
                     ->first();
                 if (!$garage_make) {
@@ -142,7 +142,7 @@ class ClientBookingController extends Controller
                     throw new Exception(json_encode($error),422);
                 }
                 $garage_model = GarageAutomobileModel::where([
-                    "automobile_model_id" => $insertableData["automobile_model_id"],
+                    "automobile_model_id" => $request_data["automobile_model_id"],
                     "garage_automobile_make_id" => $garage_make->id
                 ])
                     ->first();
@@ -157,12 +157,12 @@ class ClientBookingController extends Controller
 
 
 
-                $booking =  Booking::create($insertableData);
+                $booking =  Booking::create($request_data);
 
 
                 $total_price = 0;
 
-                foreach ($insertableData["booking_sub_service_ids"] as $index=>$sub_service_id) {
+                foreach ($request_data["booking_sub_service_ids"] as $index=>$sub_service_id) {
                     $garage_sub_service =  GarageSubService::leftJoin('garage_services', 'garage_sub_services.garage_service_id', '=', 'garage_services.id')
                         ->where([
                             "garage_services.garage_id" => $garage->id,
@@ -184,7 +184,7 @@ class ClientBookingController extends Controller
                         throw new Exception(json_encode($error),422);
                     }
 
-                    $price = $this->getPrice($sub_service_id,$garage_sub_service->id, $insertableData["automobile_make_id"]);
+                    $price = $this->getPrice($sub_service_id,$garage_sub_service->id, $request_data["automobile_make_id"]);
 
 
                     $total_price += $price;
@@ -195,7 +195,7 @@ class ClientBookingController extends Controller
                     ]);
                 }
 
-                foreach ($insertableData["booking_garage_package_ids"] as $index=>$garage_package_id) {
+                foreach ($request_data["booking_garage_package_ids"] as $index=>$garage_package_id) {
                     $garage_package =  GaragePackage::where([
                             "garage_id" => $garage->id,
                             "id" => $garage_package_id
@@ -228,10 +228,10 @@ class ClientBookingController extends Controller
                 $booking->price = $total_price;
                 $booking->save();
 
-                if (!empty($insertableData["coupon_code"])) {
+                if (!empty($request_data["coupon_code"])) {
                     $coupon_discount = $this->getDiscount(
-                        $insertableData["garage_id"],
-                        $insertableData["coupon_code"],
+                        $request_data["garage_id"],
+                        $request_data["coupon_code"],
                         $total_price
                     );
 
@@ -239,7 +239,7 @@ class ClientBookingController extends Controller
 
                         $booking->coupon_discount_type = $coupon_discount["discount_type"];
                         $booking->coupon_discount_amount = $coupon_discount["discount_amount"];
-                        $booking->coupon_code = $insertableData["coupon_code"];
+                        $booking->coupon_code = $request_data["coupon_code"];
 
                         $booking->save();
                     }
@@ -701,10 +701,10 @@ class ClientBookingController extends Controller
 
                 $booking->price = $total_price;
                 $booking->save();
-                if (!empty($insertableData["coupon_code"])) {
+                if (!empty($request_data["coupon_code"])) {
                     $coupon_discount = $this->getDiscount(
-                        $insertableData["garage_id"],
-                        $insertableData["coupon_code"],
+                        $request_data["garage_id"],
+                        $request_data["coupon_code"],
                         $total_price
                     );
 
@@ -712,7 +712,7 @@ class ClientBookingController extends Controller
 
                         $booking->coupon_discount_type = $coupon_discount["discount_type"];
                         $booking->coupon_discount_amount = $coupon_discount["discount_amount"];
-                        $booking->coupon_code = $insertableData["coupon_code"];
+                        $booking->coupon_code = $request_data["coupon_code"];
                         $booking->save();
                     }
                 }

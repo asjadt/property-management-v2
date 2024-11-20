@@ -92,18 +92,18 @@ class CouponController extends Controller
                     ], 401);
                 }
 
-                $insertableData = $request->validated();
-                if (!$this->garageOwnerCheck($insertableData["garage_id"])) {
+                $request_data = $request->validated();
+                if (!$this->garageOwnerCheck($request_data["garage_id"])) {
                     return response()->json([
                         "message" => "you are not the owner of the garage or the requested garage does not exist."
                     ], 401);
                 }
 
-                // if(empty($insertableData["code"])) {
-                //     $insertableData["code"] =
+                // if(empty($request_data["code"])) {
+                //     $request_data["code"] =
                 // }
 
-                $coupon =  Coupon::create($insertableData);
+                $coupon =  Coupon::create($request_data);
 
 
                 return response($coupon, 201);

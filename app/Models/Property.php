@@ -39,6 +39,13 @@ class Property extends Model
     protected $casts = [
         'images' => 'array',
     ];
+
+    public function documents()
+    {
+        return $this->hasMany(PropertyDocument::class);
+    }
+
+
     public function property_tenants() {
         return $this->belongsToMany(Tenant::class, 'property_tenants', 'property_id', 'tenant_id');
     }

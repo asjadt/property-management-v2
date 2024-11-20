@@ -86,13 +86,13 @@ public function createTenantImage(ImageUploadRequest $request)
     try{
         $this->storeActivity($request,"");
 
-        $insertableData = $request->validated();
+        $request_data = $request->validated();
 
         $location =  config("setup-config.tenant_image");
 
-        $new_file_name = time() . '_' . str_replace(' ', '_', $insertableData["image"]->getClientOriginalName());
+        $new_file_name = time() . '_' . str_replace(' ', '_', $request_data["image"]->getClientOriginalName());
 
-        $insertableData["image"]->move(public_path($location), $new_file_name);
+        $request_data["image"]->move(public_path($location), $new_file_name);
 
 
         return response()->json(["image" => $new_file_name,"location" => $location,"full_location"=>("/".$location."/".$new_file_name)], 200);
@@ -178,24 +178,24 @@ public function createTenant(TenantCreateRequest $request)
 
 
 
-            $insertableData = $request->validated();
-            $insertableData["created_by"] = $request->user()->id;
-            $tenant =  Tenant::create($insertableData);
+            $request_data = $request->validated();
+            $request_data["created_by"] = $request->user()->id;
+            $tenant =  Tenant::create($request_data);
 
             // for($i=0;$i<500;$i++) {
             //     $tenant =  Tenant::create([
-            //         'first_Name'=> $insertableData["first_Name"] . Str::random(4),
-            //         'last_Name'=> $insertableData["last_Name"] . Str::random(4),
-            //         'phone'=> $insertableData["phone"] . Str::random(4),
+            //         'first_Name'=> $request_data["first_Name"] . Str::random(4),
+            //         'last_Name'=> $request_data["last_Name"] . Str::random(4),
+            //         'phone'=> $request_data["phone"] . Str::random(4),
             //         'image',
-            //         'address_line_1'=>$insertableData["address_line_1"] . Str::random(4),
+            //         'address_line_1'=>$request_data["address_line_1"] . Str::random(4),
             //         'address_line_2',
-            //         'country'=>$insertableData["country"] . Str::random(4),
-            //         'city'=>$insertableData["city"] . Str::random(4),
-            //         'postcode'=>$insertableData["postcode"] . Str::random(4),
-            //         "lat"=>$insertableData["lat"] . Str::random(4),
-            //         "long"=>$insertableData["long"] . Str::random(4),
-            //         'email'=>$insertableData["email"] . Str::random(4),
+            //         'country'=>$request_data["country"] . Str::random(4),
+            //         'city'=>$request_data["city"] . Str::random(4),
+            //         'postcode'=>$request_data["postcode"] . Str::random(4),
+            //         "lat"=>$request_data["lat"] . Str::random(4),
+            //         "long"=>$request_data["long"] . Str::random(4),
+            //         'email'=>$request_data["email"] . Str::random(4),
             //         "created_by"=>$request->user()->id,
             //          'is_active'=>1
             //     ]);

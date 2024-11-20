@@ -82,9 +82,9 @@ class PaymentTypeController extends Controller
                     ], 401);
                 }
 
-                $insertableData = $request->validated();
+                $request_data = $request->validated();
 
-                $payment_type =  PaymentType::create($insertableData);
+                $payment_type =  PaymentType::create($request_data);
 
 
                 return response($payment_type, 201);

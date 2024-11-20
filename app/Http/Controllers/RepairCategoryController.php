@@ -86,13 +86,13 @@ public function createRepairCategoryImage(ImageUploadRequest $request)
     try{
         $this->storeActivity($request,"");
 
-        $insertableData = $request->validated();
+        $request_data = $request->validated();
 
         $location =  config("setup-config.repair_category_image");
 
-        $new_file_name = time() . '_' . str_replace(' ', '_', $insertableData["image"]->getClientOriginalName());
+        $new_file_name = time() . '_' . str_replace(' ', '_', $request_data["image"]->getClientOriginalName());
 
-        $insertableData["image"]->move(public_path($location), $new_file_name);
+        $request_data["image"]->move(public_path($location), $new_file_name);
 
 
         return response()->json(["image" => $new_file_name,"location" => $location,"full_location"=>("/".$location."/".$new_file_name)], 200);
@@ -172,9 +172,9 @@ public function createRepairCategory(RepairCategoryCreateRequest $request)
             }
 
 
-            $insertableData = $request->validated();
-            $insertableData["created_by"] = $request->user()->id;
-            $repair_category =  RepairCategory::create($insertableData);
+            $request_data = $request->validated();
+            $request_data["created_by"] = $request->user()->id;
+            $repair_category =  RepairCategory::create($request_data);
             $repair_category->generated_id = Str::random(4) . $repair_category->id . Str::random(4);
             $repair_category->save();
 

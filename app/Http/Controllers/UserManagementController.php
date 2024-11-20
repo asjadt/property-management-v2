@@ -102,15 +102,15 @@ class UserManagementController extends Controller
              //      ],401);
              // }
 
-             $insertableData = $request->validated();
+             $request_data = $request->validated();
 
              $location = config("setup-config.business_image_location");
 
              // Generate a new file name with PNG extension
-             $new_file_name = time() . '_' . str_replace(' ', '_', pathinfo($insertableData["image"]->getClientOriginalName(), PATHINFO_FILENAME)) . '.png';
+             $new_file_name = time() . '_' . str_replace(' ', '_', pathinfo($request_data["image"]->getClientOriginalName(), PATHINFO_FILENAME)) . '.png';
 
              // Move the file to the specified location with the new name and PNG extension
-             $insertableData["image"]->move(public_path($location), $new_file_name);
+             $request_data["image"]->move(public_path($location), $new_file_name);
 
 
              return response()->json(["image" => $new_file_name,"location" => $location,"full_location"=>("/".$location."/".$new_file_name)], 200);
@@ -196,13 +196,13 @@ class UserManagementController extends Controller
             //      ],401);
             // }
 
-            $insertableData = $request->validated();
+            $request_data = $request->validated();
 
             $location =  config("setup-config.user_image_location");
 
-            $new_file_name = time() . '_' . str_replace(' ', '_', $insertableData["image"]->getClientOriginalName());
+            $new_file_name = time() . '_' . str_replace(' ', '_', $request_data["image"]->getClientOriginalName());
 
-            $insertableData["image"]->move(public_path($location), $new_file_name);
+            $request_data["image"]->move(public_path($location), $new_file_name);
 
 
             return response()->json(["image" => $new_file_name,"location" => $location,"full_location"=>("/".$location."/".$new_file_name)], 200);
@@ -297,14 +297,14 @@ class UserManagementController extends Controller
                  ],401);
             }
 
-            $insertableData = $request->validated();
+            $request_data = $request->validated();
 
-            $insertableData['password'] = Hash::make($request['password']);
-            $insertableData['is_active'] = true;
-            $insertableData['remember_token'] = Str::random(10);
-            $user =  User::create($insertableData);
+            $request_data['password'] = Hash::make($request['password']);
+            $request_data['is_active'] = true;
+            $request_data['remember_token'] = Str::random(10);
+            $user =  User::create($request_data);
 
-            $user->assignRole($insertableData['role']);
+            $user->assignRole($request_data['role']);
 
             // $user->token = $user->createToken('Laravel Password Grant Client')->accessToken;
 
@@ -446,27 +446,27 @@ class UserManagementController extends Controller
                "message" => "You can not perform this action"
             ],401);
        }
-        $insertableData = $request->validated();
+        $request_data = $request->validated();
 
    // user info starts ##############
-    $insertableData['user']['password'] = Hash::make($insertableData['user']['password']);
-    $insertableData['user']['remember_token'] = Str::random(10);
-    $insertableData['user']['is_active'] = true;
-    $insertableData['user']['created_by'] = $request->user()->id;
+    $request_data['user']['password'] = Hash::make($request_data['user']['password']);
+    $request_data['user']['remember_token'] = Str::random(10);
+    $request_data['user']['is_active'] = true;
+    $request_data['user']['created_by'] = $request->user()->id;
 
-    $insertableData['user']['address_line_1'] = $insertableData['business']['address_line_1'];
-    $insertableData['user']['address_line_2'] = $insertableData['business']['address_line_2'];
-    $insertableData['user']['country'] = $insertableData['business']['country'];
-    $insertableData['user']['city'] = $insertableData['business']['city'];
-    $insertableData['user']['postcode'] = $insertableData['business']['postcode'];
-    $insertableData['user']['lat'] = $insertableData['business']['lat'];
-    $insertableData['user']['long'] = $insertableData['business']['long'];
-
-
+    $request_data['user']['address_line_1'] = $request_data['business']['address_line_1'];
+    $request_data['user']['address_line_2'] = $request_data['business']['address_line_2'];
+    $request_data['user']['country'] = $request_data['business']['country'];
+    $request_data['user']['city'] = $request_data['business']['city'];
+    $request_data['user']['postcode'] = $request_data['business']['postcode'];
+    $request_data['user']['lat'] = $request_data['business']['lat'];
+    $request_data['user']['long'] = $request_data['business']['long'];
 
 
 
-    $user =  User::create($insertableData['user']);
+
+
+    $user =  User::create($request_data['user']);
     $user->email_verified_at = now();
     $user->save();
     $user->assignRole('user');
@@ -476,13 +476,13 @@ class UserManagementController extends Controller
   //  business info ##############
 
 
-        $insertableData['business']['status'] = "pending";
-        $insertableData['business']['owner_id'] = $user->id;
-        $insertableData['business']['created_by'] = $request->user()->id;
-        $business =  Business::create($insertableData['business']);
+        $request_data['business']['status'] = "pending";
+        $request_data['business']['owner_id'] = $user->id;
+        $request_data['business']['created_by'] = $request->user()->id;
+        $business =  Business::create($request_data['business']);
 
 
-        foreach($insertableData['bill_items'] as $request_bill_item) {
+        foreach($request_data['bill_items'] as $request_bill_item) {
             BusinessDefault::create([
                 'entity_type' => "bill_item",
                 'entity_id' => $request_bill_item["bill_item_id"],
@@ -490,7 +490,7 @@ class UserManagementController extends Controller
             ]);
         }
 
-        foreach($insertableData['sale_items'] as $request_sale_item) {
+        foreach($request_data['sale_items'] as $request_sale_item) {
 
             if(empty($request_sale_item["sale_id"])) {
                 $sale_item =  SaleItem::create([
@@ -525,7 +525,7 @@ class UserManagementController extends Controller
             ]);
         }
 
-        // foreach($insertableData['business_defaults'] as $business_default) {
+        // foreach($request_data['business_defaults'] as $business_default) {
         //     $business_default["business_owner_id"]  = $user->id;
         //     BusinessDefault::create($business_default);
 

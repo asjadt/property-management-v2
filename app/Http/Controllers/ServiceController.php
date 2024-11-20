@@ -85,9 +85,9 @@ class ServiceController extends Controller
                  ],401);
             }
 
-            $insertableData = $request->validated();
+            $request_data = $request->validated();
 
-            $service =  Service::create($insertableData);
+            $service =  Service::create($request_data);
 
 
             return response($service, 201);
@@ -895,9 +895,9 @@ class ServiceController extends Controller
                  ],401);
             }
 
-            $insertableData = $request->validated();
+            $request_data = $request->validated();
 
-            $service =  SubService::create($insertableData);
+            $service =  SubService::create($request_data);
 
 
             return response($service, 201);

@@ -86,13 +86,13 @@ public function createClientImage(ImageUploadRequest $request)
     try{
         $this->storeActivity($request,"");
 
-        $insertableData = $request->validated();
+        $request_data = $request->validated();
 
         $location =  config("setup-config.client_image");
 
-        $new_file_name = time() . '_' . str_replace(' ', '_', $insertableData["image"]->getClientOriginalName());
+        $new_file_name = time() . '_' . str_replace(' ', '_', $request_data["image"]->getClientOriginalName());
 
-        $insertableData["image"]->move(public_path($location), $new_file_name);
+        $request_data["image"]->move(public_path($location), $new_file_name);
 
 
         return response()->json(["image" => $new_file_name,"location" => $location,"full_location"=>("/".$location."/".$new_file_name)], 200);
@@ -182,9 +182,9 @@ public function createClient(ClientCreateRequest $request)
 
 
 
-            $insertableData = $request->validated();
-            $insertableData["created_by"] = $request->user()->id;
-            $client =  Client::create($insertableData);
+            $request_data = $request->validated();
+            $request_data["created_by"] = $request->user()->id;
+            $client =  Client::create($request_data);
 
             if(!$client) {
                 throw new Exception("something went wrong");

@@ -86,13 +86,13 @@ class PropertyController extends Controller
         try {
             $this->storeActivity($request, "");
 
-            $insertableData = $request->validated();
+            $request_data = $request->validated();
 
             $location =  config("setup-config.property_image");
 
-            $new_file_name = time() . '_' . str_replace(' ', '_', $insertableData["image"]->getClientOriginalName());
+            $new_file_name = time() . '_' . str_replace(' ', '_', $request_data["image"]->getClientOriginalName());
 
-            $insertableData["image"]->move(public_path($location), $new_file_name);
+            $request_data["image"]->move(public_path($location), $new_file_name);
 
 
             return response()->json(["image" => $new_file_name, "location" => $location, "full_location" => ("/" . $location . "/" . $new_file_name)], 200);
@@ -180,12 +180,12 @@ class PropertyController extends Controller
 
 
 
-                 $insertableData = $request->validated();
-                 $insertableData["created_by"] = $request->user()->id;
+                 $request_data = $request->validated();
+                 $request_data["created_by"] = $request->user()->id;
 
                  $reference_no_exists =  DB::table('properties')->where(
                      [
-                         'reference_no' => $insertableData['reference_no'],
+                         'reference_no' => $request_data['reference_no'],
                          "created_by" => $request->user()->id
                      ]
                  )->exists();
@@ -200,25 +200,25 @@ class PropertyController extends Controller
 
 
 
-                 $property =  Property::create($insertableData);
+                 $property =  Property::create($request_data);
                  $property->generated_id = Str::random(4) . $property->id . Str::random(4);
                  $property->save();
 
                  // for($i=0;$i<500;$i++) {
                  //     $property =  Property::create([
 
-                 //          'name' => $insertableData["name"] . Str::random(4),
+                 //          'name' => $request_data["name"] . Str::random(4),
                  //          'image',
-                 //          'address'=> $insertableData["address"] . Str::random(4),
-                 //          'country'=> $insertableData["country"] . Str::random(4),
-                 //          'city'=> $insertableData["city"] . Str::random(4),
-                 //          'postcode'=> $insertableData["postcode"] . Str::random(4),
-                 //          "town"=> $insertableData["town"] . Str::random(4),
-                 //          "lat"=> $insertableData["lat"] . Str::random(4),
-                 //          "long"=> $insertableData["long"] . Str::random(4),
-                 //          'type' => $insertableData["type"],
-                 //          'reference_no'=> $insertableData["reference_no"] . Str::random(4),
-                 //          'landlord_id'=> $insertableData["landlord_id"],
+                 //          'address'=> $request_data["address"] . Str::random(4),
+                 //          'country'=> $request_data["country"] . Str::random(4),
+                 //          'city'=> $request_data["city"] . Str::random(4),
+                 //          'postcode'=> $request_data["postcode"] . Str::random(4),
+                 //          "town"=> $request_data["town"] . Str::random(4),
+                 //          "lat"=> $request_data["lat"] . Str::random(4),
+                 //          "long"=> $request_data["long"] . Str::random(4),
+                 //          'type' => $request_data["type"],
+                 //          'reference_no'=> $request_data["reference_no"] . Str::random(4),
+                 //          'landlord_id'=> $request_data["landlord_id"],
                  //          "created_by"=>$request->user()->id,
                  //          'is_active'=>1,
                  //     ]);
@@ -231,8 +231,8 @@ class PropertyController extends Controller
 
 
 
-                 if (!empty($insertableData['tenant_ids'])) {
-                     $property->property_tenants()->sync($insertableData['tenant_ids'], []);
+                 if (!empty($request_data['tenant_ids'])) {
+                     $property->property_tenants()->sync($request_data['tenant_ids'], []);
                  }
 
 
@@ -247,7 +247,7 @@ class PropertyController extends Controller
 
     /**
  * @OA\Post(
- *      path="/v2.0/properties",  
+ *      path="/v2.0/properties",
  *      operationId="createPropertyV2",
  *      tags={"property_management.property_management"},
  *      security={
@@ -324,12 +324,12 @@ class PropertyController extends Controller
 
 
 
-                $insertableData = $request->validated();
-                $insertableData["created_by"] = $request->user()->id;
+                $request_data = $request->validated();
+                $request_data["created_by"] = $request->user()->id;
 
                 $reference_no_exists =  DB::table('properties')->where(
                     [
-                        'reference_no' => $insertableData['reference_no'],
+                        'reference_no' => $request_data['reference_no'],
                         "created_by" => $request->user()->id
                     ]
                 )->exists();
@@ -344,25 +344,32 @@ class PropertyController extends Controller
 
 
 
-                $property =  Property::create($insertableData);
+                $property =  Property::create($request_data);
                 $property->generated_id = Str::random(4) . $property->id . Str::random(4);
                 $property->save();
+
+
+                if (!empty($request_data['documents'])) {
+                    foreach ($request_data['documents'] as $document) {
+                        $property->documents()->create($document); // Save the document with file paths
+                    }
+                }
 
                 // for($i=0;$i<500;$i++) {
                 //     $property =  Property::create([
 
-                //          'name' => $insertableData["name"] . Str::random(4),
+                //          'name' => $request_data["name"] . Str::random(4),
                 //          'image',
-                //          'address'=> $insertableData["address"] . Str::random(4),
-                //          'country'=> $insertableData["country"] . Str::random(4),
-                //          'city'=> $insertableData["city"] . Str::random(4),
-                //          'postcode'=> $insertableData["postcode"] . Str::random(4),
-                //          "town"=> $insertableData["town"] . Str::random(4),
-                //          "lat"=> $insertableData["lat"] . Str::random(4),
-                //          "long"=> $insertableData["long"] . Str::random(4),
-                //          'type' => $insertableData["type"],
-                //          'reference_no'=> $insertableData["reference_no"] . Str::random(4),
-                //          'landlord_id'=> $insertableData["landlord_id"],
+                //          'address'=> $request_data["address"] . Str::random(4),
+                //          'country'=> $request_data["country"] . Str::random(4),
+                //          'city'=> $request_data["city"] . Str::random(4),
+                //          'postcode'=> $request_data["postcode"] . Str::random(4),
+                //          "town"=> $request_data["town"] . Str::random(4),
+                //          "lat"=> $request_data["lat"] . Str::random(4),
+                //          "long"=> $request_data["long"] . Str::random(4),
+                //          'type' => $request_data["type"],
+                //          'reference_no'=> $request_data["reference_no"] . Str::random(4),
+                //          'landlord_id'=> $request_data["landlord_id"],
                 //          "created_by"=>$request->user()->id,
                 //          'is_active'=>1,
                 //     ]);
@@ -371,15 +378,9 @@ class PropertyController extends Controller
                 // }
 
 
-
-
-
-
-                if (!empty($insertableData['tenant_ids'])) {
-                    $property->property_tenants()->sync($insertableData['tenant_ids'], []);
+                if (!empty($request_data['tenant_ids'])) {
+                    $property->property_tenants()->sync($request_data['tenant_ids'], []);
                 }
-
-
 
                 return response($property, 201);
             });

@@ -82,9 +82,9 @@ class DocumentTypeController extends Controller
                     ], 401);
                 }
 
-                $insertableData = $request->validated();
+                $request_data = $request->validated();
 
-                $document_type =  DocumentType::create($insertableData);
+                $document_type =  DocumentType::create($request_data);
 
 
                 return response($document_type, 201);
@@ -169,6 +169,7 @@ class DocumentTypeController extends Controller
                 $fuel_station  =  tap(DocumentType::where(["id" => $updatableData["id"]]))->update(
                     collect($updatableData)->only([
                         "name",
+                        "icon",
                         "description",
                         "is_active",
                     ])->toArray()

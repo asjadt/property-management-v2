@@ -84,9 +84,9 @@ public function createSaleItem(SaleItemCreateRequest $request)
 
 
 
-            $insertableData = $request->validated();
-            $insertableData["created_by"] = $request->user()->id;
-            $sale_item =  SaleItem::create($insertableData);
+            $request_data = $request->validated();
+            $request_data["created_by"] = $request->user()->id;
+            $sale_item =  SaleItem::create($request_data);
             $sale_item->generated_id = Str::random(4) . $sale_item->id . Str::random(4);
             $sale_item->save();
 

@@ -85,7 +85,7 @@ class InvoiceReminderController extends Controller
 
 
 
-             $insertableData = $request->validated();
+             $request_data = $request->validated();
 
 
 
@@ -95,7 +95,7 @@ class InvoiceReminderController extends Controller
 
 
              $invoice = Invoice::where([
-                 "id" => $insertableData["invoice_id"],
+                 "id" => $request_data["invoice_id"],
                  "invoices.created_by" => $request->user()->id
 
              ])
@@ -112,16 +112,16 @@ class InvoiceReminderController extends Controller
              }
              $due_date = DateTime::createFromFormat('Y-m-d', $invoice->due_date);
              if ($due_date !== false) {
-                 $due_date->modify(($insertableData["reminder_date_amount"] . ' days'));
+                 $due_date->modify(($request_data["reminder_date_amount"] . ' days'));
                  $reminder_date = $due_date->format('Y-m-d');
              } else {
                  $reminder_date = null;
              }
 
-             $insertableData["reminder_status"] = "not_sent";
-             $insertableData["reminder_date"] = $reminder_date;
+             $request_data["reminder_status"] = "not_sent";
+             $request_data["reminder_date"] = $reminder_date;
 
-$invoice_reminder =  InvoiceReminder::create($insertableData);
+$invoice_reminder =  InvoiceReminder::create($request_data);
 
 
 
@@ -207,12 +207,12 @@ public function createInvoiceReminder(InvoiceReminderCreateRequest $request)
 
 
 
-            $insertableData = $request->validated();
+            $request_data = $request->validated();
 
-            $insertableData["reminder_status"] = "not_sent";
+            $request_data["reminder_status"] = "not_sent";
 
             $invoice = Invoice::where([
-                "id" => $insertableData["invoice_id"],
+                "id" => $request_data["invoice_id"],
                 "invoices.created_by" => $request->user()->id
 
             ])
@@ -221,7 +221,7 @@ public function createInvoiceReminder(InvoiceReminderCreateRequest $request)
                 throw new Exception("something went wrong");
             }
 
-            $invoice_reminder =  InvoiceReminder::create($insertableData);
+            $invoice_reminder =  InvoiceReminder::create($request_data);
 
 
 

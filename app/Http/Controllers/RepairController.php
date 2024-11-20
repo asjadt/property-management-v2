@@ -88,14 +88,14 @@ public function createRepairReceiptFile(FileUploadRequest $request)
     try{
         $this->storeActivity($request,"");
 
-        $insertableData = $request->validated();
+        $request_data = $request->validated();
 
         $location =  config("setup-config.repair_receipt_file");
 
-        $new_file_name = time() . '_' . str_replace(' ', '_', $insertableData["file"]->getClientOriginalName());
+        $new_file_name = time() . '_' . str_replace(' ', '_', $request_data["file"]->getClientOriginalName());
 
 
-        $insertableData["file"]->move(public_path($location), $new_file_name);
+        $request_data["file"]->move(public_path($location), $new_file_name);
 
 
         return response()->json(["file" => $new_file_name,"location" => $location,"full_location"=>("/".$location."/".$new_file_name)], 200);
@@ -178,13 +178,13 @@ public function createRepairReceiptFile(FileUploadRequest $request)
          try{
              $this->storeActivity($request,"");
 
-             $insertableData = $request->validated();
+             $request_data = $request->validated();
 
              $location =  config("setup-config.repair_receipt_file");
 
              $files = [];
-             if(!empty($insertableData["files"])) {
-                 foreach($insertableData["files"] as $file){
+             if(!empty($request_data["files"])) {
+                 foreach($request_data["files"] as $file){
                      $new_file_name = time() . '_' . $file->getClientOriginalName();
                      $new_file_name = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
                      $file->move(public_path($location), $new_file_name);
@@ -276,13 +276,13 @@ public function createRepairReceiptFile(FileUploadRequest $request)
         try{
             $this->storeActivity($request,"");
 
-            $insertableData = $request->validated();
+            $request_data = $request->validated();
 
             $location =  config("setup-config.repair_image");
 
             $images = [];
-            if(!empty($insertableData["images"])) {
-                foreach($insertableData["images"] as $image){
+            if(!empty($request_data["images"])) {
+                foreach($request_data["images"] as $image){
                     $new_file_name = time() . '_' . str_replace(' ', '_', $image->getClientOriginalName());
                     $image->move(public_path($location), $new_file_name);
 
@@ -372,10 +372,10 @@ public function createRepair(RepairCreateRequest $request)
 
 
 
-            $insertableData = $request->validated();
-            $updatableData["receipt"]   = json_encode($insertableData["receipt"] );
-            $insertableData["created_by"] = $request->user()->id;
-            $repair =  Repair::create($insertableData);
+            $request_data = $request->validated();
+            $updatableData["receipt"]   = json_encode($request_data["receipt"] );
+            $request_data["created_by"] = $request->user()->id;
+            $repair =  Repair::create($request_data);
 
             if(!$repair) {
                 throw new Exception("something went wrong");
@@ -384,9 +384,9 @@ public function createRepair(RepairCreateRequest $request)
             $repair->save();
 
 
-    if(!empty($insertableData["images"])) {
+    if(!empty($request_data["images"])) {
         $repair->repair_images()->createMany(
-            collect($insertableData["images"])->map(function ($image) {
+            collect($request_data["images"])->map(function ($image) {
                 return [
                     'image' => $image,
                 ];

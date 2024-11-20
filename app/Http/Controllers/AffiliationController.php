@@ -90,13 +90,13 @@ class AffiliationController extends Controller
                  ],401);
             }
 
-            $insertableData = $request->validated();
+            $request_data = $request->validated();
 
             $location =  config("setup-config.affiliation_logo");
 
 
-            $new_file_name = time() . '_' . str_replace(' ', '_', $insertableData["image"]->getClientOriginalName());
-            $insertableData["image"]->move(public_path($location), $new_file_name);
+            $new_file_name = time() . '_' . str_replace(' ', '_', $request_data["image"]->getClientOriginalName());
+            $request_data["image"]->move(public_path($location), $new_file_name);
 
 
             return response()->json(["image" => $new_file_name,"location" => $location,"full_location"=>("/".$location."/".$new_file_name)], 200);
@@ -187,9 +187,9 @@ class AffiliationController extends Controller
                     ], 401);
                 }
 
-                $insertableData = $request->validated();
-                $insertableData["created_by"] = $request->user()->id;
-                $affiliation =  Affiliation::create($insertableData);
+                $request_data = $request->validated();
+                $request_data["created_by"] = $request->user()->id;
+                $affiliation =  Affiliation::create($request_data);
 
 
                 return response($affiliation, 201);

@@ -111,11 +111,11 @@ class AuthController extends Controller
     {
         try {
             $this->storeActivity($request,"");
-            $insertableData = $request->validated();
+            $request_data = $request->validated();
 
-            $insertableData['password'] = Hash::make($request['password']);
-            $insertableData['remember_token'] = Str::random(10);
-            $user =  User::create($insertableData);
+            $request_data['password'] = Hash::make($request['password']);
+            $request_data['remember_token'] = Str::random(10);
+            $user =  User::create($request_data);
 
               // verify email starts
               $email_token = Str::random(30);
@@ -353,9 +353,9 @@ $datediff = $now - $user_created_date;
 
         try {
             $this->storeActivity($request,"");
-            $insertableData = $request->validated();
+            $request_data = $request->validated();
             $user = User::where([
-                "id" => $insertableData["user_id"],
+                "id" => $request_data["user_id"],
             ])
             ->first();
 
@@ -363,7 +363,7 @@ $datediff = $now - $user_created_date;
 
             $site_redirect_token_db = (json_decode($user->site_redirect_token,true));
 
-            if($site_redirect_token_db["token"] !== $insertableData["site_redirect_token"]) {
+            if($site_redirect_token_db["token"] !== $request_data["site_redirect_token"]) {
                return response()
                ->json([
                   "message" => "invalid token"
@@ -451,9 +451,9 @@ $datediff = $now - $user_created_date;
         try {
             $this->storeActivity($request,"");
             return DB::transaction(function () use (&$request) {
-                $insertableData = $request->validated();
+                $request_data = $request->validated();
 
-            $user = User::where(["email" => $insertableData["email"]])->first();
+            $user = User::where(["email" => $request_data["email"]])->first();
             if (!$user) {
                 return response()->json(["message" => "no user found"], 404);
             }
@@ -464,7 +464,7 @@ $datediff = $now - $user_created_date;
             $user->resetPasswordExpires = Carbon::now()->subDays(-1);
             $user->save();
 
-              $result = Mail::to($insertableData["email"])->send(new ForgetPasswordMail($user, $insertableData["client_site"]));
+              $result = Mail::to($request_data["email"])->send(new ForgetPasswordMail($user, $request_data["client_site"]));
 
             if (count(Mail::failures()) > 0) {
                 // Handle failed recipients and log the error messages
@@ -545,9 +545,9 @@ $datediff = $now - $user_created_date;
         try {
             $this->storeActivity($request,"");
             return DB::transaction(function () use (&$request) {
-                $insertableData = $request->validated();
+                $request_data = $request->validated();
 
-            $user = User::where(["email" => $insertableData["email"]])->first();
+            $user = User::where(["email" => $request_data["email"]])->first();
             if (!$user) {
                 return response()->json(["message" => "no user found"], 404);
             }
@@ -645,7 +645,7 @@ $datediff = $now - $user_created_date;
         try {
             $this->storeActivity($request,"");
             return DB::transaction(function () use (&$request,&$token) {
-                $insertableData = $request->validated();
+                $request_data = $request->validated();
                 $user = User::where([
                     "resetPasswordToken" => $token,
                 ])
@@ -657,7 +657,7 @@ $datediff = $now - $user_created_date;
                     ], 400);
                 }
 
-                $password = Hash::make($insertableData["password"]);
+                $password = Hash::make($request_data["password"]);
                 $user->password = $password;
 
                 $user->login_attempts = 0;
@@ -813,24 +813,24 @@ $datediff = $now - $user_created_date;
         try {
             $this->storeActivity($request,"");
             return DB::transaction(function () use (&$request) {
-                $insertableData = $request->validated();
+                $request_data = $request->validated();
                 // user info starts ##############
-                $insertableData['user']['password'] = Hash::make($insertableData['user']['password']);
-                $insertableData['user']['remember_token'] = Str::random(10);
-                $insertableData['user']['is_active'] = true;
-                $user =  User::create($insertableData['user']);
+                $request_data['user']['password'] = Hash::make($request_data['user']['password']);
+                $request_data['user']['remember_token'] = Str::random(10);
+                $request_data['user']['is_active'] = true;
+                $user =  User::create($request_data['user']);
                 $user->assignRole('garage_owner');
                 // end user info ##############
 
 
 
                 //  garage info ##############
-                $insertableData['garage']['status'] = "pending";
-                $insertableData['garage']['owner_id'] = $user->id;
-                $garage =  Garage::create($insertableData['garage']);
+                $request_data['garage']['status'] = "pending";
+                $request_data['garage']['owner_id'] = $user->id;
+                $garage =  Garage::create($request_data['garage']);
 
-                if(!empty($insertableData["images"])) {
-                    foreach($insertableData["images"] as $garage_images){
+                if(!empty($request_data["images"])) {
+                    foreach($request_data["images"] as $garage_images){
                         GarageGallery::create([
                             "image" => $garage_images,
                             "garage_id" =>$garage->id,
@@ -842,7 +842,7 @@ $datediff = $now - $user_created_date;
                 // end garage info ##############
 
            // create services
-             $serviceUpdate =  $this->createGarageServices($insertableData['service'],$garage->id,true);
+             $serviceUpdate =  $this->createGarageServices($request_data['service'],$garage->id,true);
                 if(!$serviceUpdate["success"]){
                     throw new Exception($serviceUpdate["message"]);
                  }

@@ -88,9 +88,9 @@ class BillItemController extends Controller
                 }
 
 
-                $insertableData = $request->validated();
-                $insertableData["created_by"] = $request->user()->id;
-                $bill_item =  BillItem::create($insertableData);
+                $request_data = $request->validated();
+                $request_data["created_by"] = $request->user()->id;
+                $bill_item =  BillItem::create($request_data);
                 $bill_item->generated_id = Str::random(4) . $bill_item->id . Str::random(4);
                 $bill_item->save();
 

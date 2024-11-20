@@ -49,10 +49,10 @@ Route::get('/automobile-refresh', [SetUpController::class, "automobileRefresh"])
 Route::get("/swagger-login",[SwaggerLoginController::class,"login"])->name("login.view");
 Route::post("/swagger-login",[SwaggerLoginController::class,"passUser"]);
 
-Route::get("/migrate",function(Request $request) {
-    Artisan::call('migrate');
-    return "migrated";
-});
+Route::get('/migrate', [SetUpController::class, "migrate"]);
+
+
+
 Route::get("/custom-command",function(Request $request) {
     Artisan::call('config:clear');
     return "done";
