@@ -651,6 +651,7 @@ class ComposerStaticInit21d3eeeef4e11a73df45b8701b58e483
     );
 
     public static $classMap = array (
+        'App\\Console\\Commands\\CheckAndMigrate' => __DIR__ . '/../..' . '/app/Console/Commands/CheckAndMigrate.php',
         'App\\Console\\Commands\\InvoiceReminderCommand' => __DIR__ . '/../..' . '/app/Console/Commands/InvoiceReminderCommand.php',
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',

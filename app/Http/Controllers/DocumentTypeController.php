@@ -410,7 +410,21 @@ class DocumentTypeController extends Controller
             if (!empty($request->end_date)) {
                 $documentTypeQuery = $documentTypeQuery->where('created_at', "<=", $request->end_date);
             }
-            $document_types = $documentTypeQuery->orderBy("name", "ASC")->get();
+            $document_types = $documentTypeQuery->orderBy("name", "ASC")
+
+           ->when($request->filled("id"), function ($query) use ($request) {
+                return $query
+                    ->where("id", $request->input("id"))
+                    ->first();
+            }, function ($query) {
+                return $query->when(!empty(request()->per_page), function ($query) {
+                    return $query->paginate(request()->per_page);
+                }, function ($query) {
+                    return $query->get();
+                });
+            });
+
+            ;
             return response()->json($document_types, 200);
         } catch (Exception $e) {
 
@@ -482,6 +496,25 @@ class DocumentTypeController extends Controller
                     "message" => "You can not perform this action"
                 ], 401);
             }
+
+            if(!auth()->user()->hasRole("superadmin")) {
+                $business = Business::where([
+                    "owner_id" => $request->user()->id
+                ])->first();
+
+                if (!$business) {
+                    return response()->json([
+                        "message" => "you don't have a valid business"
+                    ], 401);
+                }
+                if (!($business->pin == $request->header("pin"))) {
+                    return response()->json([
+                        "message" => "invalid pin"
+                    ], 401);
+                }
+
+            }
+
 
             DocumentType::where([
                 "id" => $id

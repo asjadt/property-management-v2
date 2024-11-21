@@ -206,10 +206,9 @@ Route::delete('/v1.0/document-types/{id}', [DocumentTypeController::class, "dele
 
 
 
-    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // sale item management section
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
 Route::post('/v1.0/sale-items', [SaleItemController::class, "createSaleItem"]);
 Route::put('/v1.0/sale-items', [SaleItemController::class, "updateSaleItem"]);
 Route::get('/v1.0/sale-items/{perPage}', [SaleItemController::class, "getSaleItems"]);
@@ -294,6 +293,13 @@ Route::delete('/v1.0/clients/{id}', [ClientController::class, "deleteClientById"
 Route::post('/v1.0/property-image', [PropertyController::class, "createPropertyImage"]);
 Route::post('/v1.0/properties', [PropertyController::class, "createProperty"]);
 Route::post('/v2.0/properties', [PropertyController::class, "createPropertyV2"]);
+Route::post('/v1.0/property-agreement', [PropertyController::class, "createPropertyAgreement"]);
+
+
+Route::get('/v1.0/property-agreement/current', [PropertyController::class, "getCurrentPropertyAgreement"]);
+Route::get('/v1.0/property-agreement/history', [PropertyController::class, "getPropertyAgreementHistory"]);
+
+
 
 Route::put('/v1.0/properties', [PropertyController::class, "updateProperty"]);
 Route::get('/v1.0/properties/{perPage}', [PropertyController::class, "getProperties"]);

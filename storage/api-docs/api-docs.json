@@ -23848,6 +23848,385 @@
                 ]
             }
         },
+        "/v1.0/property-agreement": {
+            "post": {
+                "tags": [
+                    "property_management.property_management"
+                ],
+                "summary": "Store property agreement",
+                "description": "This method is to store a new property agreement, replacing any existing agreement for the same property and landlord.",
+                "operationId": "createPropertyAgreement",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "landlord_id",
+                                    "property_id",
+                                    "start_date",
+                                    "end_date",
+                                    "payment_arrangement",
+                                    "cheque_payable_to",
+                                    "agent_commision",
+                                    "terms_conditions"
+                                ],
+                                "properties": {
+                                    "landlord_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "property_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "start_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-11-01"
+                                    },
+                                    "end_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-11-01"
+                                    },
+                                    "payment_arrangement": {
+                                        "type": "string",
+                                        "enum": [
+                                            "By_Cash",
+                                            "By_Cheque",
+                                            "Bank_Transfer"
+                                        ],
+                                        "example": "By_Cash"
+                                    },
+                                    "cheque_payable_to": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "agent_commision": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 200
+                                    },
+                                    "management_fee": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 50,
+                                        "nullable": true
+                                    },
+                                    "inventory_charges": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 100,
+                                        "nullable": true
+                                    },
+                                    "terms_conditions": {
+                                        "type": "string",
+                                        "example": "The terms and conditions of the agreement are as follows..."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "landlord_id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "property_id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "start_date": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "example": "2024-11-01"
+                                        },
+                                        "end_date": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "example": "2025-11-01"
+                                        },
+                                        "payment_arrangement": {
+                                            "type": "string",
+                                            "enum": [
+                                                "By_Cash",
+                                                "By_Cheque",
+                                                "Bank_Transfer"
+                                            ],
+                                            "example": "By_Cash"
+                                        },
+                                        "cheque_payable_to": {
+                                            "type": "string",
+                                            "example": "John Doe"
+                                        },
+                                        "agent_commision": {
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 200
+                                        },
+                                        "management_fee": {
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 50,
+                                            "nullable": true
+                                        },
+                                        "inventory_charges": {
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 100,
+                                            "nullable": true
+                                        },
+                                        "terms_conditions": {
+                                            "type": "string",
+                                            "example": "The terms and conditions of the agreement are as follows..."
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2024-11-01T12:00:00Z"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2024-11-01T12:00:00Z"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/property-agreement/history": {
+            "get": {
+                "tags": [
+                    "property_management.property_management"
+                ],
+                "summary": "Get property agreement history",
+                "description": "This method retrieves the history of property agreements for a given property and landlord, including soft-deleted agreements.",
+                "operationId": "getPropertyAgreementHistory",
+                "parameters": [
+                    {
+                        "name": "landlord_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "property_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/property-agreement/current": {
+            "get": {
+                "tags": [
+                    "property_management.property_management"
+                ],
+                "summary": "Get current property agreement",
+                "description": "This method retrieves the current property agreement for a given property and landlord.",
+                "operationId": "getCurrentPropertyAgreement",
+                "parameters": [
+                    {
+                        "name": "landlord_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "property_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/v1.0/properties/{perPage}": {
             "get": {
                 "tags": [

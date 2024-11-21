@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ImageUploadRequest;
+use App\Http\Requests\PropertyAgreementCreateRequest;
 use App\Http\Requests\PropertyCreateRequest;
 use App\Http\Requests\PropertyCreateRequestV2;
 use App\Http\Requests\PropertyUpdateRequest;
@@ -10,6 +11,7 @@ use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Business;
 use App\Models\Property;
+use App\Models\PropertyAgreement;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -244,7 +246,6 @@ class PropertyController extends Controller
              return $this->sendError($e, 500, $request);
          }
      }
-
     /**
  * @OA\Post(
  *      path="/v2.0/properties",
@@ -316,7 +317,153 @@ class PropertyController extends Controller
  * )
  */
 
-    public function createPropertyV2(PropertyCreateRequestV2 $request)
+ public function createPropertyV2(PropertyCreateRequestV2 $request)
+ {
+     try {
+         $this->storeActivity($request, "");
+         return DB::transaction(function () use ($request) {
+
+
+
+             $request_data = $request->validated();
+             $request_data["created_by"] = $request->user()->id;
+
+             $reference_no_exists =  DB::table('properties')->where(
+                 [
+                     'reference_no' => $request_data['reference_no'],
+                     "created_by" => $request->user()->id
+                 ]
+             )->exists();
+             if ($reference_no_exists) {
+                 $error =  [
+                     "message" => "The given data was invalid.",
+                     "errors" => ["reference_no" => ["The reference no has already been taken."]]
+                 ];
+                 throw new Exception(json_encode($error), 422);
+             }
+
+
+
+
+             $property =  Property::create($request_data);
+             $property->generated_id = Str::random(4) . $property->id . Str::random(4);
+             $property->save();
+
+
+             if (!empty($request_data['documents'])) {
+                 foreach ($request_data['documents'] as $document) {
+                     $property->documents()->create($document); // Save the document with file paths
+                 }
+             }
+
+             // for($i=0;$i<500;$i++) {
+             //     $property =  Property::create([
+
+             //          'name' => $request_data["name"] . Str::random(4),
+             //          'image',
+             //          'address'=> $request_data["address"] . Str::random(4),
+             //          'country'=> $request_data["country"] . Str::random(4),
+             //          'city'=> $request_data["city"] . Str::random(4),
+             //          'postcode'=> $request_data["postcode"] . Str::random(4),
+             //          "town"=> $request_data["town"] . Str::random(4),
+             //          "lat"=> $request_data["lat"] . Str::random(4),
+             //          "long"=> $request_data["long"] . Str::random(4),
+             //          'type' => $request_data["type"],
+             //          'reference_no'=> $request_data["reference_no"] . Str::random(4),
+             //          'landlord_id'=> $request_data["landlord_id"],
+             //          "created_by"=>$request->user()->id,
+             //          'is_active'=>1,
+             //     ]);
+             //     $property->generated_id = Str::random(4) . $property->id . Str::random(4);
+             //     $property->save();
+             // }
+
+
+             if (!empty($request_data['tenant_ids'])) {
+                 $property->property_tenants()->sync($request_data['tenant_ids'], []);
+             }
+
+             return response($property, 201);
+         });
+     } catch (Exception $e) {
+
+         return $this->sendError($e, 500, $request);
+     }
+ }
+   /**
+ * @OA\Post(
+ *      path="/v1.0/property-agreement",
+ *      operationId="createPropertyAgreement",
+ *      tags={"property_management.property_management"},
+ *      security={
+ *          {"bearerAuth": {}}
+ *      },
+ *      summary="Store property agreement",
+ *      description="This method is to store a new property agreement, replacing any existing agreement for the same property and landlord.",
+ *      @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *            required={"landlord_id", "property_id", "start_date", "end_date", "payment_arrangement", "cheque_payable_to", "agent_commision", "terms_conditions"},
+ *            @OA\Property(property="landlord_id", type="integer", example=1),
+ *            @OA\Property(property="property_id", type="integer", example=1),
+ *            @OA\Property(property="start_date", type="string", format="date", example="2024-11-01"),
+ *            @OA\Property(property="end_date", type="string", format="date", example="2025-11-01"),
+ *            @OA\Property(property="payment_arrangement", type="string", enum={"By_Cash", "By_Cheque", "Bank_Transfer"}, example="By_Cash"),
+ *            @OA\Property(property="cheque_payable_to", type="string", example="John Doe"),
+ *            @OA\Property(property="agent_commision", type="number", format="float", example=200.00),
+ *            @OA\Property(property="management_fee", type="number", format="float", example=50.00, nullable=true),
+ *            @OA\Property(property="inventory_charges", type="number", format="float", example=100.00, nullable=true),
+ *            @OA\Property(property="terms_conditions", type="string", example="The terms and conditions of the agreement are as follows..."),
+ *         ),
+ *      ),
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *          @OA\JsonContent(
+ *              @OA\Property(property="id", type="integer", example=1),
+ *              @OA\Property(property="landlord_id", type="integer", example=1),
+ *              @OA\Property(property="property_id", type="integer", example=1),
+ *              @OA\Property(property="start_date", type="string", format="date", example="2024-11-01"),
+ *              @OA\Property(property="end_date", type="string", format="date", example="2025-11-01"),
+ *              @OA\Property(property="payment_arrangement", type="string", enum={"By_Cash", "By_Cheque", "Bank_Transfer"}, example="By_Cash"),
+ *              @OA\Property(property="cheque_payable_to", type="string", example="John Doe"),
+ *              @OA\Property(property="agent_commision", type="number", format="float", example=200.00),
+ *              @OA\Property(property="management_fee", type="number", format="float", example=50.00, nullable=true),
+ *              @OA\Property(property="inventory_charges", type="number", format="float", example=100.00, nullable=true),
+ *              @OA\Property(property="terms_conditions", type="string", example="The terms and conditions of the agreement are as follows..."),
+ *              @OA\Property(property="created_at", type="string", format="date-time", example="2024-11-01T12:00:00Z"),
+ *              @OA\Property(property="updated_at", type="string", format="date-time", example="2024-11-01T12:00:00Z"),
+ *          ),
+ *      ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ *          @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=422,
+ *          description="Unprocessable Content",
+ *          @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *          @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=400,
+ *          description="Bad Request",
+ *          @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=404,
+ *          description="Not Found",
+ *          @OA\JsonContent(),
+ *      )
+ * )
+ */
+
+    public function createPropertyAgreement(PropertyAgreementCreateRequest $request)
     {
         try {
             $this->storeActivity($request, "");
@@ -325,70 +472,216 @@ class PropertyController extends Controller
 
 
                 $request_data = $request->validated();
-                $request_data["created_by"] = $request->user()->id;
 
-                $reference_no_exists =  DB::table('properties')->where(
-                    [
-                        'reference_no' => $request_data['reference_no'],
-                        "created_by" => $request->user()->id
-                    ]
-                )->exists();
-                if ($reference_no_exists) {
-                    $error =  [
-                        "message" => "The given data was invalid.",
-                        "errors" => ["reference_no" => ["The reference no has already been taken."]]
-                    ];
-                    throw new Exception(json_encode($error), 422);
-                }
+                  // Check if there is an existing agreement for the same property and landlord
+    $existingAgreement = PropertyAgreement::
+      where('property_id', $request->property_id)
+    ->whereNull('deleted_at') // Make sure it's not soft deleted
+    ->first();
+
+// If an existing agreement is found, soft delete it
+if ($existingAgreement) {
+$existingAgreement->delete();  // Soft delete the previous agreement
+}
+$agreement =PropertyAgreement::create($request_data);
 
 
 
-
-                $property =  Property::create($request_data);
-                $property->generated_id = Str::random(4) . $property->id . Str::random(4);
-                $property->save();
-
-
-                if (!empty($request_data['documents'])) {
-                    foreach ($request_data['documents'] as $document) {
-                        $property->documents()->create($document); // Save the document with file paths
-                    }
-                }
-
-                // for($i=0;$i<500;$i++) {
-                //     $property =  Property::create([
-
-                //          'name' => $request_data["name"] . Str::random(4),
-                //          'image',
-                //          'address'=> $request_data["address"] . Str::random(4),
-                //          'country'=> $request_data["country"] . Str::random(4),
-                //          'city'=> $request_data["city"] . Str::random(4),
-                //          'postcode'=> $request_data["postcode"] . Str::random(4),
-                //          "town"=> $request_data["town"] . Str::random(4),
-                //          "lat"=> $request_data["lat"] . Str::random(4),
-                //          "long"=> $request_data["long"] . Str::random(4),
-                //          'type' => $request_data["type"],
-                //          'reference_no'=> $request_data["reference_no"] . Str::random(4),
-                //          'landlord_id'=> $request_data["landlord_id"],
-                //          "created_by"=>$request->user()->id,
-                //          'is_active'=>1,
-                //     ]);
-                //     $property->generated_id = Str::random(4) . $property->id . Str::random(4);
-                //     $property->save();
-                // }
-
-
-                if (!empty($request_data['tenant_ids'])) {
-                    $property->property_tenants()->sync($request_data['tenant_ids'], []);
-                }
-
-                return response($property, 201);
+                return response($agreement, 201);
             });
         } catch (Exception $e) {
 
             return $this->sendError($e, 500, $request);
         }
     }
+
+
+
+
+
+
+  /**
+ * @OA\Get(
+ *      path="/v1.0/property-agreement/history",
+ *      operationId="getPropertyAgreementHistory",
+ *      tags={"property_management.property_management"},
+ *      security={
+ *          {"bearerAuth": {}}
+ *      },
+ *      summary="Get property agreement history",
+ *      description="This method retrieves the history of property agreements for a given property and landlord, including soft-deleted agreements.",
+ *      @OA\Parameter(
+ *          name="landlord_id",
+ *          in="query",
+ *          required=false,
+ *          @OA\Schema(type="integer", example=1)
+ *      ),
+ *      @OA\Parameter(
+ *          name="property_id",
+ *          in="query",
+ *          required=false,
+ *          @OA\Schema(type="integer", example=1)
+ *      ),
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *          @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ *          @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=422,
+ *          description="Unprocessable Content",
+ *          @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *          @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=400,
+ *          description="Bad Request",
+ *          @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=404,
+ *          description="Not Found",
+ *          @OA\JsonContent(),
+ *      )
+ * )
+ */
+
+ public function getPropertyAgreementHistory(Request $request)
+{
+    try {
+        // Start building the query for history
+        $query = PropertyAgreement::
+            whereHas('property', function ($q) {
+                // Ensure the property is created by the authenticated user
+                $q->where('properties.created_by', auth()->user()->id);
+            })
+            ->when($request->filled('landlord_id'), function ($q) use ($request) {
+                // Filter by landlord_id if provided
+                $q->where('landlord_id', $request->landlord_id);
+            })
+            ->when($request->filled('property_id'), function ($q) use ($request) {
+                // Filter by property_id if provided
+                $q->where('property_id', $request->property_id);
+            })
+            ->when($request->filled('id'), function ($q) use ($request) {
+                // If specific ID is provided, return that record only
+                return $q->where('id', $request->input('id'))->first();
+            }, function ($q) {
+                // Otherwise, fetch history (including soft-deleted agreements)
+                return $q->withTrashed() // Include soft-deleted records
+                    ->when(!empty($request->per_page), function ($q) {
+                        // Paginate if per_page is provided
+                        return $q->paginate($request->per_page);
+                    }, function ($q) {
+                        // Otherwise, return all agreements
+                        return $q->get();
+                    });
+            });
+
+        return response()->json($query, 200);
+    } catch (Exception $e) {
+        return $this->sendError($e, 500, $request);
+    }
+}
+
+/**
+ * @OA\Get(
+ *      path="/v1.0/property-agreement/current",
+ *      operationId="getCurrentPropertyAgreement",
+ *      tags={"property_management.property_management"},
+ *      security={
+ *          {"bearerAuth": {}}
+ *      },
+ *      summary="Get current property agreement",
+ *      description="This method retrieves the current property agreement for a given property and landlord.",
+ *      @OA\Parameter(
+ *          name="landlord_id",
+ *          in="query",
+ *          required=false,
+ *          @OA\Schema(type="integer", example=1)
+ *      ),
+ *      @OA\Parameter(
+ *          name="property_id",
+ *          in="query",
+ *          required=false,
+ *          @OA\Schema(type="integer", example=1)
+ *      ),
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *          @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ *          @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=422,
+ *          description="Unprocessable Content",
+ *          @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *          @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=400,
+ *          description="Bad Request",
+ *          @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=404,
+ *          description="Not Found",
+ *          @OA\JsonContent(),
+ *      )
+ * )
+ */
+public function getCurrentPropertyAgreement(Request $request)
+{
+    try {
+
+
+        // Start building the query
+        $query = PropertyAgreement::
+        whereHas("property", function($q) {
+           $q->where("properties.created_by",auth()->user()->id);
+        })
+        ->when($request->filled('landlord_id'), function ($q) use ($request) {
+            $q->where('landlord_id', $request->landlord_id);
+        })->when($request->filled('property_id'), function ($q) use ($request) {
+            $q->where('property_id', $request->property_id);
+        })
+            ->when($request->filled("id"), function ($query) use ($request) {
+                return $query
+                    ->where("id", $request->input("id"))
+                    ->first();
+            }, function ($query) {
+                return $query->when(!empty(request()->per_page), function ($query) {
+                    return $query->paginate(request()->per_page);
+                }, function ($query) {
+                    return $query->get();
+                });
+            });
+
+
+
+        return response()->json($agreement, 200);
+    } catch (Exception $e) {
+        return $this->sendError($e, 500, $request);
+    }
+}
+
 
     /**
      *
