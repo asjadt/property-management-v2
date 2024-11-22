@@ -324,7 +324,6 @@ class PropertyController extends Controller
          return DB::transaction(function () use ($request) {
 
 
-
              $request_data = $request->validated();
              $request_data["created_by"] = $request->user()->id;
 
@@ -341,9 +340,6 @@ class PropertyController extends Controller
                  ];
                  throw new Exception(json_encode($error), 422);
              }
-
-
-
 
              $property =  Property::create($request_data);
              $property->generated_id = Str::random(4) . $property->id . Str::random(4);
@@ -390,6 +386,9 @@ class PropertyController extends Controller
          return $this->sendError($e, 500, $request);
      }
  }
+
+
+
    /**
  * @OA\Post(
  *      path="/v1.0/property-agreement",
@@ -468,8 +467,6 @@ class PropertyController extends Controller
         try {
             $this->storeActivity($request, "");
             return DB::transaction(function () use ($request) {
-
-
 
                 $request_data = $request->validated();
 
@@ -981,6 +978,85 @@ public function getCurrentPropertyAgreement(Request $request)
             return $this->sendError($e, 500, $request);
         }
     }
+
+
+
+    /**
+ * @OA\Post(
+ *      path="/v1.0/properties/{id}/add-more-images",
+ *      summary="Add more images to a property",
+ *      tags={"property_management"},
+ *      @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+ *      @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *            @OA\Property(property="images", type="array", @OA\Items(type="string", format="url"), example={"https://example.com/image3.jpg", "https://example.com/image4.jpg"})
+ *         ),
+ *      ),
+ *      @OA\Response(response=200, description="Images added successfully"),
+ *      @OA\Response(response=404, description="Property not found"),
+ *      @OA\Response(response=422, description="Validation Error")
+ * )
+ */
+
+    public function addMoreImages(Request $request, $id)
+{
+    $request->validate([
+        'images' => 'required|array',
+        'images.*' => 'string|url',
+    ]);
+
+    $property = Property::findOrFail($id);
+
+    // Merge new images with existing ones
+    $existingImages = $property->images ?? [];
+    $newImages = array_merge($existingImages, $request->input('images'));
+    $property->images = array_unique($newImages);
+
+    $property->save();
+
+    return response()->json(['message' => 'Images added successfully', 'images' => $property->images]);
+}
+
+
+/**
+ * @OA\Delete(
+ *      path="/v2.0/properties/{id}/delete-images",
+ *      summary="Delete specific images from a property",
+ *      tags={"property_management"},
+ *      @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+ *      @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *            @OA\Property(property="images", type="array", @OA\Items(type="string", format="url"), example={"https://example.com/image1.jpg"})
+ *         ),
+ *      ),
+ *      @OA\Response(response=200, description="Images deleted successfully"),
+ *      @OA\Response(response=404, description="Property not found"),
+ *      @OA\Response(response=422, description="Validation Error")
+ * )
+ */
+
+public function deleteImages(Request $request, $id)
+{
+    $request->validate([
+        'images' => 'required|array',
+        'images.*' => 'string|url',
+    ]);
+
+    $property = Property::findOrFail($id);
+
+    // Remove specified images
+    $existingImages = $property->images ?? [];
+    $imagesToDelete = $request->input('images');
+
+    $updatedImages = array_diff($existingImages, $imagesToDelete);
+    $property->images = array_values($updatedImages); // Re-index the array
+
+    $property->save();
+
+    return response()->json(['message' => 'Images deleted successfully', 'images' => $property->images]);
+}
 
     /**
      *

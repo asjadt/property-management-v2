@@ -6,6 +6,7 @@ use App\Http\Requests\DocumentTypeCreateRequest;
 use App\Http\Requests\DocumentTypeUpdateRequest;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
+use App\Models\Business;
 use App\Models\DocumentType;
 use Exception;
 use Illuminate\Http\Request;
@@ -76,11 +77,7 @@ class DocumentTypeController extends Controller
         try {
             $this->storeActivity($request, "");
             return DB::transaction(function () use ($request) {
-                if (!$request->user()->hasPermissionTo('document_type_create')) {
-                    return response()->json([
-                        "message" => "You can not perform this action"
-                    ], 401);
-                }
+
 
                 $request_data = $request->validated();
                 $request_data["created_by"] = auth()->user()->id;
@@ -158,11 +155,7 @@ class DocumentTypeController extends Controller
         try {
             $this->storeActivity($request, "");
             return  DB::transaction(function () use ($request) {
-                if (!$request->user()->hasPermissionTo('document_type_update')) {
-                    return response()->json([
-                        "message" => "You can not perform this action"
-                    ], 401);
-                }
+
                 $updatableData = $request->validated();
 
 
@@ -273,11 +266,7 @@ class DocumentTypeController extends Controller
     {
         try {
             $this->storeActivity($request, "");
-            if (!$request->user()->hasPermissionTo('document_type_view')) {
-                return response()->json([
-                    "message" => "You can not perform this action"
-                ], 401);
-            }
+
 
 
 
@@ -385,13 +374,7 @@ class DocumentTypeController extends Controller
     {
         try {
             $this->storeActivity($request, "");
-            if (!$request->user()->hasPermissionTo('document_type_view')) {
-                return response()->json([
-                    "message" => "You can not perform this action"
-                ], 401);
-            }
-
-
+          
 
             $documentTypeQuery =  DocumentType::where([
                 "created_by" => auth()->user()->id
@@ -491,11 +474,7 @@ class DocumentTypeController extends Controller
 
         try {
             $this->storeActivity($request, "");
-            if (!$request->user()->hasPermissionTo('document_type_delete')) {
-                return response()->json([
-                    "message" => "You can not perform this action"
-                ], 401);
-            }
+
 
             if(!auth()->user()->hasRole("superadmin")) {
                 $business = Business::where([
