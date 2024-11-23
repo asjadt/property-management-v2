@@ -293,6 +293,11 @@ Route::delete('/v1.0/clients/{id}', [ClientController::class, "deleteClientById"
 Route::post('/v1.0/property-image', [PropertyController::class, "createPropertyImage"]);
 Route::post('/v1.0/properties', [PropertyController::class, "createProperty"]);
 Route::post('/v2.0/properties', [PropertyController::class, "createPropertyV2"]);
+
+Route::post('/v1.0/properties/{id}/documents', [PropertyController::class, "addDocumentToProperty"]);
+Route::delete('/v1.0/properties/{property_id}/documents/{document_id}', [PropertyController::class, "deleteDocumentFromProperty"]);
+
+
 Route::post('/v1.0/property-agreement', [PropertyController::class, "createPropertyAgreement"]);
 
 
@@ -302,6 +307,9 @@ Route::get('/v1.0/property-agreement/history', [PropertyController::class, "getP
 
 
 Route::put('/v1.0/properties', [PropertyController::class, "updateProperty"]);
+Route::put('/v2.0/properties', [PropertyController::class, "updatePropertyV2"]);
+
+
 Route::get('/v1.0/properties/{perPage}', [PropertyController::class, "getProperties"]);
 // Add more images
 Route::post('/v1.0/properties/{id}/add-more-images', [PropertyController::class, 'addMoreImages']);
