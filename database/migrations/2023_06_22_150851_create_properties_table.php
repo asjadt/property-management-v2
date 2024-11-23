@@ -34,8 +34,8 @@ class CreatePropertiesTable extends Migration
             $table->string("long")->nullable();
 
 
-
             $table->string('type');
+
             $table->string('reference_no');
 
 
