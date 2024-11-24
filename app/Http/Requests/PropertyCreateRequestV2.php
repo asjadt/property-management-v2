@@ -53,6 +53,7 @@ class PropertyCreateRequestV2 extends FormRequest
             'date_of_instruction' => 'nullable|date',
             'howDetached' => 'nullable|string',
             'propertyFloor' => 'nullable|string',
+            'category' => 'required|string',
             'min_price' => 'nullable|numeric',
             'max_price' => 'nullable|numeric',
             'purpose' => 'nullable|string',

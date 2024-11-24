@@ -290,11 +290,20 @@ Route::delete('/v1.0/clients/{id}', [ClientController::class, "deleteClientById"
 // Property management section
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
+
 Route::post('/v1.0/property-image', [PropertyController::class, "createPropertyImage"]);
+Route::post('/v1.0/property-image/multiple', [PropertyController::class, "createPropertyImageMultiple"]);
+
+
 Route::post('/v1.0/properties', [PropertyController::class, "createProperty"]);
 Route::post('/v2.0/properties', [PropertyController::class, "createPropertyV2"]);
 
 Route::post('/v1.0/properties/{id}/documents', [PropertyController::class, "addDocumentToProperty"]);
+
+Route::put('/v1.0/properties/{id}/documents/{document_id}', [PropertyController::class, "updateDocumentInProperty"]);
+
+
+
 Route::delete('/v1.0/properties/{property_id}/documents/{document_id}', [PropertyController::class, "deleteDocumentFromProperty"]);
 
 

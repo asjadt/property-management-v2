@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ImageUploadRequest;
+use App\Http\Requests\MultipleImageUploadRequest;
 use App\Http\Requests\PropertyAgreementCreateRequest;
 use App\Http\Requests\PropertyCreateRequest;
 use App\Http\Requests\PropertyCreateRequestV2;
@@ -104,6 +105,109 @@ class PropertyController extends Controller
             return $this->sendError($e, 500, $request);
         }
     }
+ /**
+        *
+     * @OA\Post(
+     *      path="/v1.0/property-image/multiple",
+     *      operationId="createPropertyImageMultiple",
+     *      tags={"property_management.property_management"},
+     *       security={
+     *           {"bearerAuth": {}}
+     *       },
+
+     *      summary="This method is to store multiple image request",
+     *      description="This method is to store multiple image request",
+     *
+   *  @OA\RequestBody(
+        *   * @OA\MediaType(
+*     mediaType="multipart/form-data",
+*     @OA\Schema(
+*         required={"images[]"},
+*         @OA\Property(
+*             description="array of images to upload",
+*             property="images[]",
+*             type="array",
+*             @OA\Items(
+*                 type="file"
+*             ),
+*             collectionFormat="multi",
+*         )
+*     )
+* )
+
+
+
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       @OA\JsonContent(),
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     * @OA\JsonContent(),
+     *      ),
+     *        @OA\Response(
+     *          response=422,
+     *          description="Unprocesseble Content",
+     *    @OA\JsonContent(),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *   @OA\JsonContent()
+     * ),
+     *  * @OA\Response(
+     *      response=400,
+     *      description="Bad Request",
+     *   *@OA\JsonContent()
+     *   ),
+     * @OA\Response(
+     *      response=404,
+     *      description="not found",
+     *   *@OA\JsonContent()
+     *   )
+     *      )
+     *     )
+     */
+
+     public function createPropertyImageMultiple(MultipleImageUploadRequest $request)
+     {
+         try{
+             $this->storeActivity($request,"");
+
+             $request_data = $request->validated();
+
+             $location =  config("setup-config.property_image");
+
+             $images = [];
+             if(!empty($request_data["images"])) {
+                 foreach($request_data["images"] as $image){
+                     $new_file_name = time() . '_' . str_replace(' ', '_', $image->getClientOriginalName());
+                     $image->move(public_path($location), $new_file_name);
+
+                     array_push($images,("/".$location."/".$new_file_name));
+
+
+                 }
+             }
+
+
+             return response()->json(["images" => $images], 201);
+
+
+         } catch(Exception $e){
+             error_log($e->getMessage());
+         return $this->sendError($e,500,$request);
+         }
+     }
+
+
+
+
+
+
 
   /**
      *
@@ -276,6 +380,7 @@ class PropertyController extends Controller
  *            @OA\Property(property="date_of_instruction", type="string", format="date", example="2024-11-01"),
  *            @OA\Property(property="howDetached", type="string", format="string", example="fully detached"),
  *            @OA\Property(property="propertyFloor", type="string", format="string", example="Ground Floor"),
+ *  *            @OA\Property(property="category", type="string", format="string", example="Ground Floor"),
  *            @OA\Property(property="min_price", type="string", format="string", example="100000"),
  *            @OA\Property(property="max_price", type="string", format="string", example="500000"),
  *            @OA\Property(property="purpose", type="string", format="string", example="for sale"),
@@ -466,6 +571,103 @@ public function addDocumentToProperty(Request $request, $property_id)
         return $this->sendError($e, 500, $request);
     }
 }
+
+
+ /**
+ * @OA\Put(
+ *      path="/v1.0/properties/{id}/documents/{document_id}",
+ *      operationId="updateDocumentInProperty",
+ *      tags={"property_management.property_management"},
+ *      security={
+ *          {"bearerAuth": {}}
+ *      },
+ *      summary="Update an existing document for a property",
+ *      description="This method is to update an existing document for a property",
+ *      @OA\Parameter(
+ *          name="id",
+ *          in="path",
+ *          required=true,
+ *          description="Property ID",
+ *          @OA\Schema(type="integer")
+ *      ),
+ *      @OA\Parameter(
+ *          name="document_id",
+ *          in="path",
+ *          required=true,
+ *          description="Document ID",
+ *          @OA\Schema(type="integer")
+ *      ),
+ *      @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *            required={"documents"},
+ *            @OA\Property(property="documents", type="array", @OA\Items(
+ *                @OA\Property(property="gas_start_date", type="string", format="date", example="2024-11-01"),
+ *                @OA\Property(property="gas_end_date", type="string", format="date", example="2025-11-01"),
+ *                @OA\Property(property="document_type_id", type="integer", example=1),
+ *                @OA\Property(property="files", type="array", @OA\Items(type="string", example="file.pdf"))
+ *            )),
+ *         ),
+ *      ),
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *          @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ *          @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=404,
+ *          description="Property or Document Not Found",
+ *          @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=422,
+ *          description="Unprocessable Content",
+ *          @OA\JsonContent(),
+ *      )
+ * )
+ */
+public function updateDocumentInProperty(Request $request, $property_id, $document_id)
+{
+    try {
+        $request->validate([
+            'gas_start_date' => 'required|date',
+            'gas_end_date' => 'required|date',
+            'document_type_id' => 'required|numeric|exists:document_types,id',
+            'files' => 'required|array',
+            'files.*' => 'string',  // Assuming file paths or URLs are provided as strings
+        ]);
+
+        $property = Property::findOrFail($property_id);
+
+        $document = $property->documents()->findOrFail($document_id);
+
+        // Update document data
+        $documentData = $request->only(['gas_start_date', 'gas_end_date', 'document_type_id', 'files']);
+        $document->update($documentData);
+
+        return response()->json(['message' => 'Document updated successfully.', 'document' => $document], 200);
+
+    } catch (Exception $e) {
+
+        return $this->sendError($e, 500, $request);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
 /**
  * @OA\Delete(
  *      path="/v1.0/properties/{property_id}/documents/{document_id}",
@@ -992,6 +1194,7 @@ public function getCurrentPropertyAgreement(Request $request)
  *            @OA\Property(property="date_of_instruction", type="string", format="date", example="2024-11-01"),
  *            @OA\Property(property="howDetached", type="string", format="string", example="fully detached"),
  *            @OA\Property(property="propertyFloor", type="string", format="string", example="Ground Floor"),
+ *  *            @OA\Property(property="category", type="string", format="string", example="Ground Floor"),
  *            @OA\Property(property="min_price", type="string", format="string", example="100000"),
  *            @OA\Property(property="max_price", type="string", format="string", example="500000"),
  *            @OA\Property(property="purpose", type="string", format="string", example="for sale"),

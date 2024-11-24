@@ -29,6 +29,7 @@ class Property extends Model
         'date_of_instruction', // Added field
         'howDetached',          // Added field
         'propertyFloor',        // Added field
+        'category',
         'min_price',            // Added field
         'max_price',            // Added field
         'purpose',              // Added field
