@@ -1,7 +1,7 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Laravel Garage Management Documentation",
+        "title": "Laravel Property Management Documentation",
         "description": "L5 Swagger OpenApi description for garage project",
         "contact": {
             "email": "drrifatalashwad0@gmail.com"
@@ -24822,6 +24822,13 @@
                         "description": "address",
                         "required": true,
                         "example": "address"
+                    },
+                    {
+                        "name": "category",
+                        "in": "query",
+                        "description": "address",
+                        "required": true,
+                        "example": ""
                     },
                     {
                         "name": "landlord_id",

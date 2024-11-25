@@ -296,11 +296,12 @@ Route::post('/v1.0/property-image/multiple', [PropertyController::class, "create
 
 
 Route::post('/v1.0/properties', [PropertyController::class, "createProperty"]);
+
 Route::post('/v2.0/properties', [PropertyController::class, "createPropertyV2"]);
 
-Route::post('/v1.0/properties/{id}/documents', [PropertyController::class, "addDocumentToProperty"]);
+Route::post('/v1.0/properties/documents', [PropertyController::class, "addDocumentToProperty"]);
 
-Route::put('/v1.0/properties/{id}/documents/{document_id}', [PropertyController::class, "updateDocumentInProperty"]);
+Route::put('/v1.0/properties/documents', [PropertyController::class, "updateDocumentInProperty"]);
 
 
 
@@ -316,7 +317,8 @@ Route::get('/v1.0/property-agreement/history', [PropertyController::class, "getP
 
 
 Route::put('/v1.0/properties', [PropertyController::class, "updateProperty"]);
-Route::put('/v2.0/properties', [PropertyController::class, "updatePropertyV2"]);
+
+Route::put('/v2.0/properties-update', [PropertyController::class, "updatePropertyV2"]);
 
 
 Route::get('/v1.0/properties/{perPage}', [PropertyController::class, "getProperties"]);

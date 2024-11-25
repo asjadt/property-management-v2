@@ -30,12 +30,12 @@ class PropertyUpdateRequestV2 extends FormRequest
             'images' => "present|array",
             'images.*' => "string",
 
-            'documents' => "present|array",
-            'documents.*.gas_start_date' => "required|date",
-            'documents.*.gas_end_date' => "required|date",
-            'documents.*.document_type_id' => "required|numeric|exists:document_types,id",
-            'documents.*.files' => "required|array",
-            'documents.*.files.*' => "string",
+            // 'documents' => "present|array",
+            // 'documents.*.gas_start_date' => "required|date",
+            // 'documents.*.gas_end_date' => "required|date",
+            // 'documents.*.document_type_id' => "required|numeric|exists:document_types,id",
+            // 'documents.*.files' => "required|array",
+            // 'documents.*.files.*' => "string",
 
             'address' => "nullable|string",
             'country' => "required|string",

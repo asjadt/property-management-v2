@@ -18,6 +18,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class PropertyController extends Controller
 {
@@ -496,7 +497,7 @@ class PropertyController extends Controller
 
  /**
  * @OA\Post(
- *      path="/v1.0/properties/{id}/documents",
+ *      path="/v1.0/properties/documents",
  *      operationId="addDocumentToProperty",
  *      tags={"property_management.property_management"},
  *      security={
@@ -504,13 +505,7 @@ class PropertyController extends Controller
  *      },
  *      summary="Add document to existing property",
  *      description="This method is to add a document to an existing property",
- *      @OA\Parameter(
- *          name="id",
- *          in="path",
- *          required=true,
- *          description="Property ID",
- *          @OA\Schema(type="integer")
- *      ),
+
  *      @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
@@ -545,26 +540,44 @@ class PropertyController extends Controller
  *      )
  * )
  */
-public function addDocumentToProperty(Request $request, $property_id)
+public function addDocumentToProperty(Request $request,)
 {
     try {
-        $request->validate([
-            'gas_start_date' => 'required|date',
-            'gas_end_date' => 'required|date',
-            'document_type_id' => 'required|numeric|exists:document_types,id',
-            'files' => 'required|array',
-            'files.*' => 'string',  // Assuming file paths or URLs are provided as strings
+        try {
+            $request->validate([
+                'id' => "required|numeric|exists:properties,id",
+                'documents' => 'required|array',
+                'documents.*.gas_start_date' => 'required|date',
+                'documents.*.gas_end_date' => 'required|date',
+                'documents.*.document_type_id' => 'required|numeric|exists:document_types,id',
+                'documents.*.files' => 'required|array',
+                'documents.*.files.*' => 'string', // File paths or URLs
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        }
+
+
+
+        $property = Property::where(["id" => $request->id])
+        ->first();
+
+        if(!empty($property)){
+            return response()->json(['message' => 'Data not found!'], 400);
+        }
+
+
+         // Loop through each document in the request and add it to the property
+    foreach ($request->input('documents') as $documentData) {
+        $property->documents()->create([
+            'gas_start_date' => $documentData['gas_start_date'],
+            'gas_end_date' => $documentData['gas_end_date'],
+            'document_type_id' => $documentData['document_type_id'],
+            'files' => json_encode($documentData['files']),  // Assuming files are stored as a JSON array
         ]);
+    }
 
-        $property = Property::findOrFail($property_id);
-
-        // Add document to the property
-        $documentData = $request->only(['gas_start_date', 'gas_end_date', 'document_type_id','files']);
-        $document = $property->documents()->create($documentData);
-
-
-
-        return response()->json(['message' => 'Document added successfully.', 'document' => $document], 200);
+    return response()->json(['message' => 'Documents added successfully!'], 200);
 
     } catch (Exception $e) {
 
@@ -575,28 +588,14 @@ public function addDocumentToProperty(Request $request, $property_id)
 
  /**
  * @OA\Put(
- *      path="/v1.0/properties/{id}/documents/{document_id}",
+ *      path="/v1.0/properties/documents",
  *      operationId="updateDocumentInProperty",
  *      tags={"property_management.property_management"},
  *      security={
  *          {"bearerAuth": {}}
  *      },
  *      summary="Update an existing document for a property",
- *      description="This method is to update an existing document for a property",
- *      @OA\Parameter(
- *          name="id",
- *          in="path",
- *          required=true,
- *          description="Property ID",
- *          @OA\Schema(type="integer")
- *      ),
- *      @OA\Parameter(
- *          name="document_id",
- *          in="path",
- *          required=true,
- *          description="Document ID",
- *          @OA\Schema(type="integer")
- *      ),
+ *      description="This method is to update an existing document for a property"
  *      @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
@@ -631,20 +630,29 @@ public function addDocumentToProperty(Request $request, $property_id)
  *      )
  * )
  */
-public function updateDocumentInProperty(Request $request, $property_id, $document_id)
+
+public function updateDocumentInProperty(Request $request)
 {
     try {
-        $request->validate([
-            'gas_start_date' => 'required|date',
-            'gas_end_date' => 'required|date',
-            'document_type_id' => 'required|numeric|exists:document_types,id',
-            'files' => 'required|array',
-            'files.*' => 'string',  // Assuming file paths or URLs are provided as strings
-        ]);
 
-        $property = Property::findOrFail($property_id);
+        try {
+            $request->validate([
+                'id' => "required|numeric|exists:properties,id",
+                'document_id' => "required|numeric|exists:property_documents,id",
+                'gas_start_date' => 'required|date',
+                'gas_end_date' => 'required|date',
+                'document_type_id' => 'required|numeric|exists:document_types,id',
+                'files' => 'required|array',
+                'files.*' => 'string',  // Assuming file paths or URLs are provided as strings
+            ]);
 
-        $document = $property->documents()->findOrFail($document_id);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        }
+
+        $property = Property::findOrFail($request->id);
+
+        $document = $property->documents()->findOrFail($request->document_id);
 
         // Update document data
         $documentData = $request->only(['gas_start_date', 'gas_end_date', 'document_type_id', 'files']);
@@ -656,6 +664,7 @@ public function updateDocumentInProperty(Request $request, $property_id, $docume
 
         return $this->sendError($e, 500, $request);
     }
+
 }
 
 
@@ -1164,54 +1173,80 @@ public function getCurrentPropertyAgreement(Request $request)
         }
     }
 
-    /**
- * @OA\Put(
- *      path="/v2.0/properties",
- *      operationId="updatePropertyV2",
- *      tags={"property_management.property_management"},
- *      security={
- *          {"bearerAuth": {}}
- *      },
- *      summary="This method updates an existing property",
- *      description="This method updates an existing property",
- *      @OA\RequestBody(
- *         required=true,
- *         @OA\JsonContent(
- *            required={"id", "name", "address", "country", "city", "postcode", "type", "reference_no"},
- *            required={"name", "image", "address", "country", "city", "postcode", "type", "reference_no"},
- *            @OA\Property(property="image", type="string", format="string", example="image.jpg"),
- *            @OA\Property(property="name", type="string", format="string", example="Rifat"),
- *            @OA\Property(property="address", type="string", format="string", example="address"),
- *            @OA\Property(property="country", type="string", format="string", example="Bangladesh"),
- *            @OA\Property(property="city", type="string", format="string", example="Dhaka"),
- *            @OA\Property(property="postcode", type="string", format="string", example="1207"),
- *            @OA\Property(property="town", type="string", format="string", example="town"),
- *            @OA\Property(property="lat", type="string", format="string", example="23.8103"),
- *            @OA\Property(property="long", type="string", format="string", example="90.4125"),
- *            @OA\Property(property="type", type="string", format="string", example="residential"),
- *            @OA\Property(property="reference_no", type="string", format="string", example="REF12345"),
- *            @OA\Property(property="landlord_id", type="string", format="numeric", example="1"),
- *            @OA\Property(property="date_of_instruction", type="string", format="date", example="2024-11-01"),
- *            @OA\Property(property="howDetached", type="string", format="string", example="fully detached"),
- *            @OA\Property(property="propertyFloor", type="string", format="string", example="Ground Floor"),
- *  *            @OA\Property(property="category", type="string", format="string", example="Ground Floor"),
- *            @OA\Property(property="min_price", type="string", format="string", example="100000"),
- *            @OA\Property(property="max_price", type="string", format="string", example="500000"),
- *            @OA\Property(property="purpose", type="string", format="string", example="for sale"),
- *            @OA\Property(property="property_door_no", type="string", format="string", example="10A"),
- *            @OA\Property(property="property_road", type="string", format="string", example="Main Street"),
- *            @OA\Property(property="county", type="string", format="string", example="Dhaka"),
- *            @OA\Property(property="tenant_ids", type="array", @OA\Items(type="integer"), example={1, 2, 3}),
- *         ),
- *      ),
- *      @OA\Response(response=200, description="Successful operation"),
- *      @OA\Response(response=404, description="Property not found"),
- *      @OA\Response(response=422, description="Validation Error"),
- * )
- */
+       /**
+     *
+     * @OA\Put(
+     *      path="/v2.0/properties-update",
+     *      operationId="updatePropertyV2",
+     *      tags={"property_management.property_management"},
+     *       security={
+     *           {"bearerAuth": {}}
+     *       },
+     *      summary="This method is to update property",
+     *      description="This method is to update property",
+     *
+     *  @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *            required={"id","name","description","logo"},
+     *     *             @OA\Property(property="id", type="number", format="number",example="1"),
+     *  *             @OA\Property(property="image", type="string", format="string",example="image.jpg"),
+     *             @OA\Property(property="name", type="string", format="string",example="Rifat"),
+
+     *            @OA\Property(property="address", type="string", format="string",example="address"),
+     *  * *  @OA\Property(property="country", type="string", format="string",example="country"),
+     *  * *  @OA\Property(property="city", type="string", format="string",example="Dhaka"),
+     *  * *  @OA\Property(property="postcode", type="string", format="string",example="1207"),
+     *  *  * *  @OA\Property(property="town", type="string", format="string",example="town"),
+     *
+     *     *  * *  @OA\Property(property="lat", type="string", format="string",example="1207"),
+     *     *  * *  @OA\Property(property="long", type="string", format="string",example="1207"),
+     *  *     *  * *  @OA\Property(property="type", type="string", format="string",example="type"),
+
+     *  *     *  * *  @OA\Property(property="reference_no", type="string", format="string",example="reference_no"),
+     *  *     *  * *  @OA\Property(property="landlord_id", type="string", format="string",example="1"),
+     *  *  *     *  * *  @OA\Property(property="tenant_ids", type="string", format="array",example={1,2,3}),
+     *
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       @OA\JsonContent(),
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     * @OA\JsonContent(),
+     *      ),
+     *        @OA\Response(
+     *          response=422,
+     *          description="Unprocesseble Content",
+     *    @OA\JsonContent(),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *   @OA\JsonContent()
+     * ),
+     *  * @OA\Response(
+     *      response=400,
+     *      description="Bad Request",
+     *   *@OA\JsonContent()
+     *   ),
+     * @OA\Response(
+     *      response=404,
+     *      description="not found",
+     *   *@OA\JsonContent()
+     *   )
+     *      )
+     *     )
+     */
 public function updatePropertyV2(PropertyUpdateRequestV2 $request)
 {
     try {
+
+
         // Find the property by ID
         $property = Property::findOrFail($request->input('id'));
 
@@ -1223,7 +1258,7 @@ public function updatePropertyV2(PropertyUpdateRequestV2 $request)
 
         // Update property fields using fill()
         $property->fill($request_data);
-        $property->updated_by = $request->user()->id; // Update the 'updated_by' field
+
         $property->save();
 
         // Update documents if provided
@@ -1305,6 +1340,13 @@ public function updatePropertyV2(PropertyUpdateRequestV2 $request)
      * required=true,
      * example="address"
      * ),
+     *  * *  @OA\Parameter(
+     * name="category",
+     * in="query",
+     * description="address",
+     * required=true,
+     * example=""
+     * ),
      * *  @OA\Parameter(
      * name="landlord_id",
      * in="query",
@@ -1384,6 +1426,12 @@ public function updatePropertyV2(PropertyUpdateRequestV2 $request)
             if (!empty($request->tenant_id)) {
                 $propertyQuery =  $propertyQuery->where("tenants.id", $request->tenant_id);
             }
+            if (!empty($request->category)) {
+                $propertyQuery =  $propertyQuery->where("properties.category", $request->category);
+            }
+
+
+
             if (!empty($request->address)) {
                 $propertyQuery =  $propertyQuery->orWhere("properties.address", "like", "%" . $request->address . "%");
             }
@@ -1437,10 +1485,16 @@ public function updatePropertyV2(PropertyUpdateRequestV2 $request)
 
     public function addMoreImages(Request $request, $id)
 {
-    $request->validate([
-        'images' => 'required|array',
-        'images.*' => 'string|url',
-    ]);
+
+    try {
+        $request->validate([
+            'images' => 'required|array',
+            'images.*' => 'string|url',
+        ]);
+
+    } catch (ValidationException $e) {
+        return response()->json(['errors' => $e->errors()], 422);
+    }
 
     $property = Property::findOrFail($id);
 
@@ -1475,10 +1529,16 @@ public function updatePropertyV2(PropertyUpdateRequestV2 $request)
 
 public function deleteImages(Request $request, $id)
 {
-    $request->validate([
-        'images' => 'required|array',
-        'images.*' => 'string|url',
-    ]);
+
+    try {
+        $request->validate([
+            'images' => 'required|array',
+            'images.*' => 'string|url',
+        ]);
+
+    } catch (ValidationException $e) {
+        return response()->json(['errors' => $e->errors()], 422);
+    }
 
     $property = Property::findOrFail($id);
 
@@ -1632,6 +1692,9 @@ public function deleteImages(Request $request, $id)
             }
             if (!empty($request->address)) {
                 $propertyQuery =  $propertyQuery->where("properties.address", "like", "%" . $request->address . "%");
+            }
+            if (!empty($request->category)) {
+                $propertyQuery =  $propertyQuery->where("properties.category", $request->category);
             }
 
             if (!empty($request->start_date)) {

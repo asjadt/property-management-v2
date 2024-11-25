@@ -28,29 +28,24 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/error-log', [SetUpController::class, "getErrorLogs"])->name("error-log");
 
+Route::get('/error-log', [SetUpController::class, "getErrorLogs"])->name("error-log");
 Route::get('/activity-log', [SetUpController::class, "getActivityLogs"])->name("activity-log");
 
+Route::get('/setup-d', [SetUpController::class, "setUp"])->name("setup");
+Route::get('/setup2-d', [SetUpController::class, "setUp2"])->name("setup2");
 
-Route::get('/setup', [SetUpController::class, "setUp"])->name("setup");
-Route::get('/setup2', [SetUpController::class, "setUp2"])->name("setup2");
 
 Route::get('/backup', [SetUpController::class, "backup"])->name("backup");
-
-
 Route::get('/roleRefresh', [SetUpController::class, "roleRefresh"])->name("roleRefresh");
-
 Route::get('/swagger-refresh', [SetUpController::class, "swaggerRefresh"]);
-
-
 Route::get('/automobile-refresh', [SetUpController::class, "automobileRefresh"]);
+
 
 Route::get("/swagger-login",[SwaggerLoginController::class,"login"])->name("login.view");
 Route::post("/swagger-login",[SwaggerLoginController::class,"passUser"]);
 
 Route::get('/migrate', [SetUpController::class, "migrate"]);
-
 
 
 Route::get("/custom-command",function(Request $request) {
