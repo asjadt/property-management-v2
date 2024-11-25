@@ -595,7 +595,7 @@ public function addDocumentToProperty(Request $request,)
  *          {"bearerAuth": {}}
  *      },
  *      summary="Update an existing document for a property",
- *      description="This method is to update an existing document for a property"
+ *      description="This method is to update an existing document for a property",
  *      @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(

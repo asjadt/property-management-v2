@@ -40,6 +40,9 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
+            \App\Http\Middleware\ResponseMiddleware::class,
+            \App\Http\Middleware\FormatDatesInRequest::class,
+            
              \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
 
              \Illuminate\Routing\Middleware\SubstituteBindings::class,
