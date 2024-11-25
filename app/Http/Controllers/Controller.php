@@ -11,7 +11,7 @@ use Illuminate\Routing\Controller as BaseController;
 /**
      * @OA\Info(
      *      version="1.0.0",
-     *      title="Laravel Garage Management Documentation",
+     *      title="Laravel Property Management Documentation",
      *      description="L5 Swagger OpenApi description for garage project",
      *      @OA\Contact(
      *          email="drrifatalashwad0@gmail.com"
