@@ -650,9 +650,14 @@ public function updateDocumentInProperty(Request $request)
             return response()->json(['errors' => $e->errors()], 422);
         }
 
-        $property = Property::findOrFail($request->id);
+        $property = Property::where(["id" => $request->id])->first();
 
-        $document = $property->documents()->findOrFail($request->document_id);
+        $document = $property->documents()->first(["document_id"=>$request->document_id]);
+
+
+        if(empty($document)){
+            return response()->json(['message' => "invalid document id"], 400);
+        }
 
         // Update document data
         $documentData = $request->only(['gas_start_date', 'gas_end_date', 'document_type_id', 'files']);
@@ -1949,7 +1954,8 @@ public function deleteImages(Request $request, $id)
                     "property_tenants",
                     "landlord",
                     "repairs.repair_category",
-                    "invoices"
+                    "invoices",
+                    "documents"
 
                 )
                 ->where([
