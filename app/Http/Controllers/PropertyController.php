@@ -661,7 +661,9 @@ public function updateDocumentInProperty(Request $request)
 
         $property = Property::where(["id" => $request->id])->first();
 
-        $document = $property->documents()->first(["document_id"=>$request->document_id]);
+        $document = $property->documents()
+        ->where('property_documents.id', $request->document_id)
+        ->first();
 
 
         if(empty($document)){
@@ -671,7 +673,7 @@ public function updateDocumentInProperty(Request $request)
         // Update document data
         $documentData = $request->only(['gas_start_date', 'gas_end_date', 'description','document_type_id', 'files']);
 
-        
+
         $document->update($documentData);
 
         return response()->json(['message' => 'Document updated successfully.', 'document' => $document], 200);
