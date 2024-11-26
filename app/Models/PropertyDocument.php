@@ -12,6 +12,7 @@ class PropertyDocument extends Model
     protected $fillable = [
         'gas_start_date',
         'gas_end_date',
+        'description',
         'document_type_id',
         'property_id',
         'files' // Added files field
@@ -26,5 +27,5 @@ class PropertyDocument extends Model
         return $this->belongsTo(Property::class);
     }
 
-    
+
 }

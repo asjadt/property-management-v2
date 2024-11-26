@@ -18,8 +18,10 @@ class CreatePropertyDocumentsTable extends Migration
             $table->foreignId('property_id')->constrained()->onDelete('cascade');
             $table->date('gas_start_date');
             $table->date('gas_end_date');
+            $table->text('description')->nullable();
+
             $table->foreignId('document_type_id')->constrained('document_types');
-            $table->json('files'); 
+            $table->json('files');
             $table->timestamps();
         });
     }

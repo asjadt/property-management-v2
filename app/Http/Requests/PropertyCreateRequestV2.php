@@ -32,6 +32,8 @@ class PropertyCreateRequestV2 extends FormRequest
             'documents' => "present|array",
             'documents.*.gas_start_date' => "required|date",
             'documents.*.gas_end_date' => "required|date",
+            'documents.*.description' => "nullable|date",
+
             'documents.*.document_type_id' => "required|numeric|exists:document_types,id",
             'documents.*.files' => "required|array",
             'documents.*.files.*' => "string",

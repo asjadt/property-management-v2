@@ -513,6 +513,7 @@ class PropertyController extends Controller
  *            @OA\Property(property="documents", type="array", @OA\Items(
  *                @OA\Property(property="gas_start_date", type="string", format="date", example="2024-11-01"),
  *                @OA\Property(property="gas_end_date", type="string", format="date", example="2025-11-01"),
+ *  *                @OA\Property(property="description", type="string", format="date", example="description"),
  *                @OA\Property(property="document_type_id", type="integer", example=1),
  *                @OA\Property(property="files", type="array", @OA\Items(type="string", example="file.pdf"))
  *            )),
@@ -549,6 +550,8 @@ public function addDocumentToProperty(Request $request,)
                 'documents' => 'required|array',
                 'documents.*.gas_start_date' => 'required|date',
                 'documents.*.gas_end_date' => 'required|date',
+                'documents.*.description' => 'nullable|string',
+
                 'documents.*.document_type_id' => 'required|numeric|exists:document_types,id',
                 'documents.*.files' => 'required|array',
                 'documents.*.files.*' => 'string', // File paths or URLs
@@ -562,7 +565,7 @@ public function addDocumentToProperty(Request $request,)
         $property = Property::where(["id" => $request->id])
         ->first();
 
-        if(!empty($property)){
+        if(empty($property)){
             return response()->json(['message' => 'Data not found!'], 400);
         }
 
@@ -572,6 +575,8 @@ public function addDocumentToProperty(Request $request,)
         $property->documents()->create([
             'gas_start_date' => $documentData['gas_start_date'],
             'gas_end_date' => $documentData['gas_end_date'],
+            'description' => $documentData['description'],
+
             'document_type_id' => $documentData['document_type_id'],
             'files' => json_encode($documentData['files']),  // Assuming files are stored as a JSON array
         ]);
@@ -603,6 +608,8 @@ public function addDocumentToProperty(Request $request,)
  *            @OA\Property(property="documents", type="array", @OA\Items(
  *                @OA\Property(property="gas_start_date", type="string", format="date", example="2024-11-01"),
  *                @OA\Property(property="gas_end_date", type="string", format="date", example="2025-11-01"),
+ *  *                @OA\Property(property="description", type="string", format="date", example="description"),
+ *
  *                @OA\Property(property="document_type_id", type="integer", example=1),
  *                @OA\Property(property="files", type="array", @OA\Items(type="string", example="file.pdf"))
  *            )),
@@ -641,6 +648,8 @@ public function updateDocumentInProperty(Request $request)
                 'document_id' => "required|numeric|exists:property_documents,id",
                 'gas_start_date' => 'required|date',
                 'gas_end_date' => 'required|date',
+                'description' => 'nullable|string',
+
                 'document_type_id' => 'required|numeric|exists:document_types,id',
                 'files' => 'required|array',
                 'files.*' => 'string',  // Assuming file paths or URLs are provided as strings
@@ -660,7 +669,9 @@ public function updateDocumentInProperty(Request $request)
         }
 
         // Update document data
-        $documentData = $request->only(['gas_start_date', 'gas_end_date', 'document_type_id', 'files']);
+        $documentData = $request->only(['gas_start_date', 'gas_end_date', 'description','document_type_id', 'files']);
+
+        
         $document->update($documentData);
 
         return response()->json(['message' => 'Document updated successfully.', 'document' => $document], 200);
