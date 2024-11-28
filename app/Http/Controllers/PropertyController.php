@@ -1507,7 +1507,7 @@ public function updatePropertyV2(PropertyUpdateRequestV2 $request)
     try {
         $request->validate([
             'images' => 'required|array',
-            'images.*' => 'string|url',
+            'images.*' => 'string|string',
         ]);
 
     } catch (ValidationException $e) {
@@ -1529,7 +1529,7 @@ public function updatePropertyV2(PropertyUpdateRequestV2 $request)
 
 /**
  * @OA\Delete(
- *      path="/v2.0/properties/{id}/delete-images",
+ *      path="/v1.0/properties/{id}/delete-images",
  *      summary="Delete specific images from a property",
  *      tags={"property_management"},
  *      @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
@@ -1551,7 +1551,7 @@ public function deleteImages(Request $request, $id)
     try {
         $request->validate([
             'images' => 'required|array',
-            'images.*' => 'string|url',
+            'images.*' => 'string|string',
         ]);
 
     } catch (ValidationException $e) {
