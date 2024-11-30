@@ -311,8 +311,7 @@ Route::delete('/v1.0/properties/{property_id}/documents/{document_id}', [Propert
 Route::post('/v1.0/property-agreement', [PropertyController::class, "createPropertyAgreement"]);
 
 
-Route::get('/v1.0/property-agreement/current', [PropertyController::class, "getCurrentPropertyAgreement"]);
-Route::get('/v1.0/property-agreement/history', [PropertyController::class, "getPropertyAgreementHistory"]);
+Route::get('/v1.0/property-agreements', [PropertyController::class, "getPropertyAgreements"]);
 
 
 
