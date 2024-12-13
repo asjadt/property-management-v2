@@ -470,6 +470,653 @@
                 ]
             }
         },
+        "/v1.0/applicants": {
+            "get": {
+                "tags": [
+                    "applicants"
+                ],
+                "summary": "This method is to get applicants  ",
+                "description": "This method is to get applicants ",
+                "operationId": "getApplicants",
+                "parameters": [
+                    {
+                        "name": "customer_name",
+                        "in": "query",
+                        "description": "customer_name",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "customer_phone",
+                        "in": "query",
+                        "description": "customer_phone",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "address_line_1",
+                        "in": "query",
+                        "description": "address_line_1",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "property_type",
+                        "in": "query",
+                        "description": "property_type",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "no_of_beds",
+                        "in": "query",
+                        "description": "no_of_beds",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "no_of_baths",
+                        "in": "query",
+                        "description": "no_of_baths",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "start_deadline_to_move",
+                        "in": "query",
+                        "description": "start_deadline_to_move",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "end_deadline_to_move",
+                        "in": "query",
+                        "description": "end_deadline_to_move",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "working",
+                        "in": "query",
+                        "description": "working",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "job_title",
+                        "in": "query",
+                        "description": "job_title",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "per_page",
+                        "required": true,
+                        "example": "6"
+                    },
+                    {
+                        "name": "is_active",
+                        "in": "query",
+                        "description": "is_active",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "start_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "end_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "search_key",
+                        "required": true,
+                        "example": "search_key"
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "description": "order_by",
+                        "required": true,
+                        "example": "ASC"
+                    },
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "description": "id",
+                        "required": true,
+                        "example": "ASC"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "applicants"
+                ],
+                "summary": "This method is to update applicants ",
+                "description": "This method is to update applicants ",
+                "operationId": "updateApplicant",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "1"
+                                    },
+                                    "customer_name": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "customer_name"
+                                    },
+                                    "customer_phone": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "customer_phone"
+                                    },
+                                    "min_price": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "min_price"
+                                    },
+                                    "max_price": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "max_price"
+                                    },
+                                    "address_line_1": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "address_line_1"
+                                    },
+                                    "latitude": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "latitude"
+                                    },
+                                    "longitude": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "longitude"
+                                    },
+                                    "radius": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "radius"
+                                    },
+                                    "property_type": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "property_type"
+                                    },
+                                    "no_of_beds": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "no_of_beds"
+                                    },
+                                    "no_of_baths": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "no_of_baths"
+                                    },
+                                    "deadline_to_move": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "deadline_to_move"
+                                    },
+                                    "working": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "working"
+                                    },
+                                    "job_title": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "job_title"
+                                    },
+                                    "is_dss": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "is_dss"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "applicants"
+                ],
+                "summary": "This method is to store applicants",
+                "description": "This method is to store applicants",
+                "operationId": "createApplicant",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "customer_name": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "customer_name"
+                                    },
+                                    "customer_phone": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "customer_phone"
+                                    },
+                                    "min_price": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "min_price"
+                                    },
+                                    "max_price": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "max_price"
+                                    },
+                                    "address_line_1": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "address_line_1"
+                                    },
+                                    "latitude": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "latitude"
+                                    },
+                                    "longitude": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "longitude"
+                                    },
+                                    "radius": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "radius"
+                                    },
+                                    "property_type": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "property_type"
+                                    },
+                                    "no_of_beds": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "no_of_beds"
+                                    },
+                                    "no_of_baths": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "no_of_baths"
+                                    },
+                                    "deadline_to_move": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "deadline_to_move"
+                                    },
+                                    "working": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "working"
+                                    },
+                                    "job_title": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "job_title"
+                                    },
+                                    "is_dss": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "is_dss"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/applicants/toggle-active": {
+            "put": {
+                "tags": [
+                    "applicants"
+                ],
+                "summary": "This method is to toggle applicants",
+                "description": "This method is to toggle applicants",
+                "operationId": "toggleActiveApplicant",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "format": "number",
+                                        "example": "1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/applicants/{ids}": {
+            "delete": {
+                "tags": [
+                    "applicants"
+                ],
+                "summary": "This method is to delete applicant by id",
+                "description": "This method is to delete applicant by id",
+                "operationId": "deleteApplicantsByIds",
+                "parameters": [
+                    {
+                        "name": "ids",
+                        "in": "path",
+                        "description": "ids",
+                        "required": true,
+                        "example": "1,2,3"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/v1.0/register": {
             "post": {
                 "tags": [
@@ -23826,6 +24473,21 @@
                                         "format": "string",
                                         "example": "fully detached"
                                     },
+                                    "no_of_beds": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "one"
+                                    },
+                                    "no_of_baths": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "one"
+                                    },
+                                    "is_garden": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "1"
+                                    },
                                     "propertyFloor": {
                                         "type": "string",
                                         "format": "string",
@@ -23971,6 +24633,11 @@
                                                     "format": "date",
                                                     "example": "2025-11-01"
                                                 },
+                                                "description": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "example": "description"
+                                                },
                                                 "document_type_id": {
                                                     "type": "integer",
                                                     "example": 1
@@ -24061,6 +24728,11 @@
                                                     "type": "string",
                                                     "format": "date",
                                                     "example": "2025-11-01"
+                                                },
+                                                "description": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "example": "description"
                                                 },
                                                 "document_type_id": {
                                                     "type": "integer",
@@ -24194,6 +24866,190 @@
             }
         },
         "/v1.0/property-agreement": {
+            "put": {
+                "tags": [
+                    "property_management.property_management"
+                ],
+                "summary": "Update property agreement",
+                "description": "This method updates an existing property agreement based on the provided data.",
+                "operationId": "updatePropertyAgreement",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id",
+                                    "landlord_id",
+                                    "property_id",
+                                    "start_date",
+                                    "end_date",
+                                    "payment_arrangement",
+                                    "cheque_payable_to",
+                                    "agent_commision",
+                                    "terms_conditions"
+                                ],
+                                "properties": {
+                                    "id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "landlord_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "property_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "start_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-11-01"
+                                    },
+                                    "end_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-11-01"
+                                    },
+                                    "payment_arrangement": {
+                                        "type": "string",
+                                        "enum": [
+                                            "By_Cash",
+                                            "By_Cheque",
+                                            "Bank_Transfer"
+                                        ],
+                                        "example": "By_Cash"
+                                    },
+                                    "cheque_payable_to": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "agent_commision": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 200
+                                    },
+                                    "management_fee": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 50,
+                                        "nullable": true
+                                    },
+                                    "inventory_charges": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 100,
+                                        "nullable": true
+                                    },
+                                    "terms_conditions": {
+                                        "type": "string",
+                                        "example": "Updated terms and conditions..."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "landlord_id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "property_id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "start_date": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "example": "2024-11-01"
+                                        },
+                                        "end_date": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "example": "2025-11-01"
+                                        },
+                                        "payment_arrangement": {
+                                            "type": "string",
+                                            "example": "By_Cash"
+                                        },
+                                        "cheque_payable_to": {
+                                            "type": "string",
+                                            "example": "John Doe"
+                                        },
+                                        "agent_commision": {
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 200
+                                        },
+                                        "management_fee": {
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 50
+                                        },
+                                        "inventory_charges": {
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 100
+                                        },
+                                        "terms_conditions": {
+                                            "type": "string",
+                                            "example": "Updated terms and conditions..."
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2024-11-01T12:00:00Z"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
             "post": {
                 "tags": [
                     "property_management.property_management"
@@ -24402,99 +25258,14 @@
                 ]
             }
         },
-        "/v1.0/property-agreement/history": {
+        "/v1.0/property-agreements": {
             "get": {
                 "tags": [
                     "property_management.property_management"
                 ],
-                "summary": "Get property agreement history",
+                "summary": "Get property agreements",
                 "description": "This method retrieves the history of property agreements for a given property and landlord, including soft-deleted agreements.",
-                "operationId": "getPropertyAgreementHistory",
-                "parameters": [
-                    {
-                        "name": "landlord_id",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    },
-                    {
-                        "name": "property_id",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Content",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/v1.0/property-agreement/current": {
-            "get": {
-                "tags": [
-                    "property_management.property_management"
-                ],
-                "summary": "Get current property agreement",
-                "description": "This method retrieves the current property agreement for a given property and landlord.",
-                "operationId": "getCurrentPropertyAgreement",
+                "operationId": "getPropertyAgreements",
                 "parameters": [
                     {
                         "name": "landlord_id",
@@ -24912,13 +25683,13 @@
                 }
             }
         },
-        "/v2.0/properties/{id}/delete-images": {
+        "/v1.0/properties/{id}/delete-images": {
             "delete": {
                 "tags": [
                     "property_management"
                 ],
                 "summary": "Delete specific images from a property",
-                "operationId": "a21400ba77eb8e9fe95b3462bcf1fe8e",
+                "operationId": "80688648d5d1aa7e562053f3640b2014",
                 "parameters": [
                     {
                         "name": "id",

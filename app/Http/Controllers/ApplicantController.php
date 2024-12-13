@@ -9,13 +9,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ApplicantCreateRequest;
 use App\Http\Requests\ApplicantUpdateRequest;
 use App\Http\Requests\GetIdRequest;
-use App\Http\Utils\BusinessUtil;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Applicant;
-use App\Models\DisabledApplicant;
-use App\Models\User;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +19,7 @@ use Illuminate\Support\Facades\DB;
 class ApplicantController extends Controller
 {
 
-    use ErrorUtil, UserActivityUtil, BusinessUtil;
+    use ErrorUtil, UserActivityUtil;
 
 
     /**
