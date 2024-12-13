@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AffiliationController;
+use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AutomobilesController;
 use App\Http\Controllers\BillController;
@@ -284,6 +285,26 @@ Route::delete('/v1.0/clients/{id}', [ClientController::class, "deleteClientById"
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // Tenant management section
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// applicants management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Route::post('/v1.0/applicants', [ApplicantController::class, "createApplicant"]);
+Route::put('/v1.0/applicants', [ApplicantController::class, "updateApplicant"]);
+Route::put('/v1.0/applicants/toggle-active', [ApplicantController::class, "toggleActiveApplicant"]);
+Route::get('/v1.0/applicants', [ApplicantController::class, "getApplicants"]);
+Route::delete('/v1.0/applicants/{ids}', [ApplicantController::class, "deleteApplicantsByIds"]);
+
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// end applicants management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

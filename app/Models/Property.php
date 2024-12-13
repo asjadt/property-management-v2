@@ -28,6 +28,9 @@ class Property extends Model
         'is_active',
         'date_of_instruction', // Added field
         'howDetached',          // Added field
+        "no_of_beds",
+        "no_of_baths",
+        "is_garden",
         'propertyFloor',        // Added field
         'category',
         'min_price',            // Added field

@@ -58,6 +58,12 @@ class CreatePropertiesTable extends Migration
             $table->string('howDetached')->nullable();  // Title is displayed
             $table->string('propertyFloor')->nullable();  // Title is displayed
             $table->string('category');
+            $table->string('no_of_beds');
+            $table->string('no_of_baths');
+            $table->boolean('is_garden');
+
+
+
 
             $table->double('min_price')->nullable();
             $table->double('max_price')->nullable();

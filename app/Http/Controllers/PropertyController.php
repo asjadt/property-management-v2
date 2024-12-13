@@ -377,6 +377,13 @@ class PropertyController extends Controller
      *            @OA\Property(property="landlord_id", type="string", format="numeric", example="1"),
      *            @OA\Property(property="date_of_instruction", type="string", format="date", example="2024-11-01"),
      *            @OA\Property(property="howDetached", type="string", format="string", example="fully detached"),
+    *            @OA\Property(property="no_of_beds", type="string", format="string", example="one"),
+    *            @OA\Property(property="no_of_baths", type="string", format="string", example="one"),
+     *            @OA\Property(property="is_garden", type="string", format="string", example="1"),
+     *
+     *
+     *
+     *
      *            @OA\Property(property="propertyFloor", type="string", format="string", example="Ground Floor"),
      *  *            @OA\Property(property="category", type="string", format="string", example="Ground Floor"),
      *            @OA\Property(property="min_price", type="string", format="string", example="100000"),
