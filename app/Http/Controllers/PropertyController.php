@@ -765,7 +765,7 @@ class PropertyController extends Controller
      * @OA\Post(
      *      path="/v1.0/property-agreement",
      *      operationId="createPropertyAgreement",
-     *      tags={"property_management.property_management"},
+     *      tags={"property_management.property_agreement"},
      *      security={
      *          {"bearerAuth": {}}
      *      },
@@ -864,7 +864,7 @@ class PropertyController extends Controller
  * @OA\Put(
  *      path="/v1.0/property-agreement",
  *      operationId="updatePropertyAgreement",
- *      tags={"property_management.property_management"},
+ *      tags={"property_management.property_agreement"},
  *      security={
  *          {"bearerAuth": {}}
  *      },
@@ -983,7 +983,7 @@ class PropertyController extends Controller
      * @OA\Get(
      *      path="/v1.0/property-agreements",
      *      operationId="getPropertyAgreements",
-     *      tags={"property_management.property_management"},
+     *      tags={"property_management.property_agreement"},
      *      security={
      *          {"bearerAuth": {}}
      *      },

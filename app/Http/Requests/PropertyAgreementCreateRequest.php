@@ -49,4 +49,5 @@ class PropertyAgreementCreateRequest extends FormRequest
             'type.in' => 'The type must be one of the following: let_property, manage_property, sale_property.',
         ];
     }
+    
 }
