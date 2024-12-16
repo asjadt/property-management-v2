@@ -323,7 +323,7 @@ Route::post('/v1.0/properties/documents', [PropertyController::class, "addDocume
 Route::put('/v1.0/properties/documents', [PropertyController::class, "updateDocumentInProperty"]);
 
 
-
+// test comment
 Route::delete('/v1.0/properties/{property_id}/documents/{document_id}', [PropertyController::class, "deleteDocumentFromProperty"]);
 
 
