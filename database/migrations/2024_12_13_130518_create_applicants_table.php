@@ -50,7 +50,7 @@ class CreateApplicantsTable extends Migration
 
             $table->string("no_of_baths");
 
-            $table->date("deadline_to_move")->nullable();
+            $table->string("deadline_to_move")->nullable();
             $table->string("working")->nullable();
             $table->string("job_title")->nullable();
 

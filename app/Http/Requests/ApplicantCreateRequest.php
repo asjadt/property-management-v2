@@ -88,7 +88,7 @@ $rules = [
 
         'deadline_to_move' => [
         'nullable',
-        'date'
+        'string'
     ],
 
         'working' => [

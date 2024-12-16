@@ -839,14 +839,8 @@ class PropertyController extends Controller
         try {
             $this->storeActivity($request, "");
             return DB::transaction(function () use ($request) {
-
                 $request_data = $request->validated();
-
-
                 $agreement = PropertyAgreement::create($request_data);
-
-
-
                 return response($agreement, 201);
             });
         } catch (Exception $e) {

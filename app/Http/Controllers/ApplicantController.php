@@ -201,7 +201,6 @@ class ApplicantController extends Controller
 
                 if ($applicant) {
                     $applicant->fill(collect($request_data)->only([
-
                         "customer_name",
                         "customer_phone",
                         "min_price",

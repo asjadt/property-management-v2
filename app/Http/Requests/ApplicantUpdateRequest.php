@@ -109,7 +109,7 @@ class ApplicantUpdateRequest extends FormRequest
 
             'deadline_to_move' => [
                 'nullable',
-                'date'
+                'string'
             ],
 
             'working' => [

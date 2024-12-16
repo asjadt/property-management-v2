@@ -288,8 +288,6 @@ Route::delete('/v1.0/clients/{id}', [ClientController::class, "deleteClientById"
 
 
 
-
-
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // applicants management section
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -331,6 +329,7 @@ Route::delete('/v1.0/properties/{property_id}/documents/{document_id}', [Propert
 
 Route::post('/v1.0/property-agreement', [PropertyController::class, "createPropertyAgreement"]);
 
+Route::put('/v1.0/property-agreement', [PropertyController::class, "updatePropertyAgreement"]);
 
 Route::get('/v1.0/property-agreements', [PropertyController::class, "getPropertyAgreements"]);
 
