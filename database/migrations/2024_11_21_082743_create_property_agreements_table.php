@@ -13,12 +13,20 @@ class CreatePropertyAgreementsTable extends Migration
             $table->unsignedBigInteger('property_id');
             $table->date('start_date');
             $table->date('end_date');
-            $table->enum('payment_arrangement', ['By_Cash', 'By_Cheque', 'Bank_Transfer']);
-            $table->string('cheque_payable_to');
-            $table->decimal('agent_commision', 10, 2);
+
+            $table->enum('payment_arrangement', ['By_Cash', 'By_Cheque', 'Bank_Transfer'])->nullable();
+
+            $table->string('cheque_payable_to')->nullable();
+            $table->decimal('agent_commission', 10, 2)->nullable();
             $table->decimal('management_fee', 10, 2)->nullable();
             $table->decimal('inventory_charges', 10, 2)->nullable();
-            $table->text('terms_conditions');
+            $table->text('terms_conditions')->nullable();
+            $table->string('legal_representative')->nullable();
+            $table->decimal('min_price', 10, 2)->nullable();
+            $table->decimal('max_price', 10, 2)->nullable();
+            $table->string('agency_type')->nullable();
+            $table->enum('type', ['let_property', 'manage_property', 'sale_property'])->nullable();
+
             $table->timestamps();
             $table->softDeletes(); // To keep soft deletion history
 

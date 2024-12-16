@@ -17,10 +17,15 @@ class PropertyAgreement extends Model
         'end_date',
         'payment_arrangement',
         'cheque_payable_to',
-        'agent_commision',
+        'agent_commission',
         'management_fee',
         'inventory_charges',
         'terms_conditions',
+        'legal_representative',
+        'min_price',
+        'max_price',
+        'agency_type'
+
     ];
 
     // Relationships

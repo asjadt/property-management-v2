@@ -24878,17 +24878,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "id",
-                                    "landlord_id",
-                                    "property_id",
-                                    "start_date",
-                                    "end_date",
-                                    "payment_arrangement",
-                                    "cheque_payable_to",
-                                    "agent_commision",
-                                    "terms_conditions"
-                                ],
+                                "required": [],
                                 "properties": {
                                     "id": {
                                         "type": "integer",
@@ -24925,7 +24915,7 @@
                                         "type": "string",
                                         "example": "John Doe"
                                     },
-                                    "agent_commision": {
+                                    "agent_commission": {
                                         "type": "number",
                                         "format": "float",
                                         "example": 200
@@ -24945,6 +24935,26 @@
                                     "terms_conditions": {
                                         "type": "string",
                                         "example": "Updated terms and conditions..."
+                                    },
+                                    "legal_representative": {
+                                        "type": "string",
+                                        "example": "legal_representative"
+                                    },
+                                    "min_price": {
+                                        "type": "string",
+                                        "example": "10.5"
+                                    },
+                                    "max_price": {
+                                        "type": "string",
+                                        "example": "11.5"
+                                    },
+                                    "agency_type": {
+                                        "type": "string",
+                                        "example": "agency_type"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "example": "let_property"
                                     }
                                 },
                                 "type": "object"
@@ -24989,7 +24999,7 @@
                                             "type": "string",
                                             "example": "John Doe"
                                         },
-                                        "agent_commision": {
+                                        "agent_commission": {
                                             "type": "number",
                                             "format": "float",
                                             "example": 200
@@ -25007,6 +25017,26 @@
                                         "terms_conditions": {
                                             "type": "string",
                                             "example": "Updated terms and conditions..."
+                                        },
+                                        "legal_representative": {
+                                            "type": "string",
+                                            "example": "legal_representative"
+                                        },
+                                        "min_price": {
+                                            "type": "string",
+                                            "example": "10.5"
+                                        },
+                                        "max_price": {
+                                            "type": "string",
+                                            "example": "11.5"
+                                        },
+                                        "agency_type": {
+                                            "type": "string",
+                                            "example": "agency_type"
+                                        },
+                                        "type": {
+                                            "type": "string",
+                                            "example": "let_property"
                                         },
                                         "updated_at": {
                                             "type": "string",
@@ -25062,16 +25092,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "landlord_id",
-                                    "property_id",
-                                    "start_date",
-                                    "end_date",
-                                    "payment_arrangement",
-                                    "cheque_payable_to",
-                                    "agent_commision",
-                                    "terms_conditions"
-                                ],
+                                "required": [],
                                 "properties": {
                                     "landlord_id": {
                                         "type": "integer",
@@ -25104,7 +25125,7 @@
                                         "type": "string",
                                         "example": "John Doe"
                                     },
-                                    "agent_commision": {
+                                    "agent_commission": {
                                         "type": "number",
                                         "format": "float",
                                         "example": 200
@@ -25124,6 +25145,26 @@
                                     "terms_conditions": {
                                         "type": "string",
                                         "example": "The terms and conditions of the agreement are as follows..."
+                                    },
+                                    "legal_representative": {
+                                        "type": "string",
+                                        "example": "legal_representative"
+                                    },
+                                    "min_price": {
+                                        "type": "string",
+                                        "example": "10.5"
+                                    },
+                                    "max_price": {
+                                        "type": "string",
+                                        "example": "11.5"
+                                    },
+                                    "agency_type": {
+                                        "type": "string",
+                                        "example": "agency_type"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "example": "let_property"
                                     }
                                 },
                                 "type": "object"
@@ -25173,7 +25214,7 @@
                                             "type": "string",
                                             "example": "John Doe"
                                         },
-                                        "agent_commision": {
+                                        "agent_commission": {
                                             "type": "number",
                                             "format": "float",
                                             "example": 200
@@ -25193,6 +25234,26 @@
                                         "terms_conditions": {
                                             "type": "string",
                                             "example": "The terms and conditions of the agreement are as follows..."
+                                        },
+                                        "legal_representative": {
+                                            "type": "string",
+                                            "example": "legal_representative"
+                                        },
+                                        "min_price": {
+                                            "type": "string",
+                                            "example": "10.5"
+                                        },
+                                        "max_price": {
+                                            "type": "string",
+                                            "example": "11.5"
+                                        },
+                                        "agency_type": {
+                                            "type": "string",
+                                            "example": "agency_type"
+                                        },
+                                        "type": {
+                                            "type": "string",
+                                            "example": "let_property"
                                         },
                                         "created_at": {
                                             "type": "string",
