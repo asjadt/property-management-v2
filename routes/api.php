@@ -43,6 +43,7 @@ use App\Http\Controllers\PaymentTypeController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\property_management\BasicController;
+use App\Http\Controllers\PropertyAgreementController;
 use App\Http\Controllers\PropertyBasicController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\ReceiptController;
@@ -54,6 +55,7 @@ use App\Http\Controllers\SaleItemController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ShopGalleryController;
 use App\Http\Controllers\ShopsController;
+use App\Http\Controllers\TenancyAgreementController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UserManagementController;
 use App\Models\GaragePackage;
@@ -327,19 +329,26 @@ Route::put('/v1.0/properties/documents', [PropertyController::class, "updateDocu
 Route::delete('/v1.0/properties/{property_id}/documents/{document_id}', [PropertyController::class, "deleteDocumentFromProperty"]);
 
 
-Route::post('/v1.0/property-agreement', [PropertyController::class, "createPropertyAgreement"]);
 
-Route::put('/v1.0/property-agreement', [PropertyController::class, "updatePropertyAgreement"]);
 
-Route::get('/v1.0/property-agreements', [PropertyController::class, "getPropertyAgreements"]);
+Route::post('/v1.0/property-agreement', [PropertyAgreementController::class, "createPropertyAgreement"]);
+Route::put('/v1.0/property-agreement', [PropertyAgreementController::class, "updatePropertyAgreement"]);
+Route::get('/v1.0/property-agreements', [PropertyAgreementController::class, "getPropertyAgreements"]);
+Route::delete('/v1.0/property-agreements/{agreement_id}', [PropertyAgreementController::class, "deletePropertyAgreement"]);
+
+
+
+Route::post('/v1.0/tenancy-agreement', [TenancyAgreementController::class, "createTenancyAgreement"]);
+Route::put('/v1.0/tenancy-agreement', [TenancyAgreementController::class, "updateTenancyAgreement"]);
+Route::get('/v1.0/tenancy-agreements', [TenancyAgreementController::class, "getTenancyAgreements"]);
+Route::delete('/v1.0/tenancy-agreements/{agreement_id}', [PropertyAgreementController::class, "deleteTenancyAgreement"]);
+
+
 
 
 
 Route::put('/v1.0/properties', [PropertyController::class, "updateProperty"]);
-
 Route::put('/v2.0/properties-update', [PropertyController::class, "updatePropertyV2"]);
-
-
 Route::get('/v1.0/properties/{perPage}', [PropertyController::class, "getProperties"]);
 // Add more images
 Route::post('/v1.0/properties/{id}/add-more-images', [PropertyController::class, 'addMoreImages']);

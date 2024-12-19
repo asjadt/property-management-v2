@@ -24,8 +24,8 @@ class PropertyAgreement extends Model
         'legal_representative',
         'min_price',
         'max_price',
-        'agency_type'
-
+        'agency_type',
+        'type',
     ];
 
     // Relationships
