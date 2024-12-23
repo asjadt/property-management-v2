@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Client;
+use App\Models\DocumentType;
 use App\Models\Invoice;
 use App\Models\InvoicePayment;
 use App\Models\Landlord;
 use App\Models\Property;
+use App\Models\PropertyDocument;
 use App\Models\Receipt;
 use App\Models\Repair;
 use App\Models\Tenant;
@@ -1010,12 +1012,33 @@ COALESCE(
 
                 ->havingRaw('total_due > 0')
                 ->get();
+
             $data["next_15_days_invoice_due_amounts"] = (int)$data["next_15_days_invoice_due_amounts"]->sum('total_due');
 
 
 
+            $document_types = DocumentType::where([
+                "created_by" => auth()->user()->id
+            ])->get();
 
+            $document_report = [];
+            foreach ($document_types as $document_type) {
+                $documents = PropertyDocument::whereHas("property", function ($query) {
+                    $query->where("properties.created_by", auth()->user()->id);
+                })
+                ->where("document_type_id", $document_type->id);
 
+                // Count documents for different expiration periods
+                $document_report[$document_type->name] = [
+                    'today_expiry' => $documents->whereDate('gas_end_date', Carbon::today())->count(),
+                    'expires_in_15_days' => $documents->whereBetween('gas_end_date', [Carbon::today(), Carbon::today()->addDays(15)])->count(),
+                    'expires_in_30_days' => $documents->whereBetween('gas_end_date', [Carbon::today(), Carbon::today()->addDays(30)])->count(),
+                    'expires_in_45_days' => $documents->whereBetween('gas_end_date', [Carbon::today(), Carbon::today()->addDays(45)])->count(),
+                    'expires_in_60_days' => $documents->whereBetween('gas_end_date', [Carbon::today(), Carbon::today()->addDays(60)])->count(),
+                ];
+            }
+
+            $data["document_report"] = $document_report;
 
 
 
