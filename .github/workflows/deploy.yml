@@ -1,0 +1,42 @@
+name: Update Files on cPanel
+
+on:
+  push:
+    branches:
+      - development  # Trigger the workflow on pushes to the 'development' branch
+
+jobs:
+  deploy:
+    name: Deploy Files to cPanel
+    runs-on: ubuntu-latest  # Use Ubuntu as the runner
+
+    steps:
+      # Step 1: Checkout Code
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Step 2: Upload Specific Folders to cPanel
+      - name: Upload Files to cPanel
+        uses: SamKirkland/FTP-Deploy-Action@4.3.0
+        with:
+          server: ftp.smartcollegeportal.com       # FTP Server (add in GitHub Secrets)
+          username: dev-property-backend@quickreview.app    # FTP Username (add in GitHub Secrets)
+          password: "~z5)w)ER6z!G"   # FTP Password (add in GitHub Secrets)
+          local-dir: ./                            # Upload files from the root directory
+          server-dir: /                            # Target directory on the cPanel server
+          include: |
+            app/**                                 # Include app folder
+            bootstrap/**                           # Include bootstrap folder
+            config/**                              # Include config folder
+            database/**                            # Include database folder
+            resources/**                           # Include resources folder
+            routes/**                              # Include routes folder
+            tests/**                               # Include tests folder
+            *                                      # Include all files in the root directory
+          exclude: |
+            **/*                                   # Exclude everything else by default
+            public/**                              # Exclude the public folder
+            storage/**                             # Exclude the storage folder
+            vendor/**                              # Exclude the vendor folder
+            .env                                   # Exclude the .env file
+            **/.env                                # Ensure any hidden .env files are
