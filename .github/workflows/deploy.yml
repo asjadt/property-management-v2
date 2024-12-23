@@ -19,7 +19,7 @@ jobs:
       - name: Upload Files to cPanel
         uses: SamKirkland/FTP-Deploy-Action@4.3.0
         with:
-          server: ftp.smartcollegeportal.com       # FTP Server (add in GitHub Secrets)
+          server: ftp.quickreview.app       # FTP Server (add in GitHub Secrets)
           username: dev-property-backend@quickreview.app    # FTP Username
           password: "D&+(xr&ZMhP["   # FTP Password (add in GitHub Secrets)
           local-dir: ./                            # Upload files from the root directory
