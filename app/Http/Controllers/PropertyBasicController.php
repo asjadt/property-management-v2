@@ -1042,10 +1042,6 @@ COALESCE(
 
 
 
-
-
-
-
             return response()->json($data, 200);
         } catch (Exception $e) {
             return $this->sendError($e, 500, $request);
