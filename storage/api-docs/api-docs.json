@@ -14,7 +14,7 @@
     },
     "servers": [
         {
-            "url": "https://invoicebackend.quickreview.app/api",
+            "url": "http://127.0.0.1:8000/api",
             "description": "Demo API Server"
         }
     ],
@@ -1293,12 +1293,12 @@
                                     "email": {
                                         "type": "string",
                                         "format": "string",
-                                        "example": "admin@gmail.com"
+                                        "example": "asjadtariq@gmail.com"
                                     },
                                     "password": {
                                         "type": "string",
                                         "format": "string",
-                                        "example": "12345678"
+                                        "example": "12345678@We"
                                     }
                                 },
                                 "type": "object"
@@ -24154,25 +24154,16 @@
         "/v1.0/property-agreements/{agreement_id}": {
             "delete": {
                 "tags": [
-                    "property_management.property_management"
+                    "property_management.property_agreement"
                 ],
                 "summary": "Delete a document from a property",
                 "description": "This method deletes a document associated with a specific property",
                 "operationId": "deletePropertyAgreement",
                 "parameters": [
                     {
-                        "name": "property_id",
+                        "name": "agreement_id",
                         "in": "path",
                         "description": "Property ID",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "name": "document_id",
-                        "in": "path",
-                        "description": "Document ID",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -33452,26 +33443,12 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "agreed_rent",
-                                    "security_deposit_hold",
-                                    "tenant_ids",
-                                    "rent_payment_option",
-                                    "tenant_contact_duration",
-                                    "date_of_moving",
-                                    "rent_due_date",
-                                    "no_of_occupants",
-                                    "renewal_fee",
-                                    "housing_act",
-                                    "let_type",
-                                    "agency_name",
-                                    "landlord_name",
-                                    "agency_witness_name",
-                                    "tenant_witness_name",
-                                    "agency_witness_address",
-                                    "tenant_witness_address"
-                                ],
+                                "required": [],
                                 "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "example": "1"
+                                    },
                                     "agreed_rent": {
                                         "type": "string",
                                         "example": "1000.00"
@@ -33640,25 +33617,30 @@
                             "schema": {
                                 "required": [],
                                 "properties": {
-                                    "landlord_id": {
-                                        "type": "integer",
-                                        "example": 1
-                                    },
                                     "property_id": {
-                                        "type": "integer",
-                                        "example": 1
+                                        "type": "number",
+                                        "example": "1"
                                     },
-                                    "start_date": {
+                                    "agreed_rent": {
                                         "type": "string",
-                                        "format": "date",
-                                        "example": "2024-11-01"
+                                        "example": "1000.00"
                                     },
-                                    "end_date": {
+                                    "security_deposit_hold": {
                                         "type": "string",
-                                        "format": "date",
-                                        "example": "2025-11-01"
+                                        "example": "2000.00"
                                     },
-                                    "payment_arrangement": {
+                                    "tenant_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "example": [
+                                            1,
+                                            2,
+                                            3
+                                        ]
+                                    },
+                                    "rent_payment_option": {
                                         "type": "string",
                                         "enum": [
                                             "By_Cash",
@@ -33667,50 +33649,85 @@
                                         ],
                                         "example": "By_Cash"
                                     },
-                                    "cheque_payable_to": {
+                                    "tenant_contact_duration": {
+                                        "type": "string",
+                                        "example": "12 months"
+                                    },
+                                    "date_of_moving": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-11-01"
+                                    },
+                                    "let_only_agreement_expired_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-11-01",
+                                        "nullable": true
+                                    },
+                                    "tenant_contact_expired_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-11-01",
+                                        "nullable": true
+                                    },
+                                    "rent_due_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-11-05"
+                                    },
+                                    "no_of_occupants": {
+                                        "type": "string",
+                                        "example": "3"
+                                    },
+                                    "renewal_fee": {
+                                        "type": "string",
+                                        "example": "50.00"
+                                    },
+                                    "housing_act": {
+                                        "type": "string",
+                                        "example": "Housing Act 1988"
+                                    },
+                                    "let_type": {
+                                        "type": "string",
+                                        "example": "Standard Let"
+                                    },
+                                    "terms_and_conditions": {
+                                        "type": "string",
+                                        "example": "Updated terms and conditions..."
+                                    },
+                                    "agency_name": {
+                                        "type": "string",
+                                        "example": "XYZ Realty"
+                                    },
+                                    "landlord_name": {
                                         "type": "string",
                                         "example": "John Doe"
                                     },
-                                    "agent_commission": {
-                                        "type": "number",
-                                        "format": "float",
-                                        "example": 200
+                                    "agency_witness_name": {
+                                        "type": "string",
+                                        "example": "Jane Smith"
                                     },
-                                    "management_fee": {
-                                        "type": "number",
-                                        "format": "float",
-                                        "example": 50,
+                                    "tenant_witness_name": {
+                                        "type": "string",
+                                        "example": "Mark Johnson"
+                                    },
+                                    "agency_witness_address": {
+                                        "type": "string",
+                                        "example": "123 Agency St, City, Country"
+                                    },
+                                    "tenant_witness_address": {
+                                        "type": "string",
+                                        "example": "456 Tenant Rd, City, Country"
+                                    },
+                                    "guarantor_name": {
+                                        "type": "string",
+                                        "example": "Sarah Lee",
                                         "nullable": true
                                     },
-                                    "inventory_charges": {
-                                        "type": "number",
-                                        "format": "float",
-                                        "example": 100,
+                                    "guarantor_address": {
+                                        "type": "string",
+                                        "example": "789 Guarantor Ave, City, Country",
                                         "nullable": true
-                                    },
-                                    "terms_conditions": {
-                                        "type": "string",
-                                        "example": "The terms and conditions of the agreement are as follows..."
-                                    },
-                                    "legal_representative": {
-                                        "type": "string",
-                                        "example": "legal_representative"
-                                    },
-                                    "min_price": {
-                                        "type": "string",
-                                        "example": "10.5"
-                                    },
-                                    "max_price": {
-                                        "type": "string",
-                                        "example": "11.5"
-                                    },
-                                    "agency_type": {
-                                        "type": "string",
-                                        "example": "agency_type"
-                                    },
-                                    "type": {
-                                        "type": "string",
-                                        "example": "let_property"
                                     }
                                 },
                                 "type": "object"
@@ -33723,96 +33740,9 @@
                         "description": "Successful operation",
                         "content": {
                             "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "id": {
-                                            "type": "integer",
-                                            "example": 1
-                                        },
-                                        "landlord_id": {
-                                            "type": "integer",
-                                            "example": 1
-                                        },
-                                        "property_id": {
-                                            "type": "integer",
-                                            "example": 1
-                                        },
-                                        "start_date": {
-                                            "type": "string",
-                                            "format": "date",
-                                            "example": "2024-11-01"
-                                        },
-                                        "end_date": {
-                                            "type": "string",
-                                            "format": "date",
-                                            "example": "2025-11-01"
-                                        },
-                                        "payment_arrangement": {
-                                            "type": "string",
-                                            "enum": [
-                                                "By_Cash",
-                                                "By_Cheque",
-                                                "Bank_Transfer"
-                                            ],
-                                            "example": "By_Cash"
-                                        },
-                                        "cheque_payable_to": {
-                                            "type": "string",
-                                            "example": "John Doe"
-                                        },
-                                        "agent_commission": {
-                                            "type": "number",
-                                            "format": "float",
-                                            "example": 200
-                                        },
-                                        "management_fee": {
-                                            "type": "number",
-                                            "format": "float",
-                                            "example": 50,
-                                            "nullable": true
-                                        },
-                                        "inventory_charges": {
-                                            "type": "number",
-                                            "format": "float",
-                                            "example": 100,
-                                            "nullable": true
-                                        },
-                                        "terms_conditions": {
-                                            "type": "string",
-                                            "example": "The terms and conditions of the agreement are as follows..."
-                                        },
-                                        "legal_representative": {
-                                            "type": "string",
-                                            "example": "legal_representative"
-                                        },
-                                        "min_price": {
-                                            "type": "string",
-                                            "example": "10.5"
-                                        },
-                                        "max_price": {
-                                            "type": "string",
-                                            "example": "11.5"
-                                        },
-                                        "agency_type": {
-                                            "type": "string",
-                                            "example": "agency_type"
-                                        },
-                                        "type": {
-                                            "type": "string",
-                                            "example": "let_property"
-                                        },
-                                        "created_at": {
-                                            "type": "string",
-                                            "format": "date-time",
-                                            "example": "2024-11-01T12:00:00Z"
-                                        },
-                                        "updated_at": {
-                                            "type": "string",
-                                            "format": "date-time",
-                                            "example": "2024-11-01T12:00:00Z"
-                                        }
-                                    },
-                                    "type": "object"
+                                "schema": {},
+                                "example": {
+                                    "message": "Tenancy agreement created successfully."
                                 }
                             }
                         }
@@ -33821,7 +33751,10 @@
                         "description": "Unauthenticated",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {},
+                                "example": {
+                                    "message": "Unauthenticated."
+                                }
                             }
                         }
                     },
@@ -33829,7 +33762,10 @@
                         "description": "Unprocessable Content",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {},
+                                "example": {
+                                    "message": "Validation failed."
+                                }
                             }
                         }
                     },
@@ -33837,7 +33773,10 @@
                         "description": "Forbidden",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {},
+                                "example": {
+                                    "message": "Forbidden."
+                                }
                             }
                         }
                     },
@@ -33845,7 +33784,10 @@
                         "description": "Bad Request",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {},
+                                "example": {
+                                    "message": "Bad request."
+                                }
                             }
                         }
                     },
@@ -33853,7 +33795,10 @@
                         "description": "Not Found",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {},
+                                "example": {
+                                    "message": "Resource not found."
+                                }
                             }
                         }
                     }
@@ -33960,18 +33905,9 @@
                 "operationId": "deleteTenancyAgreement",
                 "parameters": [
                     {
-                        "name": "property_id",
+                        "name": "agreement_id",
                         "in": "path",
                         "description": "Property ID",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "name": "document_id",
-                        "in": "path",
-                        "description": "Document ID",
                         "required": true,
                         "schema": {
                             "type": "integer"

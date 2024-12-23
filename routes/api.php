@@ -341,7 +341,7 @@ Route::delete('/v1.0/property-agreements/{agreement_id}', [PropertyAgreementCont
 Route::post('/v1.0/tenancy-agreement', [TenancyAgreementController::class, "createTenancyAgreement"]);
 Route::put('/v1.0/tenancy-agreement', [TenancyAgreementController::class, "updateTenancyAgreement"]);
 Route::get('/v1.0/tenancy-agreements', [TenancyAgreementController::class, "getTenancyAgreements"]);
-Route::delete('/v1.0/tenancy-agreements/{agreement_id}', [PropertyAgreementController::class, "deleteTenancyAgreement"]);
+Route::delete('/v1.0/tenancy-agreements/{agreement_id}', [TenancyAgreementController::class, "deleteTenancyAgreement"]);
 
 
 

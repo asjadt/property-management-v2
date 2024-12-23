@@ -33,10 +33,7 @@ class ResponseMiddleware
             $response->setContent($convertedContent);
 
 
-
-
-
-            if ((($response->getStatusCode() >= 500 && $response->getStatusCode() < 600)) || $response->getStatusCode() == 422) {
+            if ((($response->getStatusCode() >= 500 && $response->getStatusCode() < 600))) {
                 $errorLog = [
                     "api_url" => $request->fullUrl(),
                     "fields" => json_encode(request()->all()),

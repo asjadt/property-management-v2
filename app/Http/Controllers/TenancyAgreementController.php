@@ -17,7 +17,7 @@ class TenancyAgreementController extends Controller
     use ErrorUtil, UserActivityUtil;
 
 
-    /**
+     /**
      * @OA\Post(
      *      path="/v1.0/tenancy-agreement",
      *      operationId="createTenancyAgreement",
@@ -27,66 +27,81 @@ class TenancyAgreementController extends Controller
      *      },
      *      summary="Store property agreement",
      *      description="This method is to store a new property agreement, replacing any existing agreement for the same property and landlord.",
-  * @OA\RequestBody(
- *     required=true,
- *     @OA\JsonContent(
- *         required={},
- *         @OA\Property(property="agreed_rent", type="string", example="1000.00"),
- *         @OA\Property(property="security_deposit_hold", type="string", example="2000.00"),
- *         @OA\Property(property="tenant_ids", type="array", @OA\Items(type="integer"), example={1, 2, 3}),
- *         @OA\Property(property="rent_payment_option", type="string", enum={"By_Cash", "By_Cheque", "Bank_Transfer"}, example="By_Cash"),
- *         @OA\Property(property="tenant_contact_duration", type="string", example="12 months"),
- *         @OA\Property(property="date_of_moving", type="string", format="date", example="2024-11-01"),
- *         @OA\Property(property="let_only_agreement_expired_date", type="string", format="date", example="2025-11-01", nullable=true),
- *         @OA\Property(property="tenant_contact_expired_date", type="string", format="date", example="2025-11-01", nullable=true),
- *         @OA\Property(property="rent_due_date", type="string", format="date", example="2024-11-05"),
- *         @OA\Property(property="no_of_occupants", type="string", example="3"),
- *         @OA\Property(property="renewal_fee", type="string", example="50.00"),
- *         @OA\Property(property="housing_act", type="string", example="Housing Act 1988"),
- *         @OA\Property(property="let_type", type="string", example="Standard Let"),
- *         @OA\Property(property="terms_and_conditions", type="string", example="Updated terms and conditions..."),
- *         @OA\Property(property="agency_name", type="string", example="XYZ Realty"),
- *         @OA\Property(property="landlord_name", type="string", example="John Doe"),
- *         @OA\Property(property="agency_witness_name", type="string", example="Jane Smith"),
- *         @OA\Property(property="tenant_witness_name", type="string", example="Mark Johnson"),
- *         @OA\Property(property="agency_witness_address", type="string", example="123 Agency St, City, Country"),
- *         @OA\Property(property="tenant_witness_address", type="string", example="456 Tenant Rd, City, Country"),
- *         @OA\Property(property="guarantor_name", type="string", example="Sarah Lee", nullable=true),
- *         @OA\Property(property="guarantor_address", type="string", example="789 Guarantor Ave, City, Country", nullable=true)
- *     )
- * )
+     * @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(
+     *         required={},
+     *
+     *         @OA\Property(property="property_id", type="number", example="1"),
+     *         @OA\Property(property="agreed_rent", type="string", example="1000.00"),
+     *         @OA\Property(property="security_deposit_hold", type="string", example="2000.00"),
+     *         @OA\Property(property="tenant_ids", type="array", @OA\Items(type="integer"), example={1, 2, 3}),
+     *         @OA\Property(property="rent_payment_option", type="string", enum={"By_Cash", "By_Cheque", "Bank_Transfer"}, example="By_Cash"),
+     *         @OA\Property(property="tenant_contact_duration", type="string", example="12 months"),
+     *         @OA\Property(property="date_of_moving", type="string", format="date", example="2024-11-01"),
+     *         @OA\Property(property="let_only_agreement_expired_date", type="string", format="date", example="2025-11-01", nullable=true),
+     *         @OA\Property(property="tenant_contact_expired_date", type="string", format="date", example="2025-11-01", nullable=true),
+     *         @OA\Property(property="rent_due_date", type="string", format="date", example="2024-11-05"),
+     *         @OA\Property(property="no_of_occupants", type="string", example="3"),
+     *         @OA\Property(property="renewal_fee", type="string", example="50.00"),
+     *         @OA\Property(property="housing_act", type="string", example="Housing Act 1988"),
+     *         @OA\Property(property="let_type", type="string", example="Standard Let"),
+     *         @OA\Property(property="terms_and_conditions", type="string", example="Updated terms and conditions..."),
+     *         @OA\Property(property="agency_name", type="string", example="XYZ Realty"),
+     *         @OA\Property(property="landlord_name", type="string", example="John Doe"),
+     *         @OA\Property(property="agency_witness_name", type="string", example="Jane Smith"),
+     *         @OA\Property(property="tenant_witness_name", type="string", example="Mark Johnson"),
+     *         @OA\Property(property="agency_witness_address", type="string", example="123 Agency St, City, Country"),
+     *         @OA\Property(property="tenant_witness_address", type="string", example="456 Tenant Rd, City, Country"),
+     *         @OA\Property(property="guarantor_name", type="string", example="Sarah Lee", nullable=true),
+     *         @OA\Property(property="guarantor_address", type="string", example="789 Guarantor Ave, City, Country", nullable=true)
+     *     )
+     * ),
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
      *          @OA\JsonContent(
+     *              example={"message": "Tenancy agreement created successfully."}
+     *          )
      *      ),
      *      @OA\Response(
      *          response=401,
      *          description="Unauthenticated",
-     *          @OA\JsonContent(),
+     *          @OA\JsonContent(
+     *              example={"message": "Unauthenticated."}
+     *          )
      *      ),
      *      @OA\Response(
      *          response=422,
      *          description="Unprocessable Content",
-     *          @OA\JsonContent(),
+     *          @OA\JsonContent(
+     *              example={"message": "Validation failed."}
+     *          )
      *      ),
      *      @OA\Response(
      *          response=403,
      *          description="Forbidden",
-     *          @OA\JsonContent(),
+     *          @OA\JsonContent(
+     *              example={"message": "Forbidden."}
+     *          )
      *      ),
      *      @OA\Response(
      *          response=400,
      *          description="Bad Request",
-     *          @OA\JsonContent(),
+     *          @OA\JsonContent(
+     *              example={"message": "Bad request."}
+     *          )
      *      ),
      *      @OA\Response(
      *          response=404,
      *          description="Not Found",
-     *          @OA\JsonContent(),
+     *          @OA\JsonContent(
+     *              example={"message": "Resource not found."}
+     *          )
      *      )
      * )
      */
+
 
     public function createTenancyAgreement(TenancyAgreementCreateRequest $request)
     {
@@ -344,18 +359,11 @@ class TenancyAgreementController extends Controller
      *       },
      *      summary="Delete a document from a property",
      *      description="This method deletes a document associated with a specific property",
-     *      @OA\Parameter(
-     *          name="property_id",
+      *      @OA\Parameter(
+     *          name="agreement_id",
      *          in="path",
      *          required=true,
-     *          description="Property ID",
-     *          @OA\Schema(type="integer")
-     *      ),
-     *      @OA\Parameter(
-     *          name="document_id",
-     *          in="path",
-     *          required=true,
-     *          description="Document ID",
+     *          description="agreement ID",
      *          @OA\Schema(type="integer")
      *      ),
      *      @OA\Response(

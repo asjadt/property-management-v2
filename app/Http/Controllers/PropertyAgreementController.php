@@ -325,7 +325,7 @@ class PropertyAgreementController extends Controller
      * @OA\Delete(
      *      path="/v1.0/property-agreements/{agreement_id}",
      *      operationId="deletePropertyAgreement",
-     *      tags={"property_management.property_management"},
+     *      tags={"property_management.property_agreement"},
      *       security={
      *           {"bearerAuth": {}},
      *           {"pin": {}}
@@ -333,17 +333,10 @@ class PropertyAgreementController extends Controller
      *      summary="Delete a document from a property",
      *      description="This method deletes a document associated with a specific property",
      *      @OA\Parameter(
-     *          name="property_id",
+     *          name="agreement_id",
      *          in="path",
      *          required=true,
      *          description="Property ID",
-     *          @OA\Schema(type="integer")
-     *      ),
-     *      @OA\Parameter(
-     *          name="document_id",
-     *          in="path",
-     *          required=true,
-     *          description="Document ID",
      *          @OA\Schema(type="integer")
      *      ),
      *      @OA\Response(

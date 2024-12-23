@@ -56,7 +56,7 @@ class PropertyUpdateRequestV2 extends FormRequest
 
             'no_of_beds' => 'required|string',
             'no_of_baths' => 'required|string',
-            'is_garden' => 'required|string',
+            'is_garden' => 'required|boolean',
 
 
             'propertyFloor' => 'nullable|string',
