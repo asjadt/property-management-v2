@@ -20,8 +20,8 @@ jobs:
         uses: SamKirkland/FTP-Deploy-Action@4.3.0
         with:
           server: ftp.smartcollegeportal.com       # FTP Server (add in GitHub Secrets)
-          username: dev-property-backend@quickreview.app    # FTP Username (add in GitHub Secrets)
-          password: "~z5)w)ER6z!G"   # FTP Password (add in GitHub Secrets)
+          username: dev-property-backend@quickreview.app    # FTP Username
+          password: "D&+(xr&ZMhP["   # FTP Password (add in GitHub Secrets)
           local-dir: ./                            # Upload files from the root directory
           server-dir: /                            # Target directory on the cPanel server
           include: |
