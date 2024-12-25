@@ -57,6 +57,7 @@ use App\Http\Controllers\ShopGalleryController;
 use App\Http\Controllers\ShopsController;
 use App\Http\Controllers\TenancyAgreementController;
 use App\Http\Controllers\TenantController;
+use App\Http\Controllers\TenantInspectionController;
 use App\Http\Controllers\UserManagementController;
 use App\Models\GaragePackage;
 use App\Models\JobBid;
@@ -296,6 +297,7 @@ Route::delete('/v1.0/clients/{id}', [ClientController::class, "deleteClientById"
 
 Route::post('/v1.0/applicants', [ApplicantController::class, "createApplicant"]);
 Route::put('/v1.0/applicants', [ApplicantController::class, "updateApplicant"]);
+Route::put('/v1.0/applicants/convert-to-tenant', [ApplicantController::class, "convertApplicantToTenant"]);
 Route::put('/v1.0/applicants/toggle-active', [ApplicantController::class, "toggleActiveApplicant"]);
 Route::get('/v1.0/applicants', [ApplicantController::class, "getApplicants"]);
 Route::delete('/v1.0/applicants/{ids}', [ApplicantController::class, "deleteApplicantsByIds"]);
@@ -342,6 +344,13 @@ Route::post('/v1.0/tenancy-agreement', [TenancyAgreementController::class, "crea
 Route::put('/v1.0/tenancy-agreement', [TenancyAgreementController::class, "updateTenancyAgreement"]);
 Route::get('/v1.0/tenancy-agreements', [TenancyAgreementController::class, "getTenancyAgreements"]);
 Route::delete('/v1.0/tenancy-agreements/{agreement_id}', [TenancyAgreementController::class, "deleteTenancyAgreement"]);
+
+
+
+Route::post('/v1.0/tenant-inspections', [TenantInspectionController::class, "createTenantInspection"]);
+Route::put('/v1.0/tenant-inspections', [TenantInspectionController::class, "updateTenantInspection"]);
+Route::get('/v1.0/tenant-inspections', [TenantInspectionController::class, "getTenantInspections"]);
+Route::delete('/v1.0/tenant-inspections/{id}', [TenantInspectionController::class, "deleteTenantInspection"]);
 
 
 
@@ -1095,12 +1104,9 @@ Route::post('/v1.0/garage-sub-service-prices', [GarageServicePriceController::cl
 
 Route::put('/v1.0/garage-service-prices', [GarageServicePriceController::class, "updateGarageSubServicePrice"]);
 
-
-
 Route::delete('/v1.0/garage-service-prices/{id}', [GarageServicePriceController::class, "deleteGarageSubServicePriceById"]);
 
 Route::delete('/v1.0/garage-service-prices/by-garage-sub-service/{id}', [GarageServicePriceController::class, "deleteGarageSubServicePriceByGarageSubServiceId"]);
-
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // price management section

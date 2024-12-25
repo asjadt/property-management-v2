@@ -494,6 +494,13 @@
                         "example": ""
                     },
                     {
+                        "name": "email",
+                        "in": "query",
+                        "description": "email",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
                         "name": "address_line_1",
                         "in": "query",
                         "description": "address_line_1",
@@ -683,6 +690,23 @@
                                         "format": "string",
                                         "example": "customer_phone"
                                     },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "customerexample.com"
+                                    },
+                                    "country": {
+                                        "type": "string",
+                                        "example": "Country Name"
+                                    },
+                                    "city": {
+                                        "type": "string",
+                                        "example": "City Name"
+                                    },
+                                    "postcode": {
+                                        "type": "string",
+                                        "example": "12345"
+                                    },
                                     "min_price": {
                                         "type": "string",
                                         "format": "string",
@@ -833,6 +857,23 @@
                                         "format": "string",
                                         "example": "customer_phone"
                                     },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "customer@example.com"
+                                    },
+                                    "country": {
+                                        "type": "string",
+                                        "example": "Country Name"
+                                    },
+                                    "city": {
+                                        "type": "string",
+                                        "example": "City Name"
+                                    },
+                                    "postcode": {
+                                        "type": "string",
+                                        "example": "12345"
+                                    },
                                     "min_price": {
                                         "type": "string",
                                         "format": "string",
@@ -897,6 +938,88 @@
                                         "type": "string",
                                         "format": "string",
                                         "example": "is_dss"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/applicants/convert-to-tenant": {
+            "put": {
+                "tags": [
+                    "applicants"
+                ],
+                "summary": "This method is to update applicants ",
+                "description": "This method is to update applicants ",
+                "operationId": "convertApplicantToTenant",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "1"
                                     }
                                 },
                                 "type": "object"
@@ -33907,7 +34030,7 @@
                     {
                         "name": "agreement_id",
                         "in": "path",
-                        "description": "Property ID",
+                        "description": "agreement ID",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -34689,6 +34812,537 @@
                     },
                     "404": {
                         "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    },
+                    {
+                        "pin": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/tenant-inspections": {
+            "get": {
+                "tags": [
+                    "property_management.tenant_inspections"
+                ],
+                "summary": "Get property agreements",
+                "description": "This method retrieves the history of property agreements for a given property and landlord, including soft-deleted agreements.",
+                "operationId": "getTenantInspections",
+                "parameters": [
+                    {
+                        "name": "tenant_ids",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "property_management.tenant_inspections"
+                ],
+                "summary": "Update property agreement",
+                "description": "This method updates an existing property agreement based on the provided data.",
+                "operationId": "updateTenantInspection",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [],
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "example": "1"
+                                    },
+                                    "tenant_id": {
+                                        "type": "number",
+                                        "example": "1"
+                                    },
+                                    "address_line_1": {
+                                        "type": "string",
+                                        "example": "Dhaka"
+                                    },
+                                    "inspected_by": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+8801234567890"
+                                    },
+                                    "date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-12-25"
+                                    },
+                                    "garden": {
+                                        "type": "string",
+                                        "example": "Yes"
+                                    },
+                                    "entrance": {
+                                        "type": "string",
+                                        "example": "Front door"
+                                    },
+                                    "exterior_paintwork": {
+                                        "type": "string",
+                                        "example": "Good"
+                                    },
+                                    "windows_outside": {
+                                        "type": "string",
+                                        "example": "Clean"
+                                    },
+                                    "kitchen_floor": {
+                                        "type": "string",
+                                        "example": "Tiled"
+                                    },
+                                    "oven": {
+                                        "type": "string",
+                                        "example": "Functional"
+                                    },
+                                    "sink": {
+                                        "type": "string",
+                                        "example": "Clean"
+                                    },
+                                    "lounge": {
+                                        "type": "string",
+                                        "example": "Spacious"
+                                    },
+                                    "downstairs_carpet": {
+                                        "type": "string",
+                                        "example": "Clean"
+                                    },
+                                    "upstairs_carpet": {
+                                        "type": "string",
+                                        "example": "Worn"
+                                    },
+                                    "window_1": {
+                                        "type": "string",
+                                        "example": "Double glazed"
+                                    },
+                                    "window_2": {
+                                        "type": "string",
+                                        "example": "Single glazed"
+                                    },
+                                    "window_3": {
+                                        "type": "string",
+                                        "example": "Cracked"
+                                    },
+                                    "window_4": {
+                                        "type": "string",
+                                        "example": "Clean"
+                                    },
+                                    "windows_inside": {
+                                        "type": "string",
+                                        "example": "Clean"
+                                    },
+                                    "wc": {
+                                        "type": "string",
+                                        "example": "Functional"
+                                    },
+                                    "shower": {
+                                        "type": "string",
+                                        "example": "Working"
+                                    },
+                                    "bath": {
+                                        "type": "string",
+                                        "example": "Clean"
+                                    },
+                                    "hand_basin": {
+                                        "type": "string",
+                                        "example": "Clean"
+                                    },
+                                    "smoke_detective": {
+                                        "type": "string",
+                                        "example": "Installed"
+                                    },
+                                    "general_paintwork": {
+                                        "type": "string",
+                                        "example": "Good"
+                                    },
+                                    "carbon_monoxide": {
+                                        "type": "string",
+                                        "example": "Detector Installed"
+                                    },
+                                    "overall_cleanliness": {
+                                        "type": "string",
+                                        "example": "Very Clean"
+                                    },
+                                    "comments": {
+                                        "type": "string",
+                                        "example": "All items in good condition."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "property_management.tenant_inspections"
+                ],
+                "summary": "Store property agreement",
+                "description": "This method is to store a new property agreement, replacing any existing agreement for the same property and landlord.",
+                "operationId": "createTenantInspection",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [],
+                                "properties": {
+                                    "tenant_id": {
+                                        "type": "number",
+                                        "example": "1"
+                                    },
+                                    "address_line_1": {
+                                        "type": "string",
+                                        "example": "Dhaka"
+                                    },
+                                    "inspected_by": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+8801234567890"
+                                    },
+                                    "date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-12-25"
+                                    },
+                                    "garden": {
+                                        "type": "string",
+                                        "example": "Yes"
+                                    },
+                                    "entrance": {
+                                        "type": "string",
+                                        "example": "Front door"
+                                    },
+                                    "exterior_paintwork": {
+                                        "type": "string",
+                                        "example": "Good"
+                                    },
+                                    "windows_outside": {
+                                        "type": "string",
+                                        "example": "Clean"
+                                    },
+                                    "kitchen_floor": {
+                                        "type": "string",
+                                        "example": "Tiled"
+                                    },
+                                    "oven": {
+                                        "type": "string",
+                                        "example": "Functional"
+                                    },
+                                    "sink": {
+                                        "type": "string",
+                                        "example": "Clean"
+                                    },
+                                    "lounge": {
+                                        "type": "string",
+                                        "example": "Spacious"
+                                    },
+                                    "downstairs_carpet": {
+                                        "type": "string",
+                                        "example": "Clean"
+                                    },
+                                    "upstairs_carpet": {
+                                        "type": "string",
+                                        "example": "Worn"
+                                    },
+                                    "window_1": {
+                                        "type": "string",
+                                        "example": "Double glazed"
+                                    },
+                                    "window_2": {
+                                        "type": "string",
+                                        "example": "Single glazed"
+                                    },
+                                    "window_3": {
+                                        "type": "string",
+                                        "example": "Cracked"
+                                    },
+                                    "window_4": {
+                                        "type": "string",
+                                        "example": "Clean"
+                                    },
+                                    "windows_inside": {
+                                        "type": "string",
+                                        "example": "Clean"
+                                    },
+                                    "wc": {
+                                        "type": "string",
+                                        "example": "Functional"
+                                    },
+                                    "shower": {
+                                        "type": "string",
+                                        "example": "Working"
+                                    },
+                                    "bath": {
+                                        "type": "string",
+                                        "example": "Clean"
+                                    },
+                                    "hand_basin": {
+                                        "type": "string",
+                                        "example": "Clean"
+                                    },
+                                    "smoke_detective": {
+                                        "type": "string",
+                                        "example": "Installed"
+                                    },
+                                    "general_paintwork": {
+                                        "type": "string",
+                                        "example": "Good"
+                                    },
+                                    "carbon_monoxide": {
+                                        "type": "string",
+                                        "example": "Detector Installed"
+                                    },
+                                    "overall_cleanliness": {
+                                        "type": "string",
+                                        "example": "Very Clean"
+                                    },
+                                    "comments": {
+                                        "type": "string",
+                                        "example": "All items in good condition."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "message": "Tenancy agreement created successfully."
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "message": "Unauthenticated."
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "message": "Validation failed."
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "message": "Forbidden."
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "message": "Bad request."
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "message": "Resource not found."
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/tenant-inspections/{id}": {
+            "delete": {
+                "tags": [
+                    "property_management.tenant_inspections"
+                ],
+                "summary": "Delete a document from a property",
+                "description": "This method deletes a document associated with a specific property",
+                "operationId": "deleteTenantInspection",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Document deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Property or Document Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "application/json": {
                                 "schema": {}

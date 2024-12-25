@@ -12,6 +12,7 @@ use App\Http\Requests\GetIdRequest;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Applicant;
+use App\Models\Tenant;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -39,6 +40,10 @@ class ApplicantController extends Controller
      *         @OA\JsonContent(
      * @OA\Property(property="customer_name", type="string", format="string", example="customer_name"),
      * @OA\Property(property="customer_phone", type="string", format="string", example="customer_phone"),
+     *  * @OA\Property(property="email", type="string", format="email", example="customer@example.com"),
+ * @OA\Property(property="country", type="string", example="Country Name"),
+ * @OA\Property(property="city", type="string", example="City Name"),
+ * @OA\Property(property="postcode", type="string", example="12345"),
      * @OA\Property(property="min_price", type="string", format="string", example="min_price"),
      * @OA\Property(property="max_price", type="string", format="string", example="max_price"),
      * @OA\Property(property="address_line_1", type="string", format="string", example="address_line_1"),
@@ -116,6 +121,7 @@ class ApplicantController extends Controller
             return $this->sendError($e, 500, $request);
         }
     }
+
     /**
      *
      * @OA\Put(
@@ -134,6 +140,10 @@ class ApplicantController extends Controller
      *      @OA\Property(property="id", type="number", format="number", example="1"),
      * @OA\Property(property="customer_name", type="string", format="string", example="customer_name"),
      * @OA\Property(property="customer_phone", type="string", format="string", example="customer_phone"),
+     *  * @OA\Property(property="email", type="string", format="email", example="customerexample.com"),
+ * @OA\Property(property="country", type="string", example="Country Name"),
+ * @OA\Property(property="city", type="string", example="City Name"),
+ * @OA\Property(property="postcode", type="string", example="12345"),
      * @OA\Property(property="min_price", type="string", format="string", example="min_price"),
      * @OA\Property(property="max_price", type="string", format="string", example="max_price"),
      * @OA\Property(property="address_line_1", type="string", format="string", example="address_line_1"),
@@ -184,7 +194,123 @@ class ApplicantController extends Controller
      *     )
      */
 
-    public function updateApplicant(ApplicantUpdateRequest $request)
+     public function updateApplicant(ApplicantUpdateRequest $request)
+     {
+
+         try {
+             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
+             return DB::transaction(function () use ($request) {
+
+                 $request_data = $request->validated();
+
+                 $applicant_query_params = [
+                     "id" => $request_data["id"],
+                     "created_by" => auth()->user()->id
+                 ];
+
+                 $applicant = Applicant::where($applicant_query_params)->first();
+
+                 if ($applicant) {
+                     $applicant->fill(collect($request_data)->only([
+                         "customer_name",
+                         "customer_phone",
+                         "email",
+                         "country",
+                         "city",
+                         "postcode",
+                         "min_price",
+                         "max_price",
+                         "address_line_1",
+                         "latitude",
+                         "longitude",
+                         "radius",
+                         "property_type",
+                         "no_of_beds",
+                         "no_of_baths",
+                         "deadline_to_move",
+                         "working",
+                         "job_title",
+                         "is_dss",
+                         // "is_default",
+                         // "is_active",
+                         // "business_id",
+                         // "created_by"
+                     ])->toArray());
+                     $applicant->save();
+                 } else {
+                     return response()->json([
+                         "message" => "something went wrong."
+                     ], 500);
+                 }
+
+
+
+
+                 return response($applicant, 201);
+             });
+         } catch (Exception $e) {
+             error_log($e->getMessage());
+             return $this->sendError($e, 500, $request);
+         }
+     }
+
+
+
+
+    /**
+     *
+     * @OA\Put(
+     *      path="/v1.0/applicants/convert-to-tenant",
+     *      operationId="convertApplicantToTenant",
+     *      tags={"applicants"},
+     *       security={
+     *           {"bearerAuth": {}}
+     *       },
+     *      summary="This method is to update applicants ",
+     *      description="This method is to update applicants ",
+     *
+     *  @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *      @OA\Property(property="id", type="number", format="number", example="1")
+     *
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       @OA\JsonContent(),
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     * @OA\JsonContent(),
+     *      ),
+     *        @OA\Response(
+     *          response=422,
+     *          description="Unprocesseble Content",
+     *    @OA\JsonContent(),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *   @OA\JsonContent()
+     * ),
+     *  * @OA\Response(
+     *      response=400,
+     *      description="Bad Request",
+     *   *@OA\JsonContent()
+     *   ),
+     * @OA\Response(
+     *      response=404,
+     *      description="not found",
+     *   *@OA\JsonContent()
+     *   )
+     *      )
+     *     )
+     */
+
+    public function convertApplicantToTenant(GetIdRequest $request)
     {
 
         try {
@@ -195,39 +321,46 @@ class ApplicantController extends Controller
 
                 $applicant_query_params = [
                     "id" => $request_data["id"],
+                    "created_by" => auth()->user()->id
                 ];
 
                 $applicant = Applicant::where($applicant_query_params)->first();
 
-                if ($applicant) {
-                    $applicant->fill(collect($request_data)->only([
-                        "customer_name",
-                        "customer_phone",
-                        "min_price",
-                        "max_price",
-                        "address_line_1",
-                        "latitude",
-                        "longitude",
-                        "radius",
-                        "property_type",
-                        "no_of_beds",
-                        "no_of_baths",
-                        "deadline_to_move",
-                        "working",
-                        "job_title",
-                        "is_dss",
-                        // "is_default",
-                        // "is_active",
-                        // "business_id",
-                        // "created_by"
-                    ])->toArray());
-                    $applicant->save();
-                } else {
+                if(empty($applicant)) {
                     return response()->json([
-                        "message" => "something went wrong."
+                        "message" => "No Applicant found"
                     ], 500);
                 }
 
+                 // Split the customer_name into first_Name and last_Name
+            $name_parts = explode(' ', $applicant->customer_name, 2);
+            $first_name = $name_parts[0];
+            $last_name = isset($name_parts[1]) ? $name_parts[1] : $name_parts[0]; // In case there's no last name
+                 // Mapping fields from Applicant to Tenant
+            $tenant_data = [
+                'first_Name' => $first_name,
+                'last_Name' => $last_name,
+                'phone' => $applicant->customer_phone,
+                'email' => $applicant->email,
+                'address_line_1' => $applicant->address_line_1,
+                'country' => $applicant->country,
+                'city'=> $applicant->city,
+                'postcode'=> $applicant->postcode,
+                'lat' => $applicant->latitude,
+                'long' => $applicant->longitude,
+
+                'created_by' => auth()->user()->id,
+                'is_active' => $applicant->is_active,
+                "image" => "",
+                "address_line_2" => "",
+
+            ];
+
+            // Create the new Tenant
+            $tenant = Tenant::create($tenant_data);
+
+            $applicant->tenant_id = $tenant->id;
+            $applicant->save();
 
 
 
@@ -360,7 +493,13 @@ class ApplicantController extends Controller
      *      ),
 
 
-
+     *         @OA\Parameter(
+     *         name="email",
+     *         in="query",
+     *         description="email",
+     *         required=false,
+     *  example=""
+     *      ),
 
 
      *         @OA\Parameter(
@@ -530,11 +669,15 @@ class ApplicantController extends Controller
 
             $created_by  = auth()->user()->id;
             $applicants = Applicant::where('applicants.created_by', $created_by)
+            ->whereNull("applicants.tenant_id")
                 ->when(!empty($request->customer_name), function ($query) use ($request) {
                     return $query->where('applicants.customer_name', $request->customer_name);
                 })
                 ->when(!empty($request->customer_phone), function ($query) use ($request) {
                     return $query->where('applicants.customer_phone', $request->customer_phone);
+                })
+                ->when(!empty($request->email), function ($query) use ($request) {
+                    return $query->where('applicants.email', $request->email);
                 })
 
                 ->when(!empty($request->address_line_1), function ($query) use ($request) {

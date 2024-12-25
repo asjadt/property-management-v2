@@ -15,9 +15,13 @@ class Applicant extends Model
     protected $fillable = [
                     'customer_name',
                     'customer_phone',
+                    'email',
                     'min_price',
                     'max_price',
                     'address_line_1',
+                    "country",
+                    "city",
+                    "postcode",
                     'latitude',
                     'longitude',
                     'radius',
@@ -28,44 +32,14 @@ class Applicant extends Model
                     'working',
                     'job_title',
                     'is_dss',
+                    "is_active",
+                    "created_by",
+                    "tenant_id"
 
-                  "is_active",
-
-
-
-        "business_id",
-        "created_by"
     ];
 
     protected $casts = [
   ];
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
