@@ -308,7 +308,12 @@ class TenancyAgreementController extends Controller
     {
         try {
             // Start building the query for history
-            $query = TenancyAgreement::whereHas('property', function ($q) {
+            $query = TenancyAgreement::with([
+                "tenants" => function($query) {
+                     $query->select("tenants.id","tenants.first_Name","tenants.last_Name"
+        );
+                }
+            ])->whereHas('property', function ($q) {
                 // Ensure the property is created by the authenticated user
                 $q->where('properties.created_by', auth()->user()->id);
             })
