@@ -1030,6 +1030,8 @@ COALESCE(
 
                 // Count documents for different expiration periods
                 $document_report[$document_type->name] = [
+                    'total_data' => $documents->count(),
+                    'total_expired' => $documents->whereDate('gas_end_date', ">" , Carbon::today())->count(),
                     'today_expiry' => $documents->whereDate('gas_end_date', Carbon::today())->count(),
                     'expires_in_15_days' => $documents->whereBetween('gas_end_date', [Carbon::today(), Carbon::today()->addDays(15)])->count(),
                     'expires_in_30_days' => $documents->whereBetween('gas_end_date', [Carbon::today(), Carbon::today()->addDays(30)])->count(),
