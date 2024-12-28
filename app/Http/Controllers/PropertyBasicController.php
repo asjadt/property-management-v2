@@ -1030,13 +1030,26 @@ COALESCE(
 
                 // Count documents for different expiration periods
                 $document_report[$document_type->name] = [
+
                     'total_data' => (clone $base_documents_query)->count(),
-                    'total_expired' => (clone $base_documents_query)->whereDate('gas_end_date', ">" , Carbon::today())->count(),
+                    'total_expired' => (clone $base_documents_query)->whereDate('gas_end_date', "<" , Carbon::today())->count(),
                     'today_expiry' => (clone $base_documents_query)->whereDate('gas_end_date', Carbon::today())->count(),
-                    'expires_in_15_days' => (clone $base_documents_query)->whereBetween('gas_end_date', [Carbon::today(), Carbon::today()->addDays(15)])->count(),
-                    'expires_in_30_days' => (clone $base_documents_query)->whereBetween('gas_end_date', [Carbon::today(), Carbon::today()->addDays(30)])->count(),
-                    'expires_in_45_days' => (clone $base_documents_query)->whereBetween('gas_end_date', [Carbon::today(), Carbon::today()->addDays(45)])->count(),
-                    'expires_in_60_days' => (clone $base_documents_query)->whereBetween('gas_end_date', [Carbon::today(), Carbon::today()->addDays(60)])->count(),
+
+                    'expires_in_15_days' => (clone $base_documents_query)
+                    ->whereDate('gas_end_date', ">" , Carbon::today())
+                    ->whereDate('gas_end_date', "<=" , Carbon::today()->addDays(15))
+                    ->count(),
+                    'expires_in_30_days' => (clone $base_documents_query)
+
+                    ->whereDate('gas_end_date', ">" , Carbon::today())
+                    ->whereDate('gas_end_date', "<=" , Carbon::today()->addDays(30))
+                    ->count(),
+                    'expires_in_45_days' => (clone $base_documents_query) ->whereDate('gas_end_date', ">" , Carbon::today())
+                    ->whereDate('gas_end_date', "<=" , Carbon::today()->addDays(45))
+                    ->count(),
+                    'expires_in_60_days' => (clone $base_documents_query) ->whereDate('gas_end_date', ">" , Carbon::today())
+                    ->whereDate('gas_end_date', "<=" , Carbon::today()->addDays(60))
+                    ->count(),
                 ];
             }
 
