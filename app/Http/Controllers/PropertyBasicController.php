@@ -1023,20 +1023,20 @@ COALESCE(
 
             $document_report = [];
             foreach ($document_types as $document_type) {
-                $documents = PropertyDocument::whereHas("property", function ($query) {
+                $base_documents_query = PropertyDocument::whereHas("property", function ($query) {
                     $query->where("properties.created_by", auth()->user()->id);
                 })
                 ->where("document_type_id", $document_type->id);
 
                 // Count documents for different expiration periods
                 $document_report[$document_type->name] = [
-                    'total_data' => $documents->count(),
-                    'total_expired' => $documents->whereDate('gas_end_date', ">" , Carbon::today())->count(),
-                    'today_expiry' => $documents->whereDate('gas_end_date', Carbon::today())->count(),
-                    'expires_in_15_days' => $documents->whereBetween('gas_end_date', [Carbon::today(), Carbon::today()->addDays(15)])->count(),
-                    'expires_in_30_days' => $documents->whereBetween('gas_end_date', [Carbon::today(), Carbon::today()->addDays(30)])->count(),
-                    'expires_in_45_days' => $documents->whereBetween('gas_end_date', [Carbon::today(), Carbon::today()->addDays(45)])->count(),
-                    'expires_in_60_days' => $documents->whereBetween('gas_end_date', [Carbon::today(), Carbon::today()->addDays(60)])->count(),
+                    'total_data' => (clone $base_documents_query)->count(),
+                    'total_expired' => (clone $base_documents_query)->whereDate('gas_end_date', ">" , Carbon::today())->count(),
+                    'today_expiry' => (clone $base_documents_query)->whereDate('gas_end_date', Carbon::today())->count(),
+                    'expires_in_15_days' => (clone $base_documents_query)->whereBetween('gas_end_date', [Carbon::today(), Carbon::today()->addDays(15)])->count(),
+                    'expires_in_30_days' => (clone $base_documents_query)->whereBetween('gas_end_date', [Carbon::today(), Carbon::today()->addDays(30)])->count(),
+                    'expires_in_45_days' => (clone $base_documents_query)->whereBetween('gas_end_date', [Carbon::today(), Carbon::today()->addDays(45)])->count(),
+                    'expires_in_60_days' => (clone $base_documents_query)->whereBetween('gas_end_date', [Carbon::today(), Carbon::today()->addDays(60)])->count(),
                 ];
             }
 
