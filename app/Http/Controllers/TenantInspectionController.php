@@ -324,7 +324,12 @@ class TenantInspectionController extends Controller
     {
         try {
             // Start building the query for history
-            $query = TenantInspection::where('tenant_inspections.created_by', auth()->user()->id)
+            $query = TenantInspection::with([
+                "tenant" => function($query) {
+                     $query->select("tenants.id","tenants.first_Name","tenants.last_Name"
+        );
+                }
+            ])->where('tenant_inspections.created_by', auth()->user()->id)
             ->when(request()->filled('tenant_ids'), function ($q)  {
                 $tenant_ids = explode(',', request()->input('tenant_ids'));
                 $q->whereIn('tenant_inspections.tenant_id', $tenant_ids);

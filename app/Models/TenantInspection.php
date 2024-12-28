@@ -41,4 +41,18 @@ class TenantInspection extends Model
         'comments',
         'created_by'
     ];
+
+
+
+
+    public function tenant()
+    {
+        return $this->belongsTo(Tenant::class,"tenant_id","id");
+    }
+
+
+
+
+
+
 }
