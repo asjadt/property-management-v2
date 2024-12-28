@@ -59,13 +59,22 @@ class PropertyCreateRequestV2 extends FormRequest
             'is_garden' => 'required|boolean',
 
             'propertyFloor' => 'nullable|string',
-            'category' => 'required|string',
+            'category' => 'required|in:let_property,manage_property,sale_property',
             'min_price' => 'nullable|numeric',
             'max_price' => 'nullable|numeric',
             'purpose' => 'nullable|string',
             'property_door_no' => 'nullable|string',
             'property_road' => 'nullable|string',
             'county' => 'nullable|string',
+            'is_dss' => 'nullable|required_if:category,let_property,manage_property|boolean',
         ];
     }
+    public function messages()
+    {
+        return [
+
+            'category.in' => 'The type must be one of the following: let_property, manage_property, sale_property.',
+        ];
+    }
+
 }

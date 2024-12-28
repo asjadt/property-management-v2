@@ -24,6 +24,7 @@ class PropertyUpdateRequestV2 extends FormRequest
     public function rules()
     {
         return [
+
             'id' => 'required|integer|exists:properties,id',
             'name' => "nullable|string",
             'image' => "nullable|string",
@@ -49,24 +50,28 @@ class PropertyUpdateRequestV2 extends FormRequest
             'landlord_id' => "nullable|numeric|exists:landlords,id",
             'tenant_ids' => 'nullable|array',
             'tenant_ids.*' => 'nullable|exists:tenants,id',
-
             // Added fields from Software 2
             'date_of_instruction' => 'nullable|date',
             'howDetached' => 'nullable|string',
-
             'no_of_beds' => 'required|string',
             'no_of_baths' => 'required|string',
             'is_garden' => 'required|boolean',
-
-
             'propertyFloor' => 'nullable|string',
-            'category' => 'required|string',
+            'category' => 'required|in:let_property,manage_property,sale_property',
             'min_price' => 'nullable|numeric',
             'max_price' => 'nullable|numeric',
             'purpose' => 'nullable|string',
             'property_door_no' => 'nullable|string',
             'property_road' => 'nullable|string',
             'county' => 'nullable|string',
+            'is_dss' => 'nullable|required_if:category,let_property,manage_property|boolean',
+        ];
+    }
+    public function messages()
+    {
+        return [
+
+            'category.in' => 'The type must be one of the following: let_property, manage_property, sale_property.',
         ];
     }
 }

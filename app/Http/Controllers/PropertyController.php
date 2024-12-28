@@ -389,6 +389,8 @@ class PropertyController extends Controller
      *            @OA\Property(property="purpose", type="string", format="string", example="for sale"),
      *            @OA\Property(property="property_door_no", type="string", format="string", example="10A"),
      *            @OA\Property(property="property_road", type="string", format="string", example="Main Street"),
+     *      *            @OA\Property(property="is_dss", type="string", format="string", example="1"),
+     *
      *            @OA\Property(property="county", type="string", format="string", example="Dhaka"),
      *            @OA\Property(property="tenant_ids", type="array", @OA\Items(type="integer"), example={1, 2, 3}),
      *         ),
@@ -753,7 +755,7 @@ class PropertyController extends Controller
                     "message" => "you don't have a valid business"
                 ], 401);
             }
-            
+
             if (!($business->pin == request()->header("pin"))) {
                 return response()->json([
                     "message" => "invalid pin"

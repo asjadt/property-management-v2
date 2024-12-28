@@ -24,21 +24,23 @@ class Property extends Model
         'type',
         'reference_no',
         'landlord_id',
-        "created_by",
+
         'is_active',
-        'date_of_instruction', // Added field
-        'howDetached',          // Added field
+        'date_of_instruction',
+        'howDetached',
         "no_of_beds",
         "no_of_baths",
         "is_garden",
-        'propertyFloor',        // Added field
+        'propertyFloor',
         'category',
-        'min_price',            // Added field
-        'max_price',            // Added field
-        'purpose',              // Added field
-        'property_door_no',     // Added field
-        'property_road',        // Added field
-        'county',               // Added field
+        'min_price',
+        'max_price',
+        'purpose',
+        'property_door_no',
+        'property_road',
+        'is_dss',
+        'county',
+        "created_by",
     ];
     protected $casts = [
         'images' => 'array',

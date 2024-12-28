@@ -300,6 +300,7 @@ Route::put('/v1.0/applicants', [ApplicantController::class, "updateApplicant"]);
 Route::put('/v1.0/applicants/convert-to-tenant', [ApplicantController::class, "convertApplicantToTenant"]);
 Route::put('/v1.0/applicants/toggle-active', [ApplicantController::class, "toggleActiveApplicant"]);
 Route::get('/v1.0/applicants', [ApplicantController::class, "getApplicants"]);
+Route::get('/v1.0/matching-applicants', [ApplicantController::class, "getMatchingApplicants"]);
 Route::delete('/v1.0/applicants/{ids}', [ApplicantController::class, "deleteApplicantsByIds"]);
 
 
