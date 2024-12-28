@@ -43,7 +43,7 @@ class CreateApplicantsTable extends Migration
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
 
             $table->unsignedBigInteger("tenant_id")->nullable();
-            $table->foreign('tenants')->references('id')->on('tenants')->onDelete('set null');
+            $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('set null');
 
             $table->timestamps();
         });
