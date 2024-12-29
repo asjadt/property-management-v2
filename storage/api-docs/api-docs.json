@@ -1166,6 +1166,206 @@
                 ]
             }
         },
+        "/v1.0/matching-applicants": {
+            "get": {
+                "tags": [
+                    "applicants"
+                ],
+                "summary": "This method is to get applicants  ",
+                "description": "This method is to get applicants ",
+                "operationId": "getMatchingApplicants",
+                "parameters": [
+                    {
+                        "name": "customer_name",
+                        "in": "query",
+                        "description": "customer_name",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "customer_phone",
+                        "in": "query",
+                        "description": "customer_phone",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "email",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "address_line_1",
+                        "in": "query",
+                        "description": "address_line_1",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "matching_property_id",
+                        "in": "query",
+                        "description": "matching_property_id",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "property_type",
+                        "in": "query",
+                        "description": "property_type",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "no_of_beds",
+                        "in": "query",
+                        "description": "no_of_beds",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "no_of_baths",
+                        "in": "query",
+                        "description": "no_of_baths",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "start_deadline_to_move",
+                        "in": "query",
+                        "description": "start_deadline_to_move",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "end_deadline_to_move",
+                        "in": "query",
+                        "description": "end_deadline_to_move",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "working",
+                        "in": "query",
+                        "description": "working",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "job_title",
+                        "in": "query",
+                        "description": "job_title",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "per_page",
+                        "required": true,
+                        "example": "6"
+                    },
+                    {
+                        "name": "is_active",
+                        "in": "query",
+                        "description": "is_active",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "start_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "end_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "search_key",
+                        "required": true,
+                        "example": "search_key"
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "description": "order_by",
+                        "required": true,
+                        "example": "ASC"
+                    },
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "description": "id",
+                        "required": true,
+                        "example": "ASC"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/v1.0/applicants/{ids}": {
             "delete": {
                 "tags": [
@@ -25247,6 +25447,11 @@
                                         "type": "string",
                                         "format": "string",
                                         "example": "Main Street"
+                                    },
+                                    "is_dss": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "1"
                                     },
                                     "county": {
                                         "type": "string",

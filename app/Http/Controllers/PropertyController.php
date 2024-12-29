@@ -9,6 +9,7 @@ use App\Http\Requests\PropertyCreateRequest;
 use App\Http\Requests\PropertyCreateRequestV2;
 use App\Http\Requests\PropertyUpdateRequest;
 use App\Http\Requests\PropertyUpdateRequestV2;
+use App\Http\Utils\BasicUtil;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Business;
@@ -21,7 +22,7 @@ use Illuminate\Validation\ValidationException;
 
 class PropertyController extends Controller
 {
-    use ErrorUtil, UserActivityUtil;
+    use ErrorUtil, UserActivityUtil, BasicUtil;
     /**
      *
      * @OA\Post(
@@ -190,7 +191,6 @@ class PropertyController extends Controller
                     array_push($images, ("/" . $location . "/" . $new_file_name));
                 }
             }
-
 
             return response()->json(["images" => $images], 201);
         } catch (Exception $e) {
@@ -438,6 +438,11 @@ class PropertyController extends Controller
                 $request_data = $request->validated();
                 $request_data["created_by"] = $request->user()->id;
 
+
+
+
+
+
                 $reference_no_exists =  DB::table('properties')->where(
                     [
                         'reference_no' => $request_data['reference_no'],
@@ -455,6 +460,9 @@ class PropertyController extends Controller
                 $property =  Property::create($request_data);
                 $property->generated_id = Str::random(4) . $property->id . Str::random(4);
                 $property->save();
+
+
+                $request_data["documents"] = $this->storeUploadedFiles($request_data["documents"], "files", "documents", true,$property->id);
 
 
                 if (!empty($request_data['documents'])) {
@@ -489,6 +497,8 @@ class PropertyController extends Controller
                 if (!empty($request_data['tenant_ids'])) {
                     $property->property_tenants()->sync($request_data['tenant_ids'], []);
                 }
+
+
 
                 return response($property, 201);
             });

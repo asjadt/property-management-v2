@@ -19,6 +19,7 @@ use App\Http\Controllers\DashboardManagementController;
 use App\Http\Controllers\DocumentTypeController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\EmailTemplateWrapperController;
+use App\Http\Controllers\FileManagementController;
 use App\Http\Controllers\FuelStationController;
 use App\Http\Controllers\FuelStationGalleryController;
 use App\Http\Controllers\FuelStationServiceController;
@@ -99,6 +100,9 @@ Route::patch('/health', function () {
 
 
 
+Route::post('/v1.0/files/single-file-upload', [FileManagementController::class, "createFileSingle"]);
+
+Route::post('/v1.0/files/multiple-file-upload', [FileManagementController::class, "createFileMultiple"]);
 
 
 Route::get('/v1.0/invoices/get/pdf/test', [InvoiceController::class, "getInvoicesPdfTest"]);
@@ -113,6 +117,10 @@ Route::get('/v1.0/bills/get/all/pdf/test', [BillController::class, "getAllBillsP
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+
+
+
 Route::get('/v1.0/receipts/get/single/{id}', [ReceiptController::class, "getReceiptById"]);
 Route::get('/v1.0/invoices/get/single/{id}', [InvoiceController::class, "getInvoiceById"]);
 Route::post('/v1.0/register', [AuthController::class, "register"]);
@@ -140,7 +148,6 @@ Route::get('/v2.0/automobile-makes-all/{categoryId}', [AutomobilesController::cl
 Route::get('/v1.0/automobile-models-all', [AutomobilesController::class, "getAutomobileModelsAll"]);
 
 
-
 Route::get('/v1.0/services-all/{categoryId}', [ServiceController::class, "getAllServicesByCategoryId"]);
 Route::get('/v2.0/services-all/{categoryId}', [ServiceController::class, "getAllServicesByCategoryIdV2"]);
 Route::get('/v1.0/sub-services-all', [ServiceController::class, "getSubServicesAll"]);
@@ -155,9 +162,6 @@ Route::get('/v1.0/available-countries/for-shop', [ShopsController::class, "getAv
 Route::get('/v1.0/available-cities/{country_code}', [GaragesController::class, "getAvailableCities"]);
 
 Route::get('/v1.0/available-cities/for-shop/{country_code}', [ShopsController::class, "getAvailableCitiesForShop"]);
-
-
-
 
 
 

@@ -20,7 +20,9 @@ use DateTime;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 // eeeeee
@@ -1442,9 +1444,6 @@ class UserManagementController extends Controller
                 ],401);
            }
 
-
-
-
             $user = User::with("roles","business")
             ->where([
                 "id" => $id
@@ -1462,7 +1461,6 @@ class UserManagementController extends Controller
 
 
             if(!empty($user->business)) {
-
                 $user->business[0]->default_sale_items = SaleItem::leftJoin('business_defaults', function($join) use($user) {
                     $join->on('sale_items.id', '=', 'business_defaults.entity_id')
                          ->where('business_defaults.entity_type', '=', 'sale_item')
@@ -1579,6 +1577,29 @@ class UserManagementController extends Controller
                "message" => "superadmin can not be deleted"
             ],401);
        }
+
+
+
+       $business = $user->my_business;
+       
+       if(!empty($business)) {
+        $folderName = str_replace(' ', '_', $business->name);
+        $folderPath = public_path($folderName);
+
+        // Delete associated folder if it exists
+        if (File::exists($folderPath)) {
+            if (File::deleteDirectory($folderPath)) {
+                // Log or provide a success message for folder deletion
+                Log::info("Folder {$folderName} successfully deleted.");
+            } else {
+                // Handle the case where the folder couldn't be deleted
+                Log::warning("Failed to delete folder {$folderName}.");
+            }
+        }
+
+       }
+
+
 
            $user
           ->forceDelete();
