@@ -462,7 +462,7 @@ class PropertyController extends Controller
                 $property->save();
 
 
-                $request_data["documents"] = $this->storeUploadedFiles($request_data["documents"], "files", "documents", true,$property->id);
+                // $request_data["documents"] = $this->storeUploadedFiles($request_data["documents"], "files", "documents", true,$property->id);
 
 
                 if (!empty($request_data['documents'])) {
