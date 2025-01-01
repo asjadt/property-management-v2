@@ -31,7 +31,9 @@ class AuthRegisterBusinessRequest extends FormRequest
             'user.phone' => 'nullable|string',
             'user.image' => 'nullable|string',
 
-            'business.name' => 'required|string|max:255',
+
+            'business.name' => 'required|string|unique:businesses,name',
+
             'business.about' => 'nullable|string',
             'business.web_page' => 'nullable|string',
             'business.phone' => 'nullable|string',
