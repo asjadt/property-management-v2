@@ -264,18 +264,18 @@ public function updateInvoicePayment(InvoicePaymentUpdateRequest $request)
         $this->storeActivity($request,"");
         return  DB::transaction(function () use ($request) {
 
-            $updatableData = $request->validated();
+            $request_data = $request->validated();
 
-            $invoiceDateWithTime = Carbon::createFromFormat('Y-m-d', $updatableData["payment_date"]);
+            $invoiceDateWithTime = Carbon::createFromFormat('Y-m-d', $request_data["payment_date"]);
             $invoiceDateWithTime->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
-            $updatableData["payment_date"] =    $invoiceDateWithTime;
+            $request_data["payment_date"] =    $invoiceDateWithTime;
 
-            if(empty($updatableData["receipt_by"])) {
-                $updatableData["receipt_by"] = $request->user()->first_Name . " " . $request->user()->last_Name;
+            if(empty($request_data["receipt_by"])) {
+                $request_data["receipt_by"] = $request->user()->first_Name . " " . $request->user()->last_Name;
             }
 
             // $affiliationPrev = InvoicePayments::where([
-            //     "id" => $updatableData["id"]
+            //     "id" => $request_data["id"]
             //    ]);
 
             //    if(!$request->user()->hasRole('superadmin')) {
@@ -292,7 +292,7 @@ public function updateInvoicePayment(InvoicePaymentUpdateRequest $request)
 
 
             $invoice = Invoice::where([
-                "id" => $updatableData["invoice_id"],
+                "id" => $request_data["invoice_id"],
 
             "invoices.created_by" => $request->user()->id
 
@@ -302,12 +302,12 @@ public function updateInvoicePayment(InvoicePaymentUpdateRequest $request)
                 throw new Exception("something went wrong");
             }
 
-            $sum_payment_amounts = $invoice->invoice_payments()->where('id', '!=', $updatableData["id"])->sum('amount');
+            $sum_payment_amounts = $invoice->invoice_payments()->where('id', '!=', $request_data["id"])->sum('amount');
 
             $invoice_due = $invoice->total_amount - $sum_payment_amounts;
 
 
-            if($invoice_due < $updatableData["amount"]) {
+            if($invoice_due < $request_data["amount"]) {
                 $invoice->status = "overpaid";
                 $invoice->invoice_reminder()->delete();
                 $invoice->save();
@@ -318,7 +318,7 @@ public function updateInvoicePayment(InvoicePaymentUpdateRequest $request)
             //  ];
             //     throw new Exception(json_encode($error),422);
             }
-           else if($invoice_due == $updatableData["amount"]) {
+           else if($invoice_due == $request_data["amount"]) {
                $invoice->status = "paid";
                $invoice->invoice_reminder()->delete();
                $invoice->save();
@@ -330,19 +330,19 @@ public function updateInvoicePayment(InvoicePaymentUpdateRequest $request)
 
              $invoice_payment = InvoicePayment::leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
              ->where([
-                 "invoice_payments.id" => $updatableData["id"],
+                 "invoice_payments.id" => $request_data["id"],
                  "invoices.created_by" => $request->user()->id
              ])
          ->update([
-             "invoice_payments.amount" => $updatableData["amount"],
-             "invoice_payments.payment_method" => $updatableData["payment_method"],
-             "invoice_payments.payment_date" => $updatableData["payment_date"],
-             "invoice_payments.invoice_id" => $updatableData["invoice_id"],
-             "invoice_payments.note" => $updatableData["note"], // Use an alias to specify the 'note' column
-             "invoice_payments.receipt_by" => $updatableData["receipt_by"]
+             "invoice_payments.amount" => $request_data["amount"],
+             "invoice_payments.payment_method" => $request_data["payment_method"],
+             "invoice_payments.payment_date" => $request_data["payment_date"],
+             "invoice_payments.invoice_id" => $request_data["invoice_id"],
+             "invoice_payments.note" => $request_data["note"], // Use an alias to specify the 'note' column
+             "invoice_payments.receipt_by" => $request_data["receipt_by"]
          ]);
 
-         $invoice_payment = InvoicePayment::find($updatableData["id"]);
+         $invoice_payment = InvoicePayment::find($request_data["id"]);
 
             return response($invoice_payment, 200);
         });
@@ -1092,12 +1092,12 @@ public function deleteInvoicePaymentById($invoice_id,$id, Request $request)
 
 
 
-            $updatableData = $request->validated();
+            $request_data = $request->validated();
 
 
 
             $invoice  =  Invoice::where([
-                "invoices.id" => $updatableData["invoice_id"],
+                "invoices.id" => $request_data["invoice_id"],
                 "invoices.created_by" => $request->user()->id
             ])
                 ->first();
@@ -1109,7 +1109,7 @@ public function deleteInvoicePaymentById($invoice_id,$id, Request $request)
 
                 $invoice_payment = InvoicePayment::where([
                     "invoice_id" =>  $invoice->id,
-                    "id" => $updatableData["invoice_payment_id"]
+                    "id" => $request_data["invoice_payment_id"]
                 ])
                     ->first();
 
@@ -1118,21 +1118,21 @@ public function deleteInvoicePaymentById($invoice_id,$id, Request $request)
                     }
 
 
-                $recipients = $updatableData["to"];
-                if($updatableData["copy_to_myself"]) {
+                $recipients = $request_data["to"];
+                if($request_data["copy_to_myself"]) {
 
-                   array_push($recipients,$updatableData["from"]);
+                   array_push($recipients,$request_data["from"]);
 
                 }
 
 
           Mail::to($recipients)
-          ->send(new PaymentEmail($invoice,$invoice_payment,$updatableData));
+          ->send(new PaymentEmail($invoice,$invoice_payment,$request_data));
              // end email section
 
-             $updatableData["to"] =  json_encode($updatableData["to"]);
+             $request_data["to"] =  json_encode($request_data["to"]);
 
-         $invoice_payment_receipt =  InvoicePaymentReceipt::create($updatableData);
+         $invoice_payment_receipt =  InvoicePaymentReceipt::create($request_data);
 
 
 

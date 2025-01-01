@@ -476,13 +476,13 @@ class BillController extends Controller
                 "owner_id" => $request->user()->id
               ])->first();
 
-              $updatableData = $request->validated();
+              $request_data = $request->validated();
 
               $bill  =  tap(Bill::where([
-                "bills.id" => $updatableData["id"],
+                "bills.id" => $request_data["id"],
                 "bills.created_by" => $request->user()->id
             ]))->update(
-                collect($updatableData)->only([
+                collect($request_data)->only([
                     'create_date',
                     "payment_date",
                     'property_id',
@@ -496,7 +496,7 @@ class BillController extends Controller
                 ->first();
 
                 $bill->bill_bill_items()->delete();
-                $bill_items = collect($updatableData["bill_items"])->map(function ($item)use ($bill) {
+                $bill_items = collect($request_data["bill_items"])->map(function ($item)use ($bill) {
 
                     // $bill_item_exists =    BillBillItem::where([
                     //         "bill_item_id" => $item["bill_item_id"]
@@ -525,7 +525,7 @@ class BillController extends Controller
             $bill->bill_bill_items()->createMany($bill_items->all());
 
             $bill->bill_sale_items()->delete();
-            $sale_items = collect($updatableData["sale_items"])->map(function ($item)use ($bill) {
+            $sale_items = collect($request_data["sale_items"])->map(function ($item)use ($bill) {
 
                 // $sale_items_exists =    BillSaleItem::where([
                 //         "sale_id" => $item["sale_id"]
@@ -554,7 +554,7 @@ class BillController extends Controller
         $bill->bill_sale_items()->createMany($sale_items->all());
 
  $bill->bill_repair_items()->delete();
-        $repair_items = collect($updatableData["repair_items"])->map(function ($item)use ($bill) {
+        $repair_items = collect($request_data["repair_items"])->map(function ($item)use ($bill) {
 
             $repair_items_exists =    BillRepairItem::where([
                     "repair_id" => $item["repair_id"]
@@ -624,13 +624,13 @@ class BillController extends Controller
 
                     ];
 $invoice_prev = Invoice::where([
-    "invoices.bill_id" => $updatableData["id"],
+    "invoices.bill_id" => $request_data["id"],
     "invoices.created_by" => $request->user()->id
 ])->first();
 
            if($invoice_prev) {
             $invoice  =  tap(Invoice::where([
-                "invoices.bill_id" => $updatableData["id"],
+                "invoices.bill_id" => $request_data["id"],
                 "invoices.created_by" => $request->user()->id
             ]))->update(
                 collect($invoice_data)->only([
@@ -751,7 +751,7 @@ $invoice_prev = Invoice::where([
                 }
                 else {
                     Invoice::where([
-                        "invoices.bill_id" => $updatableData["id"],
+                        "invoices.bill_id" => $request_data["id"],
                         "invoices.created_by" => $request->user()->id
                     ])->delete();
                 }

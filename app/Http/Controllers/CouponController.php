@@ -190,17 +190,17 @@ class CouponController extends Controller
                         "message" => "You can not perform this action"
                     ], 401);
                 }
-                $updatableData = $request->validated();
+                $request_data = $request->validated();
 
 
-                if (!$this->garageOwnerCheck($updatableData["garage_id"])) {
+                if (!$this->garageOwnerCheck($request_data["garage_id"])) {
                     return response()->json([
                         "message" => "you are not the owner of the garage or the requested garage does not exist."
                     ], 401);
                 }
 
-                $coupon  =  tap(Coupon::where(["id" => $updatableData["id"]]))->update(
-                    collect($updatableData)->only([
+                $coupon  =  tap(Coupon::where(["id" => $request_data["id"]]))->update(
+                    collect($request_data)->only([
                         "garage_id",
                         "name",
                         "code",

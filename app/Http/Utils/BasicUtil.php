@@ -13,21 +13,17 @@ trait BasicUtil
 
     public function storeUploadedFiles($filePaths, $fileKey, $targetLocation, $isNestedFiles = false, $propertyId = null)
 {
-    // Step 1: Retrieve the authenticated user's business
-    $business = auth()->user()->business;
 
-    // Construct the target location by adding the business name and (optionally) the student ID
-    $targetLocation = str_replace(' ', '_', $business->name) . "/" .
-                      (!empty($propertyId) ? ("/" . base64_encode($propertyId) . "/") : "") .
-                      $targetLocation;
 
     // Step 2: Handle nested arrays of file paths recursively
     if ($isNestedFiles) {
-        return collect($filePaths)->map(function ($nestedFilePath) use ($fileKey, $targetLocation) {
+        return collect($filePaths)->map(function ($nestedFilePath) use ($fileKey, $targetLocation,$propertyId) {
             $nestedFilePath[$fileKey] = $this->storeUploadedFiles(
                 $nestedFilePath[$fileKey],
                 "",
-                $targetLocation
+                $targetLocation,
+                false,
+                $propertyId
             );
             return $nestedFilePath;
         });
@@ -37,9 +33,19 @@ trait BasicUtil
     $temporaryFilesDirectory = config("setup-config.temporary_files_location");
 
     // Process each file path in the input array
-    return collect($filePaths)->map(function ($filePathItem) use ($temporaryFilesDirectory, $fileKey, $targetLocation) {
-        $filePath = !empty($fileKey) ? $filePathItem[$fileKey] : $filePathItem;
+    return collect($filePaths)->map(function ($filePathItem) use ($temporaryFilesDirectory, $fileKey, $targetLocation,$propertyId) {
 
+         // Step 1: Retrieve the authenticated user's business
+    $business = auth()->user()->my_business;
+
+    // Construct the target location by adding the business name and (optionally) the property ID
+
+    $targetLocation = str_replace(' ', '_', $business->name) . "/" .
+                      (!empty($propertyId) ? ("/" . base64_encode($propertyId) . "/") : "") .
+                      $targetLocation;
+
+
+        $filePath = !empty($fileKey) ? $filePathItem[$fileKey] : $filePathItem;
         // Construct the full paths for the temporary and target locations
         $temporaryFilePath = public_path($filePath);
         $targetFilePath = str_replace($temporaryFilesDirectory, $targetLocation, $filePath);
@@ -81,6 +87,41 @@ trait BasicUtil
 }
 
 
+public function renameOrCreateFolder($currentFolderPath, $newFolderName)
+{
+    // Get the full path of the current folder
+    $fullCurrentFolderPath = public_path($currentFolderPath);
+
+    // Define the new folder path
+    $newFolderPath = dirname($fullCurrentFolderPath) . '/' . $newFolderName;
+
+    // Check if the current folder exists
+    if (File::exists($fullCurrentFolderPath)) {
+        try {
+            // Rename the folder
+            File::move($fullCurrentFolderPath, $newFolderPath);
+            Log::info("Folder renamed successfully from {$fullCurrentFolderPath} to {$newFolderPath}");
+            return $newFolderPath;
+        } catch (\Exception $e) {
+            Log::error("Failed to rename folder: " . $e->getMessage());
+            throw new Exception("Failed to rename folder: " . $e->getMessage());
+        }
+    } else {
+        // If the folder doesn't exist, create it
+        $fullNewFolderPath = public_path($newFolderName);
+        if (!File::exists($fullNewFolderPath)) {
+            try {
+                File::makeDirectory($newFolderPath, 0755, true); // Create the new folder
+                Log::info("Folder created successfully at {$newFolderPath}");
+                return $newFolderPath;
+            } catch (\Exception $e) {
+                Log::error("Failed to create folder: " . $e->getMessage());
+                throw new Exception("Failed to create folder: " . $e->getMessage());
+            }
+        }
+
+    }
+}
 
     public function retrieveData($query, $orderByField, $tableName)
     {

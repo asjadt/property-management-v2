@@ -13,6 +13,7 @@ use App\Http\Utils\BasicUtil;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Applicant;
+use App\Models\Business;
 use App\Models\Property;
 use App\Models\Tenant;
 use Exception;
@@ -1097,7 +1098,21 @@ class ApplicantController extends Controller
         try {
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
 
+            $business = Business::where([
+                "owner_id" => $request->user()->id
+            ])->first();
 
+            if (!$business) {
+                return response()->json([
+                    "message" => "you don't have a valid business"
+                ], 401);
+            }
+            if (!($business->pin == $request->header("pin"))) {
+                return response()->json([
+                    "message" => "invalid pin"
+                ], 401);
+            }
+            
             $idsArray = explode(',', $ids);
             $existingIds = Applicant::whereIn('id', $idsArray)
                 ->where('applicants.created_by', auth()->user()->id)

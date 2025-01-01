@@ -377,7 +377,7 @@ public function createRepair(RepairCreateRequest $request)
 
 
             $request_data = $request->validated();
-            $updatableData["receipt"]   = json_encode($request_data["receipt"] );
+            $request_data["receipt"]   = json_encode($request_data["receipt"] );
             $request_data["created_by"] = $request->user()->id;
             $repair =  Repair::create($request_data);
 
@@ -489,14 +489,14 @@ public function updateRepair(RepairUpdateRequest $request)
         return  DB::transaction(function () use ($request) {
 
 
-            $updatableData = $request->validated();
-            $updatableData["receipt"]   = json_encode($updatableData["receipt"] );
+            $request_data = $request->validated();
+            $request_data["receipt"]   = json_encode($request_data["receipt"] );
 
 
 
 
-            $repair  =  tap(Repair::where(["id" => $updatableData["id"],"created_by" => $request->user()->id]))->update(
-                collect($updatableData)->only([
+            $repair  =  tap(Repair::where(["id" => $request_data["id"],"created_by" => $request->user()->id]))->update(
+                collect($request_data)->only([
                     'property_id',
                     'repair_category_id',
                     'item_description',
@@ -514,9 +514,9 @@ public function updateRepair(RepairUpdateRequest $request)
                 }
 
                 $repair->repair_images()->delete();
-                if(!empty($updatableData["images"])) {
+                if(!empty($request_data["images"])) {
                     $repair->repair_images()->createMany(
-                        collect($updatableData["images"])->map(function ($image) {
+                        collect($request_data["images"])->map(function ($image) {
                             return [
                                 'image' => $image,
                             ];

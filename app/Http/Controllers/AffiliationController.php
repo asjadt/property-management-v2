@@ -267,10 +267,10 @@ class AffiliationController extends Controller
                         "message" => "You can not perform this action"
                     ], 401);
                 }
-                $updatableData = $request->validated();
+                $request_data = $request->validated();
 
                 $affiliationPrev = Affiliation::where([
-                    "id" => $updatableData["id"]
+                    "id" => $request_data["id"]
                    ]);
 
                    if(!$request->user()->hasRole('superadmin')) {
@@ -288,8 +288,8 @@ class AffiliationController extends Controller
 
 
 
-                $affiliation  =  tap(Affiliation::where(["id" => $updatableData["id"]]))->update(
-                    collect($updatableData)->only([
+                $affiliation  =  tap(Affiliation::where(["id" => $request_data["id"]]))->update(
+                    collect($request_data)->only([
                         "name",
                         "description",
                         "logo"

@@ -708,17 +708,17 @@ public function updateInvoice(InvoiceUpdateRequest $request)
         $this->storeActivity($request,"");
         return  DB::transaction(function () use ($request) {
 
-            $updatableData = $request->validated();
+            $request_data = $request->validated();
 
-            // $invoiceDateWithTime = Carbon::createFromFormat('Y-m-d', $updatableData["invoice_date"]);
+            // $invoiceDateWithTime = Carbon::createFromFormat('Y-m-d', $request_data["invoice_date"]);
             // $invoiceDateWithTime->setTime(Carbon::now()->hour, Carbon::now()->minute, Carbon::now()->second);
-            // $updatableData["invoice_date"] =    $invoiceDateWithTime;
+            // $request_data["invoice_date"] =    $invoiceDateWithTime;
             $reference_no_exists =  DB::table( 'invoices' )->where([
-                'invoice_reference'=> $updatableData['invoice_reference'],
+                'invoice_reference'=> $request_data['invoice_reference'],
                 "created_by" => $request->user()->id
              ]
              )
-             ->whereNotIn('id', [$updatableData["id"]])->exists();
+             ->whereNotIn('id', [$request_data["id"]])->exists();
              if ($reference_no_exists) {
                 $error =  [
                        "message" => "The given data was invalid.",
@@ -729,10 +729,10 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 
 
             $invoice  =  tap(Invoice::where([
-                "invoices.id" => $updatableData["id"],
+                "invoices.id" => $request_data["id"],
                 "invoices.created_by" => $request->user()->id
             ]))->update(
-                collect($updatableData)->only([
+                collect($request_data)->only([
                     "logo",
                     "invoice_title",
                     "invoice_summary",
@@ -767,15 +767,15 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                 if(!$invoice) {
                     throw new Exception("something went wrong");
                 }
-                if(!empty($updatableData["status"])) {
-                    if(($invoice->status == "draft" || $invoice->status == "unsent") && ( $updatableData["status"] == "draft" || $updatableData["status"] == "unsent")) {
-                        $invoice->status = $updatableData["status"];
+                if(!empty($request_data["status"])) {
+                    if(($invoice->status == "draft" || $invoice->status == "unsent") && ( $request_data["status"] == "draft" || $request_data["status"] == "unsent")) {
+                        $invoice->status = $request_data["status"];
                         $invoice->save();
                     }
 
                 }
                 $invoice->invoice_items()->delete();
-                $invoiceItemsData = collect($updatableData["invoice_items"])->map(function ($item)use ($invoice) {
+                $invoiceItemsData = collect($request_data["invoice_items"])->map(function ($item)use ($invoice) {
                     if(!empty($item["repair_id"])) {
                     $invoice_item_exists =    InvoiceItem::where([
                             "repair_id" => $item["repair_id"]
@@ -810,7 +810,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                 $invoice->invoice_items()->upsert($invoiceItemsData->all(), ['id',"invoice_id"], ['name', 'description', 'quantity', 'price', 'tax', 'amount',"invoice_id"]);
 
 
-                // $invoicePayments = collect($updatableData["invoice_payments"])->map(function ($item)use ($invoice) {
+                // $invoicePayments = collect($request_data["invoice_payments"])->map(function ($item)use ($invoice) {
                 //     return [
                 //         "id" => $item["id"],
                 //         "amount" => $item["amount"],
@@ -843,15 +843,15 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                 //  }
 
 
-                 if(!empty($updatableData["reminder_dates"]) &&  $invoice->status != "paid") {
+                 if(!empty($request_data["reminder_dates"]) &&  $invoice->status != "paid") {
 
                     InvoiceReminder::where([
                         "invoice_id" => $invoice->id
                     ])
                     ->delete();
-                    foreach($updatableData["reminder_dates"] as $reminder_date_amount) {
+                    foreach($request_data["reminder_dates"] as $reminder_date_amount) {
 
-                        $due_date = DateTime::createFromFormat('Y-m-d', $updatableData["due_date"]);
+                        $due_date = DateTime::createFromFormat('Y-m-d', $request_data["due_date"]);
                         if ($due_date !== false) {
                             $due_date->modify(($reminder_date_amount . ' days'));
                             $reminder_date = $due_date->format('Y-m-d');
@@ -864,7 +864,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
          InvoiceReminder::create([
             "reminder_date_amount" => $reminder_date_amount,
             "reminder_status" => "not_sent",
-            "send_reminder" => !empty($updatableData["send_reminder"])?$updatableData["send_reminder"]:0,
+            "send_reminder" => !empty($request_data["send_reminder"])?$request_data["send_reminder"]:0,
             "reminder_date" =>$reminder_date,
             "invoice_id" => $invoice->id,
             "created_by" => $invoice->created_by
@@ -950,7 +950,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 
 
                 //     $bill  =  tap(Bill::where([
-                //         "bills.id" => $updatableData["id"],
+                //         "bills.id" => $request_data["id"],
                 //         "bills.created_by" => $request->user()->id
                 //     ]))->update(
                 //         collect($bill_data)->only([
@@ -1037,14 +1037,14 @@ public function updateInvoice(InvoiceUpdateRequest $request)
          $this->storeActivity($request,"");
          return  DB::transaction(function () use ($request) {
 
-             $updatableData = $request->validated();
+             $request_data = $request->validated();
 
 
 
 
 
              $invoice  =  Invoice::where([
-                 "invoices.id" => $updatableData["id"],
+                 "invoices.id" => $request_data["id"],
                  "invoices.created_by" => $request->user()->id
              ])
                  ->first();
@@ -1057,7 +1057,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                        }
 
              if(($invoice->status == "draft" || $invoice->status == "unsent")) {
-                            $invoice->status = $updatableData["status"];
+                            $invoice->status = $request_data["status"];
                             $invoice->save();
             } else {
                 return response()->json([
@@ -1169,12 +1169,12 @@ public function updateInvoice(InvoiceUpdateRequest $request)
          $this->storeActivity($request,"");
          return  DB::transaction(function () use ($request) {
 
-             $updatableData = $request->validated();
+             $request_data = $request->validated();
 
 
 
              $invoice  =  Invoice::where([
-                 "invoices.id" => $updatableData["id"],
+                 "invoices.id" => $request_data["id"],
                  "invoices.created_by" => $request->user()->id
              ])
                  ->first();
@@ -1312,12 +1312,12 @@ public function updateInvoice(InvoiceUpdateRequest $request)
          $this->storeActivity($request,"");
          return  DB::transaction(function () use ($request) {
 
-             $updatableData = $request->validated();
+             $request_data = $request->validated();
 
 
 
              $invoice  =  Invoice::where([
-                 "invoices.id" => $updatableData["id"],
+                 "invoices.id" => $request_data["id"],
                  "invoices.created_by" => $request->user()->id
              ])
                  ->first();
@@ -1336,15 +1336,15 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                  $invoice->save();
 
 
-                 $recipients = $updatableData["to"];
-                 if($updatableData["copy_to_myself"]) {
+                 $recipients = $request_data["to"];
+                 if($request_data["copy_to_myself"]) {
 
-                    array_push($recipients,$updatableData["from"]);
+                    array_push($recipients,$request_data["from"]);
 
                  }
 
                  Mail::to($recipients)
-                 ->send(new SendInvoiceEmail($updatableData,$invoice));
+                 ->send(new SendInvoiceEmail($request_data,$invoice));
 
 
 

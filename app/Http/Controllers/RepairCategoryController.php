@@ -264,10 +264,10 @@ public function updateRepairCategory(RepairCategoryUpdateRequest $request)
                     "message" => "You can not perform this action"
                 ], 401);
             }
-            $updatableData = $request->validated();
+            $request_data = $request->validated();
 
             // $affiliationPrev = RepairCategory::where([
-            //     "id" => $updatableData["id"]
+            //     "id" => $request_data["id"]
             //    ]);
 
             //    if(!$request->user()->hasRole('superadmin')) {
@@ -285,8 +285,8 @@ public function updateRepairCategory(RepairCategoryUpdateRequest $request)
 
 
 
-            $repair_category  =  tap(RepairCategory::where(["id" => $updatableData["id"], "created_by" => $request->user()->id]))->update(
-                collect($updatableData)->only([
+            $repair_category  =  tap(RepairCategory::where(["id" => $request_data["id"], "created_by" => $request->user()->id]))->update(
+                collect($request_data)->only([
     'name',
     'icon',
 

@@ -17,6 +17,8 @@ use App\Models\Property;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -439,10 +441,6 @@ class PropertyController extends Controller
                 $request_data["created_by"] = $request->user()->id;
 
 
-
-
-
-
                 $reference_no_exists =  DB::table('properties')->where(
                     [
                         'reference_no' => $request_data['reference_no'],
@@ -462,7 +460,8 @@ class PropertyController extends Controller
                 $property->save();
 
 
-                // $request_data["documents"] = $this->storeUploadedFiles($request_data["documents"], "files", "documents", true,$property->id);
+
+                $request_data["documents"] = $this->storeUploadedFiles($request_data["documents"], "files", "documents", true,$property->id);
 
 
                 if (!empty($request_data['documents'])) {
@@ -869,16 +868,16 @@ class PropertyController extends Controller
 
             return  DB::transaction(function () use ($request) {
 
-                $updatableData = $request->validated();
+                $request_data = $request->validated();
 
 
                 $reference_no_exists =  DB::table('properties')->where(
                     [
-                        'reference_no' => $updatableData['reference_no'],
+                        'reference_no' => $request_data['reference_no'],
                         "created_by" => $request->user()->id
                     ]
                 )
-                    ->whereNotIn('id', [$updatableData["id"]])->exists();
+                    ->whereNotIn('id', [$request_data["id"]])->exists();
                 if ($reference_no_exists) {
                     $error =  [
                         "message" => "The given data was invalid.",
@@ -889,10 +888,10 @@ class PropertyController extends Controller
 
 
                 $property  =  tap(Property::where([
-                    "id" => $updatableData["id"],
+                    "id" => $request_data["id"],
                     "created_by" => $request->user()->id
                 ]))->update(
-                    collect($updatableData)->only([
+                    collect($request_data)->only([
                         'name',
                         'image',
                         'address',
@@ -917,9 +916,9 @@ class PropertyController extends Controller
                     ], 404);
                 }
                 $property->property_tenants()->detach();
-                if (!empty($updatableData['tenant_ids'])) {
+                if (!empty($request_data['tenant_ids'])) {
 
-                    $property->property_tenants()->sync($updatableData['tenant_ids'], []);
+                    $property->property_tenants()->sync($request_data['tenant_ids'], []);
                 }
 
                 return response($property, 200);
@@ -1721,17 +1720,30 @@ class PropertyController extends Controller
             }
 
 
+            foreach ($property->documents as $document) {
+
+                $updatedFiles = []; // Create a new array for modified files
+                if(!is_array($document->files)) {
+                    $files = json_decode($document->files);
+                } else {
+                    $files = $document->files;
+                }
+                foreach ($files as $file) {
+                    // Modify the file name
+                    $updatedFiles[] = "/" . str_replace(' ', '_', auth()->user()->my_business->name) . "/" . base64_encode($property->id) . "/documents/" . $file;
+                }
+
+                // Replace the files property with the updated array if needed
+                $document->file_names = $updatedFiles; // Use a new attribute to avoid issues
+                unset($document->files);
+            }
+
             return response()->json($property, 200);
         } catch (Exception $e) {
 
             return $this->sendError($e, 500, $request);
         }
     }
-
-
-
-
-
 
 
 
@@ -1825,6 +1837,21 @@ class PropertyController extends Controller
                     "message" => "no property found"
                 ], 404);
             }
+
+              // Construct the folder path
+        $businessFolderName = str_replace(' ', '_', auth()->user()->my_business->name);
+        $propertyFolderName = base64_encode($property->id); // Base64 encoding the property ID
+        $folderPath = public_path("{$businessFolderName}/{$propertyFolderName}");
+
+        // Delete the property folder if it exists
+        if (File::exists($folderPath)) {
+            if (File::deleteDirectory($folderPath)) {
+                Log::info("Folder {$folderPath} successfully deleted.");
+            } else {
+                Log::warning("Failed to delete folder {$folderPath}.");
+            }
+        }
+
             $property->delete();
 
             return response()->json(["ok" => true], 200);

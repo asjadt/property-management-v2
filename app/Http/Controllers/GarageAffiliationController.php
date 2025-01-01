@@ -186,18 +186,18 @@ class GarageAffiliationController extends Controller
                         "message" => "You can not perform this action"
                     ], 401);
                 }
-                $updatableData = $request->validated();
+                $request_data = $request->validated();
 
 
-                if (!$this->garageOwnerCheck($updatableData["garage_id"])) {
+                if (!$this->garageOwnerCheck($request_data["garage_id"])) {
                     return response()->json([
                         "message" => "you are not the owner of the garage or the requested garage does not exist."
                     ], 401);
                 }
 
 
-                $garage_affiliation  =  tap(GarageAffiliation::where(["id" => $updatableData["id"]]))->update(
-                    collect($updatableData)->only([
+                $garage_affiliation  =  tap(GarageAffiliation::where(["id" => $request_data["id"]]))->update(
+                    collect($request_data)->only([
                         "start_date",
                         "end_date",
                     ])->toArray()

@@ -299,10 +299,10 @@ public function updateTenant(TenantUpdateRequest $request)
         $this->storeActivity($request,"");
         return  DB::transaction(function () use ($request) {
 
-            $updatableData = $request->validated();
+            $request_data = $request->validated();
 
             // $affiliationPrev = Tenants::where([
-            //     "id" => $updatableData["id"]
+            //     "id" => $request_data["id"]
             //    ]);
 
             //    if(!$request->user()->hasRole('superadmin')) {
@@ -320,8 +320,8 @@ public function updateTenant(TenantUpdateRequest $request)
 
 
 
-            $tenant  =  tap(Tenant::where(["id" => $updatableData["id"], "created_by" => $request->user()->id]))->update(
-                collect($updatableData)->only([
+            $tenant  =  tap(Tenant::where(["id" => $request_data["id"], "created_by" => $request->user()->id]))->update(
+                collect($request_data)->only([
                     'first_Name',
         'last_Name',
         'phone',

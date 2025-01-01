@@ -9,6 +9,7 @@ use App\Http\Requests\ImageUploadRequest;
 use App\Http\Requests\UserCreateRequest;
 use App\Http\Requests\UserToggleRequest;
 use App\Http\Requests\UserUpdateRequest;
+use App\Http\Utils\BasicUtil;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\BillItem;
@@ -28,7 +29,7 @@ use Illuminate\Support\Str;
 // eeeeee
 class UserManagementController extends Controller
 {
-    use ErrorUtil,UserActivityUtil;
+    use ErrorUtil,UserActivityUtil, BasicUtil;
 
 
      /**
@@ -681,10 +682,10 @@ class UserManagementController extends Controller
 
 
 
-       $updatableData = $request->validated();
+       $request_data = $request->validated();
     //    user email check
        $userPrev = User::where([
-        "id" => $updatableData["user"]["id"]
+        "id" => $request_data["user"]["id"]
        ]);
 
 
@@ -709,23 +710,23 @@ class UserManagementController extends Controller
 
 
 
-        if(!empty($updatableData['user']['password'])) {
-            $updatableData['user']['password'] = Hash::make($updatableData['user']['password']);
+        if(!empty($request_data['user']['password'])) {
+            $request_data['user']['password'] = Hash::make($request_data['user']['password']);
         } else {
-            unset($updatableData['user']['password']);
+            unset($request_data['user']['password']);
         }
-        $updatableData['user']['is_active'] = true;
-        $updatableData['user']['remember_token'] = Str::random(10);
-        $updatableData['user']['address_line_1'] = $updatableData['business']['address_line_1'];
-    $updatableData['user']['address_line_2'] = $updatableData['business']['address_line_2'];
-    $updatableData['user']['country'] = $updatableData['business']['country'];
-    $updatableData['user']['city'] = $updatableData['business']['city'];
-    $updatableData['user']['postcode'] = $updatableData['business']['postcode'];
-    $updatableData['user']['lat'] = $updatableData['business']['lat'];
-    $updatableData['user']['long'] = $updatableData['business']['long'];
+        $request_data['user']['is_active'] = true;
+        $request_data['user']['remember_token'] = Str::random(10);
+        $request_data['user']['address_line_1'] = $request_data['business']['address_line_1'];
+    $request_data['user']['address_line_2'] = $request_data['business']['address_line_2'];
+    $request_data['user']['country'] = $request_data['business']['country'];
+    $request_data['user']['city'] = $request_data['business']['city'];
+    $request_data['user']['postcode'] = $request_data['business']['postcode'];
+    $request_data['user']['lat'] = $request_data['business']['lat'];
+    $request_data['user']['long'] = $request_data['business']['long'];
         $user  =  tap(User::where([
-            "id" => $updatableData['user']["id"]
-            ]))->update(collect($updatableData['user'])->only([
+            "id" => $request_data['user']["id"]
+            ]))->update(collect($request_data['user'])->only([
             'first_Name',
             'last_Name',
             'phone',
@@ -758,56 +759,60 @@ class UserManagementController extends Controller
 
 
 
-        $business  =  tap(Business::where([
-            "id" => $updatableData['business']["id"],
+        $business = Business::where([
+            "id" => $request_data['business']["id"],
             "owner_id" => $user->id
-            ]))->update(collect($updatableData['business'])->only([
-                "name",
-                "about",
-                "web_page",
-                "phone",
-                "email",
-                "additional_information",
-                "address_line_1",
-                "address_line_2",
-                "lat",
-                "long",
-                "country",
-                "city",
-                "currency",
-                "postcode",
-                "logo",
-                "image",
-                "status",
-                "invoice_title",
-                "footer_text",
-               "is_reference_manual",
-               "receipt_footer",
-               "account_name" ,
-               "account_number",
-               "sort_code",
-               "pin" ,
-               "type"
+        ])->first();
+
+        if (!$business) {
+            return response()->json([
+                "message" => "No business found"
+            ], 404);
+        }
+        if ($business->name != $request_data['business']["name"]) {
+            $this->renameOrCreateFolder(str_replace(' ', '_', $business->name), str_replace(' ', '_', $request_data['business']["name"]));
+        }
+        $fieldsToUpdate = collect($request_data['business'])->only([
+            "name",
+            "about",
+            "web_page",
+            "phone",
+            "email",
+            "additional_information",
+            "address_line_1",
+            "address_line_2",
+            "lat",
+            "long",
+            "country",
+            "city",
+            "currency",
+            "postcode",
+            "logo",
+            "image",
+            "status",
+            "invoice_title",
+            "footer_text",
+            "is_reference_manual",
+            "receipt_footer",
+            "account_name",
+            "account_number",
+            "sort_code",
+            "pin",
+            "type"
+        ])->toArray();
+
+        $business->fill($fieldsToUpdate);
+        $business->save();
 
 
-        ])->toArray()
-        )
-            // ->with("somthing")
 
-            ->first();
-            if(!$business) {
-                return response()->json([
-                    "massage" => "no business found"
-                ],404);
-
-            }
 
             // BusinessDefault::where([
             //     'entity_type' => "bill_item",
             //     'business_owner_id' => $user->id
             // ])
             // ->delete();
-            // foreach($updatableData['bill_items'] as $request_bill_item) {
+            // foreach($request_data['bill_items'] as $request_bill_item) {
 
             //     BusinessDefault::create([
             //         'entity_type' => "bill_item",
@@ -820,7 +825,7 @@ class UserManagementController extends Controller
             //     'business_owner_id' => $user->id
             // ])
             // ->delete();
-            // foreach($updatableData['sale_items'] as $request_sale_item) {
+            // foreach($request_data['sale_items'] as $request_sale_item) {
 
             //     if(empty($request_sale_item["sale_id"])) {
             //         $sale_item =  SaleItem::create([
@@ -946,12 +951,12 @@ class UserManagementController extends Controller
 
 
 
-       $updatableData = $request->validated();
+       $request_data = $request->validated();
 
 
 
         $business  =  (Business::where([
-            "id" => $updatableData['business_id'],
+            "id" => $request_data['business_id'],
             ]))
 
             ->first();
@@ -967,7 +972,7 @@ class UserManagementController extends Controller
                 'business_owner_id' => $business->owner_id
             ])
             ->delete();
-            foreach($updatableData['bill_items'] as $request_bill_item) {
+            foreach($request_data['bill_items'] as $request_bill_item) {
 
                 BusinessDefault::create([
                     'entity_type' => "bill_item",
@@ -980,7 +985,7 @@ class UserManagementController extends Controller
                 'business_owner_id' => $business->owner_id
             ])
             ->delete();
-            foreach($updatableData['sale_items'] as $request_sale_item) {
+            foreach($request_data['sale_items'] as $request_sale_item) {
 
                 if(empty($request_sale_item["sale_id"])) {
                     $sale_item =  SaleItem::create([
@@ -1118,17 +1123,17 @@ class UserManagementController extends Controller
 
 
 
-            $updatableData = $request->validated();
+            $request_data = $request->validated();
 
 
-            if(!empty($updatableData['password'])) {
-                $updatableData['password'] = Hash::make($updatableData['password']);
+            if(!empty($request_data['password'])) {
+                $request_data['password'] = Hash::make($request_data['password']);
             } else {
-                unset($updatableData['password']);
+                unset($request_data['password']);
             }
-            $updatableData['is_active'] = true;
-            $updatableData['remember_token'] = Str::random(10);
-            $user  =  tap(User::where(["id" => $updatableData["id"]]))->update(collect($updatableData)->only([
+            $request_data['is_active'] = true;
+            $request_data['remember_token'] = Str::random(10);
+            $user  =  tap(User::where(["id" => $request_data["id"]]))->update(collect($request_data)->only([
                 'first_Name' ,
                 'last_Name',
                 'password',
@@ -1148,7 +1153,7 @@ class UserManagementController extends Controller
 
                 ->first();
 
-            $user->syncRoles([$updatableData['role']]);
+            $user->syncRoles([$request_data['role']]);
 
 
 
@@ -1226,11 +1231,11 @@ class UserManagementController extends Controller
                     "message" => "You can not perform this action"
                  ],401);
             }
-            $updatableData = $request->validated();
+            $request_data = $request->validated();
 
 
             $user = User::where([
-                "id" => $updatableData["id"]
+                "id" => $request_data["id"]
             ])
             ->first();
             if (!$user) {
@@ -1581,7 +1586,7 @@ class UserManagementController extends Controller
 
 
        $business = $user->my_business;
-       
+
        if(!empty($business)) {
         $folderName = str_replace(' ', '_', $business->name);
         $folderPath = public_path($folderName);

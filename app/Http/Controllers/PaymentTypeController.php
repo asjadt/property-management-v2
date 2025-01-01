@@ -162,12 +162,12 @@ class PaymentTypeController extends Controller
                         "message" => "You can not perform this action"
                     ], 401);
                 }
-                $updatableData = $request->validated();
+                $request_data = $request->validated();
 
 
 
-                $fuel_station  =  tap(PaymentType::where(["id" => $updatableData["id"]]))->update(
-                    collect($updatableData)->only([
+                $fuel_station  =  tap(PaymentType::where(["id" => $request_data["id"]]))->update(
+                    collect($request_data)->only([
                         "name",
                         "description",
                         "is_active",

@@ -179,10 +179,10 @@ class BillItemController extends Controller
                         "message" => "You can not perform this action"
                     ], 401);
                 }
-                $updatableData = $request->validated();
+                $request_data = $request->validated();
 
                 // $affiliationPrev = BillItem::where([
-                //     "id" => $updatableData["id"]
+                //     "id" => $request_data["id"]
                 //    ]);
 
                 //    if(!$request->user()->hasRole('superadmin')) {
@@ -201,10 +201,10 @@ class BillItemController extends Controller
 
 
                 $bill_item  =  tap(BillItem::where([
-                    "id" => $updatableData["id"],
+                    "id" => $request_data["id"],
                     "created_by" => $request->user()->id
                     ]))->update(
-                    collect($updatableData)->only([
+                    collect($request_data)->only([
                         'name',
         'description',
         'price',

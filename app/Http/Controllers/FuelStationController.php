@@ -211,10 +211,10 @@ class FuelStationController extends Controller
                         "message" => "You can not perform this action"
                     ], 401);
                 }
-                $updatableData = $request->validated();
+                $request_data = $request->validated();
 
                 $fuelStationPrev = FuelStation::where([
-                    "id" => $updatableData["id"]
+                    "id" => $request_data["id"]
                    ]);
 
                    if(!$request->user()->hasRole('superadmin')) {
@@ -229,8 +229,8 @@ class FuelStationController extends Controller
                         ],404);
                  }
 
-                $fuel_station  =  tap(FuelStation::where(["id" => $updatableData["id"]]))->update(
-                    collect($updatableData)->only([
+                $fuel_station  =  tap(FuelStation::where(["id" => $request_data["id"]]))->update(
+                    collect($request_data)->only([
                         "name",
                         "address",
                         "opening_time",
@@ -264,11 +264,11 @@ class FuelStationController extends Controller
                     ->delete();
 
 
-                    if(empty($updatableData["options"])) {
-                        $updatableData["options"]  = [];
+                    if(empty($request_data["options"])) {
+                        $request_data["options"]  = [];
                     }
 
-                    foreach($updatableData["options"] as $option) {
+                    foreach($request_data["options"] as $option) {
 
                         FuelStationOption::create([
                             "fuel_station_id"=>$fuel_station->id,
