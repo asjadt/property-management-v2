@@ -455,9 +455,57 @@ class PropertyController extends Controller
                     throw new Exception(json_encode($error), 422);
                 }
 
-                $property =  Property::create($request_data);
+
+
+
+
+                $property =  Property::create(
+                    collect($request_data)
+                    ->only(
+                        [
+                        'name',
+                        'image',
+                        // 'images',
+                        'address',
+                        'country',
+                        'city',
+                        'postcode',
+                        "town",
+                        "lat",
+                        "long",
+                        'type',
+                        'reference_no',
+                        'landlord_id',
+                        'is_active',
+                        'date_of_instruction',
+                        'howDetached',
+                        "no_of_beds",
+                        "no_of_baths",
+                        "is_garden",
+                        'propertyFloor',
+                        'category',
+                        'min_price',
+                        'max_price',
+                        'purpose',
+                        'property_door_no',
+                        'property_road',
+                        'is_dss',
+                        'county',
+                        "created_by"
+                        ]
+
+                    )
+                    ->toArray()
+
+            );
                 $property->generated_id = Str::random(4) . $property->id . Str::random(4);
+
+                $request_data["images"] = $this->storeUploadedFiles($request_data["images"], "", "images", false,$property->id);
+
+
+                $property->images = ($request_data["images"]);
                 $property->save();
+
 
 
 
@@ -583,13 +631,16 @@ class PropertyController extends Controller
             }
 
 
+            $documents = $request->input('documents');
+            $documents = $this->storeUploadedFiles($documents, "files", "documents", true,$property->id);
+
+
             // Loop through each document in the request and add it to the property
-            foreach ($request->input('documents') as $documentData) {
+            foreach ($documents as $documentData) {
                 $property->documents()->create([
                     'gas_start_date' => $documentData['gas_start_date'],
                     'gas_end_date' => $documentData['gas_end_date'],
                     'description' => $documentData['description'],
-
                     'document_type_id' => $documentData['document_type_id'],
                     'files' => json_encode($documentData['files']),  // Assuming files are stored as a JSON array
                 ]);
@@ -681,11 +732,53 @@ class PropertyController extends Controller
                 return response()->json(['message' => "invalid document id"], 400);
             }
 
-            // Update document data
-            $documentData = $request->only(['gas_start_date', 'gas_end_date', 'description', 'document_type_id', 'files']);
+            $requestDocumentData = $request->only(['gas_start_date', 'gas_end_date', 'description', 'document_type_id', 'files']);
 
 
-            $document->update($documentData);
+
+
+            if (isset($requestDocumentData["files"])) {
+                $requestDocumentData["files"] =  $this->storeUploadedFiles(
+                $requestDocumentData["files"],
+                 "",
+                 "documents",
+                 false,
+                $property->id
+            );
+
+
+                $newDocs = $requestDocumentData["files"];
+
+                $existingDocs = $document->files;
+
+                if(!is_array($existingDocs)) {
+                   $existingDocs = json_decode($existingDocs);
+
+                }
+
+                foreach ($existingDocs as $existingDoc) {
+
+                    LOG::info(json_encode($newDocs));
+                    LOG::info(json_encode($existingDoc));
+
+                     if(!in_array($existingDoc,$newDocs)) {
+                        $filePath = public_path(("/" . str_replace(' ', '_', auth()->user()->my_business->name) . "/" . base64_encode($property->id) . "/documents/" . $existingDoc));
+
+                        if (File::exists($filePath)) {
+                            File::delete($filePath);
+                        }
+                     }
+                }
+
+            }
+
+
+
+// Fill the document object with the provided data
+$document->fill($requestDocumentData);
+
+// Save the updated document
+$document->save();
 
             return response()->json(['message' => 'Document updated successfully.', 'document' => $document], 200);
         } catch (Exception $e) {
@@ -693,15 +786,6 @@ class PropertyController extends Controller
             return $this->sendError($e, 500, $request);
         }
     }
-
-
-
-
-
-
-
-
-
 
 
     /**
@@ -777,12 +861,32 @@ class PropertyController extends Controller
             // Find the document related to the property
             $document = $property->documents()->findOrFail($document_id);
 
+
+
+            $document_files = $document->files;
+            if(!is_array($document_files)) {
+                  $document_files = json_decode($document_files);
+            }
+
+            foreach ($document_files as $file) {
+
+    $filePath = public_path(("/" . str_replace(' ', '_', auth()->user()->my_business->name) . "/" . base64_encode($property->id) . "/documents/" . $file));
+
+                   if (File::exists($filePath)) {
+                       File::delete($filePath);
+                   }
+
+           }
+
+
             // Delete the document
             $document->delete();
 
+
+
             return response()->json(['message' => 'Document deleted successfully.'], 200);
         } catch (Exception $e) {
-            return response()->json(['message' => 'An error occurred.'], 500);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 
@@ -1013,6 +1117,46 @@ class PropertyController extends Controller
             $request_data = $request->validated();
 
             // Update property fields using fill()
+
+            if (isset($request_data["images"])) {
+                $request_data["images"] =  $this->storeUploadedFiles(
+                $request_data["images"],
+                 "",
+                 "images",
+                 false,
+                $property->id
+            );
+
+
+                $newDocs = $request_data["images"];
+
+                $existingDocs = $property->images;
+
+                if(!is_array($existingDocs)) {
+                   $existingDocs = json_decode($existingDocs);
+                }
+
+                foreach ($existingDocs as $existingDoc) {
+
+
+                     if(!in_array($existingDoc,$newDocs)) {
+                        $filePath = public_path(("/" . str_replace(' ', '_', auth()->user()->my_business->name) . "/" . base64_encode($property->id) . "/images/" . $existingDoc));
+
+                        if (File::exists($filePath)) {
+                            File::delete($filePath);
+                        }
+                     }
+                }
+
+            }
+
+
+
+
+
+
+
+
             $property->fill($request_data);
 
             $property->save();
@@ -1704,8 +1848,7 @@ class PropertyController extends Controller
                 "landlord",
                 "repairs.repair_category",
                 "invoices",
-                "documents"
-
+                "documents",
             )
                 ->where([
                     "generated_id" => $id,
@@ -1720,6 +1863,25 @@ class PropertyController extends Controller
             }
 
 
+
+                $updatedFiles = []; // Create a new array for modified files
+                if(!is_array($property->images)) {
+                    $images = json_decode($property->images);
+                } else {
+                    $images = $property->images;
+                }
+
+                foreach ($images as $image) {
+                    // Modify the file name
+                    $updatedFiles[] = "/" . str_replace(' ', '_', auth()->user()->my_business->name) . "/" . base64_encode($property->id) . "/images/" . $image;
+                }
+
+                // Replace the files property with the updated array if needed
+                $property->images = $updatedFiles; // Use a new attribute to avoid issues
+
+
+
+
             foreach ($property->documents as $document) {
 
                 $updatedFiles = []; // Create a new array for modified files
@@ -1728,6 +1890,7 @@ class PropertyController extends Controller
                 } else {
                     $files = $document->files;
                 }
+
                 foreach ($files as $file) {
                     // Modify the file name
                     $updatedFiles[] = "/" . str_replace(' ', '_', auth()->user()->my_business->name) . "/" . base64_encode($property->id) . "/documents/" . $file;
