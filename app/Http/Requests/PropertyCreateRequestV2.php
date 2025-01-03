@@ -37,14 +37,14 @@ class PropertyCreateRequestV2 extends FormRequest
             'documents.*.files' => "required|array",
             'documents.*.files.*' => "string",
 
-            
+
             'address' => "nullable|string",
             'country' => "required|string",
             'city' => "required|string",
             'postcode' => "required|string",
             'town' => "nullable|string",
-            'lat' => 'nullable|string',
-            'long' => 'nullable|string',
+            'lat' => 'nullable|numeric',
+            'long' => 'nullable|numeric',
             'type' => "required|string",
             'reference_no' => 'required|string|max:255',
             'landlord_id' => "nullable|numeric|exists:landlords,id",

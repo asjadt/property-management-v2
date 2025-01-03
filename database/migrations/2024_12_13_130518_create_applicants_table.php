@@ -26,8 +26,8 @@ class CreateApplicantsTable extends Migration
             $table->string('country');
             $table->string('city');
             $table->string('postcode');
-            $table->decimal("latitude",10,2)->nullable();
-            $table->decimal("longitude",10,2)->nullable();
+            $table->double("latitude")->nullable();
+            $table->double("longitude")->nullable();
             $table->decimal("radius",10,2)->nullable();
             $table->string("property_type");
             $table->string("no_of_beds");

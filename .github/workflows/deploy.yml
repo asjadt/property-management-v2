@@ -24,19 +24,9 @@ jobs:
           password: "D&+(xr&ZMhP["   # FTP Password (add in GitHub Secrets)
           local-dir: ./                            # Upload files from the root directory
           server-dir: /                            # Target directory on the cPanel server
-          include: |
-            app/**                                 # Include app folder
-            bootstrap/**                           # Include bootstrap folder
-            config/**                              # Include config folder
-            database/**                            # Include database folder
-            resources/**                           # Include resources folder
-            routes/**                              # Include routes folder
-            tests/**                               # Include tests folder
-            *                                      # Include all files in the root directory
           exclude: |
-            **/*                                   # Exclude everything else by default
-            public/**                              # Exclude the public folder
-            storage/**                             # Exclude the storage folder
-            vendor/**                              # Exclude the vendor folder
-            .env                                   # Exclude the .env file
-            **/.env                                # Ensure any hidden .env files are
+            **/public/**
+            **/storage/**
+            **/vendor/**
+            **/.env
+          clean: true

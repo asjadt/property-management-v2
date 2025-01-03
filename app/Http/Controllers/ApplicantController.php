@@ -980,21 +980,25 @@ class ApplicantController extends Controller
             ];
 
 
+
+
             $query = Applicant::
             // Check if the applicant has a valid radius and coordinates
             when($property->lat && $property->long, function ($query) use ($property) {
-                $query->whereRaw("ST_Distance_Sphere(point(applicants.longitude, applicants.latitude), point(?, ?)) <= applicants.radius", [
-                    $property->long,  // property longitude
-                    $property->lat,   // property latitude
-                ]);
+                $query->whereRaw(
+                    "ST_Distance_Sphere(point(applicants.longitude, applicants.latitude), point(?, ?)) <= applicants.radius * 1609.34",
+                    [
+                        $property->long,  // property longitude
+                        $property->lat    // property latitude
+                    ]
+                );
             })
             // Check the price range for applicants and properties
             ->when($property->min_price && $property->max_price, function ($query) use ($property) {
                 $query->whereBetween('min_price', [$property->min_price, $property->max_price])
-                    ->orWhere(function ($query) use ($property) {
-                        $query->where('max_price', '>=', $property->min_price)
-                            ->where('max_price', '<=', $property->max_price);
-                    });
+                ->whereBetween('max_price', [$property->min_price, $property->max_price])
+                ;
+
             })
 
             // Check the property type condition
@@ -1021,8 +1025,7 @@ class ApplicantController extends Controller
             $applicants = $this->retrieveData($query, "id", "applicants");
 
 
-
-
+           
             return response()->json($applicants, 200);
         } catch (Exception $e) {
 
@@ -1112,7 +1115,7 @@ class ApplicantController extends Controller
                     "message" => "invalid pin"
                 ], 401);
             }
-            
+
             $idsArray = explode(',', $ids);
             $existingIds = Applicant::whereIn('id', $idsArray)
                 ->where('applicants.created_by', auth()->user()->id)
