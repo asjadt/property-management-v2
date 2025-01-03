@@ -8,7 +8,7 @@ use App\Http\Requests\TenantInspectionUpdateRequest;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Business;
-
+use App\Models\MaintenanceItem;
 use App\Models\TenantInspection;
 use Exception;
 use Illuminate\Http\Request;
@@ -34,34 +34,19 @@ class TenantInspectionController extends Controller
      *     @OA\JsonContent(
      *         required={},
      *
-*     @OA\Property(property="tenant_id", type="number", example="1"),
+     *     @OA\Property(property="property_id", type="number", example="1"),
+ *     @OA\Property(property="tenant_id", type="number", example="1"),
  *     @OA\Property(property="address_line_1", type="string", example="Dhaka"),
  *     @OA\Property(property="inspected_by", type="string", example="John Doe"),
  *     @OA\Property(property="phone", type="string", example="+8801234567890"),
  *     @OA\Property(property="date", type="string", format="date", example="2024-12-25"),
- *     @OA\Property(property="garden", type="string", example="Yes"),
- *     @OA\Property(property="entrance", type="string", example="Front door"),
- *     @OA\Property(property="exterior_paintwork", type="string", example="Good"),
- *     @OA\Property(property="windows_outside", type="string", example="Clean"),
- *     @OA\Property(property="kitchen_floor", type="string", example="Tiled"),
- *     @OA\Property(property="oven", type="string", example="Functional"),
- *     @OA\Property(property="sink", type="string", example="Clean"),
- *     @OA\Property(property="lounge", type="string", example="Spacious"),
- *     @OA\Property(property="downstairs_carpet", type="string", example="Clean"),
- *     @OA\Property(property="upstairs_carpet", type="string", example="Worn"),
- *     @OA\Property(property="window_1", type="string", example="Double glazed"),
- *     @OA\Property(property="window_2", type="string", example="Single glazed"),
- *     @OA\Property(property="window_3", type="string", example="Cracked"),
- *     @OA\Property(property="window_4", type="string", example="Clean"),
- *     @OA\Property(property="windows_inside", type="string", example="Clean"),
- *     @OA\Property(property="wc", type="string", example="Functional"),
- *     @OA\Property(property="shower", type="string", example="Working"),
- *     @OA\Property(property="bath", type="string", example="Clean"),
- *     @OA\Property(property="hand_basin", type="string", example="Clean"),
- *     @OA\Property(property="smoke_detective", type="string", example="Installed"),
- *     @OA\Property(property="general_paintwork", type="string", example="Good"),
- *     @OA\Property(property="carbon_monoxide", type="string", example="Detector Installed"),
- *     @OA\Property(property="overall_cleanliness", type="string", example="Very Clean"),
+ * @OA\Property(property="maintenance_items", type="array", @OA\Items(
+ *     type="object",
+ *     @OA\Property(property="item", type="string", example="entrance"),
+ *     @OA\Property(property="status", type="string", enum={"good", "average", "dirty", "na", "work_required", "resolved"}, example="good"),
+ *     @OA\Property(property="comment", type="string", example="Well maintained entrance", nullable=true),
+ *     @OA\Property(property="next_follow_up_date", type="string", format="date", example="2025-03-01", nullable=true)
+ * )),
  *     @OA\Property(property="comments", type="string", example="All items in good condition.")
  *
  *
@@ -124,6 +109,17 @@ class TenantInspectionController extends Controller
                $request_data["created_by"] = auth()->user()->id;
                $inspection = TenantInspection::create($request_data);
 
+                // Create maintenance items using create method
+            foreach ($request_data['maintenance_items'] as $item) {
+                MaintenanceItem::create([
+                    'tenant_inspection_id' => $inspection->id,
+                    'item' => $item['item'],
+                    'status' => $item['status'],
+                    'comment' => $item['comment'] ?? null,
+                    'next_follow_up_date' => $item['next_follow_up_date'] ?? null,
+                ]);
+            }
+
                 return response($inspection, 201);
             });
         } catch (Exception $e) {
@@ -153,29 +149,13 @@ class TenantInspectionController extends Controller
  *     @OA\Property(property="inspected_by", type="string", example="John Doe"),
  *     @OA\Property(property="phone", type="string", example="+8801234567890"),
  *     @OA\Property(property="date", type="string", format="date", example="2024-12-25"),
- *     @OA\Property(property="garden", type="string", example="Yes"),
- *     @OA\Property(property="entrance", type="string", example="Front door"),
- *     @OA\Property(property="exterior_paintwork", type="string", example="Good"),
- *     @OA\Property(property="windows_outside", type="string", example="Clean"),
- *     @OA\Property(property="kitchen_floor", type="string", example="Tiled"),
- *     @OA\Property(property="oven", type="string", example="Functional"),
- *     @OA\Property(property="sink", type="string", example="Clean"),
- *     @OA\Property(property="lounge", type="string", example="Spacious"),
- *     @OA\Property(property="downstairs_carpet", type="string", example="Clean"),
- *     @OA\Property(property="upstairs_carpet", type="string", example="Worn"),
- *     @OA\Property(property="window_1", type="string", example="Double glazed"),
- *     @OA\Property(property="window_2", type="string", example="Single glazed"),
- *     @OA\Property(property="window_3", type="string", example="Cracked"),
- *     @OA\Property(property="window_4", type="string", example="Clean"),
- *     @OA\Property(property="windows_inside", type="string", example="Clean"),
- *     @OA\Property(property="wc", type="string", example="Functional"),
- *     @OA\Property(property="shower", type="string", example="Working"),
- *     @OA\Property(property="bath", type="string", example="Clean"),
- *     @OA\Property(property="hand_basin", type="string", example="Clean"),
- *     @OA\Property(property="smoke_detective", type="string", example="Installed"),
- *     @OA\Property(property="general_paintwork", type="string", example="Good"),
- *     @OA\Property(property="carbon_monoxide", type="string", example="Detector Installed"),
- *     @OA\Property(property="overall_cleanliness", type="string", example="Very Clean"),
+ * @OA\Property(property="maintenance_items", type="array", @OA\Items(
+ *     type="object",
+ *     @OA\Property(property="item", type="string", example="entrance"),
+ *     @OA\Property(property="status", type="string", enum={"good", "average", "dirty", "na", "work_required", "resolved"}, example="good"),
+ *     @OA\Property(property="comment", type="string", example="Well maintained entrance", nullable=true),
+ *     @OA\Property(property="next_follow_up_date", type="string", format="date", example="2025-03-01", nullable=true)
+ * )),
  *     @OA\Property(property="comments", type="string", example="All items in good condition.")
  *     )
  * ),
@@ -222,42 +202,32 @@ class TenantInspectionController extends Controller
                     return response()->json(['message' => 'Inspection not found'], 404);
                 }
 
-
-
                 // Fill the model with the mass-assignable attributes
                 $inspection->fill(
                     collect($request_data)->only([
-                    'address_line_1',
-                    'inspected_by',
-                    'phone',
-                    'date',
-                    'garden',
-                    'entrance',
-                    'exterior_paintwork',
-                    'windows_outside',
-                    'kitchen_floor',
-                    'oven',
-                    'sink',
-                    'lounge',
-                    'downstairs_carpet',
-                    'upstairs_carpet',
-                    'window_1',
-                    'window_2',
-                    'window_3',
-                    'window_4',
-                    'windows_inside',
-                    'wc',
-                    'shower',
-                    'bath',
-                    'hand_basin',
-                    'smoke_detective',
-                    'general_paintwork',
-                    'carbon_monoxide',
-                    'overall_cleanliness',
-                    'comments'
+                        'address_line_1',
+                        'inspected_by',
+                        'phone',
+                        'date',
+                        'comments'
                 ])
                 ->toArray());
                 $inspection->save(); // Save the agreement
+
+                 // Create maintenance items using create method
+                 MaintenanceItem::where([
+                    'tenant_inspection_id' => $inspection->id
+                ])
+                ->delete();
+            foreach ($request_data['maintenance_items'] as $item) {
+                MaintenanceItem::create([
+                    'tenant_inspection_id' => $inspection->id,
+                    'item' => $item['item'],
+                    'status' => $item['status'],
+                    'comment' => $item['comment'] ?? null,
+                    'next_follow_up_date' => $item['next_follow_up_date'] ?? null,
+                ]);
+            }
 
 
                 return response($inspection, 200);
@@ -287,6 +257,13 @@ class TenantInspectionController extends Controller
      *          required=false,
      *          @OA\Schema(type="integer", example=1)
      *      ),
+     *  *      @OA\Parameter(
+     *          name="property_ids",
+     *          in="query",
+     *          required=false,
+     *          @OA\Schema(type="integer", example=1)
+     *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
@@ -327,12 +304,18 @@ class TenantInspectionController extends Controller
             $query = TenantInspection::with([
                 "tenant" => function($query) {
                      $query->select("tenants.id","tenants.first_Name","tenants.last_Name"
-        );
-                }
+                 );
+                },
+                "maintenance_item",
+
             ])->where('tenant_inspections.created_by', auth()->user()->id)
             ->when(request()->filled('tenant_ids'), function ($q)  {
                 $tenant_ids = explode(',', request()->input('tenant_ids'));
                 $q->whereIn('tenant_inspections.tenant_id', $tenant_ids);
+            })
+            ->when(request()->filled('property_ids'), function ($q)  {
+                $property_ids = explode(',', request()->input('property_ids'));
+                $q->whereIn('tenant_inspections.property_id', $property_ids);
             })
 
                 ->when($request->filled('id'), function ($q) use ($request) {

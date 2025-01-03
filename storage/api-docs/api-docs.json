@@ -35222,6 +35222,15 @@
                             "type": "integer",
                             "example": 1
                         }
+                    },
+                    {
+                        "name": "property_ids",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
                     }
                 ],
                 "responses": {
@@ -35319,97 +35328,40 @@
                                         "format": "date",
                                         "example": "2024-12-25"
                                     },
-                                    "garden": {
-                                        "type": "string",
-                                        "example": "Yes"
-                                    },
-                                    "entrance": {
-                                        "type": "string",
-                                        "example": "Front door"
-                                    },
-                                    "exterior_paintwork": {
-                                        "type": "string",
-                                        "example": "Good"
-                                    },
-                                    "windows_outside": {
-                                        "type": "string",
-                                        "example": "Clean"
-                                    },
-                                    "kitchen_floor": {
-                                        "type": "string",
-                                        "example": "Tiled"
-                                    },
-                                    "oven": {
-                                        "type": "string",
-                                        "example": "Functional"
-                                    },
-                                    "sink": {
-                                        "type": "string",
-                                        "example": "Clean"
-                                    },
-                                    "lounge": {
-                                        "type": "string",
-                                        "example": "Spacious"
-                                    },
-                                    "downstairs_carpet": {
-                                        "type": "string",
-                                        "example": "Clean"
-                                    },
-                                    "upstairs_carpet": {
-                                        "type": "string",
-                                        "example": "Worn"
-                                    },
-                                    "window_1": {
-                                        "type": "string",
-                                        "example": "Double glazed"
-                                    },
-                                    "window_2": {
-                                        "type": "string",
-                                        "example": "Single glazed"
-                                    },
-                                    "window_3": {
-                                        "type": "string",
-                                        "example": "Cracked"
-                                    },
-                                    "window_4": {
-                                        "type": "string",
-                                        "example": "Clean"
-                                    },
-                                    "windows_inside": {
-                                        "type": "string",
-                                        "example": "Clean"
-                                    },
-                                    "wc": {
-                                        "type": "string",
-                                        "example": "Functional"
-                                    },
-                                    "shower": {
-                                        "type": "string",
-                                        "example": "Working"
-                                    },
-                                    "bath": {
-                                        "type": "string",
-                                        "example": "Clean"
-                                    },
-                                    "hand_basin": {
-                                        "type": "string",
-                                        "example": "Clean"
-                                    },
-                                    "smoke_detective": {
-                                        "type": "string",
-                                        "example": "Installed"
-                                    },
-                                    "general_paintwork": {
-                                        "type": "string",
-                                        "example": "Good"
-                                    },
-                                    "carbon_monoxide": {
-                                        "type": "string",
-                                        "example": "Detector Installed"
-                                    },
-                                    "overall_cleanliness": {
-                                        "type": "string",
-                                        "example": "Very Clean"
+                                    "maintenance_items": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "item": {
+                                                    "type": "string",
+                                                    "example": "entrance"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "good",
+                                                        "average",
+                                                        "dirty",
+                                                        "na",
+                                                        "work_required",
+                                                        "resolved"
+                                                    ],
+                                                    "example": "good"
+                                                },
+                                                "comment": {
+                                                    "type": "string",
+                                                    "example": "Well maintained entrance",
+                                                    "nullable": true
+                                                },
+                                                "next_follow_up_date": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "example": "2025-03-01",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
                                     },
                                     "comments": {
                                         "type": "string",
@@ -35475,6 +35427,10 @@
                             "schema": {
                                 "required": [],
                                 "properties": {
+                                    "property_id": {
+                                        "type": "number",
+                                        "example": "1"
+                                    },
                                     "tenant_id": {
                                         "type": "number",
                                         "example": "1"
@@ -35496,97 +35452,40 @@
                                         "format": "date",
                                         "example": "2024-12-25"
                                     },
-                                    "garden": {
-                                        "type": "string",
-                                        "example": "Yes"
-                                    },
-                                    "entrance": {
-                                        "type": "string",
-                                        "example": "Front door"
-                                    },
-                                    "exterior_paintwork": {
-                                        "type": "string",
-                                        "example": "Good"
-                                    },
-                                    "windows_outside": {
-                                        "type": "string",
-                                        "example": "Clean"
-                                    },
-                                    "kitchen_floor": {
-                                        "type": "string",
-                                        "example": "Tiled"
-                                    },
-                                    "oven": {
-                                        "type": "string",
-                                        "example": "Functional"
-                                    },
-                                    "sink": {
-                                        "type": "string",
-                                        "example": "Clean"
-                                    },
-                                    "lounge": {
-                                        "type": "string",
-                                        "example": "Spacious"
-                                    },
-                                    "downstairs_carpet": {
-                                        "type": "string",
-                                        "example": "Clean"
-                                    },
-                                    "upstairs_carpet": {
-                                        "type": "string",
-                                        "example": "Worn"
-                                    },
-                                    "window_1": {
-                                        "type": "string",
-                                        "example": "Double glazed"
-                                    },
-                                    "window_2": {
-                                        "type": "string",
-                                        "example": "Single glazed"
-                                    },
-                                    "window_3": {
-                                        "type": "string",
-                                        "example": "Cracked"
-                                    },
-                                    "window_4": {
-                                        "type": "string",
-                                        "example": "Clean"
-                                    },
-                                    "windows_inside": {
-                                        "type": "string",
-                                        "example": "Clean"
-                                    },
-                                    "wc": {
-                                        "type": "string",
-                                        "example": "Functional"
-                                    },
-                                    "shower": {
-                                        "type": "string",
-                                        "example": "Working"
-                                    },
-                                    "bath": {
-                                        "type": "string",
-                                        "example": "Clean"
-                                    },
-                                    "hand_basin": {
-                                        "type": "string",
-                                        "example": "Clean"
-                                    },
-                                    "smoke_detective": {
-                                        "type": "string",
-                                        "example": "Installed"
-                                    },
-                                    "general_paintwork": {
-                                        "type": "string",
-                                        "example": "Good"
-                                    },
-                                    "carbon_monoxide": {
-                                        "type": "string",
-                                        "example": "Detector Installed"
-                                    },
-                                    "overall_cleanliness": {
-                                        "type": "string",
-                                        "example": "Very Clean"
+                                    "maintenance_items": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "item": {
+                                                    "type": "string",
+                                                    "example": "entrance"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "good",
+                                                        "average",
+                                                        "dirty",
+                                                        "na",
+                                                        "work_required",
+                                                        "resolved"
+                                                    ],
+                                                    "example": "good"
+                                                },
+                                                "comment": {
+                                                    "type": "string",
+                                                    "example": "Well maintained entrance",
+                                                    "nullable": true
+                                                },
+                                                "next_follow_up_date": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "example": "2025-03-01",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
                                     },
                                     "comments": {
                                         "type": "string",

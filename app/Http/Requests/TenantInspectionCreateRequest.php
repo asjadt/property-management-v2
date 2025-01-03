@@ -24,37 +24,28 @@ class TenantInspectionCreateRequest extends FormRequest
     public function rules()
     {
         return [
+            "property_id"=>"required|numeric|exists:properties,id",
             'tenant_id' => 'required|numeric|exists:tenants,id',  // Assuming 'tenants' table has the id column
             'address_line_1' => 'required|string|max:255',
             'inspected_by' => 'required|string|max:255',
             'phone' => 'required|string|max:20', // Assuming a phone number format
             'date' => 'required|date',
-            'garden' => 'nullable|string|max:255',
-            'entrance' => 'nullable|string|max:255',
-            'exterior_paintwork' => 'nullable|string|max:255',
-            'windows_outside' => 'nullable|string|max:255',
-            'kitchen_floor' => 'nullable|string|max:255',
-            'oven' => 'nullable|string|max:255',
-            'sink' => 'nullable|string|max:255',
-            'lounge' => 'nullable|string|max:255',
-            'downstairs_carpet' => 'nullable|string|max:255',
-            'upstairs_carpet' => 'nullable|string|max:255',
-            'window_1' => 'nullable|string|max:255',
-            'window_2' => 'nullable|string|max:255',
-            'window_3' => 'nullable|string|max:255',
-            'window_4' => 'nullable|string|max:255',
-            'windows_inside' => 'nullable|string|max:255',
-            'wc' => 'nullable|string|max:255',
-            'shower' => 'nullable|string|max:255',
-            'bath' => 'nullable|string|max:255',
-            'hand_basin' => 'nullable|string|max:255',
-            'smoke_detective' => 'nullable|string|max:255',
-            'general_paintwork' => 'nullable|string|max:255',
-            'carbon_monoxide' => 'nullable|string|max:255',
-            'overall_cleanliness' => 'nullable|string|max:255',
+        'maintenance_items' => 'present|array',
+        'maintenance_items.*.item' => 'required|string',
+        'maintenance_items.*.status' => 'required|in:good,average,dirty,na,work_required,resolved', 
+        'maintenance_items.*.comment' => 'nullable|string|max:1000',
+        'maintenance_items.*.next_follow_up_date' => 'nullable|date',
             'comments' => 'nullable|string|max:1000',
         ];
     }
 
+    public function messages()
+    {
+        return [
 
+            'maintenance_items.*.status.in' => 'The status must be one of the following: good, average, dirty, na, work_required, resolved.',
+
+
+        ];
+    }
 }
