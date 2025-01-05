@@ -20,7 +20,10 @@ class TenantInspection extends Model
         'created_by'
     ];
 
-
+    public function property()
+    {
+        return $this->belongsTo(Tenant::class,"tenant_id","id");
+    }
 
 
     public function tenant()

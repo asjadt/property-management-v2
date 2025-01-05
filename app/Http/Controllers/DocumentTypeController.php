@@ -485,7 +485,6 @@ class DocumentTypeController extends Controller
 
             }
 
-
             DocumentType::where([
                 "id" => $id
             ])
@@ -493,6 +492,7 @@ class DocumentTypeController extends Controller
                 "created_by" => auth()->user()->id
             ])
                 ->delete();
+            
 
             return response()->json(["ok" => true], 200);
         } catch (Exception $e) {

@@ -17,6 +17,9 @@ class MaintenanceItem extends Model
         'next_follow_up_date',
     ];
 
-
+    public function inspection()
+    {
+        return $this->belongsTo(TenantInspection::class,"tenant_inspection_id","id");
+    }
 
 }

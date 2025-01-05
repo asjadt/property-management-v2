@@ -376,7 +376,6 @@ Route::get('/v1.0/properties/get/all/optimized', [PropertyController::class, "ge
 Route::get('/v1.0/properties/get/all', [PropertyController::class, "getAllProperties"]);
 Route::get('/v1.0/properties/get/single/{id}', [PropertyController::class, "getPropertyById"]);
 Route::delete('/v1.0/properties/{id}', [PropertyController::class, "deletePropertyById"]);
-
 Route::get('/v1.0/properties/generate/property-reference_no', [PropertyController::class, "generatePropertyReferenceNumber"]);
 Route::get('/v1.0/properties/validate/property-reference_no/{reference_no}', [PropertyController::class, "validatePropertyReferenceNumber"]);
 
