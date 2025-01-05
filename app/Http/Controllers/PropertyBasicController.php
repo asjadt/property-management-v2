@@ -1057,24 +1057,25 @@ COALESCE(
             $data["document_report"] = $document_report;
 
 
-            $maintainance_statuses = MaintenanceItem::whereHas("inspection", function($query) {
+            $maintainance_items = MaintenanceItem::whereHas("inspection", function($query) {
                $query->where("tenant_inspections.created_by",auth()->user()->id);
             })
-            ->groupBy("maintenance_items.status")
-            ->pluck("maintenance_items.status");
+            ->groupBy("maintenance_items.item")
+            ->pluck("maintenance_items.item");
 
 
             $maintainance_report = [];
 
-            foreach ($maintainance_statuses as $maintainance_status) {
+            foreach ($maintainance_items as $maintainance_item) {
 
                 $base_maintance_query = MaintenanceItem::whereHas("inspection", function($query) {
                     $query->where("tenant_inspections.created_by",auth()->user()->id);
                  })
+                 ->where("item",$maintainance_item)
                 ->where("status", "work_required");
 
                 // Count documents for different expiration periods
-                $maintainance_report[$document_type->name] = [
+                $maintainance_report["maintainance_item"] = [
                     'total_data' => (clone $base_maintance_query)->count(),
                     'total_expired' => (clone $base_maintance_query)->whereDate('maintenance_items.next_follow_up_date', "<" , Carbon::today())->count(),
                     'today_expiry' => (clone $base_maintance_query)->whereDate('maintenance_items.next_follow_up_date', Carbon::today())->count(),
