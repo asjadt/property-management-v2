@@ -1075,7 +1075,7 @@ COALESCE(
                 ->where("status", "work_required");
 
                 // Count documents for different expiration periods
-                $maintainance_report["maintainance_item"] = [
+                $maintainance_report[$maintainance_item] = [
                     'total_data' => (clone $base_maintance_query)->count(),
                     'total_expired' => (clone $base_maintance_query)->whereDate('maintenance_items.next_follow_up_date', "<" , Carbon::today())->count(),
                     'today_expiry' => (clone $base_maintance_query)->whereDate('maintenance_items.next_follow_up_date', Carbon::today())->count(),
