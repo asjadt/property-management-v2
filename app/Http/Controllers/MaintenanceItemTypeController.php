@@ -502,11 +502,7 @@ class MaintenanceItemTypeController extends Controller
 
         try {
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
-            if (!$request->user()->hasPermissionTo('maintenance_item_type_delete')) {
-                return response()->json([
-                    "message" => "You can not perform this action"
-                ], 401);
-            }
+         
 
             $idsArray = explode(',', $ids);
             $existingIds = MaintenanceItemType::whereIn('id', $idsArray)
