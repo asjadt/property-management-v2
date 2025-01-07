@@ -30,12 +30,21 @@ class TenantInspectionCreateRequest extends FormRequest
             'inspected_by' => 'required|string|max:255',
             'phone' => 'required|string|max:20', // Assuming a phone number format
             'date' => 'required|date',
+            'next_inspection_date' => 'required|date',
+
         'maintenance_items' => 'present|array',
         'maintenance_items.*.item' => 'required|string',
-        'maintenance_items.*.status' => 'required|in:good,average,dirty,na,work_required,resolved', 
+        'maintenance_items.*.status' => 'required|in:good,average,dirty,na,work_required,resolved',
         'maintenance_items.*.comment' => 'nullable|string|max:1000',
         'maintenance_items.*.next_follow_up_date' => 'nullable|date',
-            'comments' => 'nullable|string|max:1000',
+        'comments' => 'nullable|string|max:1000',
+
+        'files' => 'present|array',
+        'files.*.file' => 'required|string',
+        'files.*.description' => 'nullable|string',
+
+
+        
         ];
     }
 

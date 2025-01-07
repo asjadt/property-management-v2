@@ -16,8 +16,14 @@ class TenantInspection extends Model
         'inspected_by',
         'phone',
         'date',
+        'next_inspection_date',
         'comments',
+        'files',
         'created_by'
+    ];
+
+    protected $casts = [
+        'files' => 'array',
     ];
 
     public function property()

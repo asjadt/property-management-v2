@@ -38,6 +38,9 @@ class TenantCreateRequest extends FormRequest
             'lat' => 'nullable|string',
             'long' => 'nullable|string',
 
+            'files' => 'present|array',
+            'files.*.file' => 'required|string',
+            'files.*.description' => 'nullable|string',
         ];
     }
 }

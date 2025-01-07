@@ -40,6 +40,7 @@ class TenantInspectionController extends Controller
  *     @OA\Property(property="inspected_by", type="string", example="John Doe"),
  *     @OA\Property(property="phone", type="string", example="+8801234567890"),
  *     @OA\Property(property="date", type="string", format="date", example="2024-12-25"),
+ *     @OA\Property(property="next_inspection_date", type="string", format="date", example="2024-12-25"),
  * @OA\Property(property="maintenance_items", type="array", @OA\Items(
  *     type="object",
  *     @OA\Property(property="item", type="string", example="entrance"),
@@ -149,6 +150,8 @@ class TenantInspectionController extends Controller
  *     @OA\Property(property="inspected_by", type="string", example="John Doe"),
  *     @OA\Property(property="phone", type="string", example="+8801234567890"),
  *     @OA\Property(property="date", type="string", format="date", example="2024-12-25"),
+ *     @OA\Property(property="next_inspection_date", type="string", format="date", example="2024-12-25"),
+ *
  * @OA\Property(property="maintenance_items", type="array", @OA\Items(
  *     type="object",
  *     @OA\Property(property="item", type="string", example="entrance"),
@@ -207,9 +210,11 @@ class TenantInspectionController extends Controller
                     collect($request_data)->only([
                         'address_line_1',
                         'inspected_by',
+                        'next_inspection_date',
                         'phone',
                         'date',
-                        'comments'
+                        'comments',
+                        "files"
                 ])
                 ->toArray());
                 $inspection->save(); // Save the agreement
@@ -236,8 +241,6 @@ class TenantInspectionController extends Controller
             return $this->sendError($e, 500, $request);
         }
     }
-
-
 
 
 

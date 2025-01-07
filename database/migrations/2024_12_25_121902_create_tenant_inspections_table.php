@@ -15,7 +15,9 @@ class CreateTenantInspectionsTable extends Migration
             $table->string('address_line_1');
             $table->string('inspected_by');
             $table->string('phone');
-            $table->string('date');
+            $table->date('date');
+            $table->date('next_inspection_date');
+            $table->json('files')->nullable();
             $table->string('comments')->nullable();
             $table->unsignedBigInteger("created_by")->nullable();
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');

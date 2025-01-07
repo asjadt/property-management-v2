@@ -22,9 +22,17 @@ class Tenant extends Model
         "lat",
         "long",
         'email',
+        'files',
         "created_by",
          'is_active'
     ];
+
+    protected $casts = [
+        'files' => 'array',
+    ];
+
+
+
     public function properties()
     {
         return $this->belongsToMany(Property::class, 'property_tenants', 'tenant_id', 'property_id');

@@ -333,7 +333,8 @@ class LandlordController extends Controller
         'postcode',
         "lat",
         "long",
-        'email'
+        'email',
+        "files"
                     ])->toArray()
                 )
                     // ->with("somthing")
@@ -1621,9 +1622,11 @@ class LandlordController extends Controller
             ->first();
 
             if(!$landlord) {
+                
          return response()->json([
-"message" => "no landlord found"
-],404);
+             "message" => "no landlord found"
+         ],404);
+
             }
             $landlord->delete();
 

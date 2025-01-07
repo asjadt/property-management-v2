@@ -120,7 +120,7 @@ public function createTenantImage(ImageUploadRequest $request)
  *  @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
- *            required={"name","description","logo"},
+ *            required={"name"},
  *  *             @OA\Property(property="image", type="string", format="string",example="image.jpg"),
   *             @OA\Property(property="first_Name", type="string", format="string",example="Rifat"),
  *            @OA\Property(property="last_Name", type="string", format="string",example="Al"),
@@ -176,32 +176,11 @@ public function createTenant(TenantCreateRequest $request)
         $this->storeActivity($request,"");
         return DB::transaction(function () use ($request) {
 
-
-
             $request_data = $request->validated();
             $request_data["created_by"] = $request->user()->id;
             $tenant =  Tenant::create($request_data);
 
-            // for($i=0;$i<500;$i++) {
-            //     $tenant =  Tenant::create([
-            //         'first_Name'=> $request_data["first_Name"] . Str::random(4),
-            //         'last_Name'=> $request_data["last_Name"] . Str::random(4),
-            //         'phone'=> $request_data["phone"] . Str::random(4),
-            //         'image',
-            //         'address_line_1'=>$request_data["address_line_1"] . Str::random(4),
-            //         'address_line_2',
-            //         'country'=>$request_data["country"] . Str::random(4),
-            //         'city'=>$request_data["city"] . Str::random(4),
-            //         'postcode'=>$request_data["postcode"] . Str::random(4),
-            //         "lat"=>$request_data["lat"] . Str::random(4),
-            //         "long"=>$request_data["long"] . Str::random(4),
-            //         'email'=>$request_data["email"] . Str::random(4),
-            //         "created_by"=>$request->user()->id,
-            //          'is_active'=>1
-            //     ]);
-            //     $tenant->generated_id = Str::random(4) . $tenant->id . Str::random(4);
-            //     $tenant->save();
-            // }
+
 
             if(!$tenant) {
                 throw new Exception("something went wrong");
@@ -334,6 +313,7 @@ public function updateTenant(TenantUpdateRequest $request)
         "lat",
         "long",
         'email',
+        "files"
                 ])->toArray()
             )
                 // ->with("somthing")

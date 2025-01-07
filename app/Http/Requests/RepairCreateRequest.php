@@ -32,8 +32,10 @@ class RepairCreateRequest extends FormRequest
             'create_date'=>"required|date",
             'images' => 'nullable|array',
             'images.*' => 'nullable|string',
+
             'receipt' => 'nullable|array',
             'receipt.*' => 'nullable|string',
+
         ];
     }
 }
