@@ -317,27 +317,8 @@ class MaintenanceItemTypeController extends Controller
             })
             ->when(request()->filled("end_date"), function ($query) {
                 return $query->whereDate('maintenance_item_types.created_at', "<=", request()->input("end_date"));
-            })
-            ->when(request()->filled("order_by") && in_array(strtoupper(request()->input("order_by")), ['ASC', 'DESC']), function ($query) {
-                return $query->orderBy("maintenance_item_types.id", request()->input("order_by"));
-            }, function ($query) {
-                return $query->orderBy("maintenance_item_types.id", "DESC");
-            })
-            ->when(request()->filled("id"), function ($query) {
-                return $query
-                    ->where("maintenance_item_types.id", request()->input("id"))
-                    ->first();
-            }, function ($query) {
-                return $query->when(!empty(request()->per_page), function ($query) {
-                    return $query->paginate(request()->per_page);
-                }, function ($query) {
-                    return $query->get();
-                });
             });
 
-        if (request()->filled("id") && empty($maintenance_item_types)) {
-            throw new Exception("No data found", 404);
-        }
     }
 
 
