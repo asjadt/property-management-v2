@@ -185,6 +185,9 @@ Route::middleware(['auth:api'])->group(function () {
 
     Route::get('/v1.0/dashboard', [PropertyBasicController::class, "getDashboardData"]);
 
+    Route::get('/v1.0/inspection-reports', [PropertyBasicController::class, "getInspectionReportData"]);
+
+
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // payment type management section
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

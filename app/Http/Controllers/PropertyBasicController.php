@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\DB;
 class PropertyBasicController extends Controller
 {
     use ErrorUtil, UserActivityUtil;
- /**
+    /**
      *
      * @OA\Get(
      *      path="/v1.0/property-report",
@@ -56,13 +56,13 @@ class PropertyBasicController extends Controller
      * required=true,
      * example="search_key"
      * ),
-*  @OA\Parameter(
-*      name="property_id",
-*      in="query",
-*      description="property_id",
-*      required=true,
-*      example="1"
-* ),
+     *  @OA\Parameter(
+     *      name="property_id",
+     *      in="query",
+     *      description="property_id",
+     *      required=true,
+     *      example="1"
+     * ),
      * *  @OA\Parameter(
      * name="repair_category",
      * in="query",
@@ -109,10 +109,10 @@ class PropertyBasicController extends Controller
      *     )
      */
 
-     public function propertyReport( Request $request)
-     {
-         try {
-             $this->storeActivity($request, "");
+    public function propertyReport(Request $request)
+    {
+        try {
+            $this->storeActivity($request, "");
 
 
             //  if(empty($request->start_date)){
@@ -120,16 +120,16 @@ class PropertyBasicController extends Controller
             //      $request["end_date"] = $firstDayOfYear->format('Y-m-d');
             //  }
 
-             if(!empty($request->end_date)){
+            if (!empty($request->end_date)) {
                 //  $todayDate = Carbon::now();
                 //  $request["end_date"] = $todayDate->format('Y-m-d');
-                 $request['next_day'] = date('Y-m-d', strtotime($request->end_date) + 86400);
-             }
+                $request['next_day'] = date('Y-m-d', strtotime($request->end_date) + 86400);
+            }
 
 
 
 
-             if (!empty($request->property_id)) {
+            if (!empty($request->property_id)) {
                 $property = Property::where([
                     "id" => $request->property_id,
                     "created_by" => $request->user()->id
@@ -177,7 +177,7 @@ class PropertyBasicController extends Controller
                     )
                     ->get();
 
-                    $opening_balance =  $opening_balance_data->sum("total_due");
+                $opening_balance =  $opening_balance_data->sum("total_due");
 
                 // opening balance end
 
@@ -193,12 +193,17 @@ class PropertyBasicController extends Controller
                         return $query->where('invoices.invoice_date', "<", $request["next_day"]);
                     })
 
-                    ->select('invoices.id', 'invoices.total_amount', 'invoices.invoice_date as created_at', 'invoices.invoice_reference', DB::raw("'invoice' as type"),
-                    'invoices.due_date as due_date',
-                    DB::raw(
-                        '(SELECT COALESCE(SUM(invoice_payments.amount), 0) FROM invoice_payments WHERE invoices.id = invoice_payments.invoice_id) AS total_paid'
-                    )
-                );
+                    ->select(
+                        'invoices.id',
+                        'invoices.total_amount',
+                        'invoices.invoice_date as created_at',
+                        'invoices.invoice_reference',
+                        DB::raw("'invoice' as type"),
+                        'invoices.due_date as due_date',
+                        DB::raw(
+                            '(SELECT COALESCE(SUM(invoice_payments.amount), 0) FROM invoice_payments WHERE invoices.id = invoice_payments.invoice_id) AS total_paid'
+                        )
+                    );
 
                 // $invoicePaymentQuery = InvoicePayment::leftJoin('invoices', 'invoices.id', '=', 'invoice_payments.invoice_id')
                 //     ->where([
@@ -223,7 +228,7 @@ class PropertyBasicController extends Controller
 
                 $activities = $activitiesQuery->get();
 
-                foreach($activities as $key=>$item){
+                foreach ($activities as $key => $item) {
                     $activities[$key]->invoice_payments =  $activities[$key]->invoice_payments;
                 }
 
@@ -258,43 +263,42 @@ class PropertyBasicController extends Controller
                     })
                     ->get();
 
-                    $data["table_3"] = Repair::with("repair_category")->where([
-                        "repairs.property_id" => $property->id,
-                        "repairs.created_by" => $request->user()->id
-                    ])
-                        ->when(!empty($request->start_date), function ($query) use ($request) {
-                            return $query->where('repairs.created_at', ">=", $request->start_date);
-                        })
-                        ->when(!empty($request->end_date), function ($query) use ($request) {
-                            return $query->where('repairs.created_at', "<", $request["next_day"]);
-                        })
-                        ->when(!empty($request->repair_category), function ($query) use ($request) {
-                          return  $query->whereHas('repair_category', function ($innerQuery)use($request) {
-                                $innerQuery->where('name', $request->repair_category);
-                            });
-
-                        })
-                        ->get();
+                $data["table_3"] = Repair::with("repair_category")->where([
+                    "repairs.property_id" => $property->id,
+                    "repairs.created_by" => $request->user()->id
+                ])
+                    ->when(!empty($request->start_date), function ($query) use ($request) {
+                        return $query->where('repairs.created_at', ">=", $request->start_date);
+                    })
+                    ->when(!empty($request->end_date), function ($query) use ($request) {
+                        return $query->where('repairs.created_at', "<", $request["next_day"]);
+                    })
+                    ->when(!empty($request->repair_category), function ($query) use ($request) {
+                        return  $query->whereHas('repair_category', function ($innerQuery) use ($request) {
+                            $innerQuery->where('name', $request->repair_category);
+                        });
+                    })
+                    ->get();
 
 
 
                 return response()->json($data, 200);
-            }   else {
-                 $error =  [
-                     "message" => "The given data was invalid.",
-                     "errors" => [
-                         "property_id" => ["property must be selected."],
+            } else {
+                $error =  [
+                    "message" => "The given data was invalid.",
+                    "errors" => [
+                        "property_id" => ["property must be selected."],
 
 
-                     ]
-                 ];
-                 throw new Exception(json_encode($error), 422);
-             }
-         } catch (Exception $e) {
+                    ]
+                ];
+                throw new Exception(json_encode($error), 422);
+            }
+        } catch (Exception $e) {
 
-             return $this->sendError($e, 500, $request);
-         }
-     }
+            return $this->sendError($e, 500, $request);
+        }
+    }
     /**
      *
      * @OA\Get(
@@ -333,13 +337,13 @@ class PropertyBasicController extends Controller
      * required=true,
      * example="search_key"
      * ),
-*  @OA\Parameter(
-*      name="property_ids[]",
-*      in="query",
-*      description="property_ids",
-*      required=true,
-*      example="1,2"
-* ),
+     *  @OA\Parameter(
+     *      name="property_ids[]",
+     *      in="query",
+     *      description="property_ids",
+     *      required=true,
+     *      example="1,2"
+     * ),
      * *  @OA\Parameter(
      * name="tenant_id",
      * in="query",
@@ -409,11 +413,11 @@ class PropertyBasicController extends Controller
             //     $firstDayOfYear = Carbon::now()->startOfYear();
             //     $request["end_date"] = $firstDayOfYear->format('Y-m-d');
             // }
-            if(!empty($request->end_date)){
+            if (!empty($request->end_date)) {
                 //  $todayDate = Carbon::now();
                 //  $request["end_date"] = $todayDate->format('Y-m-d');
-                 $request['next_day'] = date('Y-m-d', strtotime($request->end_date) + 86400);
-             }
+                $request['next_day'] = date('Y-m-d', strtotime($request->end_date) + 86400);
+            }
 
 
 
@@ -470,7 +474,7 @@ class PropertyBasicController extends Controller
                     )
                     ->get();
 
-                    $opening_balance =  $opening_balance_data->sum("total_due");
+                $opening_balance =  $opening_balance_data->sum("total_due");
 
                 // opening balance end
 
@@ -483,18 +487,24 @@ class PropertyBasicController extends Controller
                         return $query->where('invoices.invoice_date', ">=", $request->start_date);
                     })
                     ->when(!empty($request->end_date), function ($query) use ($request) {
-                        return $query->where('invoices.invoice_date', "<",  $request['next_day'] );
+                        return $query->where('invoices.invoice_date', "<",  $request['next_day']);
                     })
                     ->when(!empty($request->property_ids), function ($query) use ($request) {
                         $null_filter = collect(array_filter($request->property_ids))->values();
                         $property_ids =  $null_filter->all();
-                        return $query->whereIn("invoices.property_id",$property_ids);
+                        return $query->whereIn("invoices.property_id", $property_ids);
                     })
-                     ->select('invoices.id', 'invoices.total_amount', 'invoices.invoice_date as created_at', 'invoices.invoice_reference', DB::raw("'invoice' as type"), 'invoices.due_date as due_date',
+                    ->select(
+                        'invoices.id',
+                        'invoices.total_amount',
+                        'invoices.invoice_date as created_at',
+                        'invoices.invoice_reference',
+                        DB::raw("'invoice' as type"),
+                        'invoices.due_date as due_date',
 
-                     DB::raw(
-                        '(SELECT COALESCE(SUM(invoice_payments.amount), 0) FROM invoice_payments WHERE invoices.id = invoice_payments.invoice_id) AS total_paid'
-                    )
+                        DB::raw(
+                            '(SELECT COALESCE(SUM(invoice_payments.amount), 0) FROM invoice_payments WHERE invoices.id = invoice_payments.invoice_id) AS total_paid'
+                        )
                     );
 
                 // $invoicePaymentQuery = InvoicePayment::leftJoin('invoices', 'invoices.id', '=', 'invoice_payments.invoice_id')
@@ -524,7 +534,7 @@ class PropertyBasicController extends Controller
 
                 $activitiesPaginated = $activitiesQuery->paginate($perPage);
 
-                foreach($activitiesPaginated->items() as $key=>$item){
+                foreach ($activitiesPaginated->items() as $key => $item) {
                     $activitiesPaginated->items()[$key]->invoice_payments = $activitiesPaginated->items()[$key]->invoice_payments;
                 }
 
@@ -602,7 +612,7 @@ class PropertyBasicController extends Controller
                     )
                     ->get();
 
-                    $opening_balance =  $opening_balance_data->sum("total_due");
+                $opening_balance =  $opening_balance_data->sum("total_due");
 
                 // opening balance end
 
@@ -614,17 +624,23 @@ class PropertyBasicController extends Controller
                         return $query->where('invoices.invoice_date', ">=", $request->start_date);
                     })
                     ->when(!empty($request->end_date), function ($query) use ($request) {
-                        return $query->where('invoices.invoice_date', "<",  $request['next_day'] );
+                        return $query->where('invoices.invoice_date', "<",  $request['next_day']);
                     })
                     ->when(!empty($request->property_ids), function ($query) use ($request) {
                         $null_filter = collect(array_filter($request->property_ids))->values();
                         $property_ids =  $null_filter->all();
-                        return $query->whereIn("invoices.property_id",$property_ids);
+                        return $query->whereIn("invoices.property_id", $property_ids);
                     })
-                     ->select('invoices.id', 'invoices.total_amount', 'invoices.invoice_date as created_at', 'invoices.invoice_reference', DB::raw("'invoice' as type"), 'invoices.due_date as due_date',
-                     DB::raw(
-                        '(SELECT COALESCE(SUM(invoice_payments.amount), 0) FROM invoice_payments WHERE invoices.id = invoice_payments.invoice_id) AS total_paid'
-                    )
+                    ->select(
+                        'invoices.id',
+                        'invoices.total_amount',
+                        'invoices.invoice_date as created_at',
+                        'invoices.invoice_reference',
+                        DB::raw("'invoice' as type"),
+                        'invoices.due_date as due_date',
+                        DB::raw(
+                            '(SELECT COALESCE(SUM(invoice_payments.amount), 0) FROM invoice_payments WHERE invoices.id = invoice_payments.invoice_id) AS total_paid'
+                        )
                     );
 
                 // $invoicePaymentQuery = InvoicePayment::leftJoin('invoices', 'invoices.id', '=', 'invoice_payments.invoice_id')
@@ -655,7 +671,7 @@ class PropertyBasicController extends Controller
                 $activitiesPaginated = $activitiesQuery->paginate($perPage);
 
 
-                foreach($activitiesPaginated->items() as $key=>$item){
+                foreach ($activitiesPaginated->items() as $key => $item) {
                     $activitiesPaginated->items()[$key]->invoice_payments = $activitiesPaginated->items()[$key]->invoice_payments;
                 }
 
@@ -727,7 +743,7 @@ class PropertyBasicController extends Controller
                     )
                     ->get();
 
-                    $opening_balance =  $opening_balance_data->sum("total_due");
+                $opening_balance =  $opening_balance_data->sum("total_due");
 
                 // opening balance end
 
@@ -740,17 +756,23 @@ class PropertyBasicController extends Controller
                         return $query->where('invoices.invoice_date', ">=", $request->start_date);
                     })
                     ->when(!empty($request->end_date), function ($query) use ($request) {
-                        return $query->where('invoices.invoice_date', "<",  $request['next_day'] );
+                        return $query->where('invoices.invoice_date', "<",  $request['next_day']);
                     })
                     ->when(!empty($request->property_ids), function ($query) use ($request) {
                         $null_filter = collect(array_filter($request->property_ids))->values();
                         $property_ids =  $null_filter->all();
-                        return $query->whereIn("invoices.property_id",$property_ids);
+                        return $query->whereIn("invoices.property_id", $property_ids);
                     })
-                     ->select('invoices.id', 'invoices.total_amount', 'invoices.invoice_date as created_at', 'invoices.invoice_reference', DB::raw("'invoice' as type"), 'invoices.due_date as due_date',
-                     DB::raw(
-                        '(SELECT COALESCE(SUM(invoice_payments.amount), 0) FROM invoice_payments WHERE invoices.id = invoice_payments.invoice_id) AS total_paid'
-                    )
+                    ->select(
+                        'invoices.id',
+                        'invoices.total_amount',
+                        'invoices.invoice_date as created_at',
+                        'invoices.invoice_reference',
+                        DB::raw("'invoice' as type"),
+                        'invoices.due_date as due_date',
+                        DB::raw(
+                            '(SELECT COALESCE(SUM(invoice_payments.amount), 0) FROM invoice_payments WHERE invoices.id = invoice_payments.invoice_id) AS total_paid'
+                        )
                     );
 
                 // $invoicePaymentQuery = InvoicePayment::leftJoin('invoices', 'invoices.id', '=', 'invoice_payments.invoice_id')
@@ -780,9 +802,9 @@ class PropertyBasicController extends Controller
 
                 $activitiesPaginated = $activitiesQuery->paginate($perPage);
 
-foreach($activitiesPaginated->items() as $key=>$item){
-    $activitiesPaginated->items()[$key]->invoice_payments = $activitiesPaginated->items()[$key]->invoice_payments;
-}
+                foreach ($activitiesPaginated->items() as $key => $item) {
+                    $activitiesPaginated->items()[$key]->invoice_payments = $activitiesPaginated->items()[$key]->invoice_payments;
+                }
 
 
                 $section_1["invoice_payment_total_amount"] =   collect($activitiesPaginated->items())->filter(function ($item) {
@@ -802,9 +824,7 @@ foreach($activitiesPaginated->items() as $key=>$item){
                     // "opening_balance" => ($total_past_invoice_amount - $total_past_invoice_payment_amount)
                     "opening_balance" => $opening_balance
                 ], 200);
-            }
-
-            else {
+            } else {
                 $error =  [
                     "message" => "The given data was invalid.",
                     "errors" => [
@@ -961,7 +981,7 @@ foreach($activitiesPaginated->items() as $key=>$item){
             $data["total_overdue_invoice_amount"] = Invoice::where([
                 "invoices.created_by" => $request->user()->id
             ])
-            ->where('invoices.status',  'overdue')
+                ->where('invoices.status',  'overdue')
 
                 ->select(
                     DB::raw('
@@ -1028,83 +1048,150 @@ COALESCE(
                 $base_documents_query = PropertyDocument::whereHas("property", function ($query) {
                     $query->where("properties.created_by", auth()->user()->id);
                 })
-                ->where("document_type_id", $document_type->id);
+                    ->where("document_type_id", $document_type->id);
 
                 // Count documents for different expiration periods
                 $document_report[$document_type->name] = [
                     'total_data' => (clone $base_documents_query)->count(),
-                    'total_expired' => (clone $base_documents_query)->whereDate('gas_end_date', "<" , Carbon::today())->count(),
+                    'total_expired' => (clone $base_documents_query)->whereDate('gas_end_date', "<", Carbon::today())->count(),
                     'today_expiry' => (clone $base_documents_query)->whereDate('gas_end_date', Carbon::today())->count(),
 
                     'expires_in_15_days' => (clone $base_documents_query)
-                    ->whereDate('gas_end_date', ">" , Carbon::today())
-                    ->whereDate('gas_end_date', "<=" , Carbon::today()->addDays(15))
-                    ->count(),
+                        ->whereDate('gas_end_date', ">", Carbon::today())
+                        ->whereDate('gas_end_date', "<=", Carbon::today()->addDays(15))
+                        ->count(),
                     'expires_in_30_days' => (clone $base_documents_query)
 
-                    ->whereDate('gas_end_date', ">" , Carbon::today())
-                    ->whereDate('gas_end_date', "<=" , Carbon::today()->addDays(30))
-                    ->count(),
-                    'expires_in_45_days' => (clone $base_documents_query) ->whereDate('gas_end_date', ">" , Carbon::today())
-                    ->whereDate('gas_end_date', "<=" , Carbon::today()->addDays(45))
-                    ->count(),
-                    'expires_in_60_days' => (clone $base_documents_query) ->whereDate('gas_end_date', ">" , Carbon::today())
-                    ->whereDate('gas_end_date', "<=" , Carbon::today()->addDays(60))
-                    ->count(),
+                        ->whereDate('gas_end_date', ">", Carbon::today())
+                        ->whereDate('gas_end_date', "<=", Carbon::today()->addDays(30))
+                        ->count(),
+                    'expires_in_45_days' => (clone $base_documents_query)->whereDate('gas_end_date', ">", Carbon::today())
+                        ->whereDate('gas_end_date', "<=", Carbon::today()->addDays(45))
+                        ->count(),
+                    'expires_in_60_days' => (clone $base_documents_query)->whereDate('gas_end_date', ">", Carbon::today())
+                        ->whereDate('gas_end_date', "<=", Carbon::today()->addDays(60))
+                        ->count(),
                 ];
             }
 
             $data["document_report"] = $document_report;
 
 
-            $maintainance_items = MaintenanceItem::whereHas("inspection", function($query) {
-               $query->where("tenant_inspections.created_by",auth()->user()->id);
-            })
-            ->groupBy("maintenance_items.item")
-            ->pluck("maintenance_items.item");
-
-
-            $maintainance_report = [];
-
-            foreach ($maintainance_items as $maintainance_item) {
-
-                $base_maintance_query = MaintenanceItem::whereHas("inspection", function($query) {
-                    $query->where("tenant_inspections.created_by",auth()->user()->id);
-                 })
-                 ->where("item",$maintainance_item)
-                ->where("status", "work_required");
-
-                // Count documents for different expiration periods
-                $maintainance_report[$maintainance_item] = [
-                    'total_data' => (clone $base_maintance_query)->count(),
-                    'total_expired' => (clone $base_maintance_query)->whereDate('maintenance_items.next_follow_up_date', "<" , Carbon::today())->count(),
-                    'today_expiry' => (clone $base_maintance_query)->whereDate('maintenance_items.next_follow_up_date', Carbon::today())->count(),
-
-                    'expires_in_15_days' => (clone $base_maintance_query)
-                    ->whereDate('maintenance_items.next_follow_up_date', ">" , Carbon::today())
-                    ->whereDate('maintenance_items.next_follow_up_date', "<=" , Carbon::today()->addDays(15))
-                    ->count(),
-                    'expires_in_30_days' => (clone $base_maintance_query)
-
-                    ->whereDate('maintenance_items.next_follow_up_date', ">" , Carbon::today())
-                    ->whereDate('maintenance_items.next_follow_up_date', "<=" , Carbon::today()->addDays(30))
-                    ->count(),
-                    'expires_in_45_days' => (clone $base_maintance_query) ->whereDate('maintenance_items.next_follow_up_date', ">" , Carbon::today())
-                    ->whereDate('maintenance_items.next_follow_up_date', "<=" , Carbon::today()->addDays(45))
-                    ->count(),
-                    'expires_in_60_days' => (clone $base_maintance_query) ->whereDate('maintenance_items.next_follow_up_date', ">" , Carbon::today())
-                    ->whereDate('maintenance_items.next_follow_up_date', "<=" , Carbon::today()->addDays(60))
-                    ->count(),
-                ];
-            }
-
-            $data["maintainance_report"] = $maintainance_report;
-
-
+            $data["maintainance_report"] = $this->getMaintainanceReport();
 
             return response()->json($data, 200);
         } catch (Exception $e) {
             return $this->sendError($e, 500, $request);
         }
+    }
+
+
+       /**
+     *
+     * @OA\Get(
+     *      path="/v1.0/inspection-reports",
+     *      operationId="getInspectionReportData",
+     *      tags={"property_management.basics"},
+     *       security={
+     *           {"bearerAuth": {}}
+     *       },
+
+     *      summary="get all dashboard data combined",
+     *      description="get all dashboard data combined",
+     *
+
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       @OA\JsonContent(),
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     * @OA\JsonContent(),
+     *      ),
+     *        @OA\Response(
+     *          response=422,
+     *          description="Unprocesseble Content",
+     *    @OA\JsonContent(),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *   @OA\JsonContent()
+     * ),
+     *  * @OA\Response(
+     *      response=400,
+     *      description="Bad Request",
+     *   *@OA\JsonContent()
+     *   ),
+     * @OA\Response(
+     *      response=404,
+     *      description="not found",
+     *   *@OA\JsonContent()
+     *   )
+     *      )
+     *     )
+     */
+
+     public function getInspectionReportData(Request $request)
+     {
+         try {
+             $this->storeActivity($request, "");
+
+             $data["maintainance_report"] = $this->getMaintainanceReport();
+
+             return response()->json($data, 200);
+         } catch (Exception $e) {
+             return $this->sendError($e, 500, $request);
+         }
+     }
+
+
+    public function getMaintainanceReport()
+    {
+
+        $maintainance_items = MaintenanceItem::whereHas("inspection", function ($query) {
+            $query->where("tenant_inspections.created_by", auth()->user()->id);
+        })
+            ->groupBy("maintenance_items.item")
+            ->pluck("maintenance_items.item");
+
+        $maintainance_report = [];
+
+        foreach ($maintainance_items as $maintainance_item) {
+
+            $base_maintance_query = MaintenanceItem::whereHas("inspection", function ($query) {
+                $query->where("tenant_inspections.created_by", auth()->user()->id);
+            })
+                ->where("item", $maintainance_item)
+                ->where("status", "work_required");
+
+            // Count documents for different expiration periods
+            $maintainance_report[$maintainance_item] = [
+                'total_data' => (clone $base_maintance_query)->count(),
+                'total_expired' => (clone $base_maintance_query)->whereDate('maintenance_items.next_follow_up_date', "<", Carbon::today())->count(),
+                'today_expiry' => (clone $base_maintance_query)->whereDate('maintenance_items.next_follow_up_date', Carbon::today())->count(),
+
+                'expires_in_15_days' => (clone $base_maintance_query)
+                    ->whereDate('maintenance_items.next_follow_up_date', ">", Carbon::today())
+                    ->whereDate('maintenance_items.next_follow_up_date', "<=", Carbon::today()->addDays(15))
+                    ->count(),
+                'expires_in_30_days' => (clone $base_maintance_query)
+
+                    ->whereDate('maintenance_items.next_follow_up_date', ">", Carbon::today())
+                    ->whereDate('maintenance_items.next_follow_up_date', "<=", Carbon::today()->addDays(30))
+                    ->count(),
+                'expires_in_45_days' => (clone $base_maintance_query)->whereDate('maintenance_items.next_follow_up_date', ">", Carbon::today())
+                    ->whereDate('maintenance_items.next_follow_up_date', "<=", Carbon::today()->addDays(45))
+                    ->count(),
+                'expires_in_60_days' => (clone $base_maintance_query)->whereDate('maintenance_items.next_follow_up_date', ">", Carbon::today())
+                    ->whereDate('maintenance_items.next_follow_up_date', "<=", Carbon::today()->addDays(60))
+                    ->count(),
+            ];
+        }
+
+
+        return $maintainance_report;
     }
 }
