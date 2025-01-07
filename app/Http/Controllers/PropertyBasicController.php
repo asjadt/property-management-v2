@@ -1150,9 +1150,12 @@ COALESCE(
 
     public function getMaintainanceReport()
     {
-
+// commet 850
         $maintainance_items = MaintenanceItem::whereHas("inspection", function ($query) {
-            $query->where("tenant_inspections.created_by", auth()->user()->id);
+            $query->where("tenant_inspections.created_by", auth()->user()->id)
+            ->when(request()->filled("property_id"), function($query) {
+                $query->where("tenant_inspections.property_id",request()->input("property_id"));
+            });
         })
             ->groupBy("maintenance_items.item")
             ->pluck("maintenance_items.item");
@@ -1162,7 +1165,10 @@ COALESCE(
         foreach ($maintainance_items as $maintainance_item) {
 
             $base_maintance_query = MaintenanceItem::whereHas("inspection", function ($query) {
-                $query->where("tenant_inspections.created_by", auth()->user()->id);
+                $query->where("tenant_inspections.created_by", auth()->user()->id)
+                ->when(request()->filled("property_id"), function($query) {
+                    $query->where("tenant_inspections.property_id",request()->input("property_id"));
+                });
             })
                 ->where("item", $maintainance_item)
                 ->where("status", "work_required");
