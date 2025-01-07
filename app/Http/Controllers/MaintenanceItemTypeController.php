@@ -9,11 +9,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\MaintenanceItemTypeCreateRequest;
 use App\Http\Requests\MaintenanceItemTypeUpdateRequest;
 use App\Http\Requests\GetIdRequest;
+use App\Http\Utils\BasicUtil;
 use App\Http\Utils\BusinessUtil;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\MaintenanceItemType;
-use App\Models\DisabledMaintenanceItemType;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\DB;
 class MaintenanceItemTypeController extends Controller
 {
 
-    use ErrorUtil, UserActivityUtil;
+    use ErrorUtil, UserActivityUtil, BasicUtil;
 
 
     /**
