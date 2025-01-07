@@ -26,8 +26,12 @@ class PropertyAgreement extends Model
         'max_price',
         'agency_type',
         'type',
+        "files",
     ];
 
+    protected $casts = [
+        'files' => 'array',
+    ];
     // Relationships
     public function landlord()
     {

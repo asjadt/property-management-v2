@@ -36,6 +36,7 @@ class CreateTenancyAgreementsTable extends Migration
             $table->string('tenant_witness_address');
             $table->string('guarantor_name')->nullable();
             $table->string('guarantor_address')->nullable();
+            $table->json('files')->nullable();
 
             $table->foreignId('property_id')->constrained("properties")->onDelete('cascade');
             $table->timestamps();

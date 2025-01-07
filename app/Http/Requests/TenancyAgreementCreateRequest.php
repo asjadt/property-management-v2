@@ -48,6 +48,10 @@ class TenancyAgreementCreateRequest extends FormRequest
             'tenant_witness_address' => 'required|string|max:255',
             'guarantor_name' => 'nullable|string|max:255',
             'guarantor_address' => 'nullable|string|max:255',
+
+            'files' => 'present|array',
+            'files.*.file' => 'required|string',
+            'files.*.description' => 'nullable|string',
         ];
     }
 }

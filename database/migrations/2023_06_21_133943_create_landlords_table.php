@@ -29,6 +29,7 @@ class CreateLandlordsTable extends Migration
             $table->string("lat")->nullable();
             $table->string("long")->nullable();
             $table->string('is_active')->default(false);
+
             $table->unsignedBigInteger("created_by");
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
 

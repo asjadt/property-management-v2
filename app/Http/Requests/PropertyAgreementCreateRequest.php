@@ -40,6 +40,10 @@ class PropertyAgreementCreateRequest extends FormRequest
             'agency_type' => 'nullable|string|max:255',
             'type' => 'nullable|in:let_property,manage_property,sale_property',
 
+            'files' => 'present|array',
+            'files.*.file' => 'required|string',
+            'files.*.description' => 'nullable|string',
+
         ];
     }
 

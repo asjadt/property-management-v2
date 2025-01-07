@@ -229,6 +229,7 @@ class TenancyAgreementController extends Controller
                     'tenant_witness_address',
                     'guarantor_name',
                     'guarantor_address',
+                    'files'
                 ]);
 
                 // Fill the model with the mass-assignable attributes

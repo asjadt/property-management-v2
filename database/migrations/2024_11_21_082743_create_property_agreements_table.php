@@ -26,6 +26,7 @@ class CreatePropertyAgreementsTable extends Migration
             $table->decimal('min_price', 10, 2)->nullable();
             $table->decimal('max_price', 10, 2)->nullable();
             $table->string('agency_type')->nullable();
+            $table->json('files')->nullable();
 
 
             $table->timestamps();

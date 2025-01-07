@@ -31,7 +31,12 @@ class TenancyAgreement extends Model
         'tenant_witness_address',
         'guarantor_name',
         'guarantor_address',
+        'files'
     ];
+    protected $casts = [
+        'files' => 'array',
+    ];
+
     public function property()
     {
         return $this->belongsTo(Property::class);
@@ -40,4 +45,5 @@ class TenancyAgreement extends Model
     {
         return $this->belongsToMany(Tenant::class, 'agreement_tenants', 'tenancy_agreement_id', 'tenant_id');
     }
+
 }
