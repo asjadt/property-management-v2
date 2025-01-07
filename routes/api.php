@@ -38,6 +38,7 @@ use App\Http\Controllers\InvoiceReminderController;
 use App\Http\Controllers\JobBidController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\LandlordController;
+use App\Http\Controllers\MaintenanceItemTypeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\NotificationTemplateController;
 use App\Http\Controllers\PaymentTypeController;
@@ -359,6 +360,29 @@ Route::post('/v1.0/tenant-inspections', [TenantInspectionController::class, "cre
 Route::put('/v1.0/tenant-inspections', [TenantInspectionController::class, "updateTenantInspection"]);
 Route::get('/v1.0/tenant-inspections', [TenantInspectionController::class, "getTenantInspections"]);
 Route::delete('/v1.0/tenant-inspections/{id}', [TenantInspectionController::class, "deleteTenantInspection"]);
+
+
+
+
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// maintenance item types management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Route::post('/v1.0/maintenance-item-types', [MaintenanceItemTypeController::class, "createMaintenanceItemType"]);
+Route::put('/v1.0/maintenance-item-types', [MaintenanceItemTypeController::class, "updateMaintenanceItemType"]);
+
+Route::put('/v1.0/maintenance-item-types/toggle-active', [MaintenanceItemTypeController::class, "toggleActiveMaintenanceItemType"]);
+
+Route::get('/v1.0/maintenance-item-types', [MaintenanceItemTypeController::class, "getMaintenanceItemTypes"]);
+Route::delete('/v1.0/maintenance-item-types/{ids}', [MaintenanceItemTypeController::class, "deleteMaintenanceItemTypesByIds"]);
+
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// end maintenance item types management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 
 

@@ -1150,7 +1150,7 @@ COALESCE(
 
     public function getMaintainanceReport()
     {
-// commet 850
+
         $maintainance_items = MaintenanceItem::whereHas("inspection", function ($query) {
             $query->where("tenant_inspections.created_by", auth()->user()->id)
             ->when(request()->filled("property_id"), function($query) {
