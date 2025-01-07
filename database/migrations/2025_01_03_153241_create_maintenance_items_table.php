@@ -16,7 +16,9 @@ class CreateMaintenanceItemsTable extends Migration
         Schema::create('maintenance_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tenant_inspection_id')->constrained()->onDelete('cascade');  // Foreign key to TenantInspection
-            $table->string('item');  // e.g. 'entrance', 'exterior_paintwork'
+            $table->foreignId('maintenance_item_type_id')->constrained("maintenance_item_types")->onDelete('cascade');  // Foreign key to TenantInspection
+            $table->string('item');
+
             $table->enum('status', ['good', 'average', 'dirty', 'na','work_required','resolved']);
             $table->text('comment')->nullable();
             $table->date('next_follow_up_date')->nullable();

@@ -43,7 +43,7 @@ class TenantInspectionController extends Controller
  *     @OA\Property(property="next_inspection_date", type="string", format="date", example="2024-12-25"),
  * @OA\Property(property="maintenance_items", type="array", @OA\Items(
  *     type="object",
- *     @OA\Property(property="item", type="string", example="entrance"),
+ *     @OA\Property(property="maintenance_item_type_id", type="number", example="id"),
  *     @OA\Property(property="status", type="string", enum={"good", "average", "dirty", "na", "work_required", "resolved"}, example="good"),
  *     @OA\Property(property="comment", type="string", example="Well maintained entrance", nullable=true),
  *     @OA\Property(property="next_follow_up_date", type="string", format="date", example="2025-03-01", nullable=true)
@@ -114,7 +114,7 @@ class TenantInspectionController extends Controller
             foreach ($request_data['maintenance_items'] as $item) {
                 MaintenanceItem::create([
                     'tenant_inspection_id' => $inspection->id,
-                    'item' => $item['item'],
+                    'maintenance_item_type_id' => $item['maintenance_item_type_id'],
                     'status' => $item['status'],
                     'comment' => $item['comment'] ?? null,
                     'next_follow_up_date' => $item['next_follow_up_date'] ?? null,
@@ -154,7 +154,7 @@ class TenantInspectionController extends Controller
  *
  * @OA\Property(property="maintenance_items", type="array", @OA\Items(
  *     type="object",
- *     @OA\Property(property="item", type="string", example="entrance"),
+ *     @OA\Property(property="maintenance_item_type_id", type="number", example="1"),
  *     @OA\Property(property="status", type="string", enum={"good", "average", "dirty", "na", "work_required", "resolved"}, example="good"),
  *     @OA\Property(property="comment", type="string", example="Well maintained entrance", nullable=true),
  *     @OA\Property(property="next_follow_up_date", type="string", format="date", example="2025-03-01", nullable=true)
@@ -227,7 +227,7 @@ class TenantInspectionController extends Controller
             foreach ($request_data['maintenance_items'] as $item) {
                 MaintenanceItem::create([
                     'tenant_inspection_id' => $inspection->id,
-                    'item' => $item['item'],
+                    'maintenance_item_type_id' => $item['maintenance_item_type_id'],
                     'status' => $item['status'],
                     'comment' => $item['comment'] ?? null,
                     'next_follow_up_date' => $item['next_follow_up_date'] ?? null,

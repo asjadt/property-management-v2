@@ -11,7 +11,7 @@ class MaintenanceItem extends Model
 
     protected $fillable = [
         'tenant_inspection_id',
-        'item',
+        'maintenance_item_type_id',
         'status',
         'comment',
         'next_follow_up_date',

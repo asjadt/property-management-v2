@@ -10,6 +10,7 @@ use App\Models\Invoice;
 use App\Models\InvoicePayment;
 use App\Models\Landlord;
 use App\Models\MaintenanceItem;
+use App\Models\MaintenanceItemType;
 use App\Models\Property;
 use App\Models\PropertyDocument;
 use App\Models\Receipt;
@@ -1151,18 +1152,15 @@ COALESCE(
     public function getMaintainanceReport()
     {
 
-        $maintainance_items = MaintenanceItem::whereHas("inspection", function ($query) {
-            $query->where("tenant_inspections.created_by", auth()->user()->id)
-            ->when(request()->filled("property_id"), function($query) {
-                $query->where("tenant_inspections.property_id",request()->input("property_id"));
-            });
-        })
-            ->groupBy("maintenance_items.item")
-            ->pluck("maintenance_items.item");
+        $maintainance_item_types = MaintenanceItemType::
+          where([
+            "created_by" => auth()->user()->id
+          ])
+          ->get();
 
         $maintainance_report = [];
 
-        foreach ($maintainance_items as $maintainance_item) {
+        foreach ($maintainance_item_types as $maintainance_item_type) {
 
             $base_maintance_query = MaintenanceItem::whereHas("inspection", function ($query) {
                 $query->where("tenant_inspections.created_by", auth()->user()->id)
@@ -1170,11 +1168,12 @@ COALESCE(
                     $query->where("tenant_inspections.property_id",request()->input("property_id"));
                 });
             })
-                ->where("item", $maintainance_item)
+                ->where("maintenance_item_type_id", $maintainance_item_type)
                 ->where("status", "work_required");
 
             // Count documents for different expiration periods
-            $maintainance_report[$maintainance_item] = [
+            $maintainance_report[$maintainance_item_type->id] = [
+                "maintainance_item_type" => $maintainance_item_type->name,
                 'total_data' => (clone $base_maintance_query)->count(),
                 'total_expired' => (clone $base_maintance_query)->whereDate('maintenance_items.next_follow_up_date', "<", Carbon::today())->count(),
                 'today_expiry' => (clone $base_maintance_query)->whereDate('maintenance_items.next_follow_up_date', Carbon::today())->count(),
@@ -1193,7 +1192,8 @@ COALESCE(
                     ->count(),
                 'expires_in_60_days' => (clone $base_maintance_query)->whereDate('maintenance_items.next_follow_up_date', ">", Carbon::today())
                     ->whereDate('maintenance_items.next_follow_up_date', "<=", Carbon::today()->addDays(60))
-                    ->count(),
+                    ->count()
+
             ];
         }
 
