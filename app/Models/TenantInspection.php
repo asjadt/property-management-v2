@@ -37,10 +37,17 @@ class TenantInspection extends Model
         return $this->belongsTo(Tenant::class,"tenant_id","id");
     }
 
+
     public function maintenance_item()
     {
         return $this->hasMany(MaintenanceItem::class,"tenant_inspection_id","id");
     }
+
+
+
+
+
+
 
 
 
