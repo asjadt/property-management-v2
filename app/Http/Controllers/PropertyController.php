@@ -1307,7 +1307,7 @@ $document->save();
 
             // $automobilesQuery = AutomobileMake::with("makes");
 
-            $propertyQuery =  Property::with("property_tenants", "landlord","maintenance_item_types")
+            $propertyQuery =  Property::with("property_tenants", "landlord")
                 ->leftJoin('property_tenants', 'properties.id', '=', 'property_tenants.property_id')
                 ->leftJoin('tenants', 'property_tenants.tenant_id', '=', 'tenants.id')
                 ->where(["properties.created_by" => $request->user()->id]);
@@ -1850,6 +1850,7 @@ $document->save();
                 "repairs.repair_category",
                 "invoices",
                 "documents",
+                "maintenance_item_types"
             )
                 ->where([
                     "generated_id" => $id,
