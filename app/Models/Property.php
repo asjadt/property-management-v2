@@ -56,6 +56,22 @@ class Property extends Model
         return $this->belongsToMany(Tenant::class, 'property_tenants', 'property_id', 'tenant_id');
     }
 
+    public function maintenance_item_types() {
+        return $this->belongsToMany(MaintenanceItemType::class, 'maintenance_item_properties',
+        'property_id',
+        'maintenance_item_type_id'
+    );
+
+
+
+
+
+    }
+
+
+
+
+
     public function landlord() {
         return $this->hasOne(Landlord::class,'id','landlord_id');
     }

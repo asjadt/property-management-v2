@@ -292,16 +292,13 @@ class MaintenanceItemTypeController extends Controller
     public function query_filters($query)
     {
 
-
-        return     $query
-
+        return   $query
             ->when(request()->filled("name"), function ($query) {
                 return $query->where(
                     'maintenance_item_types.name',
                     request()->input("name")
                 );
             })
-
             ->when(request()->filled("search_key"), function ($query) {
                 return $query->where(function ($query) {
                     $term = request()->input("search_key");
@@ -310,7 +307,6 @@ class MaintenanceItemTypeController extends Controller
                         ->orWhere("maintenance_item_types.name", "like", "%" . $term . "%");
                 });
             })
-
 
             ->when(request()->filled("start_date"), function ($query) {
                 return $query->whereDate('maintenance_item_types.created_at', ">=", request()->input("start_date"));

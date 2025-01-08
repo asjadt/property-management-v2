@@ -67,6 +67,11 @@ class PropertyCreateRequestV2 extends FormRequest
             'property_road' => 'nullable|string',
             'county' => 'nullable|string',
             'is_dss' => 'nullable|required_if:category,let_property,manage_property|boolean',
+
+            'maintenance_item_type_ids' => 'present|array',
+            'maintenance_item_type_ids.*' => 'nullable|exists:maintenance_item_types,id',
+
+
         ];
     }
     public function messages()

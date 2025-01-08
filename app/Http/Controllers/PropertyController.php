@@ -332,15 +332,9 @@ class PropertyController extends Controller
                 // }
 
 
-
-
-
-
                 if (!empty($request_data['tenant_ids'])) {
                     $property->property_tenants()->sync($request_data['tenant_ids'], []);
                 }
-
-
 
                 return response($property, 201);
             });
@@ -447,6 +441,7 @@ class PropertyController extends Controller
                         "created_by" => $request->user()->id
                     ]
                 )->exists();
+
                 if ($reference_no_exists) {
                     $error =  [
                         "message" => "The given data was invalid.",
@@ -454,10 +449,6 @@ class PropertyController extends Controller
                     ];
                     throw new Exception(json_encode($error), 422);
                 }
-
-
-
-
 
                 $property =  Property::create(
                     collect($request_data)
@@ -540,10 +531,15 @@ class PropertyController extends Controller
                 //     $property->save();
                 // }
 
+                if (!empty($request_data['maintenance_item_type_ids'])) {
+                    $property->maintenance_item_types()->sync($request_data['maintenance_item_type_ids'], []);
+                }
+
 
                 if (!empty($request_data['tenant_ids'])) {
                     $property->property_tenants()->sync($request_data['tenant_ids'], []);
                 }
+
 
 
 
@@ -1174,6 +1170,11 @@ $document->save();
                 $property->property_tenants()->sync($request_data['tenant_ids']);
             }
 
+
+            if (!empty($request_data['maintenance_item_type_ids'])) {
+                $property->maintenance_item_types()->sync($request_data['maintenance_item_type_ids'], []);
+            }
+
             return response()->json($property, 200);
         } catch (Exception $e) {
             return $this->sendError($e, 500, $request);
@@ -1306,7 +1307,7 @@ $document->save();
 
             // $automobilesQuery = AutomobileMake::with("makes");
 
-            $propertyQuery =  Property::with("property_tenants", "landlord")
+            $propertyQuery =  Property::with("property_tenants", "landlord","maintenance_item_types")
                 ->leftJoin('property_tenants', 'properties.id', '=', 'property_tenants.property_id')
                 ->leftJoin('tenants', 'property_tenants.tenant_id', '=', 'tenants.id')
                 ->where(["properties.created_by" => $request->user()->id]);
