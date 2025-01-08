@@ -293,7 +293,7 @@ class MaintenanceItemTypeController extends Controller
     {
 
 
-        return     $query->where('maintenance_item_types.created_by', auth()->user()->id)
+        return     $query
 
             ->when(request()->filled("name"), function ($query) {
                 return $query->where(
@@ -506,7 +506,8 @@ class MaintenanceItemTypeController extends Controller
 
             $idsArray = explode(',', $ids);
             $existingIds = MaintenanceItemType::whereIn('id', $idsArray)
-               
+                ->where('maintenance_item_types.created_by', auth()->user()->id)
+
                 ->select('id')
                 ->get()
                 ->pluck('id')
