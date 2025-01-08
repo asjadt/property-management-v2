@@ -502,12 +502,11 @@ class MaintenanceItemTypeController extends Controller
 
         try {
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
-         
+
 
             $idsArray = explode(',', $ids);
             $existingIds = MaintenanceItemType::whereIn('id', $idsArray)
-                ->where('maintenance_item_types.created_by', auth()->user()->id)
-
+               
                 ->select('id')
                 ->get()
                 ->pluck('id')
