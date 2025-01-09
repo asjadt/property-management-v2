@@ -1186,9 +1186,6 @@ $document->save();
 
 
 
-
-
-
     /**
      *
      * @OA\Get(
@@ -1343,6 +1340,56 @@ $document->save();
             if (!empty($request->end_date)) {
                 $propertyQuery = $propertyQuery->where('properties.created_at', "<=", $request->end_date);
             }
+
+            $propertyQuery = $propertyQuery
+            ->when(request()->filled('start_inspection_date') || request()->filled('end_inspection_date'), function ($query) {
+                $query->whereHas('inspections', function ($query) {
+                    if (request()->filled('start_inspection_date')) {
+                        $query->whereDate('tenant_inspections.date', '>=', request()->input('start_inspection_date'));
+                    }
+                    if (request()->filled('end_inspection_date')) {
+                        $query->whereDate('tenant_inspections.date', '<=', request()->input('end_inspection_date'));
+                    }
+                });
+            })
+            ->when(request()->filled('start_next_inspection_date') || request()->filled('end_next_inspection_date'), function ($query) {
+                $query->whereHas('inspections', function ($query) {
+                    if (request()->filled('start_next_inspection_date')) {
+                        $query->whereDate('tenant_inspections.next_inspection_date', '>=', request()->input('start_next_inspection_date'));
+                    }
+                    if (request()->filled('end_next_inspection_date')) {
+                        $query->whereDate('tenant_inspections.next_inspection_date', '<=', request()->input('end_next_inspection_date'));
+                    }
+                });
+            })
+            ->when(request()->filled('inspected_by'), function ($query) {
+                $query->whereHas('inspections', function ($query) {
+                    $query->where('tenant_inspections.address', 'like', '%' . request()->input('inspected_by') . '%');
+                });
+            })
+            ->when(request()->filled('maintenance_item_type_id'), function ($query) {
+                $query->whereHas('inspections.maintenance_item', function ($query) {
+                    $query->where('maintenance_items.maintenance_item_type_id', request()->input('maintenance_item_type_id'));
+                });
+            })
+            ->when(request()->filled('start_next_follow_up_date') || request()->filled('end_next_follow_up_date'), function ($query) {
+                $query->whereHas('inspections.maintenance_item', function ($query) {
+                    if (request()->filled('start_next_follow_up_date')) {
+                        $query->whereDate('maintenance_items.next_follow_up_date', '>=', request()->input('start_next_follow_up_date'));
+                    }
+                    if (request()->filled('end_next_follow_up_date')) {
+                        $query->whereDate('maintenance_items.next_follow_up_date', '<=', request()->input('end_next_follow_up_date'));
+                    }
+                });
+            })
+
+
+
+
+
+            ;
+
+
 
             $properties = $propertyQuery->orderBy("properties.address", $request->order_by)
                 ->groupBy("properties.id")

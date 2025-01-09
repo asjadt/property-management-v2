@@ -53,4 +53,22 @@ class TenantInspection extends Model
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
 }

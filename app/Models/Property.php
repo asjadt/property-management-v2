@@ -24,7 +24,6 @@ class Property extends Model
         'type',
         'reference_no',
         'landlord_id',
-
         'is_active',
         'date_of_instruction',
         'howDetached',
@@ -50,6 +49,12 @@ class Property extends Model
     {
         return $this->hasMany(PropertyDocument::class);
     }
+
+    public function inspections()
+    {
+        return $this->hasMany(TenantInspection::class,"property_id","id");
+    }
+
 
 
     public function property_tenants() {

@@ -194,6 +194,7 @@ class TenantInspectionController extends Controller
             return DB::transaction(function () use ($request) {
                 $request_data = $request->validated();
 
+
                 // Find the agreement, including soft-deleted records
                 $inspection = TenantInspection::
                   where("created_by",auth()->user()->id)
@@ -218,7 +219,6 @@ class TenantInspectionController extends Controller
                 ])
                 ->toArray());
                 $inspection->save(); // Save the agreement
-
                  // Create maintenance items using create method
                  MaintenanceItem::where([
                     'tenant_inspection_id' => $inspection->id
