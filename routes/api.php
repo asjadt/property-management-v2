@@ -396,10 +396,7 @@ Route::post('/v1.0/properties/{id}/add-more-images', [PropertyController::class,
 
 // Delete specific images
 Route::delete('/v1.0/properties/{id}/delete-images', [PropertyController::class, 'deleteImages']);
-
-
 Route::get('/v1.0/properties/get/all/optimized', [PropertyController::class, "getAllProperties"]);
-
 Route::get('/v1.0/properties/get/all', [PropertyController::class, "getAllProperties"]);
 Route::get('/v1.0/properties/get/single/{id}', [PropertyController::class, "getPropertyById"]);
 Route::delete('/v1.0/properties/{id}', [PropertyController::class, "deletePropertyById"]);

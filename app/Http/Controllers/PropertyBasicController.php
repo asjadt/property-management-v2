@@ -1193,11 +1193,7 @@ COALESCE(
     public function getMaintainanceReport()
     {
 
-        $maintainance_item_types = MaintenanceItemType::
-          where([
-            "created_by" => auth()->user()->id
-          ])
-          ->get();
+        $maintainance_item_types = MaintenanceItemType::get();
 
         $maintainance_report = [];
 
@@ -1209,7 +1205,7 @@ COALESCE(
                     $query->where("tenant_inspections.property_id",request()->input("property_id"));
                 });
             })
-                ->where("maintenance_item_type_id", $maintainance_item_type)
+                ->where("maintenance_item_type_id", $maintainance_item_type->id)
                 ->where("status", "work_required");
 
             // Count documents for different expiration periods
