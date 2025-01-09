@@ -1196,69 +1196,125 @@ $document->save();
      *           {"bearerAuth": {}}
      *       },
 
-     *              @OA\Parameter(
-     *         name="perPage",
-     *         in="path",
-     *         description="perPage",
-     *         required=true,
-     *  example="6"
-     *      ),
-     *      * *  @OA\Parameter(
-     * name="start_date",
-     * in="query",
-     * description="start_date",
-     * required=true,
-     * example="2019-06-29"
-     * ),
-     * *  @OA\Parameter(
-     * name="end_date",
-     * in="query",
-     * description="end_date",
-     * required=true,
-     * example="2019-06-29"
-     * ),
-     * *  @OA\Parameter(
-     * name="order_by",
-     * in="query",
-     * description="order_by",
-     * required=true,
-     * example="ASC"
-     * ),
-     * *  @OA\Parameter(
-     * name="search_key",
-     * in="query",
-     * description="search_key",
-     * required=true,
-     * example="search_key"
-     * ),
-     * *  @OA\Parameter(
-     * name="address",
-     * in="query",
-     * description="address",
-     * required=true,
-     * example="address"
-     * ),
-     *  * *  @OA\Parameter(
-     * name="category",
-     * in="query",
-     * description="address",
-     * required=true,
-     * example=""
-     * ),
-     * *  @OA\Parameter(
-     * name="landlord_id",
-     * in="query",
-     * description="landlord_id",
-     * required=true,
-     * example="1"
-     * ),
-     * *  @OA\Parameter(
-     * name="tenant_id",
-     * in="query",
-     * description="tenant_id",
-     * required=true,
-     * example="1"
-     * ),
+  * *  @OA\Parameter(
+*     name="search_key",
+*     in="query",
+*     description="Search term to filter properties by reference number, address, or type",
+*     required=false,
+*     example="example_search"
+* ),
+* *  @OA\Parameter(
+*     name="landlord_id",
+*     in="query",
+*     description="Filter properties by landlord ID",
+*     required=false,
+*     example="123"
+* ),
+* *  @OA\Parameter(
+*     name="tenant_id",
+*     in="query",
+*     description="Filter properties by tenant ID",
+*     required=false,
+*     example="456"
+* ),
+* *  @OA\Parameter(
+*     name="category",
+*     in="query",
+*     description="Filter properties by category",
+*     required=false,
+*     example="residential"
+* ),
+* *  @OA\Parameter(
+*     name="address",
+*     in="query",
+*     description="Filter properties by matching address",
+*     required=false,
+*     example="123 Main Street"
+* ),
+* *  @OA\Parameter(
+*     name="start_date",
+*     in="query",
+*     description="Filter properties created on or after this date",
+*     required=false,
+*     example="2024-01-01"
+* ),
+* *  @OA\Parameter(
+*     name="end_date",
+*     in="query",
+*     description="Filter properties created on or before this date",
+*     required=false,
+*     example="2024-12-31"
+* ),
+* *  @OA\Parameter(
+*     name="start_inspection_date",
+*     in="query",
+*     description="Filter properties with inspections on or after this date",
+*     required=false,
+*     example="2024-01-01"
+* ),
+* *  @OA\Parameter(
+*     name="end_inspection_date",
+*     in="query",
+*     description="Filter properties with inspections on or before this date",
+*     required=false,
+*     example="2024-12-31"
+* ),
+* *  @OA\Parameter(
+*     name="start_next_inspection_date",
+*     in="query",
+*     description="Filter properties with next inspections on or after this date",
+*     required=false,
+*     example="2024-01-01"
+* ),
+* *  @OA\Parameter(
+*     name="end_next_inspection_date",
+*     in="query",
+*     description="Filter properties with next inspections on or before this date",
+*     required=false,
+*     example="2024-12-31"
+* ),
+* *  @OA\Parameter(
+*     name="inspected_by",
+*     in="query",
+*     description="Filter properties by inspections conducted by a specific person",
+*     required=false,
+*     example="John Doe"
+* ),
+* *  @OA\Parameter(
+*     name="maintenance_item_type_id",
+*     in="query",
+*     description="Filter properties by maintenance item type ID",
+*     required=false,
+*     example="789"
+* ),
+* *  @OA\Parameter(
+*     name="start_next_follow_up_date",
+*     in="query",
+*     description="Filter properties with follow-up dates on or after this date",
+*     required=false,
+*     example="2024-01-01"
+* ),
+* *  @OA\Parameter(
+*     name="end_next_follow_up_date",
+*     in="query",
+*     description="Filter properties with follow-up dates on or before this date",
+*     required=false,
+*     example="2024-12-31"
+* ),
+* *  @OA\Parameter(
+*     name="order_by",
+*     in="query",
+*     description="Order properties by a specific field (e.g., address)",
+*     required=false,
+*     example="asc"
+* ),
+* *  @OA\Parameter(
+*     name="perPage",
+*     in="query",
+*     description="Number of results per page",
+*     required=false,
+*     example="15"
+* ),
      *      summary="This method is to get properties ",
      *      description="This method is to get properties",
      *
@@ -1364,7 +1420,7 @@ $document->save();
             })
             ->when(request()->filled('inspected_by'), function ($query) {
                 $query->whereHas('inspections', function ($query) {
-                    $query->where('tenant_inspections.address', 'like', '%' . request()->input('inspected_by') . '%');
+                    $query->where('tenant_inspections.inspected_by', 'like', '%' . request()->input('inspected_by') . '%');
                 });
             })
             ->when(request()->filled('maintenance_item_type_id'), function ($query) {
@@ -1381,13 +1437,7 @@ $document->save();
                         $query->whereDate('maintenance_items.next_follow_up_date', '<=', request()->input('end_next_follow_up_date'));
                     }
                 });
-            })
-
-
-
-
-
-            ;
+            });
 
 
 
@@ -1403,6 +1453,10 @@ $document->save();
         '),
                 )
                 ->paginate($perPage);
+
+
+
+
 
             return response()->json($properties, 200);
         } catch (Exception $e) {

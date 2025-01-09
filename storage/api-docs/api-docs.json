@@ -21705,6 +21705,450 @@
                 ]
             }
         },
+        "/v1.0/maintenance-item-types": {
+            "get": {
+                "tags": [
+                    "maintenance_item_types"
+                ],
+                "summary": "This method is to get maintenance item types ",
+                "description": "This method is to get maintenance item types ",
+                "operationId": "getMaintenanceItemTypes",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "name",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "per_page",
+                        "required": true,
+                        "example": "6"
+                    },
+                    {
+                        "name": "is_active",
+                        "in": "query",
+                        "description": "is_active",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "start_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "end_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "search_key",
+                        "required": true,
+                        "example": "search_key"
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "description": "order_by",
+                        "required": true,
+                        "example": "ASC"
+                    },
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "description": "id",
+                        "required": true,
+                        "example": "ASC"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "maintenance_item_types"
+                ],
+                "summary": "This method is to update maintenance item types ",
+                "description": "This method is to update maintenance item types ",
+                "operationId": "updateMaintenanceItemType",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "1"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "name"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "maintenance_item_types"
+                ],
+                "summary": "This method is to store maintenance item types",
+                "description": "This method is to store maintenance item types",
+                "operationId": "createMaintenanceItemType",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "name"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/maintenance-item-types/toggle-active": {
+            "put": {
+                "tags": [
+                    "maintenance_item_types"
+                ],
+                "summary": "This method is to toggle maintenance item types",
+                "description": "This method is to toggle maintenance item types",
+                "operationId": "toggleActiveMaintenanceItemType",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "format": "number",
+                                        "example": "1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/maintenance-item-types/{ids}": {
+            "delete": {
+                "tags": [
+                    "maintenance_item_types"
+                ],
+                "summary": "This method is to delete maintenance item type by id",
+                "description": "This method is to delete maintenance item type by id",
+                "operationId": "deleteMaintenanceItemTypesByIds",
+                "parameters": [
+                    {
+                        "name": "ids",
+                        "in": "path",
+                        "description": "ids",
+                        "required": true,
+                        "example": "1,2,3"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/v1.0/notifications/{perPage}": {
             "get": {
                 "tags": [
@@ -24998,6 +25442,71 @@
                 ]
             }
         },
+        "/v1.0/inspection-reports": {
+            "get": {
+                "tags": [
+                    "property_management.basics"
+                ],
+                "summary": "get all dashboard data combined",
+                "description": "get all dashboard data combined",
+                "operationId": "getInspectionReportData",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/v1.0/property-image": {
             "post": {
                 "tags": [
@@ -26136,67 +26645,123 @@
                 "operationId": "getProperties",
                 "parameters": [
                     {
-                        "name": "perPage",
-                        "in": "path",
-                        "description": "perPage",
-                        "required": true,
-                        "example": "6"
-                    },
-                    {
-                        "name": "start_date",
-                        "in": "query",
-                        "description": "start_date",
-                        "required": true,
-                        "example": "2019-06-29"
-                    },
-                    {
-                        "name": "end_date",
-                        "in": "query",
-                        "description": "end_date",
-                        "required": true,
-                        "example": "2019-06-29"
-                    },
-                    {
-                        "name": "order_by",
-                        "in": "query",
-                        "description": "order_by",
-                        "required": true,
-                        "example": "ASC"
-                    },
-                    {
                         "name": "search_key",
                         "in": "query",
-                        "description": "search_key",
-                        "required": true,
-                        "example": "search_key"
-                    },
-                    {
-                        "name": "address",
-                        "in": "query",
-                        "description": "address",
-                        "required": true,
-                        "example": "address"
-                    },
-                    {
-                        "name": "category",
-                        "in": "query",
-                        "description": "address",
-                        "required": true,
-                        "example": ""
+                        "description": "Search term to filter properties by reference number, address, or type",
+                        "required": false,
+                        "example": "example_search"
                     },
                     {
                         "name": "landlord_id",
                         "in": "query",
-                        "description": "landlord_id",
-                        "required": true,
-                        "example": "1"
+                        "description": "Filter properties by landlord ID",
+                        "required": false,
+                        "example": "123"
                     },
                     {
                         "name": "tenant_id",
                         "in": "query",
-                        "description": "tenant_id",
-                        "required": true,
-                        "example": "1"
+                        "description": "Filter properties by tenant ID",
+                        "required": false,
+                        "example": "456"
+                    },
+                    {
+                        "name": "category",
+                        "in": "query",
+                        "description": "Filter properties by category",
+                        "required": false,
+                        "example": "residential"
+                    },
+                    {
+                        "name": "address",
+                        "in": "query",
+                        "description": "Filter properties by matching address",
+                        "required": false,
+                        "example": "123 Main Street"
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "Filter properties created on or after this date",
+                        "required": false,
+                        "example": "2024-01-01"
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "Filter properties created on or before this date",
+                        "required": false,
+                        "example": "2024-12-31"
+                    },
+                    {
+                        "name": "start_inspection_date",
+                        "in": "query",
+                        "description": "Filter properties with inspections on or after this date",
+                        "required": false,
+                        "example": "2024-01-01"
+                    },
+                    {
+                        "name": "end_inspection_date",
+                        "in": "query",
+                        "description": "Filter properties with inspections on or before this date",
+                        "required": false,
+                        "example": "2024-12-31"
+                    },
+                    {
+                        "name": "start_next_inspection_date",
+                        "in": "query",
+                        "description": "Filter properties with next inspections on or after this date",
+                        "required": false,
+                        "example": "2024-01-01"
+                    },
+                    {
+                        "name": "end_next_inspection_date",
+                        "in": "query",
+                        "description": "Filter properties with next inspections on or before this date",
+                        "required": false,
+                        "example": "2024-12-31"
+                    },
+                    {
+                        "name": "inspected_by",
+                        "in": "query",
+                        "description": "Filter properties by inspections conducted by a specific person",
+                        "required": false,
+                        "example": "John Doe"
+                    },
+                    {
+                        "name": "maintenance_item_type_id",
+                        "in": "query",
+                        "description": "Filter properties by maintenance item type ID",
+                        "required": false,
+                        "example": "789"
+                    },
+                    {
+                        "name": "start_next_follow_up_date",
+                        "in": "query",
+                        "description": "Filter properties with follow-up dates on or after this date",
+                        "required": false,
+                        "example": "2024-01-01"
+                    },
+                    {
+                        "name": "end_next_follow_up_date",
+                        "in": "query",
+                        "description": "Filter properties with follow-up dates on or before this date",
+                        "required": false,
+                        "example": "2024-12-31"
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "description": "Order properties by a specific field (e.g., address)",
+                        "required": false,
+                        "example": "asc"
+                    },
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "description": "Number of results per page",
+                        "required": false,
+                        "example": "15"
                     }
                 ],
                 "responses": {
@@ -34701,9 +35266,7 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "name",
-                                    "description",
-                                    "logo"
+                                    "name"
                                 ],
                                 "properties": {
                                     "image": {
@@ -35328,13 +35891,18 @@
                                         "format": "date",
                                         "example": "2024-12-25"
                                     },
+                                    "next_inspection_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-12-25"
+                                    },
                                     "maintenance_items": {
                                         "type": "array",
                                         "items": {
                                             "properties": {
-                                                "item": {
-                                                    "type": "string",
-                                                    "example": "entrance"
+                                                "maintenance_item_type_id": {
+                                                    "type": "number",
+                                                    "example": "1"
                                                 },
                                                 "status": {
                                                     "type": "string",
@@ -35452,13 +36020,18 @@
                                         "format": "date",
                                         "example": "2024-12-25"
                                     },
+                                    "next_inspection_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-12-25"
+                                    },
                                     "maintenance_items": {
                                         "type": "array",
                                         "items": {
                                             "properties": {
-                                                "item": {
-                                                    "type": "string",
-                                                    "example": "entrance"
+                                                "maintenance_item_type_id": {
+                                                    "type": "number",
+                                                    "example": "id"
                                                 },
                                                 "status": {
                                                     "type": "string",
