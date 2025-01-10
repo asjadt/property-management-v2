@@ -1384,8 +1384,6 @@ $document->save();
                 $propertyQuery =  $propertyQuery->where("properties.category", $request->category);
             }
 
-
-
             if (!empty($request->address)) {
                 $propertyQuery =  $propertyQuery->orWhere("properties.address", "like", "%" . $request->address . "%");
             }
@@ -1600,6 +1598,16 @@ $document->save();
      * required=true,
      * example="address"
      * ),
+     *
+     *   @OA\Parameter(
+     * name="reference_no",
+     * in="query",
+     * description="reference_no",
+     * required=true,
+     * example="reference_no"
+     * ),
+     *
+     *
      * *  @OA\Parameter(
      * name="landlord_id",
      * in="query",
@@ -1664,6 +1672,7 @@ $document->save();
                 ->leftJoin('tenants', 'property_tenants.tenant_id', '=', 'tenants.id')
                 ->where(["properties.created_by" => $request->user()->id]);
 
+
             if (!empty($request->search_key)) {
                 $propertyQuery = $propertyQuery->where(function ($query) use ($request) {
                     $term = $request->search_key;
@@ -1674,12 +1683,10 @@ $document->save();
 
 
                     //  $query->orWhere("properties.name", "like", "%" . $term . "%");
-
                     //  $query->orWhere("properties.country", "like", "%" . $term . "%");
                     //  $query->orWhere("properties.city", "like", "%" . $term . "%");
                     //  $query->orWhere("properties.postcode", "like", "%" . $term . "%");
                     //  $query->orWhere("properties.town", "like", "%" . $term . "%");
-
 
                 });
             }
@@ -1693,9 +1700,39 @@ $document->save();
             if (!empty($request->address)) {
                 $propertyQuery =  $propertyQuery->where("properties.address", "like", "%" . $request->address . "%");
             }
+            if (!empty($request->reference_no)) {
+                $propertyQuery =  $propertyQuery->where("properties.reference_no", "like", "%" . $request->reference_no . "%");
+            }
+
             if (!empty($request->category)) {
                 $propertyQuery =  $propertyQuery->where("properties.category", $request->category);
             }
+
+            if (!empty($request->start_no_of_beds)) {
+                $propertyQuery =  $propertyQuery->where("properties.no_of_beds", ">=", $request->start_no_of_beds);
+            }
+
+            if (!empty($request->end_no_of_beds)) {
+                $propertyQuery =  $propertyQuery->where("properties.no_of_beds", "<=", $request->end_no_of_beds);
+            }
+
+            if (request()->boolean("is_garden")) {
+                $propertyQuery =  $propertyQuery->where("properties.is_garden",1);
+            }
+            if (request()->boolean("is_dss")) {
+                $propertyQuery =  $propertyQuery->where("properties.is_dss",1);
+            }
+
+            if (request()->filled("document_type_id")) {
+                $propertyQuery = $propertyQuery->whereHas("documents", function($query) {
+                    $query->where("property_documents.document_type_id", request()->input("document_type_id")
+                );
+                });
+                // @@@important@@@
+            }
+
+
+
 
             if (!empty($request->start_date)) {
                 $propertyQuery = $propertyQuery->where('properties.created_at', ">=", $request->start_date);

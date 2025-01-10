@@ -54,7 +54,9 @@ class PropertyCreateRequestV2 extends FormRequest
             // Added fields from Software 2
             'date_of_instruction' => 'nullable|date',
             'howDetached' => 'nullable|string',
+
             'no_of_beds' => 'required|string',
+
             'no_of_baths' => 'required|string',
             'is_garden' => 'required|boolean',
 
