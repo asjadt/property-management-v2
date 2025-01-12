@@ -30,8 +30,8 @@ class PropertyAgreement extends Model
         'type',
 
         "files",
-        "landlord_sign_image",
-        "agency_sign_image",
+        "landlord_sign_images",
+        "agency_sign_images",
 
 
 
@@ -39,8 +39,8 @@ class PropertyAgreement extends Model
 
     protected $casts = [
         'files' => 'array',
-        "landlord_sign_image"=> 'array',
-        "agency_sign_image"=> 'array',
+        "landlord_sign_images"=> 'array',
+        "agency_sign_images"=> 'array',
     ];
     // Relationships
     public function landlord()

@@ -40,13 +40,13 @@ class PropertyAgreementUpdateRequest extends FormRequest
             'files.*.file' => 'required|string',
             'files.*.description' => 'nullable|string',
 
-            'landlord_sign_image' => 'present|array',
-            'landlord_sign_image.*.file' => 'required|string',
-            'landlord_sign_image.*.description' => 'nullable|string',
+            'landlord_sign_images' => 'present|array',
+            'landlord_sign_images.*.file' => 'required|string',
+            'landlord_sign_images.*.description' => 'nullable|string',
 
-            'agency_sign_image' => 'present|array',
-            'agency_sign_image.*.file' => 'required|string',
-            'agency_sign_image.*.description' => 'nullable|string',
+            'agency_sign_images' => 'present|array',
+            'agency_sign_images.*.file' => 'required|string',
+            'agency_sign_images.*.description' => 'nullable|string',
         ];
 
 

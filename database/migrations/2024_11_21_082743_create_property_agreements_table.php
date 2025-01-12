@@ -33,8 +33,8 @@ class CreatePropertyAgreementsTable extends Migration
             $table->string('agency_type')->nullable();
 
             $table->json('files')->nullable();
-            $table->json('landlord_sign_image')->nullable();
-            $table->json('agency_sign_image')->nullable();
+            $table->json('landlord_sign_images')->nullable();
+            $table->json('agency_sign_images')->nullable();
 
             $table->timestamps();
             $table->softDeletes(); // To keep soft deletion history
