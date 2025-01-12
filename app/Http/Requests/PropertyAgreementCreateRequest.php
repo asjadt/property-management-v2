@@ -26,8 +26,16 @@ class PropertyAgreementCreateRequest extends FormRequest
         return [
             'landlord_id' => 'required|exists:landlords,id',
             'property_id' => 'required|exists:properties,id',
+            
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
+
+            'landlord_sign_date' =>"nullable|date",
+            'agency_sign_date'   => "nullable|date",
+
+
+
+
             'payment_arrangement' => 'nullable|in:By_Cash,By_Cheque,Bank_Transfer',
             'cheque_payable_to' => 'nullable|string',
             'agent_commission' => 'nullable|numeric|min:0',
@@ -43,6 +51,17 @@ class PropertyAgreementCreateRequest extends FormRequest
             'files' => 'present|array',
             'files.*.file' => 'required|string',
             'files.*.description' => 'nullable|string',
+
+            'landlord_sign_image' => 'present|array',
+            'landlord_sign_image.*.file' => 'required|string',
+            'landlord_sign_image.*.description' => 'nullable|string',
+
+            'agency_sign_image' => 'present|array',
+            'agency_sign_image.*.file' => 'required|string',
+            'agency_sign_image.*.description' => 'nullable|string',
+
+
+
 
         ];
     }

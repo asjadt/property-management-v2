@@ -15,6 +15,8 @@ class PropertyAgreement extends Model
         'property_id',
         'start_date',
         'end_date',
+        'landlord_sign_date',
+        'agency_sign_date',
         'payment_arrangement',
         'cheque_payable_to',
         'agent_commission',
@@ -26,11 +28,19 @@ class PropertyAgreement extends Model
         'max_price',
         'agency_type',
         'type',
+
         "files",
+        "landlord_sign_image",
+        "agency_sign_image",
+
+
+
     ];
 
     protected $casts = [
         'files' => 'array',
+        "landlord_sign_image"=> 'array',
+        "agency_sign_image"=> 'array',
     ];
     // Relationships
     public function landlord()
