@@ -78,7 +78,7 @@ class Property extends Model
 
 
     public function landlord() {
-        return $this->hasOne(Landlord::class,'id','landlord_id');
+        return $this->hasOne(Landlord::class,'id','landlord_id')->withTrashed();
     }
 
     public function repairs() {
