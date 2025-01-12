@@ -7,6 +7,7 @@ use App\Http\Requests\MultipleImageUploadRequest;
 
 use App\Http\Requests\PropertyCreateRequest;
 use App\Http\Requests\PropertyCreateRequestV2;
+use App\Http\Requests\PropertyUpdateLandlordRequest;
 use App\Http\Requests\PropertyUpdateRequest;
 use App\Http\Requests\PropertyUpdateRequestV2;
 use App\Http\Utils\BasicUtil;
@@ -1102,7 +1103,6 @@ $document->save();
     {
         try {
 
-
             // Find the property by ID
             $property = Property::findOrFail($request->input('id'));
 
@@ -1123,7 +1123,6 @@ $document->save();
                 $property->id
             );
 
-
                 $newDocs = $request_data["images"];
 
                 $existingDocs = $property->images;
@@ -1133,8 +1132,6 @@ $document->save();
                 }
 
                 foreach ($existingDocs as $existingDoc) {
-
-
                      if(!in_array($existingDoc,$newDocs)) {
                         $filePath = public_path(("/" . str_replace(' ', '_', auth()->user()->my_business->name) . "/" . base64_encode($property->id) . "/images/" . $existingDoc));
 
@@ -1143,15 +1140,7 @@ $document->save();
                         }
                      }
                 }
-
             }
-
-
-
-
-
-
-
 
             $property->fill($request_data);
 
@@ -1170,7 +1159,6 @@ $document->save();
                 $property->property_tenants()->sync($request_data['tenant_ids']);
             }
 
-
             if (!empty($request_data['maintenance_item_type_ids'])) {
                 $property->maintenance_item_types()->sync($request_data['maintenance_item_type_ids'], []);
             }
@@ -1181,6 +1169,83 @@ $document->save();
         }
     }
 
+
+
+ /**
+     *
+     * @OA\Put(
+     *      path="/v1.0/properties-update-landlord",
+     *      operationId="updatePropertyLandlord",
+     *      tags={"property_management.property_management"},
+     *       security={
+     *           {"bearerAuth": {}}
+     *       },
+     *      summary="This method is to update property",
+     *      description="This method is to update property",
+     *
+     *  @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *            required={"id","name","description","logo"},
+     *     *             @OA\Property(property="id", type="number", format="number",example="1"),
+     *  *     *  * *  @OA\Property(property="landlord_id", type="string", format="string",example="1")
+     *
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       @OA\JsonContent(),
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     * @OA\JsonContent(),
+     *      ),
+     *        @OA\Response(
+     *          response=422,
+     *          description="Unprocesseble Content",
+     *    @OA\JsonContent(),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *   @OA\JsonContent()
+     * ),
+     *  * @OA\Response(
+     *      response=400,
+     *      description="Bad Request",
+     *   *@OA\JsonContent()
+     *   ),
+     * @OA\Response(
+     *      response=404,
+     *      description="not found",
+     *   *@OA\JsonContent()
+     *   )
+     *      )
+     *     )
+     */
+    public function updatePropertyLandlord(PropertyUpdateLandlordRequest $request)
+    {
+        try {
+
+            // Find the property by ID
+            $property = Property::findOrFail($request->input('id'));
+
+            // Store activity (if needed)
+            $this->storeActivity($request, "updated");
+
+            // Validate request data
+            $request_data = $request->validated();
+
+            $property->fill($request_data);
+            $property->save();
+
+            return response()->json($property, 200);
+        } catch (Exception $e) {
+            return $this->sendError($e, 500, $request);
+        }
+    }
 
 
 
@@ -1195,126 +1260,181 @@ $document->save();
      *       security={
      *           {"bearerAuth": {}}
      *       },
-
-  * *  @OA\Parameter(
-*     name="search_key",
-*     in="query",
-*     description="Search term to filter properties by reference number, address, or type",
-*     required=false,
-*     example="example_search"
-* ),
-* *  @OA\Parameter(
-*     name="landlord_id",
-*     in="query",
-*     description="Filter properties by landlord ID",
-*     required=false,
-*     example="123"
-* ),
-* *  @OA\Parameter(
-*     name="tenant_id",
-*     in="query",
-*     description="Filter properties by tenant ID",
-*     required=false,
-*     example="456"
-* ),
-* *  @OA\Parameter(
-*     name="category",
-*     in="query",
-*     description="Filter properties by category",
-*     required=false,
-*     example="residential"
-* ),
-* *  @OA\Parameter(
-*     name="address",
-*     in="query",
-*     description="Filter properties by matching address",
-*     required=false,
-*     example="123 Main Street"
-* ),
-* *  @OA\Parameter(
-*     name="start_date",
-*     in="query",
-*     description="Filter properties created on or after this date",
-*     required=false,
-*     example="2024-01-01"
-* ),
-* *  @OA\Parameter(
-*     name="end_date",
-*     in="query",
-*     description="Filter properties created on or before this date",
-*     required=false,
-*     example="2024-12-31"
-* ),
-* *  @OA\Parameter(
-*     name="start_inspection_date",
-*     in="query",
-*     description="Filter properties with inspections on or after this date",
-*     required=false,
-*     example="2024-01-01"
-* ),
-* *  @OA\Parameter(
-*     name="end_inspection_date",
-*     in="query",
-*     description="Filter properties with inspections on or before this date",
-*     required=false,
-*     example="2024-12-31"
-* ),
-* *  @OA\Parameter(
-*     name="start_next_inspection_date",
-*     in="query",
-*     description="Filter properties with next inspections on or after this date",
-*     required=false,
-*     example="2024-01-01"
-* ),
-* *  @OA\Parameter(
-*     name="end_next_inspection_date",
-*     in="query",
-*     description="Filter properties with next inspections on or before this date",
-*     required=false,
-*     example="2024-12-31"
-* ),
-* *  @OA\Parameter(
-*     name="inspected_by",
-*     in="query",
-*     description="Filter properties by inspections conducted by a specific person",
-*     required=false,
-*     example="John Doe"
-* ),
-* *  @OA\Parameter(
-*     name="maintenance_item_type_id",
-*     in="query",
-*     description="Filter properties by maintenance item type ID",
-*     required=false,
-*     example="789"
-* ),
-* *  @OA\Parameter(
-*     name="start_next_follow_up_date",
-*     in="query",
-*     description="Filter properties with follow-up dates on or after this date",
-*     required=false,
-*     example="2024-01-01"
-* ),
-* *  @OA\Parameter(
-*     name="end_next_follow_up_date",
-*     in="query",
-*     description="Filter properties with follow-up dates on or before this date",
-*     required=false,
-*     example="2024-12-31"
-* ),
-* *  @OA\Parameter(
-*     name="order_by",
-*     in="query",
-*     description="Order properties by a specific field (e.g., address)",
-*     required=false,
-*     example="asc"
-* ),
-* *  @OA\Parameter(
-*     name="perPage",
-*     in="query",
-*     description="Number of results per page",
-*     required=false,
-*     example="15"
-* ),
+ * @OA\Parameter(
+ *     name="perPage",
+ *     in="query",
+ *     description="Number of results per page",
+ *     required=false,
+ *     example="15"
+ * ),
+ * @OA\Parameter(
+ *     name="search_key",
+ *     in="query",
+ *     description="Search term to filter properties by reference number, address, or type",
+ *     required=false,
+ *     example="keyword"
+ * ),
+ * @OA\Parameter(
+ *     name="landlord_id",
+ *     in="query",
+ *     description="Filter properties by landlord ID",
+ *     required=false,
+ *     example="1"
+ * ),
+ * @OA\Parameter(
+ *     name="tenant_id",
+ *     in="query",
+ *     description="Filter properties by tenant ID",
+ *     required=false,
+ *     example="1"
+ * ),
+ * @OA\Parameter(
+ *     name="category",
+ *     in="query",
+ *     description="Filter properties by category",
+ *     required=false,
+ *     example="residential"
+ * ),
+ * @OA\Parameter(
+ *     name="address",
+ *     in="query",
+ *     description="Search properties by address",
+ *     required=false,
+ *     example="123 Main St"
+ * ),
+ * @OA\Parameter(
+ *     name="start_date",
+ *     in="query",
+ *     description="Filter properties by the creation start date",
+ *     required=false,
+ *     example="2023-01-01"
+ * ),
+ * @OA\Parameter(
+ *     name="end_date",
+ *     in="query",
+ *     description="Filter properties by the creation end date",
+ *     required=false,
+ *     example="2023-12-31"
+ * ),
+ * @OA\Parameter(
+ *     name="reference_no",
+ *     in="query",
+ *     description="Filter properties by reference number",
+ *     required=false,
+ *     example="ABC123"
+ * ),
+ * @OA\Parameter(
+ *     name="start_date_of_instruction",
+ *     in="query",
+ *     description="Filter properties by the instruction start date",
+ *     required=false,
+ *     example="2023-01-01"
+ * ),
+ * @OA\Parameter(
+ *     name="end_date_of_instruction",
+ *     in="query",
+ *     description="Filter properties by the instruction end date",
+ *     required=false,
+ *     example="2023-12-31"
+ * ),
+ * @OA\Parameter(
+ *     name="start_no_of_beds",
+ *     in="query",
+ *     description="Filter properties by the minimum number of beds",
+ *     required=false,
+ *     example="2"
+ * ),
+ * @OA\Parameter(
+ *     name="end_no_of_beds",
+ *     in="query",
+ *     description="Filter properties by the maximum number of beds",
+ *     required=false,
+ *     example="4"
+ * ),
+ * @OA\Parameter(
+ *     name="is_garden",
+ *     in="query",
+ *     description="Filter properties that have a garden",
+ *     required=false,
+ *     example="true"
+ * ),
+ * @OA\Parameter(
+ *     name="is_dss",
+ *     in="query",
+ *     description="Filter properties that are DSS (Department of Social Services) approved",
+ *     required=false,
+ *     example="true"
+ * ),
+ * @OA\Parameter(
+ *     name="document_type_id",
+ *     in="query",
+ *     description="Filter properties by document type ID",
+ *     required=false,
+ *     example="1"
+ * ),
+ * @OA\Parameter(
+ *     name="start_inspection_date",
+ *     in="query",
+ *     description="Filter inspections by start date",
+ *     required=false,
+ *     example="2023-01-01"
+ * ),
+ * @OA\Parameter(
+ *     name="end_inspection_date",
+ *     in="query",
+ *     description="Filter inspections by end date",
+ *     required=false,
+ *     example="2023-12-31"
+ * ),
+ * @OA\Parameter(
+ *     name="start_next_inspection_date",
+ *     in="query",
+ *     description="Filter next inspections by start date",
+ *     required=false,
+ *     example="2023-01-01"
+ * ),
+ * @OA\Parameter(
+ *     name="end_next_inspection_date",
+ *     in="query",
+ *     description="Filter next inspections by end date",
+ *     required=false,
+ *     example="2023-12-31"
+ * ),
+ * @OA\Parameter(
+ *     name="inspected_by",
+ *     in="query",
+ *     description="Filter inspections by the inspector's name or ID",
+ *     required=false,
+ *     example="John Doe"
+ * ),
+ * @OA\Parameter(
+ *     name="maintenance_item_type_id",
+ *     in="query",
+ *     description="Filter inspections by maintenance item type ID",
+ *     required=false,
+ *     example="1"
+ * ),
+ * @OA\Parameter(
+ *     name="start_next_follow_up_date",
+ *     in="query",
+ *     description="Filter follow-ups by start date",
+ *     required=false,
+ *     example="2023-01-01"
+ * ),
+ * @OA\Parameter(
+ *     name="end_next_follow_up_date",
+ *     in="query",
+ *     description="Filter follow-ups by end date",
+ *     required=false,
+ *     example="2023-12-31"
+ * ),
+ * @OA\Parameter(
+ *     name="order_by",
+ *     in="query",
+ *     description="Order the results by a specific column (e.g., 'address')",
+ *     required=false,
+ *     example="address"
+ * ),
      *      summary="This method is to get properties ",
      *      description="This method is to get properties",
      *
@@ -1394,6 +1514,48 @@ $document->save();
             if (!empty($request->end_date)) {
                 $propertyQuery = $propertyQuery->where('properties.created_at', "<=", $request->end_date);
             }
+
+            if (!empty($request->reference_no)) {
+                $propertyQuery =  $propertyQuery->where("properties.reference_no", "like", "%" . $request->reference_no . "%");
+            }
+
+            if (!empty($request->category)) {
+                $propertyQuery =  $propertyQuery->where("properties.category", $request->category);
+            }
+
+            if (!empty($request->start_date_of_instruction)) {
+                $propertyQuery =  $propertyQuery->whereDate("properties.date_of_instruction", ">=", $request->start_date_of_instruction);
+            }
+
+            if (!empty($request->end_date_of_instruction)) {
+                $propertyQuery =  $propertyQuery->whereDate("properties.date_of_instruction", "<=", $request->end_date_of_instruction);
+            }
+
+
+
+            if (!empty($request->start_no_of_beds)) {
+                $propertyQuery =  $propertyQuery->where("properties.no_of_beds", ">=", $request->start_no_of_beds);
+            }
+
+            if (!empty($request->end_no_of_beds)) {
+                $propertyQuery =  $propertyQuery->where("properties.no_of_beds", "<=", $request->end_no_of_beds);
+            }
+
+            if (request()->boolean("is_garden")) {
+                $propertyQuery =  $propertyQuery->where("properties.is_garden",1);
+            }
+            if (request()->boolean("is_dss")) {
+                $propertyQuery =  $propertyQuery->where("properties.is_dss",1);
+            }
+
+            if (request()->filled("document_type_id")) {
+                $propertyQuery = $propertyQuery->whereHas("documents", function($query) {
+                    $query->where("property_documents.document_type_id", request()->input("document_type_id")
+                );
+                });
+                // @@@important@@@
+            }
+
 
             $propertyQuery = $propertyQuery
             ->when(request()->filled('start_inspection_date') || request()->filled('end_inspection_date'), function ($query) {
@@ -1699,36 +1861,6 @@ $document->save();
             }
             if (!empty($request->address)) {
                 $propertyQuery =  $propertyQuery->where("properties.address", "like", "%" . $request->address . "%");
-            }
-            if (!empty($request->reference_no)) {
-                $propertyQuery =  $propertyQuery->where("properties.reference_no", "like", "%" . $request->reference_no . "%");
-            }
-
-            if (!empty($request->category)) {
-                $propertyQuery =  $propertyQuery->where("properties.category", $request->category);
-            }
-
-            if (!empty($request->start_no_of_beds)) {
-                $propertyQuery =  $propertyQuery->where("properties.no_of_beds", ">=", $request->start_no_of_beds);
-            }
-
-            if (!empty($request->end_no_of_beds)) {
-                $propertyQuery =  $propertyQuery->where("properties.no_of_beds", "<=", $request->end_no_of_beds);
-            }
-
-            if (request()->boolean("is_garden")) {
-                $propertyQuery =  $propertyQuery->where("properties.is_garden",1);
-            }
-            if (request()->boolean("is_dss")) {
-                $propertyQuery =  $propertyQuery->where("properties.is_dss",1);
-            }
-
-            if (request()->filled("document_type_id")) {
-                $propertyQuery = $propertyQuery->whereHas("documents", function($query) {
-                    $query->where("property_documents.document_type_id", request()->input("document_type_id")
-                );
-                });
-                // @@@important@@@
             }
 
 

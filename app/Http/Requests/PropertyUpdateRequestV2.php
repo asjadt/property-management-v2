@@ -30,14 +30,6 @@ class PropertyUpdateRequestV2 extends FormRequest
             'image' => "nullable|string",
             'images' => "present|array",
             'images.*' => "string",
-
-            // 'documents' => "present|array",
-            // 'documents.*.gas_start_date' => "required|date",
-            // 'documents.*.gas_end_date' => "required|date",
-            // 'documents.*.document_type_id' => "required|numeric|exists:document_types,id",
-            // 'documents.*.files' => "required|array",
-            // 'documents.*.files.*' => "string",
-
             'address' => "nullable|string",
             'country' => "required|string",
             'city' => "required|string",
@@ -65,7 +57,6 @@ class PropertyUpdateRequestV2 extends FormRequest
             'property_road' => 'nullable|string',
             'county' => 'nullable|string',
             'is_dss' => 'nullable|required_if:category,let_property,manage_property|boolean',
-
             'maintenance_item_type_ids' => 'present|array',
             'maintenance_item_type_ids.*' => 'nullable|exists:maintenance_item_types,id',
         ];

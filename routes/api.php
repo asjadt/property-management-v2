@@ -389,12 +389,15 @@ Route::delete('/v1.0/maintenance-item-types/{ids}', [MaintenanceItemTypeControll
 
 
 Route::put('/v1.0/properties', [PropertyController::class, "updateProperty"]);
+
 Route::put('/v2.0/properties-update', [PropertyController::class, "updatePropertyV2"]);
+
+Route::put('/v1.0/properties-update-landlord', [PropertyController::class, "updatePropertyLandlord"]);
+
 Route::get('/v1.0/properties/{perPage}', [PropertyController::class, "getProperties"]);
-// Add more images
+
 Route::post('/v1.0/properties/{id}/add-more-images', [PropertyController::class, 'addMoreImages']);
 
-// Delete specific images
 Route::delete('/v1.0/properties/{id}/delete-images', [PropertyController::class, 'deleteImages']);
 Route::get('/v1.0/properties/get/all/optimized', [PropertyController::class, "getAllProperties"]);
 Route::get('/v1.0/properties/get/all', [PropertyController::class, "getAllProperties"]);

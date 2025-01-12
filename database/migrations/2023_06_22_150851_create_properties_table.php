@@ -64,9 +64,6 @@ class CreatePropertiesTable extends Migration
             $table->string('no_of_baths');
             $table->boolean('is_garden');
 
-
-
-
             $table->double('min_price')->nullable();
             $table->double('max_price')->nullable();
             $table->string('purpose')->nullable();
@@ -75,8 +72,6 @@ class CreatePropertiesTable extends Migration
             $table->string('county')->nullable();
 
             $table->boolean('is_dss')->nullable()->default(0);
-
-
 
             $table->softDeletes();
             $table->timestamps();
