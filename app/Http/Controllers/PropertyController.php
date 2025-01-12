@@ -1400,6 +1400,15 @@ $document->save();
  *     required=false,
  *     example="2023-12-31"
  * ),
+ *
+ *     @OA\Parameter(
+ *     name="inspection_duration",
+ *     in="query",
+ *     description="Filter inspections by the inspector's name or ID",
+ *     required=false,
+ *     example="inspection duration"
+ * ),
+ *
  * @OA\Parameter(
  *     name="inspected_by",
  *     in="query",
@@ -1558,46 +1567,69 @@ $document->save();
 
 
             $propertyQuery = $propertyQuery
-            ->when(request()->filled('start_inspection_date') || request()->filled('end_inspection_date'), function ($query) {
-                $query->whereHas('inspections', function ($query) {
-                    if (request()->filled('start_inspection_date')) {
-                        $query->whereDate('tenant_inspections.date', '>=', request()->input('start_inspection_date'));
-                    }
-                    if (request()->filled('end_inspection_date')) {
-                        $query->whereDate('tenant_inspections.date', '<=', request()->input('end_inspection_date'));
-                    }
-                });
-            })
-            ->when(request()->filled('start_next_inspection_date') || request()->filled('end_next_inspection_date'), function ($query) {
-                $query->whereHas('inspections', function ($query) {
-                    if (request()->filled('start_next_inspection_date')) {
-                        $query->whereDate('tenant_inspections.next_inspection_date', '>=', request()->input('start_next_inspection_date'));
-                    }
-                    if (request()->filled('end_next_inspection_date')) {
-                        $query->whereDate('tenant_inspections.next_inspection_date', '<=', request()->input('end_next_inspection_date'));
-                    }
-                });
-            })
-            ->when(request()->filled('inspected_by'), function ($query) {
-                $query->whereHas('inspections', function ($query) {
-                    $query->where('tenant_inspections.inspected_by', 'like', '%' . request()->input('inspected_by') . '%');
-                });
-            })
-            ->when(request()->filled('maintenance_item_type_id'), function ($query) {
-                $query->whereHas('inspections.maintenance_item', function ($query) {
-                    $query->where('maintenance_items.maintenance_item_type_id', request()->input('maintenance_item_type_id'));
-                });
-            })
-            ->when(request()->filled('start_next_follow_up_date') || request()->filled('end_next_follow_up_date'), function ($query) {
-                $query->whereHas('inspections.maintenance_item', function ($query) {
-                    if (request()->filled('start_next_follow_up_date')) {
-                        $query->whereDate('maintenance_items.next_follow_up_date', '>=', request()->input('start_next_follow_up_date'));
-                    }
-                    if (request()->filled('end_next_follow_up_date')) {
-                        $query->whereDate('maintenance_items.next_follow_up_date', '<=', request()->input('end_next_follow_up_date'));
-                    }
-                });
-            });
+            ->when(
+                request()->only(['start_inspection_date', 'end_inspection_date']),
+                function ($query) {
+                    $query->whereHas('inspections', function ($query) {
+                        $query->when(request()->filled('start_inspection_date'), function ($query) {
+                            $query->whereDate('tenant_inspections.date', '>=', request()->input('start_inspection_date'));
+                        });
+                        $query->when(request()->filled('end_inspection_date'), function ($query) {
+                            $query->whereDate('tenant_inspections.date', '<=', request()->input('end_inspection_date'));
+                        });
+                    });
+                }
+            )
+            ->when(
+                request()->only(['start_next_inspection_date', 'end_next_inspection_date']),
+                function ($query) {
+                    $query->whereHas('inspections', function ($query) {
+                        $query->when(request()->filled('start_next_inspection_date'), function ($query) {
+                            $query->whereDate('tenant_inspections.next_inspection_date', '>=', request()->input('start_next_inspection_date'));
+                        });
+                        $query->when(request()->filled('end_next_inspection_date'), function ($query) {
+                            $query->whereDate('tenant_inspections.next_inspection_date', '<=', request()->input('end_next_inspection_date'));
+                        });
+                    });
+                }
+            )
+            ->when(
+                request()->filled('inspected_by'),
+                function ($query) {
+                    $query->whereHas('inspections', function ($query) {
+                        $query->where('tenant_inspections.inspected_by', 'like', '%' . request()->input('inspected_by') . '%');
+                    });
+                }
+            )
+            ->when(
+                request()->filled('inspection_duration'),
+                function ($query) {
+                    $query->whereHas('inspections', function ($query) {
+                        $query->where('tenant_inspections.inspection_duration', 'like', '%' . request()->input('inspection_duration') . '%');
+                    });
+                }
+            )
+            ->when(
+                request()->filled('maintenance_item_type_id'),
+                function ($query) {
+                    $query->whereHas('inspections.maintenance_item', function ($query) {
+                        $query->where('maintenance_items.maintenance_item_type_id', request()->input('maintenance_item_type_id'));
+                    });
+                }
+            )
+            ->when(
+                request()->only(['start_next_follow_up_date', 'end_next_follow_up_date']),
+                function ($query) {
+                    $query->whereHas('inspections.maintenance_item', function ($query) {
+                        $query->when(request()->filled('start_next_follow_up_date'), function ($query) {
+                            $query->whereDate('maintenance_items.next_follow_up_date', '>=', request()->input('start_next_follow_up_date'));
+                        });
+                        $query->when(request()->filled('end_next_follow_up_date'), function ($query) {
+                            $query->whereDate('maintenance_items.next_follow_up_date', '<=', request()->input('end_next_follow_up_date'));
+                        });
+                    });
+                }
+            );
 
 
 

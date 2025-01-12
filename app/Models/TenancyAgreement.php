@@ -19,6 +19,7 @@ class TenancyAgreement extends Model
         'tenant_contact_expired_date',
         'rent_due_date',
         'no_of_occupants',
+        "tenant_contact_year_duration",
         'renewal_fee',
         'housing_act',
         'let_type',

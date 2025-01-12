@@ -17,6 +17,7 @@ class TenantInspection extends Model
         'phone',
         'date',
         'next_inspection_date',
+        'inspection_duration',
         'comments',
         'files',
         'created_by'
@@ -70,5 +71,5 @@ class TenantInspection extends Model
 
 
 
-    
+
 }

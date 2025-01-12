@@ -24,6 +24,7 @@ class CreateTenancyAgreementsTable extends Migration
             $table->date('tenant_contact_expired_date')->nullable();
             $table->date('rent_due_date');
             $table->string('no_of_occupants');
+            $table->string('tenant_contact_year_duration');
             $table->string('renewal_fee');
             $table->string('housing_act');
             $table->string('let_type');

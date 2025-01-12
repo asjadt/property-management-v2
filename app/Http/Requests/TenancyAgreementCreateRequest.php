@@ -35,7 +35,11 @@ class TenancyAgreementCreateRequest extends FormRequest
             'let_only_agreement_expired_date' => 'nullable|date',
             'tenant_contact_expired_date' => 'nullable|date',
             'rent_due_date' => 'required|date',
+
             'no_of_occupants' => 'required|string|max:255',
+            'tenant_contact_year_duration' => 'required|string',
+
+
             'renewal_fee' => 'required|string|max:255',
             'housing_act' => 'required|string|max:255',
             'let_type' => 'required|string|max:255',

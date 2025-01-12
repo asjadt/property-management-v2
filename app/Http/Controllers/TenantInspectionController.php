@@ -41,6 +41,7 @@ class TenantInspectionController extends Controller
  *     @OA\Property(property="phone", type="string", example="+8801234567890"),
  *     @OA\Property(property="date", type="string", format="date", example="2024-12-25"),
  *     @OA\Property(property="next_inspection_date", type="string", format="date", example="2024-12-25"),
+ *  *     @OA\Property(property="inspection_duration", type="string", format="date", example="inspection_duration"),
  * @OA\Property(property="maintenance_items", type="array", @OA\Items(
  *     type="object",
  *     @OA\Property(property="maintenance_item_type_id", type="number", example="id"),
@@ -151,6 +152,7 @@ class TenantInspectionController extends Controller
  *     @OA\Property(property="phone", type="string", example="+8801234567890"),
  *     @OA\Property(property="date", type="string", format="date", example="2024-12-25"),
  *     @OA\Property(property="next_inspection_date", type="string", format="date", example="2024-12-25"),
+ *  *     @OA\Property(property="inspection_duration", type="string", format="date", example="inspection_duration"),
  *
  * @OA\Property(property="maintenance_items", type="array", @OA\Items(
  *     type="object",
@@ -212,6 +214,7 @@ class TenantInspectionController extends Controller
                         'address_line_1',
                         'inspected_by',
                         'next_inspection_date',
+                        'inspection_duration',
                         'phone',
                         'date',
                         'comments',

@@ -30,6 +30,7 @@ class TenantInspectionUpdateRequest extends FormRequest
             'phone' => 'required|string|max:20', // Assuming a phone number format
             'date' => 'required|date',
             'next_inspection_date' => 'required|date',
+            'inspection_duration' => 'required|string',
 
         'maintenance_items' => 'present|array',
         'maintenance_items.*.maintenance_item_type_id' => 'required|numeric|exists:maintenance_item_types,id',
