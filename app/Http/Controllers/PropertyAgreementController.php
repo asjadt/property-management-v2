@@ -161,7 +161,7 @@ class PropertyAgreementController extends Controller
      *              @OA\Property(property="property_id", type="integer", example=1),
      *              @OA\Property(property="start_date", type="string", format="date", example="2024-11-01"),
      *              @OA\Property(property="end_date", type="string", format="date", example="2025-11-01"),
-     *      *   *              @OA\Property(property="landlord_sign_date", type="string", format="date", example="2024-11-01"),
+     *              @OA\Property(property="landlord_sign_date", type="string", format="date", example="2024-11-01"),
      *              @OA\Property(property="agency_sign_date", type="string", format="date", example="2025-11-01"),
      *              @OA\Property(property="payment_arrangement", type="string", example="By_Cash"),
      *              @OA\Property(property="cheque_payable_to", type="string", example="John Doe"),

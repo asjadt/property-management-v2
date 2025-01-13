@@ -15,6 +15,7 @@ use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Business;
 use App\Models\Property;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -1373,6 +1374,14 @@ $document->save();
  *     example="1"
  * ),
  * @OA\Parameter(
+ *     name="is_document_expired",
+ *     in="query",
+ *     description="Filter properties by document type ID",
+ *     required=false,
+ *     example="1"
+ * ),
+ *
+ * @OA\Parameter(
  *     name="start_inspection_date",
  *     in="query",
  *     description="Filter inspections by start date",
@@ -1557,13 +1566,16 @@ $document->save();
                 $propertyQuery =  $propertyQuery->where("properties.is_dss",1);
             }
 
-            if (request()->filled("document_type_id")) {
-                $propertyQuery = $propertyQuery->whereHas("documents", function($query) {
-                    $query->where("property_documents.document_type_id", request()->input("document_type_id")
-                );
+            $propertyQuery = $propertyQuery->when(request()->filled("document_type_id"), function ($query) {
+                $query->whereHas("documents", function ($subQuery) {
+                    $subQuery->where("property_documents.document_type_id", request()->input("document_type_id"));
                 });
-                // @@@important@@@
-            }
+            })->when(request()->filled("is_document_expired"), function ($query) {
+                $query->whereHas("documents", function ($subQuery) {
+                    $subQuery->whereDate('property_documents.gas_end_date', '<', Carbon::today());
+                });
+            });
+
 
 
             $propertyQuery = $propertyQuery

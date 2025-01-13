@@ -385,9 +385,6 @@ Route::delete('/v1.0/maintenance-item-types/{ids}', [MaintenanceItemTypeControll
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 
-
-
-
 Route::put('/v1.0/properties', [PropertyController::class, "updateProperty"]);
 
 Route::put('/v2.0/properties-update', [PropertyController::class, "updatePropertyV2"]);
