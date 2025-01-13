@@ -24587,6 +24587,16 @@
                                         "format": "date",
                                         "example": "2025-11-01"
                                     },
+                                    "landlord_sign_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-11-01"
+                                    },
+                                    "agency_sign_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-11-01"
+                                    },
                                     "payment_arrangement": {
                                         "type": "string",
                                         "enum": [
@@ -24672,6 +24682,16 @@
                                             "example": "2024-11-01"
                                         },
                                         "end_date": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "example": "2025-11-01"
+                                        },
+                                        "landlord_sign_date": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "example": "2024-11-01"
+                                        },
+                                        "agency_sign_date": {
                                             "type": "string",
                                             "format": "date",
                                             "example": "2025-11-01"
@@ -24882,6 +24902,16 @@
                                             "example": "2024-11-01"
                                         },
                                         "end_date": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "example": "2025-11-01"
+                                        },
+                                        "landlord_sign_date": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "example": "2024-11-01"
+                                        },
+                                        "agency_sign_date": {
                                             "type": "string",
                                             "format": "date",
                                             "example": "2025-11-01"
@@ -26876,6 +26906,13 @@
                         "description": "Filter next inspections by end date",
                         "required": false,
                         "example": "2023-12-31"
+                    },
+                    {
+                        "name": "inspection_duration",
+                        "in": "query",
+                        "description": "Filter inspections by the inspector's name or ID",
+                        "required": false,
+                        "example": "inspection duration"
                     },
                     {
                         "name": "inspected_by",
@@ -34727,6 +34764,10 @@
                                         "type": "string",
                                         "example": "3"
                                     },
+                                    "tenant_contact_year_duration": {
+                                        "type": "string",
+                                        "example": "tenant_contact_year_duration"
+                                    },
                                     "renewal_fee": {
                                         "type": "string",
                                         "example": "50.00"
@@ -34898,6 +34939,10 @@
                                     "no_of_occupants": {
                                         "type": "string",
                                         "example": "3"
+                                    },
+                                    "tenant_contact_year_duration": {
+                                        "type": "string",
+                                        "example": "tenant_contact_year_duration"
                                     },
                                     "renewal_fee": {
                                         "type": "string",
@@ -36052,6 +36097,11 @@
                                         "format": "date",
                                         "example": "2024-12-25"
                                     },
+                                    "inspection_duration": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "inspection_duration"
+                                    },
                                     "maintenance_items": {
                                         "type": "array",
                                         "items": {
@@ -36180,6 +36230,11 @@
                                         "type": "string",
                                         "format": "date",
                                         "example": "2024-12-25"
+                                    },
+                                    "inspection_duration": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "inspection_duration"
                                     },
                                     "maintenance_items": {
                                         "type": "array",
