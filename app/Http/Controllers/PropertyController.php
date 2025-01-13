@@ -1456,7 +1456,6 @@ $document->save();
      *      summary="This method is to get properties ",
      *      description="This method is to get properties",
      *
-
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
@@ -1577,7 +1576,6 @@ $document->save();
             });
 
 
-
             $propertyQuery = $propertyQuery
             ->when(
                 request()->only(['start_inspection_date', 'end_inspection_date']),
@@ -1642,7 +1640,6 @@ $document->save();
                     });
                 }
             );
-
 
 
             $properties = $propertyQuery->orderBy("properties.address", $request->order_by)

@@ -1516,6 +1516,7 @@ class LandlordController extends Controller
                  0
              ) AS total_properties
              '))
+             ->withTrashed()
             ->first();
 
             if(!$landlord) {
@@ -1622,7 +1623,7 @@ class LandlordController extends Controller
             ->first();
 
             if(!$landlord) {
-                
+
          return response()->json([
              "message" => "no landlord found"
          ],404);
