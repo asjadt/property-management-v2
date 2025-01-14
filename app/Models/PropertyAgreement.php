@@ -17,6 +17,7 @@ class PropertyAgreement extends Model
         'end_date',
         'landlord_sign_date',
         'agency_sign_date',
+        'rent_due_date',
         'payment_arrangement',
         'cheque_payable_to',
         'agent_commission',

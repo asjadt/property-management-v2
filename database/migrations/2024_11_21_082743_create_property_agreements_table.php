@@ -9,14 +9,19 @@ class CreatePropertyAgreementsTable extends Migration
     {
         Schema::create('property_agreements', function (Blueprint $table) {
             $table->id();
+
+
             $table->unsignedBigInteger('landlord_id');
             $table->unsignedBigInteger('property_id');
 
 
+            
             $table->date('start_date');
             $table->date('end_date');
             $table->date('landlord_sign_date')->nullable();
             $table->date('agency_sign_date')->nullable();
+            $table->date('rent_due_date')->nullable();
+
 
             $table->enum('type', ['let_property', 'manage_property', 'sale_property'])->nullable();
 

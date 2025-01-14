@@ -38,7 +38,7 @@ class TenancyAgreementUpdateRequest extends FormRequest
             'rent_due_date' => 'required|date',
 
             'no_of_occupants' => 'required|string|max:255',
-            'tenant_contact_year_duration' => 'required|string',
+            'tenant_contact_year_duration' => 'nullable|string',
 
 
 

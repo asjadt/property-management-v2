@@ -14,6 +14,8 @@ class CreateTenancyAgreementsTable extends Migration
     public function up()
     {
         Schema::create('tenancy_agreements', function (Blueprint $table) {
+
+
             $table->id();
             $table->string('agreed_rent');
             $table->string('security_deposit_hold');
@@ -24,7 +26,7 @@ class CreateTenancyAgreementsTable extends Migration
             $table->date('tenant_contact_expired_date')->nullable();
             $table->date('rent_due_date');
             $table->string('no_of_occupants');
-            $table->string('tenant_contact_year_duration');
+            $table->string('tenant_contact_year_duration')->nullable();
             $table->string('renewal_fee');
             $table->string('housing_act');
             $table->string('let_type');
@@ -43,6 +45,7 @@ class CreateTenancyAgreementsTable extends Migration
             $table->json('agency_sign_images')->nullable();
             $table->date('tenant_sign_date')->nullable();
             $table->date('agency_sign_date')->nullable();
+            
 
 
 

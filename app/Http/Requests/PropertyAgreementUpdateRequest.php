@@ -22,6 +22,7 @@ class PropertyAgreementUpdateRequest extends FormRequest
 
             'landlord_sign_date' =>"nullable|date",
             'agency_sign_date'   => "nullable|date",
+            "rent_due_date" => "nullable|date",
 
 
             'payment_arrangement' => 'nullable|in:By_Cash,By_Cheque,Bank_Transfer',

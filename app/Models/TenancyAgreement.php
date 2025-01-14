@@ -43,12 +43,10 @@ class TenancyAgreement extends Model
 
     ];
     protected $casts = [
-
         
         'files' => 'array',
         "tenant_sign_images" => "array",
-        "agency_sign_images" => "array",
-
+        "agency_sign_images" => "array"
 
     ];
 

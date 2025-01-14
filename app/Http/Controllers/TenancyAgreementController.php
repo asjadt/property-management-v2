@@ -55,7 +55,10 @@ class TenancyAgreementController extends Controller
      *         @OA\Property(property="agency_witness_address", type="string", example="123 Agency St, City, Country"),
      *         @OA\Property(property="tenant_witness_address", type="string", example="456 Tenant Rd, City, Country"),
      *         @OA\Property(property="guarantor_name", type="string", example="Sarah Lee", nullable=true),
-     *         @OA\Property(property="guarantor_address", type="string", example="789 Guarantor Ave, City, Country", nullable=true)
+     *         @OA\Property(property="guarantor_address", type="string", example="789 Guarantor Ave, City, Country", nullable=true),
+     *
+     *       @OA\Property(property="tenant_sign_date", type="string", format="date", example="2024-11-01"),
+     *       @OA\Property(property="agency_sign_date", type="string", format="date", example="2025-11-01")
      *
      *     )
      * ),
@@ -163,7 +166,9 @@ class TenancyAgreementController extends Controller
  *         @OA\Property(property="agency_witness_address", type="string", example="123 Agency St, City, Country"),
  *         @OA\Property(property="tenant_witness_address", type="string", example="456 Tenant Rd, City, Country"),
  *         @OA\Property(property="guarantor_name", type="string", example="Sarah Lee", nullable=true),
- *         @OA\Property(property="guarantor_address", type="string", example="789 Guarantor Ave, City, Country", nullable=true)
+ *         @OA\Property(property="guarantor_address", type="string", example="789 Guarantor Ave, City, Country", nullable=true),
+ *    *       @OA\Property(property="tenant_sign_date", type="string", format="date", example="2024-11-01"),
+     *       @OA\Property(property="agency_sign_date", type="string", format="date", example="2025-11-01")
  *     )
  * ),
      *      @OA\Response(

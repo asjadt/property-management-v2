@@ -24597,6 +24597,11 @@
                                         "format": "date",
                                         "example": "2025-11-01"
                                     },
+                                    "rent_due_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-11-01"
+                                    },
                                     "payment_arrangement": {
                                         "type": "string",
                                         "enum": [
@@ -24692,6 +24697,11 @@
                                             "example": "2024-11-01"
                                         },
                                         "agency_sign_date": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "example": "2025-11-01"
+                                        },
+                                        "rent_due_date": {
                                             "type": "string",
                                             "format": "date",
                                             "example": "2025-11-01"
@@ -24912,6 +24922,11 @@
                                             "example": "2024-11-01"
                                         },
                                         "agency_sign_date": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "example": "2025-11-01"
+                                        },
+                                        "rent_due_date": {
                                             "type": "string",
                                             "format": "date",
                                             "example": "2025-11-01"
@@ -26874,6 +26889,13 @@
                     },
                     {
                         "name": "document_type_id",
+                        "in": "query",
+                        "description": "Filter properties by document type ID",
+                        "required": false,
+                        "example": "1"
+                    },
+                    {
+                        "name": "is_document_expired",
                         "in": "query",
                         "description": "Filter properties by document type ID",
                         "required": false,
@@ -34817,6 +34839,16 @@
                                         "type": "string",
                                         "example": "789 Guarantor Ave, City, Country",
                                         "nullable": true
+                                    },
+                                    "tenant_sign_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-11-01"
+                                    },
+                                    "agency_sign_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-11-01"
                                     }
                                 },
                                 "type": "object"
@@ -34993,6 +35025,16 @@
                                         "type": "string",
                                         "example": "789 Guarantor Ave, City, Country",
                                         "nullable": true
+                                    },
+                                    "tenant_sign_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-11-01"
+                                    },
+                                    "agency_sign_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-11-01"
                                     }
                                 },
                                 "type": "object"
