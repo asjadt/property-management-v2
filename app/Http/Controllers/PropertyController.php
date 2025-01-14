@@ -2161,7 +2161,7 @@ $document->save();
                 "repairs.repair_category",
                 "invoices",
                 "documents",
-                "maintenance_item_types"
+                "maintenance_item_types",
             )
                 ->where([
                     "generated_id" => $id,
@@ -2176,7 +2176,6 @@ $document->save();
             }
 
 
-
                 $updatedFiles = []; // Create a new array for modified files
                 if(!is_array($property->images)) {
                     $images = json_decode($property->images);
@@ -2184,15 +2183,15 @@ $document->save();
                     $images = $property->images;
                 }
 
+
                 foreach ($images as $image) {
                     // Modify the file name
                     $updatedFiles[] = "/" . str_replace(' ', '_', auth()->user()->my_business->name) . "/" . base64_encode($property->id) . "/images/" . $image;
                 }
 
+
                 // Replace the files property with the updated array if needed
                 $property->images = $updatedFiles; // Use a new attribute to avoid issues
-
-
 
 
             foreach ($property->documents as $document) {

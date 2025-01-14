@@ -1451,7 +1451,6 @@ class LandlordController extends Controller
      *       security={
      *           {"bearerAuth": {}}
      *       },
-
      *              @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -1459,11 +1458,9 @@ class LandlordController extends Controller
      *         required=true,
      *  example="1"
      *      ),
-
      *      summary="This method is to get landlord by id",
      *      description="This method is to get landlord by id",
      *
-
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
@@ -1509,13 +1506,16 @@ class LandlordController extends Controller
                 "created_by" => $request->user()->id
             ])
             ->select(
-                "landlords.*",
+
+            "landlords.*",
                 DB::raw('
              COALESCE(
                  (SELECT COUNT(properties.id) FROM properties WHERE properties.landlord_id = landlords.id),
                  0
              ) AS total_properties
-             '))
+             ')
+             
+             )
              ->withTrashed()
             ->first();
 

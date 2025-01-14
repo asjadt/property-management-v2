@@ -256,10 +256,12 @@ Route::get('/v1.0/landlords/optimized/{perPage}', [LandlordController::class, "g
 
 
 Route::get('/v1.0/landlords/get/all', [LandlordController::class, "getAllLandlords"]);
+
 Route::get('/v1.0/landlords/get/all/optimized', [LandlordController::class, "getAllLandlordsOptimized"]);
 
 Route::get('/v1.0/landlords/get/single/{id}', [LandlordController::class, "getLandlordById"]);
 Route::delete('/v1.0/landlords/{id}', [LandlordController::class, "deleteLandlordById"]);
+
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // Landlord management section
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

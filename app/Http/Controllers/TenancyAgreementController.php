@@ -56,6 +56,7 @@ class TenancyAgreementController extends Controller
      *         @OA\Property(property="tenant_witness_address", type="string", example="456 Tenant Rd, City, Country"),
      *         @OA\Property(property="guarantor_name", type="string", example="Sarah Lee", nullable=true),
      *         @OA\Property(property="guarantor_address", type="string", example="789 Guarantor Ave, City, Country", nullable=true)
+     *
      *     )
      * ),
      *      @OA\Response(
@@ -109,10 +110,14 @@ class TenancyAgreementController extends Controller
         try {
             $this->storeActivity($request, "");
             return DB::transaction(function () use ($request) {
+
                 $request_data = $request->validated();
                 $agreement = TenancyAgreement::create($request_data);
                 $agreement->tenants()->sync($request_data["tenant_ids"]);
+
                 return response($agreement, 201);
+
+
             });
         } catch (Exception $e) {
 
@@ -208,35 +213,10 @@ class TenancyAgreementController extends Controller
                 }
                 // Ensure agreement exists
 
-                $agreementData = collect($request_data)->only([
-                    "property_id",
-                    'agreed_rent',
-                    'security_deposit_hold',
-                    'rent_payment_option',
-                    'tenant_contact_duration',
-                    'date_of_moving',
-                    'let_only_agreement_expired_date',
-                    'tenant_contact_expired_date',
-                    'rent_due_date',
-                    'no_of_occupants',
-                    'tenant_contact_year_duration',
-                    'renewal_fee',
-                    'housing_act',
-                    'let_type',
-                    'terms_and_conditions',
-                    'agency_name',
-                    'landlord_name',
-                    'agency_witness_name',
-                    'tenant_witness_name',
-                    'agency_witness_address',
-                    'tenant_witness_address',
-                    'guarantor_name',
-                    'guarantor_address',
-                    'files'
-                ]);
+
 
                 // Fill the model with the mass-assignable attributes
-                $agreement->fill($agreementData->toArray());
+                $agreement->fill($request_data);
                 $agreement->save(); // Save the agreement
 
                 // Handle tenant_ids separately and sync them with the agreement

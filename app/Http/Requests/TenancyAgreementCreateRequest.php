@@ -56,6 +56,20 @@ class TenancyAgreementCreateRequest extends FormRequest
             'files' => 'present|array',
             'files.*.file' => 'required|string',
             'files.*.description' => 'nullable|string',
+
+            'tenant_sign_images' => 'present|array',
+            'tenant_sign_images.*.file' => 'required|string',
+            'tenant_sign_images.*.description' => 'nullable|string',
+
+            'agency_sign_images' => 'present|array',
+            'agency_sign_images.*.file' => 'required|string',
+            'agency_sign_images.*.description' => 'nullable|string',
+
+            'tenant_sign_date' => 'nullable|string',
+            'agency_sign_date' => 'nullable|string'
+
+
+
         ];
     }
 }

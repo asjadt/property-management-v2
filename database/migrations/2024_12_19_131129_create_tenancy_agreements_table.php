@@ -39,6 +39,13 @@ class CreateTenancyAgreementsTable extends Migration
             $table->string('guarantor_address')->nullable();
             $table->json('files')->nullable();
 
+            $table->json('tenant_sign_images')->nullable();
+            $table->json('agency_sign_images')->nullable();
+            $table->date('tenant_sign_date')->nullable();
+            $table->date('agency_sign_date')->nullable();
+
+
+
             $table->foreignId('property_id')->constrained("properties")->onDelete('cascade');
             $table->timestamps();
         });

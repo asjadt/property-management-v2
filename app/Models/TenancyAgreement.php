@@ -32,10 +32,24 @@ class TenancyAgreement extends Model
         'tenant_witness_address',
         'guarantor_name',
         'guarantor_address',
-        'files'
+        "tenant_sign_date",
+        "agency_sign_date",
+
+        'files',
+        "tenant_sign_images",
+        "agency_sign_images",
+
+
+
     ];
     protected $casts = [
+
+        
         'files' => 'array',
+        "tenant_sign_images" => "array",
+        "agency_sign_images" => "array",
+
+
     ];
 
     public function property()
