@@ -50,16 +50,22 @@ class Property extends Model
         return $this->hasMany(PropertyDocument::class);
     }
 
+
     public function inspections()
     {
         return $this->hasMany(TenantInspection::class,"property_id","id");
     }
 
 
-
     public function property_tenants() {
         return $this->belongsToMany(Tenant::class, 'property_tenants', 'property_id', 'tenant_id');
     }
+
+
+    public function property_landlords() {
+        return $this->belongsToMany(Landlord::class, 'property_landlords', 'property_id', 'landlord_id');
+    }
+
 
     public function maintenance_item_types() {
         return $this->belongsToMany(MaintenanceItemType::class, 'maintenance_item_properties',

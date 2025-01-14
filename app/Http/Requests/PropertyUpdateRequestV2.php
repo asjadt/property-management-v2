@@ -39,9 +39,15 @@ class PropertyUpdateRequestV2 extends FormRequest
             'long' => 'nullable|numeric',
             'type' => "required|string",
             'reference_no' => 'required|string|max:255',
-            'landlord_id' => "nullable|numeric|exists:landlords,id",
+
+
+            
             'tenant_ids' => 'nullable|array',
             'tenant_ids.*' => 'nullable|exists:tenants,id',
+
+            'landlord_ids' => 'present|array',
+            'landlord_ids.*' => 'numeric|exists:landlords,id',
+
             // Added fields from Software 2
             'date_of_instruction' => 'nullable|date',
             'howDetached' => 'nullable|string',

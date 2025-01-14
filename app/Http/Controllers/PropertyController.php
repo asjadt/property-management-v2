@@ -239,9 +239,9 @@ class PropertyController extends Controller
      *  *     *  * *  @OA\Property(property="type", type="string", format="string",example="type"),
 
      *  *     *  * *  @OA\Property(property="reference_no", type="string", format="string",example="reference_no"),
-     *  *     *  * *  @OA\Property(property="landlord_id", type="string", format="string",example="1"),
-     *  *  *  *     *  * *  @OA\Property(property="tenant_ids", type="string", format="array",example={1,2,3}),
 
+     *  *  *  *     *  * *  @OA\Property(property="tenant_ids", type="string", format="array",example={1,2,3}),
+     *      *  *  *  *     *  * *  @OA\Property(property="landlord_ids", type="string", format="array",example={1,2,3}),
      *
      *         ),
      *      ),
@@ -338,6 +338,10 @@ class PropertyController extends Controller
                     $property->property_tenants()->sync($request_data['tenant_ids'], []);
                 }
 
+
+                $property->property_landlords()->sync($request_data['landlord_ids'], []);
+
+
                 return response($property, 201);
             });
         } catch (Exception $e) {
@@ -370,7 +374,6 @@ class PropertyController extends Controller
      *            @OA\Property(property="long", type="string", format="string", example="90.4125"),
      *            @OA\Property(property="type", type="string", format="string", example="residential"),
      *            @OA\Property(property="reference_no", type="string", format="string", example="REF12345"),
-     *            @OA\Property(property="landlord_id", type="string", format="numeric", example="1"),
      *            @OA\Property(property="date_of_instruction", type="string", format="date", example="2024-11-01"),
      *            @OA\Property(property="howDetached", type="string", format="string", example="fully detached"),
     *            @OA\Property(property="no_of_beds", type="string", format="string", example="one"),
@@ -391,6 +394,7 @@ class PropertyController extends Controller
      *
      *            @OA\Property(property="county", type="string", format="string", example="Dhaka"),
      *            @OA\Property(property="tenant_ids", type="array", @OA\Items(type="integer"), example={1, 2, 3}),
+     *            @OA\Property(property="landlord_ids", type="array", @OA\Items(type="integer"), example={1, 2, 3}),
      *         ),
      *      ),
      *      @OA\Response(
@@ -468,7 +472,6 @@ class PropertyController extends Controller
                         "long",
                         'type',
                         'reference_no',
-                        'landlord_id',
                         'is_active',
                         'date_of_instruction',
                         'howDetached',
@@ -541,6 +544,10 @@ class PropertyController extends Controller
                 if (!empty($request_data['tenant_ids'])) {
                     $property->property_tenants()->sync($request_data['tenant_ids'], []);
                 }
+
+
+                $property->property_landlords()->sync($request_data['landlord_ids']);
+
 
 
 
@@ -923,9 +930,10 @@ $document->save();
      *     *  * *  @OA\Property(property="long", type="string", format="string",example="1207"),
      *  *     *  * *  @OA\Property(property="type", type="string", format="string",example="type"),
 
-     *  *     *  * *  @OA\Property(property="reference_no", type="string", format="string",example="reference_no"),
-     *  *     *  * *  @OA\Property(property="landlord_id", type="string", format="string",example="1"),
-     *  *  *     *  * *  @OA\Property(property="tenant_ids", type="string", format="array",example={1,2,3}),
+     *                @OA\Property(property="reference_no", type="string", format="string",example="reference_no"),
+
+     *                @OA\Property(property="tenant_ids", type="string", format="array",example={1,2,3}),
+     *   @OA\Property(property="landlord_ids", type="string", format="array",example={1,2,3})
      *
      *         ),
      *      ),
@@ -1004,8 +1012,7 @@ $document->save();
                         "lat",
                         "long",
                         'type',
-                        'reference_no',
-                        'landlord_id',
+                        'reference_no'
                     ])->toArray()
                 )
                     // ->with("somthing")
@@ -1017,11 +1024,13 @@ $document->save();
                         "message" => "no property found"
                     ], 404);
                 }
+
                 $property->property_tenants()->detach();
                 if (!empty($request_data['tenant_ids'])) {
-
                     $property->property_tenants()->sync($request_data['tenant_ids'], []);
                 }
+
+                $property->property_landlords()->sync($request_data['landlord_ids']);
 
                 return response($property, 200);
             });
@@ -1062,8 +1071,8 @@ $document->save();
      *  *     *  * *  @OA\Property(property="type", type="string", format="string",example="type"),
 
      *  *     *  * *  @OA\Property(property="reference_no", type="string", format="string",example="reference_no"),
-     *  *     *  * *  @OA\Property(property="landlord_id", type="string", format="string",example="1"),
-     *  *  *     *  * *  @OA\Property(property="tenant_ids", type="string", format="array",example={1,2,3}),
+     *                @OA\Property(property="tenant_ids", type="string", format="array",example={1,2,3}),
+     *                @OA\Property(property="landlord_ids", type="string", format="array",example={1,2,3}),
      *
      *         ),
      *      ),
@@ -1160,6 +1169,11 @@ $document->save();
                 $property->property_tenants()->sync($request_data['tenant_ids']);
             }
 
+
+            $property->property_landlords()->sync($request_data['landlord_ids']);
+
+
+
             if (!empty($request_data['maintenance_item_type_ids'])) {
                 $property->maintenance_item_types()->sync($request_data['maintenance_item_type_ids'], []);
             }
@@ -1189,7 +1203,7 @@ $document->save();
      *         @OA\JsonContent(
      *            required={"id","name","description","logo"},
      *     *             @OA\Property(property="id", type="number", format="number",example="1"),
-     *  *     *  * *  @OA\Property(property="landlord_id", type="string", format="string",example="1")
+     *                @OA\Property(property="landlord_ids", type="string", format="array",example={1,2,3}),
      *
      *         ),
      *      ),
@@ -1239,7 +1253,7 @@ $document->save();
             // Validate request data
             $request_data = $request->validated();
 
-            $property->fill($request_data);
+            $property->property_landlords()->sync($request_data['landlord_ids']);
             $property->save();
 
             return response()->json($property, 200);
@@ -1497,7 +1511,7 @@ $document->save();
 
             // $automobilesQuery = AutomobileMake::with("makes");
 
-            $propertyQuery =  Property::with("property_tenants", "landlord")
+            $propertyQuery =  Property::with("property_landlords","property_tenants")
                 ->leftJoin('property_tenants', 'properties.id', '=', 'property_tenants.property_id')
                 ->leftJoin('tenants', 'property_tenants.tenant_id', '=', 'tenants.id')
                 ->where(["properties.created_by" => $request->user()->id]);
@@ -1511,12 +1525,21 @@ $document->save();
                     $query->orWhere("properties.type", "like", "%" . $term . "%");
                 });
             }
+
             if (!empty($request->landlord_id)) {
-                $propertyQuery =  $propertyQuery->where("properties.landlord_id", $request->landlord_id);
+                $propertyQuery =  $propertyQuery->whereHas("property_landlords", function($query) {
+                   $query
+                   ->whereIn("property_landlords.landlord_id", [request()->input("landlord_id")])
+                   ;
+                });
             }
+
+
             if (!empty($request->tenant_id)) {
                 $propertyQuery =  $propertyQuery->where("tenants.id", $request->tenant_id);
             }
+
+
             if (!empty($request->category)) {
                 $propertyQuery =  $propertyQuery->where("properties.category", $request->category);
             }
@@ -1870,7 +1893,7 @@ $document->save();
 
             // $automobilesQuery = AutomobileMake::with("makes");
 
-            $propertyQuery =  Property::with("property_tenants", "landlord")
+            $propertyQuery =  Property::with("property_landlords","property_tenants")
                 ->leftJoin('property_tenants', 'properties.id', '=', 'property_tenants.property_id')
                 ->leftJoin('tenants', 'property_tenants.tenant_id', '=', 'tenants.id')
                 ->where(["properties.created_by" => $request->user()->id]);
@@ -1894,12 +1917,21 @@ $document->save();
                 });
             }
 
+
             if (!empty($request->landlord_id)) {
-                $propertyQuery =  $propertyQuery->where("properties.landlord_id", $request->landlord_id);
+                $propertyQuery =  $propertyQuery->whereHas("property_landlords", function($query) {
+                   $query
+                   ->whereIn("property_landlords.landlord_id", [request()->input("landlord_id")])
+                   ;
+                });
             }
+
+
+
             if (!empty($request->tenant_id)) {
                 $propertyQuery =  $propertyQuery->where("tenants.id", $request->tenant_id);
             }
+
             if (!empty($request->address)) {
                 $propertyQuery =  $propertyQuery->where("properties.address", "like", "%" . $request->address . "%");
             }
@@ -2058,8 +2090,13 @@ $document->save();
             }
 
             if (!empty($request->landlord_id)) {
-                $propertyQuery =  $propertyQuery->where("properties.landlord_id", $request->landlord_id);
+                $propertyQuery =  $propertyQuery->whereHas("property_landlords", function($query) {
+                   $query
+                   ->whereIn("property_landlords.landlord_id", [request()->input("landlord_id")])
+                   ;
+                });
             }
+
             if (!empty($request->tenant_id)) {
                 $propertyQuery =  $propertyQuery->where("tenants.id", $request->tenant_id);
             }
@@ -2157,7 +2194,7 @@ $document->save();
 
             $property = Property::with(
                 "property_tenants",
-                "landlord",
+                "property_landlords",
                 "repairs.repair_category",
                 "invoices",
                 "documents",

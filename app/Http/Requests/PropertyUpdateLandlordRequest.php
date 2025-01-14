@@ -25,7 +25,8 @@ class PropertyUpdateLandlordRequest extends FormRequest
     {
         return [
             'id' => 'required|integer|exists:properties,id',
-            'landlord_id' => "nullable|numeric|exists:landlords,id",
+            'landlord_ids' => 'present|array',
+            'landlord_ids.*' => 'numeric|exists:landlords,id',
         ];
     }
 }

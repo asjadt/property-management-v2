@@ -14,7 +14,6 @@ class CreatePropertyAgreementsTable extends Migration
             $table->unsignedBigInteger('landlord_id');
             $table->unsignedBigInteger('property_id');
 
-
             
             $table->date('start_date');
             $table->date('end_date');

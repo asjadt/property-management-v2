@@ -483,7 +483,7 @@ class LandlordController extends Controller
             $endDate = $currentDate->copy()->addDays(15);
 
 
-            $landlordQuery =  Landlord::with('properties',"properties.property_tenants")->leftJoin('properties', 'landlords.id', '=', 'properties.landlord_id')
+            $landlordQuery =  Landlord::with('properties',"properties.property_tenants")
             ->where(["landlords.created_by" => $request->user()->id]);
 
             if (!empty($request->search_key)) {
@@ -512,16 +512,22 @@ class LandlordController extends Controller
                 });
             }
             if(!empty($request->property_id)){
-                $landlordQuery = $landlordQuery->where('properties.id',$request->property_id);
+                $landlordQuery = $landlordQuery->whereHas('properties',function($query) {
+                 $query->whereIn("properties",[request()->input("property_id")]);
+                });
             }
+
             if(!empty($request->property_ids)) {
                 $null_filter = collect(array_filter($request->property_ids))->values();
             $property_ids =  $null_filter->all();
                 if(count($property_ids)) {
-                    $landlordQuery =   $landlordQuery->whereIn("properties.id",$property_ids);
+                    $landlordQuery = $landlordQuery->whereHas('properties',function($query) use($property_ids){
+                        $query->whereIn("properties",$property_ids);
+                       });
                 }
 
             }
+
             if (!empty($request->start_date)) {
                 $landlordQuery = $landlordQuery->where('landlords.created_at', ">=", $request->start_date);
             }
@@ -535,7 +541,7 @@ class LandlordController extends Controller
                 "landlords.*",
                 DB::raw('
              COALESCE(
-                 (SELECT COUNT(properties.id) FROM properties WHERE properties.landlord_id = landlords.id),
+                 (SELECT COUNT(property_landlords.id) FROM property_landlords WHERE property_landlords.landlord_id = landlords.id),
                  0
              ) AS total_properties
              '),
@@ -810,8 +816,7 @@ class LandlordController extends Controller
              $endDate = $currentDate->copy()->addDays(15);
 
 
-             $landlordQuery =  Landlord::leftJoin('properties', 'landlords.id', '=', 'properties.landlord_id')
-             ->where(["landlords.created_by" => $request->user()->id]);
+             $landlordQuery =  Landlord::where(["landlords.created_by" => $request->user()->id]);
 
              if (!empty($request->search_key)) {
                  $landlordQuery = $landlordQuery->where(function ($query) use ($request) {
@@ -835,20 +840,27 @@ class LandlordController extends Controller
                      $query->orWhere("landlords.postcode", "like", "%" . $term . "%");
                      $query->orWhere("landlords.email", "like", "%" . $term . "%");
 
-
                  });
              }
-             if(!empty($request->property_id)){
-                 $landlordQuery = $landlordQuery->where('properties.id',$request->property_id);
-             }
-             if(!empty($request->property_ids)) {
-                 $null_filter = collect(array_filter($request->property_ids))->values();
-             $property_ids =  $null_filter->all();
-                 if(count($property_ids)) {
-                     $landlordQuery =   $landlordQuery->whereIn("properties.id",$property_ids);
-                 }
 
-             }
+
+            if(!empty($request->property_id)){
+                $landlordQuery = $landlordQuery->whereHas('properties',function($query) {
+                 $query->whereIn("properties",[request()->input("property_id")]);
+                });
+            }
+
+            if(!empty($request->property_ids)) {
+                $null_filter = collect(array_filter($request->property_ids))->values();
+            $property_ids =  $null_filter->all();
+                if(count($property_ids)) {
+                    $landlordQuery = $landlordQuery->whereHas('properties',function($query) use($property_ids){
+                        $query->whereIn("properties",$property_ids);
+                       });
+                }
+            }
+
+
              if (!empty($request->start_date)) {
                  $landlordQuery = $landlordQuery->where('landlords.created_at', ">=", $request->start_date);
              }
@@ -1065,7 +1077,7 @@ class LandlordController extends Controller
              // $automobilesQuery = AutomobileMake::with("makes");
 
              $landlordQuery =  Landlord::with('properties',"properties.property_tenants")
-             ->leftJoin('properties', 'landlords.id', '=', 'properties.landlord_id')
+
              ->where(["landlords.created_by" => $request->user()->id]);
 
              if (!empty($request->search_key)) {
@@ -1099,17 +1111,24 @@ class LandlordController extends Controller
              if (!empty($request->end_date)) {
                  $landlordQuery = $landlordQuery->where('landlords.created_at', "<=", $request->end_date);
              }
+
              if(!empty($request->property_id)){
-                $landlordQuery = $landlordQuery->where('properties.id',$request->property_id);
+                $landlordQuery = $landlordQuery->whereHas('properties',function($query) {
+                 $query->whereIn("properties",[request()->input("property_id")]);
+                });
             }
+
             if(!empty($request->property_ids)) {
                 $null_filter = collect(array_filter($request->property_ids))->values();
             $property_ids =  $null_filter->all();
                 if(count($property_ids)) {
-                    $landlordQuery =   $landlordQuery->whereIn("properties.id",$property_ids);
+                    $landlordQuery = $landlordQuery->whereHas('properties',function($query) use($property_ids){
+                        $query->whereIn("properties",$property_ids);
+                       });
                 }
-
             }
+
+
              $currentDate = Carbon::now();
              $endDate = $currentDate->copy()->addDays(15);
              $landlordQuery = $landlordQuery
@@ -1117,11 +1136,11 @@ class LandlordController extends Controller
              ->select(
                  "landlords.*",
                  DB::raw('
-              COALESCE(
-                  (SELECT COUNT(properties.id) FROM properties WHERE properties.landlord_id = landlords.id),
-                  0
-              ) AS total_properties
-              '),
+             COALESCE(
+                 (SELECT COUNT(property_landlords.id) FROM property_landlords WHERE property_landlords.landlord_id = landlords.id),
+                 0
+             ) AS total_properties
+             '),
               DB::raw('
               COALESCE(
                   (SELECT COUNT(invoices.id) FROM invoices WHERE invoices.landlord_id = landlords.id),
@@ -1371,8 +1390,8 @@ class LandlordController extends Controller
              // $automobilesQuery = AutomobileMake::with("makes");
 
              $landlordQuery =  Landlord::
-             leftJoin('properties', 'landlords.id', '=', 'properties.landlord_id')
-             ->where(["landlords.created_by" => $request->user()->id]);
+
+             where(["landlords.created_by" => $request->user()->id]);
 
              if (!empty($request->search_key)) {
                  $landlordQuery = $landlordQuery->where(function ($query) use ($request) {
@@ -1405,17 +1424,25 @@ class LandlordController extends Controller
              if (!empty($request->end_date)) {
                  $landlordQuery = $landlordQuery->where('landlords.created_at', "<=", $request->end_date);
              }
-             if(!empty($request->property_id)){
-                $landlordQuery = $landlordQuery->where('properties.id',$request->property_id);
+
+
+            if(!empty($request->property_id)){
+                $landlordQuery = $landlordQuery->whereHas('properties',function($query) {
+                 $query->whereIn("properties",[request()->input("property_id")]);
+                });
             }
+
             if(!empty($request->property_ids)) {
                 $null_filter = collect(array_filter($request->property_ids))->values();
             $property_ids =  $null_filter->all();
                 if(count($property_ids)) {
-                    $landlordQuery =   $landlordQuery->whereIn("properties.id",$property_ids);
+                    $landlordQuery = $landlordQuery->whereHas('properties',function($query) use($property_ids){
+                        $query->whereIn("properties",$property_ids);
+                       });
                 }
-
             }
+
+
              $currentDate = Carbon::now();
              $endDate = $currentDate->copy()->addDays(15);
 
@@ -1508,13 +1535,13 @@ class LandlordController extends Controller
             ->select(
 
             "landlords.*",
-                DB::raw('
-             COALESCE(
-                 (SELECT COUNT(properties.id) FROM properties WHERE properties.landlord_id = landlords.id),
-                 0
-             ) AS total_properties
-             ')
-             
+            DB::raw('
+            COALESCE(
+                (SELECT COUNT(property_landlords.id) FROM property_landlords WHERE property_landlords.landlord_id = landlords.id),
+                0
+            ) AS total_properties
+            '),
+
              )
              ->withTrashed()
             ->first();

@@ -30,10 +30,13 @@ class Landlord extends Model
         'files' => 'array',
     ];
 
-    public function properties() {
-        return $this->hasMany(Property::class,'landlord_id','id');
-    }
 
+
+
+
+    public function properties() {
+        return $this->belongsToMany(Property::class, 'property_landlords', 'landlord_id', 'property_id');
+    }
 
 
 }
