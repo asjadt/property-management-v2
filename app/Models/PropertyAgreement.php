@@ -11,6 +11,8 @@ class PropertyAgreement extends Model
     use HasFactory,SoftDeletes;
 
     protected $fillable = [
+
+
         'landlord_id',
         'property_id',
         'start_date',
@@ -29,10 +31,9 @@ class PropertyAgreement extends Model
         'max_price',
         'agency_type',
         'type',
-
         "files",
         "landlord_sign_images",
-        "agency_sign_images",
+        "agency_sign_images"
 
 
 
@@ -43,14 +44,15 @@ class PropertyAgreement extends Model
         "landlord_sign_images"=> 'array',
         "agency_sign_images"=> 'array',
     ];
+
     // Relationships
-    public function landlord()
-    {
-        return $this->belongsTo(Landlord::class);
+    public function landlords() {
+    return $this->belongsToMany(Landlord::class, 'property_agreement_landlords', 'property_agreement_id', 'landlord_id');
     }
 
     public function property()
     {
         return $this->belongsTo(Property::class);
     }
+    
 }

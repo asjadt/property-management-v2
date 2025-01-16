@@ -31,7 +31,7 @@ class PropertyAgreementController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *            required={},
-     *            @OA\Property(property="landlord_id", type="integer", example=1),
+       *   @OA\Property(property="landlord_ids", type="string", format="array",example={1,2,3}),
      *            @OA\Property(property="property_id", type="integer", example=1),
      *            @OA\Property(property="start_date", type="string", format="date", example="2024-11-01"),
      *            @OA\Property(property="end_date", type="string", format="date", example="2025-11-01"),
@@ -53,7 +53,6 @@ class PropertyAgreementController extends Controller
      *          description="Successful operation",
      *          @OA\JsonContent(
      *              @OA\Property(property="id", type="integer", example=1),
-     *              @OA\Property(property="landlord_id", type="integer", example=1),
      *              @OA\Property(property="property_id", type="integer", example=1),
      *              @OA\Property(property="start_date", type="string", format="date", example="2024-11-01"),
      *              @OA\Property(property="end_date", type="string", format="date", example="2025-11-01"),
@@ -110,7 +109,10 @@ class PropertyAgreementController extends Controller
             $this->storeActivity($request, "");
             return DB::transaction(function () use ($request) {
                 $request_data = $request->validated();
+
                 $agreement = PropertyAgreement::create($request_data);
+
+                $agreement->landlords()->sync($request_data['landlord_ids']);
                 return response($agreement, 201);
             });
         } catch (Exception $e) {
@@ -135,7 +137,7 @@ class PropertyAgreementController extends Controller
      *         @OA\JsonContent(
      *            required={},
      *            @OA\Property(property="id", type="integer", example=1),
-     *            @OA\Property(property="landlord_id", type="integer", example=1),
+       *   @OA\Property(property="landlord_ids", type="string", format="array",example={1,2,3}),
      *            @OA\Property(property="property_id", type="integer", example=1),
      *            @OA\Property(property="start_date", type="string", format="date", example="2024-11-01"),
      *            @OA\Property(property="end_date", type="string", format="date", example="2025-11-01"),
@@ -160,7 +162,6 @@ class PropertyAgreementController extends Controller
      *          description="Successful operation",
      *          @OA\JsonContent(
      *              @OA\Property(property="id", type="integer", example=1),
-     *              @OA\Property(property="landlord_id", type="integer", example=1),
      *              @OA\Property(property="property_id", type="integer", example=1),
      *              @OA\Property(property="start_date", type="string", format="date", example="2024-11-01"),
      *              @OA\Property(property="end_date", type="string", format="date", example="2025-11-01"),
@@ -225,6 +226,8 @@ class PropertyAgreementController extends Controller
                 $agreement->fill($request_data); // Use fill() to update attributes
                 $agreement->save();  // Save changes to the database
 
+                $agreement->landlords()->sync($request_data['landlord_ids']);
+
                 return response($agreement, 200);
             });
         } catch (Exception $e) {
@@ -246,8 +249,9 @@ class PropertyAgreementController extends Controller
      *      },
      *      summary="Get property agreements",
      *      description="This method retrieves the history of property agreements for a given property and landlord, including soft-deleted agreements.",
+     *
      *      @OA\Parameter(
-     *          name="landlord_id",
+     *          name="landlord_ids",
      *          in="query",
      *          required=false,
      *          @OA\Schema(type="integer", example=1)
@@ -295,13 +299,17 @@ class PropertyAgreementController extends Controller
     {
         try {
             // Start building the query for history
-            $query = PropertyAgreement::whereHas('property', function ($q) {
+            $query = PropertyAgreement::with("landlords")
+            ->whereHas('property', function ($q) {
                 // Ensure the property is created by the authenticated user
                 $q->where('properties.created_by', auth()->user()->id);
             })
-                ->when($request->filled('landlord_id'), function ($q) use ($request) {
+                ->when($request->filled('landlord_ids'), function ($q) use ($request) {
                     // Filter by landlord_id if provided
-                    $q->where('landlord_id', $request->landlord_id);
+                    $q->whereHas('landlords', function($query)  {
+                        $landlord_ids = explode(',', request()->input("landlord_ids"));
+                        $query->whereIn("landlords.id",$landlord_ids);
+                    });
                 })
                 ->when($request->filled('property_id'), function ($q) use ($request) {
                     // Filter by property_id if provided

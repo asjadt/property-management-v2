@@ -297,6 +297,7 @@ return array(
     'App\\Models\\ProductVariation' => $baseDir . '/app/Models/ProductVariation.php',
     'App\\Models\\Property' => $baseDir . '/app/Models/Property.php',
     'App\\Models\\PropertyAgreement' => $baseDir . '/app/Models/PropertyAgreement.php',
+    'App\\Models\\PropertyAgreementLandlord' => $baseDir . '/app/Models/PropertyAgreementLandlord.php',
     'App\\Models\\PropertyDocument' => $baseDir . '/app/Models/PropertyDocument.php',
     'App\\Models\\PropertyLandlord' => $baseDir . '/app/Models/PropertyLandlord.php',
     'App\\Models\\PropertyTenant' => $baseDir . '/app/Models/PropertyTenant.php',

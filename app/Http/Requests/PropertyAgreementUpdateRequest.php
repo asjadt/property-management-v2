@@ -15,7 +15,10 @@ class PropertyAgreementUpdateRequest extends FormRequest
     {
         return [
             'id' => 'required|numeric|exists:property_agreements,id',
-            'landlord_id' => 'required|exists:landlords,id',
+
+            'landlord_ids' => 'present|array',
+            'landlord_ids.*' => 'numeric|exists:landlords,id',
+
             'property_id' => 'required|exists:properties,id',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',

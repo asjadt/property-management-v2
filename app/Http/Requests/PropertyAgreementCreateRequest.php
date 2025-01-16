@@ -24,17 +24,17 @@ class PropertyAgreementCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'landlord_id' => 'required|exists:landlords,id',
-            'property_id' => 'required|exists:properties,id',
 
+            'landlord_ids' => 'present|array',
+            'landlord_ids.*' => 'numeric|exists:landlords,id',
+
+            'property_id' => 'required|exists:properties,id',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
 
             'landlord_sign_date' =>"nullable|date",
             'agency_sign_date'   => "nullable|date",
             'rent_due_date'   => "nullable|date",
-
-
             'payment_arrangement' => 'nullable|in:By_Cash,By_Cheque,Bank_Transfer',
             'cheque_payable_to' => 'nullable|string',
             'agent_commission' => 'nullable|numeric|min:0',

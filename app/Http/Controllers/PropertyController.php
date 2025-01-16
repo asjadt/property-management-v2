@@ -1253,7 +1253,7 @@ $document->save();
             $request_data = $request->validated();
 
             $property->property_landlords()->sync($request_data['landlord_ids']);
-            $property->save();
+
 
             return response()->json($property, 200);
         } catch (Exception $e) {
@@ -1289,14 +1289,14 @@ $document->save();
  *     example="keyword"
  * ),
  * @OA\Parameter(
- *     name="landlord_id",
+ *     name="landlord_ids",
  *     in="query",
  *     description="Filter properties by landlord ID",
  *     required=false,
  *     example="1"
  * ),
  * @OA\Parameter(
- *     name="tenant_id",
+ *     name="tenant_ids",
  *     in="query",
  *     description="Filter properties by tenant ID",
  *     required=false,
@@ -1511,8 +1511,7 @@ $document->save();
             // $automobilesQuery = AutomobileMake::with("makes");
 
             $propertyQuery =  Property::with("property_landlords","property_tenants")
-                ->leftJoin('property_tenants', 'properties.id', '=', 'property_tenants.property_id')
-                ->leftJoin('tenants', 'property_tenants.tenant_id', '=', 'tenants.id')
+
                 ->where(["properties.created_by" => $request->user()->id]);
 
             if (!empty($request->search_key)) {
@@ -1525,17 +1524,22 @@ $document->save();
                 });
             }
 
-            if (!empty($request->landlord_id)) {
+            if (!empty($request->landlord_ids)) {
                 $propertyQuery =  $propertyQuery->whereHas("property_landlords", function($query) {
+                    $landlord_ids = explode(',', request()->input("landlord_ids"));
                    $query
-                   ->whereIn("property_landlords.landlord_id", [request()->input("landlord_id")])
+                   ->whereIn("property_landlords.landlord_id", $landlord_ids)
                    ;
                 });
             }
 
-
-            if (!empty($request->tenant_id)) {
-                $propertyQuery =  $propertyQuery->where("tenants.id", $request->tenant_id);
+            if (!empty($request->tenant_ids)) {
+                $propertyQuery =  $propertyQuery->whereHas("property_tenants", function($query) {
+                    $tenant_ids = explode(',', request()->input("tenant_ids"));
+                   $query
+                   ->whereIn("property_tenants.tenant_id", $tenant_ids)
+                   ;
+                });
             }
 
 
@@ -1834,16 +1838,16 @@ $document->save();
      *
      *
      * *  @OA\Parameter(
-     * name="landlord_id",
+     * name="landlord_ids",
      * in="query",
-     * description="landlord_id",
+     * description="landlord_ids",
      * required=true,
      * example="1"
      * ),
      * *  @OA\Parameter(
-     * name="tenant_id",
+     * name="tenant_ids",
      * in="query",
-     * description="tenant_id",
+     * description="tenant_ids",
      * required=true,
      * example="1"
      * ),
@@ -1893,8 +1897,7 @@ $document->save();
             // $automobilesQuery = AutomobileMake::with("makes");
 
             $propertyQuery =  Property::with("property_landlords","property_tenants")
-                ->leftJoin('property_tenants', 'properties.id', '=', 'property_tenants.property_id')
-                ->leftJoin('tenants', 'property_tenants.tenant_id', '=', 'tenants.id')
+
                 ->where(["properties.created_by" => $request->user()->id]);
 
 
@@ -1917,19 +1920,24 @@ $document->save();
             }
 
 
-            if (!empty($request->landlord_id)) {
+            if (!empty($request->landlord_ids)) {
                 $propertyQuery =  $propertyQuery->whereHas("property_landlords", function($query) {
+                    $landlord_ids = explode(',', request()->input("landlord_ids"));
                    $query
-                   ->whereIn("property_landlords.landlord_id", [request()->input("landlord_id")])
+                   ->whereIn("property_landlords.landlord_id", $landlord_ids)
                    ;
                 });
             }
 
-
-
-            if (!empty($request->tenant_id)) {
-                $propertyQuery =  $propertyQuery->where("tenants.id", $request->tenant_id);
+            if (!empty($request->tenant_ids)) {
+                $propertyQuery =  $propertyQuery->whereHas("property_tenants", function($query) {
+                    $tenant_ids = explode(',', request()->input("tenant_ids"));
+                   $query
+                   ->whereIn("property_tenants.tenant_id", $tenant_ids)
+                   ;
+                });
             }
+
 
             if (!empty($request->address)) {
                 $propertyQuery =  $propertyQuery->where("properties.address", "like", "%" . $request->address . "%");
@@ -2006,16 +2014,16 @@ $document->save();
      * example="address"
      * ),
      * *  @OA\Parameter(
-     * name="landlord_id",
+     * name="landlord_ids",
      * in="query",
-     * description="landlord_id",
+     * description="landlord_ids",
      * required=true,
      * example="1"
      * ),
      * *  @OA\Parameter(
-     * name="tenant_id",
+     * name="tenant_ids",
      * in="query",
-     * description="tenant_id",
+     * description="tenant_ids",
      * required=true,
      * example="1"
      * ),
@@ -2064,9 +2072,7 @@ $document->save();
 
             // $automobilesQuery = AutomobileMake::with("makes");
 
-            $propertyQuery =  Property::leftJoin('property_tenants', 'properties.id', '=', 'property_tenants.property_id')
-                ->leftJoin('tenants', 'property_tenants.tenant_id', '=', 'tenants.id')
-                ->where(["properties.created_by" => $request->user()->id]);
+            $propertyQuery =  Property::where(["properties.created_by" => $request->user()->id]);
 
             if (!empty($request->search_key)) {
                 $propertyQuery = $propertyQuery->where(function ($query) use ($request) {
@@ -2088,17 +2094,29 @@ $document->save();
                 });
             }
 
-            if (!empty($request->landlord_id)) {
+            if (!empty($request->landlord_ids)) {
                 $propertyQuery =  $propertyQuery->whereHas("property_landlords", function($query) {
+                    $landlord_ids = explode(',', request()->input("landlord_ids"));
                    $query
-                   ->whereIn("property_landlords.landlord_id", [request()->input("landlord_id")])
+                   ->whereIn("property_landlords.landlord_id", $landlord_ids)
                    ;
                 });
             }
 
-            if (!empty($request->tenant_id)) {
-                $propertyQuery =  $propertyQuery->where("tenants.id", $request->tenant_id);
+            if (!empty($request->tenant_ids)) {
+                $propertyQuery =  $propertyQuery->whereHas("property_tenants", function($query) {
+                    $tenant_ids = explode(',', request()->input("tenant_ids"));
+                   $query
+                   ->whereIn("property_tenants.tenant_id", $tenant_ids)
+                   ;
+                });
             }
+
+
+
+
+
+
             if (!empty($request->address)) {
                 $propertyQuery =  $propertyQuery->where("properties.address", "like", "%" . $request->address . "%");
             }

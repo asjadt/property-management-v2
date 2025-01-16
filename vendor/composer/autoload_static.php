@@ -942,6 +942,7 @@ class ComposerStaticInit21d3eeeef4e11a73df45b8701b58e483
         'App\\Models\\ProductVariation' => __DIR__ . '/../..' . '/app/Models/ProductVariation.php',
         'App\\Models\\Property' => __DIR__ . '/../..' . '/app/Models/Property.php',
         'App\\Models\\PropertyAgreement' => __DIR__ . '/../..' . '/app/Models/PropertyAgreement.php',
+        'App\\Models\\PropertyAgreementLandlord' => __DIR__ . '/../..' . '/app/Models/PropertyAgreementLandlord.php',
         'App\\Models\\PropertyDocument' => __DIR__ . '/../..' . '/app/Models/PropertyDocument.php',
         'App\\Models\\PropertyLandlord' => __DIR__ . '/../..' . '/app/Models/PropertyLandlord.php',
         'App\\Models\\PropertyTenant' => __DIR__ . '/../..' . '/app/Models/PropertyTenant.php',
