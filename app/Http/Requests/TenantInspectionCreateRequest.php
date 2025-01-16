@@ -31,7 +31,6 @@ class TenantInspectionCreateRequest extends FormRequest
             'phone' => 'required|string|max:20', // Assuming a phone number format
             'date' => 'required|date',
             'next_inspection_date' => 'required|date',
-
             'inspection_duration' => 'required|string',
 
 

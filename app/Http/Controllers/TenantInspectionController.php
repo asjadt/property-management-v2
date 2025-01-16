@@ -12,6 +12,7 @@ use App\Models\MaintenanceItem;
 use App\Models\TenantInspection;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class TenantInspectionController extends Controller
@@ -269,6 +270,19 @@ class TenantInspectionController extends Controller
      *          required=false,
      *          @OA\Schema(type="integer", example=1)
      *      ),
+     *      *  *      @OA\Parameter(
+     *          name="is_next_follow_up_date_passed",
+     *          in="query",
+     *          required=false,
+     *
+     *      ),
+     *   *      *  *      @OA\Parameter(
+     *          name="next_follow_up_date_in",
+     *          in="query",
+     *          required=false,
+     *
+     *      ),
+     *
      *
      *      @OA\Response(
      *          response=200,
@@ -323,6 +337,29 @@ class TenantInspectionController extends Controller
                 $property_ids = explode(',', request()->input('property_ids'));
                 $q->whereIn('tenant_inspections.property_id', $property_ids);
             })
+
+
+
+            ->when(request()->filled("is_next_follow_up_date_passed"), function ($query) {
+                $query->whereHas("maintenance_item", function ($subQuery) {
+                    $subQuery->whereDate('maintenance_items.next_follow_up_date', '<', Carbon::today());
+                });
+            })
+
+            ->when(request()->filled("next_follow_up_date_in"), function ($query) {
+                $expiryDays = request()->input('next_follow_up_date_in'); // Get the number of days passed from the front end
+
+                // Check if a valid number of days is provided
+                if (is_numeric($expiryDays) && $expiryDays > 0) {
+                    $query->whereHas('maintenance_item', function ($subQuery) use ($expiryDays) {
+                        $subQuery->whereDate('maintenance_items.next_follow_up_date', '>=', Carbon::today())
+                                 ->whereDate('maintenance_items.next_follow_up_date', '<=', Carbon::today()->addDays($expiryDays));
+                    });
+                }
+            })
+
+
+
 
                 ->when($request->filled('id'), function ($q) use ($request) {
                     // If specific ID is provided, return that record only

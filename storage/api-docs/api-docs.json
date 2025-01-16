@@ -24569,9 +24569,14 @@
                                         "type": "integer",
                                         "example": 1
                                     },
-                                    "landlord_id": {
-                                        "type": "integer",
-                                        "example": 1
+                                    "landlord_ids": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            1,
+                                            2,
+                                            3
+                                        ]
                                     },
                                     "property_id": {
                                         "type": "integer",
@@ -24670,10 +24675,6 @@
                                 "schema": {
                                     "properties": {
                                         "id": {
-                                            "type": "integer",
-                                            "example": 1
-                                        },
-                                        "landlord_id": {
                                             "type": "integer",
                                             "example": 1
                                         },
@@ -24809,9 +24810,14 @@
                             "schema": {
                                 "required": [],
                                 "properties": {
-                                    "landlord_id": {
-                                        "type": "integer",
-                                        "example": 1
+                                    "landlord_ids": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            1,
+                                            2,
+                                            3
+                                        ]
                                     },
                                     "property_id": {
                                         "type": "integer",
@@ -24895,10 +24901,6 @@
                                 "schema": {
                                     "properties": {
                                         "id": {
-                                            "type": "integer",
-                                            "example": 1
-                                        },
-                                        "landlord_id": {
                                             "type": "integer",
                                             "example": 1
                                         },
@@ -25059,7 +25061,7 @@
                 "operationId": "getPropertyAgreements",
                 "parameters": [
                     {
-                        "name": "landlord_id",
+                        "name": "landlord_ids",
                         "in": "query",
                         "required": false,
                         "schema": {
@@ -25803,12 +25805,16 @@
                                         "format": "string",
                                         "example": "reference_no"
                                     },
-                                    "landlord_id": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "1"
-                                    },
                                     "tenant_ids": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            1,
+                                            2,
+                                            3
+                                        ]
+                                    },
+                                    "landlord_ids": {
                                         "type": "string",
                                         "format": "array",
                                         "example": [
@@ -25952,12 +25958,16 @@
                                         "format": "string",
                                         "example": "reference_no"
                                     },
-                                    "landlord_id": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "1"
-                                    },
                                     "tenant_ids": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            1,
+                                            2,
+                                            3
+                                        ]
+                                    },
+                                    "landlord_ids": {
                                         "type": "string",
                                         "format": "array",
                                         "example": [
@@ -26108,11 +26118,6 @@
                                         "format": "string",
                                         "example": "REF12345"
                                     },
-                                    "landlord_id": {
-                                        "type": "string",
-                                        "format": "numeric",
-                                        "example": "1"
-                                    },
                                     "date_of_instruction": {
                                         "type": "string",
                                         "format": "date",
@@ -26148,12 +26153,7 @@
                                         "format": "string",
                                         "example": "Ground Floor"
                                     },
-                                    "min_price": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "100000"
-                                    },
-                                    "max_price": {
+                                    "price": {
                                         "type": "string",
                                         "format": "string",
                                         "example": "500000"
@@ -26184,6 +26184,17 @@
                                         "example": "Dhaka"
                                     },
                                     "tenant_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "example": [
+                                            1,
+                                            2,
+                                            3
+                                        ]
+                                    },
+                                    "landlord_ids": {
                                         "type": "array",
                                         "items": {
                                             "type": "integer"
@@ -26603,12 +26614,16 @@
                                         "format": "string",
                                         "example": "reference_no"
                                     },
-                                    "landlord_id": {
-                                        "type": "string",
-                                        "format": "string",
-                                        "example": "1"
-                                    },
                                     "tenant_ids": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            1,
+                                            2,
+                                            3
+                                        ]
+                                    },
+                                    "landlord_ids": {
                                         "type": "string",
                                         "format": "array",
                                         "example": [
@@ -26705,10 +26720,14 @@
                                         "format": "number",
                                         "example": "1"
                                     },
-                                    "landlord_id": {
+                                    "landlord_ids": {
                                         "type": "string",
-                                        "format": "string",
-                                        "example": "1"
+                                        "format": "array",
+                                        "example": [
+                                            1,
+                                            2,
+                                            3
+                                        ]
                                     }
                                 },
                                 "type": "object"
@@ -26797,14 +26816,14 @@
                         "example": "keyword"
                     },
                     {
-                        "name": "landlord_id",
+                        "name": "landlord_ids",
                         "in": "query",
                         "description": "Filter properties by landlord ID",
                         "required": false,
                         "example": "1"
                     },
                     {
-                        "name": "tenant_id",
+                        "name": "tenant_ids",
                         "in": "query",
                         "description": "Filter properties by tenant ID",
                         "required": false,
@@ -26896,6 +26915,13 @@
                     },
                     {
                         "name": "is_document_expired",
+                        "in": "query",
+                        "description": "Filter properties by document type ID",
+                        "required": false,
+                        "example": "1"
+                    },
+                    {
+                        "name": "document_expired_in",
                         "in": "query",
                         "description": "Filter properties by document type ID",
                         "required": false,
@@ -27186,16 +27212,16 @@
                         "example": "reference_no"
                     },
                     {
-                        "name": "landlord_id",
+                        "name": "landlord_ids",
                         "in": "query",
-                        "description": "landlord_id",
+                        "description": "landlord_ids",
                         "required": true,
                         "example": "1"
                     },
                     {
-                        "name": "tenant_id",
+                        "name": "tenant_ids",
                         "in": "query",
-                        "description": "tenant_id",
+                        "description": "tenant_ids",
                         "required": true,
                         "example": "1"
                     }
@@ -27302,16 +27328,16 @@
                         "example": "address"
                     },
                     {
-                        "name": "landlord_id",
+                        "name": "landlord_ids",
                         "in": "query",
-                        "description": "landlord_id",
+                        "description": "landlord_ids",
                         "required": true,
                         "example": "1"
                     },
                     {
-                        "name": "tenant_id",
+                        "name": "tenant_ids",
                         "in": "query",
-                        "description": "tenant_id",
+                        "description": "tenant_ids",
                         "required": true,
                         "example": "1"
                     }
@@ -29136,6 +29162,11 @@
                                         "format": "string",
                                         "example": "item_description"
                                     },
+                                    "status": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "status"
+                                    },
                                     "price": {
                                         "type": "string",
                                         "format": "string",
@@ -29258,6 +29289,11 @@
                                         "type": "string",
                                         "format": "string",
                                         "example": "item_description"
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "status"
                                     },
                                     "price": {
                                         "type": "string",
@@ -36037,6 +36073,16 @@
                             "type": "integer",
                             "example": 1
                         }
+                    },
+                    {
+                        "name": "is_next_follow_up_date_passed",
+                        "in": "query",
+                        "required": false
+                    },
+                    {
+                        "name": "next_follow_up_date_in",
+                        "in": "query",
+                        "required": false
                     }
                 ],
                 "responses": {
