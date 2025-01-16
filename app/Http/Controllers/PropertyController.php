@@ -385,8 +385,8 @@ class PropertyController extends Controller
      *
      *            @OA\Property(property="propertyFloor", type="string", format="string", example="Ground Floor"),
      *  *            @OA\Property(property="category", type="string", format="string", example="Ground Floor"),
-     *            @OA\Property(property="min_price", type="string", format="string", example="100000"),
-     *            @OA\Property(property="max_price", type="string", format="string", example="500000"),
+
+     *            @OA\Property(property="price", type="string", format="string", example="500000"),
      *            @OA\Property(property="purpose", type="string", format="string", example="for sale"),
      *            @OA\Property(property="property_door_no", type="string", format="string", example="10A"),
      *            @OA\Property(property="property_road", type="string", format="string", example="Main Street"),
@@ -480,8 +480,7 @@ class PropertyController extends Controller
                         "is_garden",
                         'propertyFloor',
                         'category',
-                        'min_price',
-                        'max_price',
+                        'price',
                         'purpose',
                         'property_door_no',
                         'property_road',

@@ -67,8 +67,8 @@ class PropertyCreateRequestV2 extends FormRequest
 
             'propertyFloor' => 'nullable|string',
             'category' => 'required|in:let_property,manage_property,sale_property',
-            'min_price' => 'nullable|numeric',
-            'max_price' => 'nullable|numeric',
+            'price' => 'nullable|numeric',
+
             'purpose' => 'nullable|string',
             'property_door_no' => 'nullable|string',
             'property_road' => 'nullable|string',

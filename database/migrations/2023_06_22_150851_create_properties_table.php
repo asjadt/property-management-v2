@@ -64,8 +64,10 @@ class CreatePropertiesTable extends Migration
             $table->string('no_of_baths');
             $table->boolean('is_garden');
 
-            $table->double('min_price')->nullable();
-            $table->double('max_price')->nullable();
+            $table->double('price')->nullable();
+
+
+
             $table->string('purpose')->nullable();
             $table->string('property_door_no')->nullable();
             $table->string('property_road')->nullable();

@@ -956,28 +956,9 @@ class ApplicantController extends Controller
                 ], 404);
             }
 
-            $applicant_fields =  [
-                'min_price',
-                'max_price',
-                'latitude',
-                'longitude',
-                'radius',
-                'property_type',
-                'no_of_beds',
-                'no_of_baths',
-                'is_dss',
-            ];
 
-            $property_fields = [
-                "lat",
-                "long",
-                'type',
-                "no_of_beds",
-                "no_of_baths",
-                "is_dss",
-                'min_price',
-                'max_price',
-            ];
+
+
 
 
 
@@ -994,10 +975,9 @@ class ApplicantController extends Controller
                 );
             })
             // Check the price range for applicants and properties
-            ->when($property->min_price && $property->max_price, function ($query) use ($property) {
-                $query->whereBetween('min_price', [$property->min_price, $property->max_price])
-                ->whereBetween('max_price', [$property->min_price, $property->max_price])
-                ;
+            ->when($property->price, function ($query) use ($property) {
+                $query->where('min_price', "<=", $property->price)
+                ->where('max_price', ">=", $property->price);
 
             })
 
@@ -1025,7 +1005,7 @@ class ApplicantController extends Controller
             $applicants = $this->retrieveData($query, "id", "applicants");
 
 
-           
+
             return response()->json($applicants, 200);
         } catch (Exception $e) {
 

@@ -41,7 +41,7 @@ class PropertyUpdateRequestV2 extends FormRequest
             'reference_no' => 'required|string|max:255',
 
 
-            
+
             'tenant_ids' => 'nullable|array',
             'tenant_ids.*' => 'nullable|exists:tenants,id',
 
@@ -56,8 +56,7 @@ class PropertyUpdateRequestV2 extends FormRequest
             'is_garden' => 'required|boolean',
             'propertyFloor' => 'nullable|string',
             'category' => 'required|in:let_property,manage_property,sale_property',
-            'min_price' => 'nullable|numeric',
-            'max_price' => 'nullable|numeric',
+            'price' => 'nullable|numeric',
             'purpose' => 'nullable|string',
             'property_door_no' => 'nullable|string',
             'property_road' => 'nullable|string',
