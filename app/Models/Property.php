@@ -39,6 +39,8 @@ class Property extends Model
         'is_dss',
         'county',
         "created_by",
+
+
     ];
     protected $casts = [
         'images' => 'array',

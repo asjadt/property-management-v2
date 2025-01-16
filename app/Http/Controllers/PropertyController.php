@@ -1393,6 +1393,15 @@ $document->save();
  *     required=false,
  *     example="1"
  * ),
+ *  * @OA\Parameter(
+ *     name="document_expired_in",
+ *     in="query",
+ *     description="Filter properties by document type ID",
+ *     required=false,
+ *     example="1"
+ * ),
+ *
+ *
  *
  * @OA\Parameter(
  *     name="start_inspection_date",
@@ -1595,11 +1604,24 @@ $document->save();
                 $query->whereHas("documents", function ($subQuery) {
                     $subQuery->where("property_documents.document_type_id", request()->input("document_type_id"));
                 });
-            })->when(request()->filled("is_document_expired"), function ($query) {
+            })
+            ->when(request()->filled("is_document_expired"), function ($query) {
                 $query->whereHas("documents", function ($subQuery) {
                     $subQuery->whereDate('property_documents.gas_end_date', '<', Carbon::today());
                 });
+            })
+            ->when(request()->filled("document_expired_in"), function ($query) {
+                $expiryDays = request()->input('document_expired_in'); // Get the number of days passed from the front end
+
+                // Check if a valid number of days is provided
+                if (is_numeric($expiryDays) && $expiryDays > 0) {
+                    $query->whereHas('documents', function ($subQuery) use ($expiryDays) {
+                        $subQuery->whereDate('property_documents.gas_end_date', '>=', Carbon::today())
+                                 ->whereDate('property_documents.gas_end_date', '<=', Carbon::today()->addDays($expiryDays));
+                    });
+                }
             });
+
 
 
             $propertyQuery = $propertyQuery
