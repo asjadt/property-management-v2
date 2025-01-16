@@ -13,6 +13,7 @@ class Repair extends Model
         'property_id',
         'repair_category_id',
         'item_description',
+        'status',
         'receipt',
         'price',
         'create_date',

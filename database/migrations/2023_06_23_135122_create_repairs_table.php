@@ -27,7 +27,8 @@ class CreateRepairsTable extends Migration
             $table->text('receipt')->nullable();
             $table->double('price')->default(0);;
             $table->date('create_date');
-
+            
+            $table->string('status');
 
 
 

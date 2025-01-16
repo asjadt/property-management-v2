@@ -324,6 +324,9 @@ public function createRepairReceiptFile(FileUploadRequest $request)
  *  *             @OA\Property(property="property_id", type="number", format="number",example="1"),
   *             @OA\Property(property="repair_category_id", type="string", format="string",example="1"),
  *            @OA\Property(property="item_description", type="string", format="string",example="item_description"),
+ *
+ *  *            @OA\Property(property="status", type="string", format="string",example="status"),
+ *
 
  *  * *  @OA\Property(property="price", type="string", format="string",example="10"),
  *  * *  @OA\Property(property="create_date", type="string", format="string",example="2019-06-29"),
@@ -438,6 +441,8 @@ public function createRepair(RepairCreateRequest $request)
  *  *             @OA\Property(property="property_id", type="number", format="number",example="1"),
   *             @OA\Property(property="repair_category_id", type="string", format="string",example="1"),
  *            @OA\Property(property="item_description", type="string", format="string",example="item_description"),
+ *  *            @OA\Property(property="status", type="string", format="string",example="status"),
+ *
 
  *  * *  @OA\Property(property="price", type="string", format="string",example="10"),
  *  * *  @OA\Property(property="create_date", type="string", format="string",example="2019-06-29"),
@@ -500,6 +505,7 @@ public function updateRepair(RepairUpdateRequest $request)
                     'property_id',
                     'repair_category_id',
                     'item_description',
+                    'status',
                     'receipt',
                     'price',
                     'create_date',
@@ -683,6 +689,12 @@ public function getRepairs($perPage, Request $request)
         if (!empty($request->repair_category)) {
             $repairQuery = $repairQuery->where('repair_categories.name', $request->repair_category);
         }
+
+        if (!empty($request->status)) {
+            $repairQuery = $repairQuery->where('repairs.status', $request->status);
+        }
+
+
 
         if (!empty($request->start_date)) {
             $repairQuery = $repairQuery->where('repairs.created_at', ">=", $request->start_date);
