@@ -1047,7 +1047,8 @@ COALESCE(
             $document_report = [];
             foreach ($document_types as $document_type) {
                 $base_documents_query = PropertyDocument::whereHas("property", function ($query) {
-                    $query->where("properties.created_by", auth()->user()->id);
+                    $query->where("properties.created_by", auth()->user()->id)
+                    ->whereNull("properties.deleted_at");
                 })
                     ->where("document_type_id", $document_type->id);
 
@@ -1155,10 +1156,17 @@ COALESCE(
      {
 
 
-             $base_maintance_query = TenantInspection::where("tenant_inspections.created_by", auth()->user()->id)
-             ->when(request()->filled("property_id"), function($query) {
+             $base_maintance_query = TenantInspection::
+             when(request()->filled("property_id"), function($query) {
                  $query->where("tenant_inspections.property_id",request()->input("property_id"));
-             });
+             })
+             ->whereHas("property", function($query) {
+                $query
+                ->where("properties.created_by", auth()->user()->id)
+                ->whereNull("properties.deleted_at");
+           })
+
+             ;
 
              // Count documents for different expiration periods
              $maintainance_report = [
@@ -1206,7 +1214,9 @@ COALESCE(
                 });
             })
             ->whereHas("inspection.property", function($query) {
-                 $query->whereNull("properties.deleted_at");
+                 $query
+                 ->where("properties.created_by", auth()->user()->id)
+                 ->whereNull("properties.deleted_at");
             })
                 ->where("maintenance_item_type_id", $maintainance_item_type->id)
                 ->where("status", "work_required");
