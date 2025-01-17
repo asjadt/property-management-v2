@@ -340,7 +340,7 @@ class TenantInspectionController extends Controller
 
 
 
-            ->when(request()->filled("is_next_follow_up_date_passed"), function ($query) {
+            ->when(request()->boolean("is_next_follow_up_date_passed"), function ($query) {
                 $query->whereHas("maintenance_item", function ($subQuery) {
                     $subQuery->whereDate('maintenance_items.next_follow_up_date', '<', Carbon::today());
                 });
