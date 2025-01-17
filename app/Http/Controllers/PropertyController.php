@@ -335,11 +335,11 @@ class PropertyController extends Controller
 
 
                 if (!empty($request_data['tenant_ids'])) {
-                    $property->property_tenants()->sync($request_data['tenant_ids'], []);
+                    $property->property_tenants()->sync($request_data['tenant_ids']);
                 }
 
 
-                $property->property_landlords()->sync($request_data['landlord_ids'], []);
+                $property->property_landlords()->sync($request_data['landlord_ids']);
 
 
                 return response($property, 201);
@@ -541,7 +541,7 @@ class PropertyController extends Controller
 
 
                 if (!empty($request_data['tenant_ids'])) {
-                    $property->property_tenants()->sync($request_data['tenant_ids'], []);
+                    $property->property_tenants()->sync($request_data['tenant_ids']);
                 }
 
 
@@ -1026,7 +1026,7 @@ $document->save();
 
                 $property->property_tenants()->detach();
                 if (!empty($request_data['tenant_ids'])) {
-                    $property->property_tenants()->sync($request_data['tenant_ids'], []);
+                    $property->property_tenants()->sync($request_data['tenant_ids']);
                 }
 
                 $property->property_landlords()->sync($request_data['landlord_ids']);
