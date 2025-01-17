@@ -1400,7 +1400,20 @@ $document->save();
  *     required=false,
  *     example="1"
  * ),
- *
+ * * @OA\Parameter(
+ *     name="is_next_follow_up_date_passed",
+ *     in="query",
+ *     description="Filter properties by document type ID",
+ *     required=false,
+ *     example="1"
+ * ),
+ *  * @OA\Parameter(
+ *     name="next_follow_up_date_in",
+ *     in="query",
+ *     description="Filter properties by document type ID",
+ *     required=false,
+ *     example="1"
+ * ),
  *
  *
  * @OA\Parameter(
@@ -1620,7 +1633,29 @@ $document->save();
                                  ->whereDate('property_documents.gas_end_date', '<=', Carbon::today()->addDays($expiryDays));
                     });
                 }
-            });
+
+
+            })
+            ->when(request()->filled("is_next_follow_up_date_passed"), function ($query) {
+                $query->whereHas("inspections.maintenance_item", function ($subQuery) {
+                    $subQuery->whereDate('maintenance_items.next_follow_up_date', '<', Carbon::today());
+                });
+            })
+
+            ->when(request()->filled("next_follow_up_date_in"), function ($query) {
+                $expiryDays = request()->input('next_follow_up_date_in'); // Get the number of days passed from the front end
+
+                // Check if a valid number of days is provided
+                if (is_numeric($expiryDays) && $expiryDays > 0) {
+                    $query->whereHas('inspections.maintenance_item', function ($subQuery) use ($expiryDays) {
+                        $subQuery->whereDate('maintenance_items.next_follow_up_date', '>=', Carbon::today())
+                                 ->whereDate('maintenance_items.next_follow_up_date', '<=', Carbon::today()->addDays($expiryDays));
+                    });
+                }
+            })
+            ;
+
+
 
 
 
