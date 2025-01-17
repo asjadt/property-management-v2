@@ -535,9 +535,9 @@ class PropertyController extends Controller
                 //     $property->save();
                 // }
 
-                if (!empty($request_data['maintenance_item_type_ids'])) {
-                    $property->maintenance_item_types()->sync($request_data['maintenance_item_type_ids'], []);
-                }
+
+                    $property->maintenance_item_types()->sync($request_data['maintenance_item_type_ids']);
+
 
 
                 if (!empty($request_data['tenant_ids'])) {
@@ -1174,7 +1174,7 @@ $document->save();
 
 
             if (!empty($request_data['maintenance_item_type_ids'])) {
-                $property->maintenance_item_types()->sync($request_data['maintenance_item_type_ids'], []);
+                $property->maintenance_item_types()->sync($request_data['maintenance_item_type_ids']);
             }
 
             return response()->json($property, 200);
