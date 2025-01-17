@@ -29,7 +29,7 @@ class TenantInspection extends Model
 
     public function property()
     {
-        return $this->belongsTo(Tenant::class,"tenant_id","id");
+        return $this->belongsTo(Property::class,"property_id","id");
     }
 
 

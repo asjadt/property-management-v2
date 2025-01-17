@@ -1200,7 +1200,7 @@ COALESCE(
         foreach ($maintainance_item_types as $maintainance_item_type) {
 
             $base_maintance_query = MaintenanceItem::whereHas("inspection", function ($query) {
-                $query->where("tenant_inspections.created_by", auth()->user()->id)
+                $query
                 ->when(request()->filled("property_id"), function($query) {
                     $query->where("tenant_inspections.property_id",request()->input("property_id"));
                 });
