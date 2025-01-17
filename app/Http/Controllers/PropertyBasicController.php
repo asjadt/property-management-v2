@@ -1205,6 +1205,7 @@ COALESCE(
                     $query->where("tenant_inspections.property_id",request()->input("property_id"));
                 });
             })
+            ->whereHas("inspection.property")
                 ->where("maintenance_item_type_id", $maintainance_item_type->id)
                 ->where("status", "work_required");
 
