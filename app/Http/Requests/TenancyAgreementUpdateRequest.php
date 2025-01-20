@@ -35,7 +35,8 @@ class TenancyAgreementUpdateRequest extends FormRequest
             'date_of_moving' => 'required|date',
             'let_only_agreement_expired_date' => 'nullable|date',
             'tenant_contact_expired_date' => 'nullable|date',
-            'rent_due_date' => 'required|date',
+            
+            'rent_due_day' => 'required|integer',
 
             'no_of_occupants' => 'required|string|max:255',
             'tenant_contact_year_duration' => 'nullable|string',

@@ -24,7 +24,7 @@ class CreateTenancyAgreementsTable extends Migration
             $table->date('date_of_moving');
             $table->date('let_only_agreement_expired_date')->nullable();
             $table->date('tenant_contact_expired_date')->nullable();
-            $table->date('rent_due_date');
+            $table->integer('rent_due_day');
             $table->string('no_of_occupants');
             $table->string('tenant_contact_year_duration')->nullable();
             $table->string('renewal_fee');
@@ -45,7 +45,7 @@ class CreateTenancyAgreementsTable extends Migration
             $table->json('agency_sign_images')->nullable();
             $table->date('tenant_sign_date')->nullable();
             $table->date('agency_sign_date')->nullable();
-            
+
 
 
 

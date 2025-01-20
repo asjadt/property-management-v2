@@ -17,7 +17,7 @@ class TenancyAgreement extends Model
         'date_of_moving',
         'let_only_agreement_expired_date',
         'tenant_contact_expired_date',
-        'rent_due_date',
+        'rent_due_day',
         'no_of_occupants',
         "tenant_contact_year_duration",
         'renewal_fee',
@@ -43,7 +43,7 @@ class TenancyAgreement extends Model
 
     ];
     protected $casts = [
-        
+
         'files' => 'array',
         "tenant_sign_images" => "array",
         "agency_sign_images" => "array"
