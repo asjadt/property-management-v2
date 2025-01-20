@@ -8,6 +8,7 @@ use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Business;
 use App\Models\TenancyAgreement;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -246,6 +247,18 @@ class TenancyAgreementController extends Controller
      *      },
      *      summary="Get property agreements",
      *      description="This method retrieves the history of property agreements for a given property and landlord, including soft-deleted agreements.",
+     * *      @OA\Parameter(
+     *          name="year",
+     *          in="query",
+     *          required=false,
+     *          @OA\Schema(type="integer", example=1)
+     *      ),
+     * *      @OA\Parameter(
+     *          name="month",
+     *          in="query",
+     *          required=false,
+     *          @OA\Schema(type="integer", example=1)
+     *      ),
      *      @OA\Parameter(
      *          name="tenant_ids",
      *          in="query",
@@ -253,7 +266,7 @@ class TenancyAgreementController extends Controller
      *          @OA\Schema(type="integer", example=1)
      *      ),
      *      @OA\Parameter(
-     *          name="property_id",
+     *          name="property_ids",
      *          in="query",
      *          required=false,
      *          @OA\Schema(type="integer", example=1)
@@ -300,7 +313,22 @@ class TenancyAgreementController extends Controller
                      $query->select("tenants.id","tenants.first_Name","tenants.last_Name"
         );
                 }
-            ])->whereHas('property', function ($q) {
+            ])
+            ->when((request()->filled('year') && request()->filled('month')), function ($q) use ($request) {
+                $year = $request->year;
+                $month = $request->month;
+
+                // Create the start and end dates for the given month
+                $startDate = Carbon::createFromDate($year, $month, 1)->startOfDay();
+                $endDate = Carbon::createFromDate($year, $month, 1)->endOfMonth()->endOfDay();
+
+                $q->where(function ($query) use ($startDate, $endDate) {
+                    $query->where('tenancy_agreements.date_of_moving', '<=', $endDate)
+                          ->where('tenancy_agreements.tenant_contact_expired_date', '>=', $startDate);
+                });
+            })
+
+            ->whereHas('property', function ($q) {
                 // Ensure the property is created by the authenticated user
                 $q->where('properties.created_by', auth()->user()->id);
             })
@@ -315,6 +343,11 @@ class TenancyAgreementController extends Controller
                 ->when($request->filled('property_id'), function ($q) use ($request) {
                     // Filter by property_id if provided
                     $q->where('property_id', $request->property_id);
+                })
+                ->when($request->filled('property_ids'), function ($q) use ($request) {
+                    // Filter by property_id if provided
+                    $property_ids = explode(',', request()->input("property_ids"));
+                    $q->whereIn('property_id', $property_ids);
                 })
                 ->when($request->filled('id'), function ($q) use ($request) {
                     // If specific ID is provided, return that record only
