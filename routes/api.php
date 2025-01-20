@@ -49,6 +49,7 @@ use App\Http\Controllers\PropertyAgreementController;
 use App\Http\Controllers\PropertyBasicController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\ReceiptController;
+use App\Http\Controllers\RentController;
 use App\Http\Controllers\RepairCategoryController;
 use App\Http\Controllers\RepairController;
 use App\Http\Controllers\ReviewController;
@@ -607,11 +608,35 @@ Route::delete('/v1.0/receipts/{id}', [ReceiptController::class, "deleteReceiptBy
 // user management section
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
+
+
+
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// rents management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Route::post('/v1.0/rents', [RentController::class, "createRent"]);
+Route::put('/v1.0/rents', [RentController::class, "updateRent"]);
+Route::get('/v1.0/rents', [RentController::class, "getRents"]);
+Route::delete('/v1.0/rents/{ids}', [RentController::class, "deleteRentsByIds"]);
+
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// end rents management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+
+
+
+
+
 // ********************************************
 // user management section --user
 // ********************************************
-
-
 
 Route::post('/v1.0/auth/register-with-business', [UserManagementController::class, "registerUserWithBusiness"]);
 Route::put('/v1.0/auth/update-user-with-business', [UserManagementController::class, "updateBusiness"]);

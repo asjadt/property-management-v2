@@ -14,8 +14,6 @@ class CreateTenancyAgreementsTable extends Migration
     public function up()
     {
         Schema::create('tenancy_agreements', function (Blueprint $table) {
-
-
             $table->id();
             $table->string('agreed_rent');
             $table->string('security_deposit_hold');
