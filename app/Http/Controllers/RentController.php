@@ -46,7 +46,6 @@ class RentController extends Controller
      * @OA\Property(property="payment_status", type="string", format="string", example="payment_status"),
      * @OA\Property(property="rent_amount", type="string", format="string", example="rent_amount"),
      * @OA\Property(property="paid_amount", type="string", format="string", example="paid_amount"),
-     * @OA\Property(property="tenant_id", type="string", format="string", example="tenant_id"),
      * @OA\Property(property="month", type="string", format="string", example="month"),
      * @OA\Property(property="year", type="string", format="string", example="year"),
      *
@@ -146,7 +145,7 @@ class RentController extends Controller
      * @OA\Property(property="payment_status", type="string", format="string", example="payment_status"),
      * @OA\Property(property="rent_amount", type="string", format="string", example="rent_amount"),
      * @OA\Property(property="paid_amount", type="string", format="string", example="paid_amount"),
-     * @OA\Property(property="tenant_id", type="string", format="string", example="tenant_id"),
+  
      * @OA\Property(property="month", type="string", format="string", example="month"),
      * @OA\Property(property="year", type="string", format="string", example="year"),
      *

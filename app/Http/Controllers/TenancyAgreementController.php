@@ -119,8 +119,6 @@ class TenancyAgreementController extends Controller
                 $agreement->tenants()->sync($request_data["tenant_ids"]);
 
                 return response($agreement, 201);
-
-
             });
         } catch (Exception $e) {
 
