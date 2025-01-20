@@ -39,4 +39,5 @@ class Landlord extends Model
     }
 
 
+
 }

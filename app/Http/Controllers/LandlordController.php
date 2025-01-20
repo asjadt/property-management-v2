@@ -511,9 +511,10 @@ class LandlordController extends Controller
 
                 });
             }
+
             if(!empty($request->property_id)){
                 $landlordQuery = $landlordQuery->whereHas('properties',function($query) {
-                 $query->whereIn("properties",[request()->input("property_id")]);
+                 $query->whereIn("properties.id",[request()->input("property_id")]);
                 });
             }
 
@@ -846,7 +847,7 @@ class LandlordController extends Controller
 
             if(!empty($request->property_id)){
                 $landlordQuery = $landlordQuery->whereHas('properties',function($query) {
-                 $query->whereIn("properties",[request()->input("property_id")]);
+                 $query->whereIn("properties.id",[request()->input("property_id")]);
                 });
             }
 
@@ -1114,7 +1115,7 @@ class LandlordController extends Controller
 
              if(!empty($request->property_id)){
                 $landlordQuery = $landlordQuery->whereHas('properties',function($query) {
-                 $query->whereIn("properties",[request()->input("property_id")]);
+                 $query->whereIn("properties.id",[request()->input("property_id")]);
                 });
             }
 
@@ -1428,7 +1429,7 @@ class LandlordController extends Controller
 
             if(!empty($request->property_id)){
                 $landlordQuery = $landlordQuery->whereHas('properties',function($query) {
-                 $query->whereIn("properties",[request()->input("property_id")]);
+                 $query->whereIn("properties.id",[request()->input("property_id")]);
                 });
             }
 
