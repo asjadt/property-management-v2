@@ -65,6 +65,8 @@ class BusinessUpdateRequest extends FormRequest
 
             "business.account_name" => "nullable|string",
             "business.account_number" => "nullable|string",
+            "business.send_email_alert" => "nullable|boolean",
+
             "business.sort_code" => "nullable|string",
             "business.pin" => "required|string",
             "business.type" => "required|string|in:other,property_dealer",

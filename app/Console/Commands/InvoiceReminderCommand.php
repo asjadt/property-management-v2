@@ -73,8 +73,6 @@ class InvoiceReminderCommand extends Command
         }
 
 
-
-
         Invoice::whereNotIn("status",[
          "draft","overdue"
         ])

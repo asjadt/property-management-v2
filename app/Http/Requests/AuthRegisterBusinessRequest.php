@@ -67,6 +67,8 @@ class AuthRegisterBusinessRequest extends FormRequest
 
             "business.account_name" => "nullable|string",
             "business.account_number" => "nullable|string",
+            "business.send_email_alert" => "nullable|boolean",
+
             "business.sort_code" => "nullable|string",
 
 

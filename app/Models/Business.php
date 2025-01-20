@@ -34,6 +34,7 @@ class Business extends Model
        "receipt_footer",
        "account_name" ,
        "account_number",
+       "send_email_alert",
        "sort_code",
        "pin" ,
        "type" ,

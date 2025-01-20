@@ -378,6 +378,8 @@ class UserManagementController extends Controller
      *
      * "account_name":"thdht rth s",
      * "account_number":"fdghdgh",
+     * "send_email_alert":"1",
+     *
      * "sort_code":"sort_coderthdrfth",
      *
      * "pin":"1234",
@@ -610,6 +612,8 @@ class UserManagementController extends Controller
      *
      *   * "account_name":"thdht rth s",
      * "account_number":"fdghdgh",
+     * "send_email_alert":"1",
+     *
      * "sort_code":"sort_coderthdrfth",
      * "pin":"1234",
      *      *    * "type":"other",
@@ -796,6 +800,7 @@ class UserManagementController extends Controller
             "receipt_footer",
             "account_name",
             "account_number",
+            "send_email_alert",
             "sort_code",
             "pin",
             "type"

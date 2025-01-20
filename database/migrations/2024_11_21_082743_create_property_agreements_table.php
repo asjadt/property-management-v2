@@ -11,16 +11,13 @@ class CreatePropertyAgreementsTable extends Migration
             $table->id();
 
 
-            $table->unsignedBigInteger('landlord_id');
             $table->unsignedBigInteger('property_id');
 
-            
             $table->date('start_date');
             $table->date('end_date');
             $table->date('landlord_sign_date')->nullable();
             $table->date('agency_sign_date')->nullable();
             $table->date('rent_due_date')->nullable();
-
 
             $table->enum('type', ['let_property', 'manage_property', 'sale_property'])->nullable();
 
@@ -35,16 +32,13 @@ class CreatePropertyAgreementsTable extends Migration
             $table->decimal('min_price', 10, 2)->nullable();
             $table->decimal('max_price', 10, 2)->nullable();
             $table->string('agency_type')->nullable();
-
             $table->json('files')->nullable();
             $table->json('landlord_sign_images')->nullable();
             $table->json('agency_sign_images')->nullable();
-
             $table->timestamps();
             $table->softDeletes(); // To keep soft deletion history
 
-            // Define foreign keys
-            $table->foreign('landlord_id')->references('id')->on('landlords')->onDelete('cascade');
+            
             $table->foreign('property_id')->references('id')->on('properties')->onDelete('cascade');
 
 
@@ -55,4 +49,6 @@ class CreatePropertyAgreementsTable extends Migration
     {
         Schema::dropIfExists('property_agreements');
     }
+
+
 }
