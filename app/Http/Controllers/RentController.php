@@ -225,7 +225,7 @@ class RentController extends Controller
     {
 
 
-        return $query->where('rents.business_id', auth()->user()->business_id)
+        return $query->where('rents.created_by', auth()->user()->id)
         ->when(request()->filled("tenant_ids"), function ($query) {
             return $query->whereHas("tenancy_agreement.tenants",function($query) {
                 $tenant_ids = explode(',', request()->input("tenant_ids"));
