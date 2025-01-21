@@ -438,6 +438,7 @@ public function updateTenant(TenantUpdateRequest $request)
 public function getTenants($perPage, Request $request)
 {
     try {
+        
         $this->storeActivity($request,"");
         $currentDate = Carbon::now();
         $endDate = $currentDate->copy()->addDays(15);

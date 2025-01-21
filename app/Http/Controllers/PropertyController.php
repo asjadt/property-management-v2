@@ -1645,7 +1645,7 @@ $document->save();
 
             })
 
-            ->when(request()->filles("maintenance_item_type_id"), function ($query) {
+            ->when(request()->filled("maintenance_item_type_id"), function ($query) {
                 $query->whereHas("inspections.maintenance_item", function ($subQuery) {
                     $subQuery->where('maintenance_items.maintenance_item_type_id', request()->input("maintenance_item_type_id"));
                 });
