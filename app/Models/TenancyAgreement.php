@@ -34,7 +34,6 @@ class TenancyAgreement extends Model
         'guarantor_address',
         "tenant_sign_date",
         "agency_sign_date",
-
         'files',
         "tenant_sign_images",
         "agency_sign_images",
@@ -54,6 +53,12 @@ class TenancyAgreement extends Model
     {
         return $this->belongsTo(Property::class);
     }
+
+    public function rent()
+    {
+        return $this->hasOne(Rent::class,"tenancy_agreement_id","id");
+    }
+
     public function tenants()
     {
         return $this->belongsToMany(Tenant::class, 'agreement_tenants', 'tenancy_agreement_id', 'tenant_id');

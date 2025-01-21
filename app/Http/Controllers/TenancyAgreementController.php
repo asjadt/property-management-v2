@@ -236,7 +236,6 @@ class TenancyAgreementController extends Controller
 
 
 
-
     /**
      * @OA\Get(
      *      path="/v1.0/tenancy-agreements",
@@ -322,9 +321,14 @@ class TenancyAgreementController extends Controller
                 $startDate = Carbon::createFromDate($year, $month, 1)->startOfDay();
                 $endDate = Carbon::createFromDate($year, $month, 1)->endOfMonth()->endOfDay();
 
-                $q->where(function ($query) use ($startDate, $endDate) {
+                $q
+                ->where(function ($query) use ($startDate, $endDate) {
                     $query->where('tenancy_agreements.date_of_moving', '<=', $endDate)
                           ->where('tenancy_agreements.tenant_contact_expired_date', '>=', $startDate);
+                })
+                ->doesntHave("rent", function ($query) use ($year, $month) {
+                    $query->where('rents.year', $year)
+                          ->where('rents.month', $month);
                 });
             })
 
