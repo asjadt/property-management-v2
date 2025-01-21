@@ -323,7 +323,7 @@ class TenancyAgreementController extends Controller
                     $subQuery->where('tenancy_agreements.date_of_moving', '<=', $endDate)
                              ->where('tenancy_agreements.tenant_contact_expired_date', '>=', $startDate);
                 })
-                ->doesntHave("rent", function ($subQuery) use ($year, $month) {
+                ->whereDoesntHave("rent", function ($subQuery) use ($year, $month) {
                     $subQuery->where('rents.year', $year)
                              ->where('rents.month', $month);
                 });

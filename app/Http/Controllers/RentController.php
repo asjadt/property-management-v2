@@ -9,6 +9,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\RentCreateRequest;
 use App\Http\Requests\RentUpdateRequest;
 use App\Http\Requests\GetIdRequest;
+use App\Http\Utils\BasicUtil;
 use App\Http\Utils\BusinessUtil;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
@@ -23,7 +24,7 @@ use Illuminate\Support\Facades\DB;
 class RentController extends Controller
 {
 
-    use ErrorUtil, UserActivityUtil;
+    use ErrorUtil, UserActivityUtil, BasicUtil;
 
 
     /**
@@ -145,7 +146,7 @@ class RentController extends Controller
      * @OA\Property(property="payment_status", type="string", format="string", example="payment_status"),
      * @OA\Property(property="rent_amount", type="string", format="string", example="rent_amount"),
      * @OA\Property(property="paid_amount", type="string", format="string", example="paid_amount"),
-  
+
      * @OA\Property(property="month", type="string", format="string", example="month"),
      * @OA\Property(property="year", type="string", format="string", example="year"),
      *
