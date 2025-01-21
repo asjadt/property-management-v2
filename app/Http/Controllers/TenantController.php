@@ -390,6 +390,13 @@ public function updateTenant(TenantUpdateRequest $request)
 *      required=true,
 *      example="1,2"
 * ),
+ * *  @OA\Parameter(
+* name="ids",
+* in="query",
+* description="ids",
+* required=false,
+* example=""
+* ),
  *      summary="This method is to get tenants ",
  *      description="This method is to get tenants",
  *
@@ -460,10 +467,6 @@ public function getTenants($perPage, Request $request)
                 // $query->orWhere("tenants.postcode", "like", "%" . $term . "%");
 
 
-
-
-
-
             });
         }
         if(!empty($request->property_id)){
@@ -475,7 +478,11 @@ public function getTenants($perPage, Request $request)
             if(count($property_ids)) {
                 $tenantQuery =   $tenantQuery->whereIn("properties.id",$property_ids);
             }
+        }
 
+        if (!empty($request->ids)) {
+            $ids = explode(',', request()->input("ids"));
+            $tenantQuery =  $tenantQuery->whereIn("tenants.id", $ids);
         }
 
         if (!empty($request->start_date)) {
