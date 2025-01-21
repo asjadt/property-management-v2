@@ -376,8 +376,8 @@ class PropertyController extends Controller
      *            @OA\Property(property="reference_no", type="string", format="string", example="REF12345"),
      *            @OA\Property(property="date_of_instruction", type="string", format="date", example="2024-11-01"),
      *            @OA\Property(property="howDetached", type="string", format="string", example="fully detached"),
-    *            @OA\Property(property="no_of_beds", type="string", format="string", example="one"),
-    *            @OA\Property(property="no_of_baths", type="string", format="string", example="one"),
+     *            @OA\Property(property="no_of_beds", type="string", format="string", example="one"),
+     *            @OA\Property(property="no_of_baths", type="string", format="string", example="one"),
      *            @OA\Property(property="is_garden", type="string", format="string", example="1"),
      *
      *
@@ -458,44 +458,44 @@ class PropertyController extends Controller
 
                 $property =  Property::create(
                     collect($request_data)
-                    ->only(
-                        [
-                        'name',
-                        'image',
-                        // 'images',
-                        'address',
-                        'country',
-                        'city',
-                        'postcode',
-                        "town",
-                        "lat",
-                        "long",
-                        'type',
-                        'reference_no',
-                        'is_active',
-                        'date_of_instruction',
-                        'howDetached',
-                        "no_of_beds",
-                        "no_of_baths",
-                        "is_garden",
-                        'propertyFloor',
-                        'category',
-                        'price',
-                        'purpose',
-                        'property_door_no',
-                        'property_road',
-                        'is_dss',
-                        'county',
-                        "created_by"
-                        ]
+                        ->only(
+                            [
+                                'name',
+                                'image',
+                                // 'images',
+                                'address',
+                                'country',
+                                'city',
+                                'postcode',
+                                "town",
+                                "lat",
+                                "long",
+                                'type',
+                                'reference_no',
+                                'is_active',
+                                'date_of_instruction',
+                                'howDetached',
+                                "no_of_beds",
+                                "no_of_baths",
+                                "is_garden",
+                                'propertyFloor',
+                                'category',
+                                'price',
+                                'purpose',
+                                'property_door_no',
+                                'property_road',
+                                'is_dss',
+                                'county',
+                                "created_by"
+                            ]
 
-                    )
-                    ->toArray()
+                        )
+                        ->toArray()
 
-            );
+                );
                 $property->generated_id = Str::random(4) . $property->id . Str::random(4);
 
-                $request_data["images"] = $this->storeUploadedFiles($request_data["images"], "", "images", false,$property->id);
+                $request_data["images"] = $this->storeUploadedFiles($request_data["images"], "", "images", false, $property->id);
 
 
                 $property->images = ($request_data["images"]);
@@ -504,7 +504,7 @@ class PropertyController extends Controller
 
 
 
-                $request_data["documents"] = $this->storeUploadedFiles($request_data["documents"], "files", "documents", true,$property->id);
+                $request_data["documents"] = $this->storeUploadedFiles($request_data["documents"], "files", "documents", true, $property->id);
 
 
                 if (!empty($request_data['documents'])) {
@@ -536,7 +536,7 @@ class PropertyController extends Controller
                 // }
 
 
-                    $property->maintenance_item_types()->sync($request_data['maintenance_item_type_ids']);
+                $property->maintenance_item_types()->sync($request_data['maintenance_item_type_ids']);
 
 
 
@@ -636,7 +636,7 @@ class PropertyController extends Controller
 
 
             $documents = $request->input('documents');
-            $documents = $this->storeUploadedFiles($documents, "files", "documents", true,$property->id);
+            $documents = $this->storeUploadedFiles($documents, "files", "documents", true, $property->id);
 
 
             // Loop through each document in the request and add it to the property
@@ -743,21 +743,20 @@ class PropertyController extends Controller
 
             if (isset($requestDocumentData["files"])) {
                 $requestDocumentData["files"] =  $this->storeUploadedFiles(
-                $requestDocumentData["files"],
-                 "",
-                 "documents",
-                 false,
-                $property->id
-            );
+                    $requestDocumentData["files"],
+                    "",
+                    "documents",
+                    false,
+                    $property->id
+                );
 
 
                 $newDocs = $requestDocumentData["files"];
 
                 $existingDocs = $document->files;
 
-                if(!is_array($existingDocs)) {
-                   $existingDocs = json_decode($existingDocs);
-
+                if (!is_array($existingDocs)) {
+                    $existingDocs = json_decode($existingDocs);
                 }
 
                 foreach ($existingDocs as $existingDoc) {
@@ -765,24 +764,23 @@ class PropertyController extends Controller
                     LOG::info(json_encode($newDocs));
                     LOG::info(json_encode($existingDoc));
 
-                     if(!in_array($existingDoc,$newDocs)) {
+                    if (!in_array($existingDoc, $newDocs)) {
                         $filePath = public_path(("/" . str_replace(' ', '_', auth()->user()->my_business->name) . "/" . base64_encode($property->id) . "/documents/" . $existingDoc));
 
                         if (File::exists($filePath)) {
                             File::delete($filePath);
                         }
-                     }
+                    }
                 }
-
             }
 
 
 
-// Fill the document object with the provided data
-$document->fill($requestDocumentData);
+            // Fill the document object with the provided data
+            $document->fill($requestDocumentData);
 
-// Save the updated document
-$document->save();
+            // Save the updated document
+            $document->save();
 
             return response()->json(['message' => 'Document updated successfully.', 'document' => $document], 200);
         } catch (Exception $e) {
@@ -797,7 +795,7 @@ $document->save();
      *      path="/v1.0/properties/{property_id}/documents/{document_id}",
      *      operationId="deleteDocumentFromProperty",
      *      tags={"property_management.property_management"},
-      *       security={
+     *       security={
      *           {"bearerAuth": {}},
      *           {"pin": {}}
      *       },
@@ -868,19 +866,18 @@ $document->save();
 
 
             $document_files = $document->files;
-            if(!is_array($document_files)) {
-                  $document_files = json_decode($document_files);
+            if (!is_array($document_files)) {
+                $document_files = json_decode($document_files);
             }
 
             foreach ($document_files as $file) {
 
-    $filePath = public_path(("/" . str_replace(' ', '_', auth()->user()->my_business->name) . "/" . base64_encode($property->id) . "/documents/" . $file));
+                $filePath = public_path(("/" . str_replace(' ', '_', auth()->user()->my_business->name) . "/" . base64_encode($property->id) . "/documents/" . $file));
 
-                   if (File::exists($filePath)) {
-                       File::delete($filePath);
-                   }
-
-           }
+                if (File::exists($filePath)) {
+                    File::delete($filePath);
+                }
+            }
 
 
             // Delete the document
@@ -1125,29 +1122,29 @@ $document->save();
 
             if (isset($request_data["images"])) {
                 $request_data["images"] =  $this->storeUploadedFiles(
-                $request_data["images"],
-                 "",
-                 "images",
-                 false,
-                $property->id
-            );
+                    $request_data["images"],
+                    "",
+                    "images",
+                    false,
+                    $property->id
+                );
 
                 $newDocs = $request_data["images"];
 
                 $existingDocs = $property->images;
 
-                if(!is_array($existingDocs)) {
-                   $existingDocs = json_decode($existingDocs);
+                if (!is_array($existingDocs)) {
+                    $existingDocs = json_decode($existingDocs);
                 }
 
                 foreach ($existingDocs as $existingDoc) {
-                     if(!in_array($existingDoc,$newDocs)) {
+                    if (!in_array($existingDoc, $newDocs)) {
                         $filePath = public_path(("/" . str_replace(' ', '_', auth()->user()->my_business->name) . "/" . base64_encode($property->id) . "/images/" . $existingDoc));
 
                         if (File::exists($filePath)) {
                             File::delete($filePath);
                         }
-                     }
+                    }
                 }
             }
 
@@ -1185,7 +1182,7 @@ $document->save();
 
 
 
- /**
+    /**
      *
      * @OA\Put(
      *      path="/v1.0/properties-update-landlord",
@@ -1274,228 +1271,243 @@ $document->save();
      *       security={
      *           {"bearerAuth": {}}
      *       },
- * @OA\Parameter(
- *     name="perPage",
- *     in="query",
- *     description="Number of results per page",
- *     required=false,
- *     example="15"
- * ),
- * @OA\Parameter(
- *     name="search_key",
- *     in="query",
- *     description="Search term to filter properties by reference number, address, or type",
- *     required=false,
- *     example="keyword"
- * ),
- * @OA\Parameter(
- *     name="landlord_ids",
- *     in="query",
- *     description="Filter properties by landlord ID",
- *     required=false,
- *     example="1"
- * ),
- * @OA\Parameter(
- *     name="tenant_ids",
- *     in="query",
- *     description="Filter properties by tenant ID",
- *     required=false,
- *     example="1"
- * ),
- * @OA\Parameter(
- *     name="category",
- *     in="query",
- *     description="Filter properties by category",
- *     required=false,
- *     example="residential"
- * ),
- * @OA\Parameter(
- *     name="address",
- *     in="query",
- *     description="Search properties by address",
- *     required=false,
- *     example="123 Main St"
- * ),
- * @OA\Parameter(
- *     name="start_date",
- *     in="query",
- *     description="Filter properties by the creation start date",
- *     required=false,
- *     example="2023-01-01"
- * ),
- * @OA\Parameter(
- *     name="end_date",
- *     in="query",
- *     description="Filter properties by the creation end date",
- *     required=false,
- *     example="2023-12-31"
- * ),
- * @OA\Parameter(
- *     name="reference_no",
- *     in="query",
- *     description="Filter properties by reference number",
- *     required=false,
- *     example="ABC123"
- * ),
- * @OA\Parameter(
- *     name="start_date_of_instruction",
- *     in="query",
- *     description="Filter properties by the instruction start date",
- *     required=false,
- *     example="2023-01-01"
- * ),
- * @OA\Parameter(
- *     name="end_date_of_instruction",
- *     in="query",
- *     description="Filter properties by the instruction end date",
- *     required=false,
- *     example="2023-12-31"
- * ),
- * @OA\Parameter(
- *     name="start_no_of_beds",
- *     in="query",
- *     description="Filter properties by the minimum number of beds",
- *     required=false,
- *     example="2"
- * ),
- * @OA\Parameter(
- *     name="end_no_of_beds",
- *     in="query",
- *     description="Filter properties by the maximum number of beds",
- *     required=false,
- *     example="4"
- * ),
- * @OA\Parameter(
- *     name="is_garden",
- *     in="query",
- *     description="Filter properties that have a garden",
- *     required=false,
- *     example="true"
- * ),
- * @OA\Parameter(
- *     name="is_dss",
- *     in="query",
- *     description="Filter properties that are DSS (Department of Social Services) approved",
- *     required=false,
- *     example="true"
- * ),
- * @OA\Parameter(
- *     name="document_type_id",
- *     in="query",
- *     description="Filter properties by document type ID",
- *     required=false,
- *     example="1"
- * ),
- * @OA\Parameter(
- *     name="is_document_expired",
- *     in="query",
- *     description="Filter properties by document type ID",
- *     required=false,
- *     example="1"
- * ),
- *  * @OA\Parameter(
- *     name="document_expired_in",
- *     in="query",
- *     description="Filter properties by document type ID",
- *     required=false,
- *     example="1"
- * ),
- *
- *  * * @OA\Parameter(
- *     name="maintenance_item_type_id",
- *     in="query",
- *     description="maintenance_item_type_id",
- *     required=false,
- *     example=""
- * ),
- * * @OA\Parameter(
- *     name="is_next_follow_up_date_passed",
- *     in="query",
- *     description="Filter properties by document type ID",
- *     required=false,
- *     example="1"
- * ),
- *  * @OA\Parameter(
- *     name="next_follow_up_date_in",
- *     in="query",
- *     description="Filter properties by document type ID",
- *     required=false,
- *     example="1"
- * ),
- *
- *
- * @OA\Parameter(
- *     name="start_inspection_date",
- *     in="query",
- *     description="Filter inspections by start date",
- *     required=false,
- *     example="2023-01-01"
- * ),
- * @OA\Parameter(
- *     name="end_inspection_date",
- *     in="query",
- *     description="Filter inspections by end date",
- *     required=false,
- *     example="2023-12-31"
- * ),
- * @OA\Parameter(
- *     name="start_next_inspection_date",
- *     in="query",
- *     description="Filter next inspections by start date",
- *     required=false,
- *     example="2023-01-01"
- * ),
- * @OA\Parameter(
- *     name="end_next_inspection_date",
- *     in="query",
- *     description="Filter next inspections by end date",
- *     required=false,
- *     example="2023-12-31"
- * ),
- *
- *     @OA\Parameter(
- *     name="inspection_duration",
- *     in="query",
- *     description="Filter inspections by the inspector's name or ID",
- *     required=false,
- *     example="inspection duration"
- * ),
- *
- * @OA\Parameter(
- *     name="inspected_by",
- *     in="query",
- *     description="Filter inspections by the inspector's name or ID",
- *     required=false,
- *     example="John Doe"
- * ),
- * @OA\Parameter(
- *     name="maintenance_item_type_id",
- *     in="query",
- *     description="Filter inspections by maintenance item type ID",
- *     required=false,
- *     example="1"
- * ),
- * @OA\Parameter(
- *     name="start_next_follow_up_date",
- *     in="query",
- *     description="Filter follow-ups by start date",
- *     required=false,
- *     example="2023-01-01"
- * ),
- * @OA\Parameter(
- *     name="end_next_follow_up_date",
- *     in="query",
- *     description="Filter follow-ups by end date",
- *     required=false,
- *     example="2023-12-31"
- * ),
- * @OA\Parameter(
- *     name="order_by",
- *     in="query",
- *     description="Order the results by a specific column (e.g., 'address')",
- *     required=false,
- *     example="address"
- * ),
+     * @OA\Parameter(
+     *     name="perPage",
+     *     in="query",
+     *     description="Number of results per page",
+     *     required=false,
+     *     example="15"
+     * ),
+     * @OA\Parameter(
+     *     name="search_key",
+     *     in="query",
+     *     description="Search term to filter properties by reference number, address, or type",
+     *     required=false,
+     *     example="keyword"
+     * ),
+     * @OA\Parameter(
+     *     name="landlord_ids",
+     *     in="query",
+     *     description="Filter properties by landlord ID",
+     *     required=false,
+     *     example="1"
+     * ),
+     * @OA\Parameter(
+     *     name="tenant_ids",
+     *     in="query",
+     *     description="Filter properties by tenant ID",
+     *     required=false,
+     *     example="1"
+     * ),
+     * @OA\Parameter(
+     *     name="category",
+     *     in="query",
+     *     description="Filter properties by category",
+     *     required=false,
+     *     example="residential"
+     * ),
+     * @OA\Parameter(
+     *     name="address",
+     *     in="query",
+     *     description="Search properties by address",
+     *     required=false,
+     *     example="123 Main St"
+     * ),
+     * @OA\Parameter(
+     *     name="start_date",
+     *     in="query",
+     *     description="Filter properties by the creation start date",
+     *     required=false,
+     *     example="2023-01-01"
+     * ),
+     * @OA\Parameter(
+     *     name="end_date",
+     *     in="query",
+     *     description="Filter properties by the creation end date",
+     *     required=false,
+     *     example="2023-12-31"
+     * ),
+     * @OA\Parameter(
+     *     name="reference_no",
+     *     in="query",
+     *     description="Filter properties by reference number",
+     *     required=false,
+     *     example="ABC123"
+     * ),
+     * @OA\Parameter(
+     *     name="start_date_of_instruction",
+     *     in="query",
+     *     description="Filter properties by the instruction start date",
+     *     required=false,
+     *     example="2023-01-01"
+     * ),
+     * @OA\Parameter(
+     *     name="end_date_of_instruction",
+     *     in="query",
+     *     description="Filter properties by the instruction end date",
+     *     required=false,
+     *     example="2023-12-31"
+     * ),
+     * @OA\Parameter(
+     *     name="start_no_of_beds",
+     *     in="query",
+     *     description="Filter properties by the minimum number of beds",
+     *     required=false,
+     *     example="2"
+     * ),
+     * @OA\Parameter(
+     *     name="end_no_of_beds",
+     *     in="query",
+     *     description="Filter properties by the maximum number of beds",
+     *     required=false,
+     *     example="4"
+     * ),
+     * @OA\Parameter(
+     *     name="is_garden",
+     *     in="query",
+     *     description="Filter properties that have a garden",
+     *     required=false,
+     *     example="true"
+     * ),
+     * @OA\Parameter(
+     *     name="is_dss",
+     *     in="query",
+     *     description="Filter properties that are DSS (Department of Social Services) approved",
+     *     required=false,
+     *     example="true"
+     * ),
+     * @OA\Parameter(
+     *     name="document_type_id",
+     *     in="query",
+     *     description="Filter properties by document type ID",
+     *     required=false,
+     *     example="1"
+     * ),
+     * @OA\Parameter(
+     *     name="is_document_expired",
+     *     in="query",
+     *     description="Filter properties by document type ID",
+     *     required=false,
+     *     example="1"
+     * ),
+     *  * @OA\Parameter(
+     *     name="document_expired_in",
+     *     in="query",
+     *     description="Filter properties by document type ID",
+     *     required=false,
+     *     example="1"
+     * ),
+     *
+     *
+     *  * * @OA\Parameter(
+     *     name="maintenance_item_type_id",
+     *     in="query",
+     *     description="maintenance_item_type_id",
+     *     required=false,
+     *     example=""
+     * ),
+     * * @OA\Parameter(
+     *     name="is_next_follow_up_date_passed",
+     *     in="query",
+     *     description="Filter properties by document type ID",
+     *     required=false,
+     *     example="1"
+     * ),
+     *  * @OA\Parameter(
+     *     name="next_follow_up_date_in",
+     *     in="query",
+     *     description="Filter properties by document type ID",
+     *     required=false,
+     *     example="1"
+     * ),
+     *  * * @OA\Parameter(
+     *     name="next_inspection_date_passed",
+     *     in="query",
+     *     description="Filter properties by document type ID",
+     *     required=false,
+     *     example="1"
+     * ),
+     *  * @OA\Parameter(
+     *     name="next_inspection_date_in",
+     *     in="query",
+     *     description="Filter properties by document type ID",
+     *     required=false,
+     *     example="1"
+     * ),
+     *
+     *
+     * @OA\Parameter(
+     *     name="start_inspection_date",
+     *     in="query",
+     *     description="Filter inspections by start date",
+     *     required=false,
+     *     example="2023-01-01"
+     * ),
+     * @OA\Parameter(
+     *     name="end_inspection_date",
+     *     in="query",
+     *     description="Filter inspections by end date",
+     *     required=false,
+     *     example="2023-12-31"
+     * ),
+     * @OA\Parameter(
+     *     name="start_next_inspection_date",
+     *     in="query",
+     *     description="Filter next inspections by start date",
+     *     required=false,
+     *     example="2023-01-01"
+     * ),
+     * @OA\Parameter(
+     *     name="end_next_inspection_date",
+     *     in="query",
+     *     description="Filter next inspections by end date",
+     *     required=false,
+     *     example="2023-12-31"
+     * ),
+     *
+     *     @OA\Parameter(
+     *     name="inspection_duration",
+     *     in="query",
+     *     description="Filter inspections by the inspector's name or ID",
+     *     required=false,
+     *     example="inspection duration"
+     * ),
+     *
+     * @OA\Parameter(
+     *     name="inspected_by",
+     *     in="query",
+     *     description="Filter inspections by the inspector's name or ID",
+     *     required=false,
+     *     example="John Doe"
+     * ),
+     * @OA\Parameter(
+     *     name="maintenance_item_type_id",
+     *     in="query",
+     *     description="Filter inspections by maintenance item type ID",
+     *     required=false,
+     *     example="1"
+     * ),
+     * @OA\Parameter(
+     *     name="start_next_follow_up_date",
+     *     in="query",
+     *     description="Filter follow-ups by start date",
+     *     required=false,
+     *     example="2023-01-01"
+     * ),
+     * @OA\Parameter(
+     *     name="end_next_follow_up_date",
+     *     in="query",
+     *     description="Filter follow-ups by end date",
+     *     required=false,
+     *     example="2023-12-31"
+     * ),
+     * @OA\Parameter(
+     *     name="order_by",
+     *     in="query",
+     *     description="Order the results by a specific column (e.g., 'address')",
+     *     required=false,
+     *     example="address"
+     * ),
      *      summary="This method is to get properties ",
      *      description="This method is to get properties",
      *
@@ -1540,7 +1552,7 @@ $document->save();
 
             // $automobilesQuery = AutomobileMake::with("makes");
 
-            $propertyQuery =  Property::with("property_landlords","property_tenants")
+            $propertyQuery =  Property::with("property_landlords", "property_tenants", "inspections.maintenance_item")
 
                 ->where(["properties.created_by" => $request->user()->id]);
 
@@ -1555,20 +1567,18 @@ $document->save();
             }
 
             if (!empty($request->landlord_ids)) {
-                $propertyQuery =  $propertyQuery->whereHas("property_landlords", function($query) {
+                $propertyQuery =  $propertyQuery->whereHas("property_landlords", function ($query) {
                     $landlord_ids = explode(',', request()->input("landlord_ids"));
-                   $query
-                   ->whereIn("property_landlords.landlord_id", $landlord_ids)
-                   ;
+                    $query
+                        ->whereIn("property_landlords.landlord_id", $landlord_ids);
                 });
             }
 
             if (!empty($request->tenant_ids)) {
-                $propertyQuery =  $propertyQuery->whereHas("property_tenants", function($query) {
+                $propertyQuery =  $propertyQuery->whereHas("property_tenants", function ($query) {
                     $tenant_ids = explode(',', request()->input("tenant_ids"));
-                   $query
-                   ->whereIn("property_tenants.tenant_id", $tenant_ids)
-                   ;
+                    $query
+                        ->whereIn("property_tenants.tenant_id", $tenant_ids);
                 });
             }
 
@@ -1615,129 +1625,168 @@ $document->save();
             }
 
             if (request()->boolean("is_garden")) {
-                $propertyQuery =  $propertyQuery->where("properties.is_garden",1);
+                $propertyQuery =  $propertyQuery->where("properties.is_garden", 1);
             }
             if (request()->boolean("is_dss")) {
-                $propertyQuery =  $propertyQuery->where("properties.is_dss",1);
+                $propertyQuery =  $propertyQuery->where("properties.is_dss", 1);
             }
 
-            $propertyQuery = $propertyQuery->when(request()->filled("document_type_id"), function ($query) {
-                $query->whereHas("documents", function ($subQuery) {
-                    $subQuery->where("property_documents.document_type_id", request()->input("document_type_id"));
-                });
-            })
-            ->when(request()->filled("is_document_expired"), function ($query) {
-                $query->whereHas("documents", function ($subQuery) {
-                    $subQuery->whereDate('property_documents.gas_end_date', '<', Carbon::today());
-                });
-            })
-            ->when(request()->filled("document_expired_in"), function ($query) {
-                $expiryDays = request()->input('document_expired_in'); // Get the number of days passed from the front end
+            $propertyQuery = $propertyQuery
 
-                // Check if a valid number of days is provided
-                if (is_numeric($expiryDays) && $expiryDays > 0) {
-                    $query->whereHas('documents', function ($subQuery) use ($expiryDays) {
-                        $subQuery->whereDate('property_documents.gas_end_date', '>=', Carbon::today())
-                                 ->whereDate('property_documents.gas_end_date', '<=', Carbon::today()->addDays($expiryDays));
+                // ->when(request()->filled("document_type_id"), function ($query) {
+                //     $query->whereHas("documents", function ($subQuery) {
+                //         $subQuery->where("property_documents.document_type_id", request()->input("document_type_id"));
+                //     });
+                // })
+                ->when(request()->filled("is_document_expired"), function ($query) {
+                    $query->whereHas("documents", function ($subQuery) {
+                        $subQuery->whereDate('property_documents.gas_end_date', '<', Carbon::today());
+                        if (request()->filled('document_type_id')) {
+                            $subQuery->where('property_documents.document_type_id', request()->input('document_type_id'));
+                        }
                     });
-                }
+                })
+                ->when(request()->filled("document_expired_in"), function ($query) {
+                    $expiryDays = request()->input('document_expired_in'); // Get the number of days passed from the front end
 
+                    // Check if a valid number of days is provided
+                    if (is_numeric($expiryDays) && $expiryDays > 0) {
+                        $query->whereHas('documents', function ($subQuery) use ($expiryDays) {
+                            $subQuery->whereDate('property_documents.gas_end_date', '>=', Carbon::today())
+                                ->whereDate('property_documents.gas_end_date', '<=', Carbon::today()->addDays($expiryDays));
 
-            })
+                            if (request()->filled('document_type_id')) {
+                                $subQuery->where('property_documents.document_type_id', request()->input('document_type_id'));
+                            }
+                        });
+                        // Apply this filter only if `maintenance_item_type_id` is provided in the request
 
-            ->when(request()->filled("maintenance_item_type_id"), function ($query) {
-                $query->whereHas("inspections.maintenance_item", function ($subQuery) {
-                    $subQuery->where('maintenance_items.maintenance_item_type_id', request()->input("maintenance_item_type_id"));
-                });
-            })
+                    }
+                })
 
-            ->when(request()->boolean("is_next_follow_up_date_passed"), function ($query) {
-                $query->whereHas("inspections.maintenance_item", function ($subQuery) {
-                    $subQuery->whereDate('maintenance_items.next_follow_up_date', '<', Carbon::today());
-                });
-            })
+                // ->when(request()->filled("maintenance_item_type_id"), function ($query) {
+                //     $query->whereHas("inspections.maintenance_item", function ($subQuery) {
+                //         $subQuery->where('maintenance_items.maintenance_item_type_id', request()->input("maintenance_item_type_id"));
+                //     });
+                // })
 
-            ->when(request()->filled("next_follow_up_date_in"), function ($query) {
-                $expiryDays = request()->input('next_follow_up_date_in'); // Get the number of days passed from the front end
+                ->when(request()->boolean("is_next_follow_up_date_passed"), function ($query) {
+                    $query->whereHas("inspections.maintenance_item", function ($subQuery) {
+                        $subQuery->whereDate('maintenance_items.next_follow_up_date', '<', Carbon::today());
 
-                // Check if a valid number of days is provided
-                if (is_numeric($expiryDays) && $expiryDays > 0) {
-                    $query->whereHas('inspections.maintenance_item', function ($subQuery) use ($expiryDays) {
-                        $subQuery->whereDate('maintenance_items.next_follow_up_date', '>=', Carbon::today())
-                                 ->whereDate('maintenance_items.next_follow_up_date', '<=', Carbon::today()->addDays($expiryDays));
+                        // Apply this filter only if `maintenance_item_type_id` is provided in the request
+                        if (request()->filled('maintenance_item_type_id')) {
+                            $subQuery->where('maintenance_items.maintenance_item_type_id', request()->input('maintenance_item_type_id'));
+                        }
                     });
-                }
-            })
-            ;
+                })
+
+                ->when(request()->filled("next_follow_up_date_in"), function ($query) {
+                    $expiryDays = request()->input('next_follow_up_date_in'); // Get the number of days passed from the front end
+
+                    // Check if a valid number of days is provided
+                    if (is_numeric($expiryDays) && $expiryDays > 0) {
+                        $query->whereHas('inspections.maintenance_item', function ($subQuery) use ($expiryDays) {
+                            $subQuery->whereDate('maintenance_items.next_follow_up_date', '>=', Carbon::today())
+                                ->whereDate('maintenance_items.next_follow_up_date', '<=', Carbon::today()->addDays($expiryDays));
+
+                            // Apply this filter only if `maintenance_item_type_id` is provided in the request
+                            if (request()->filled('maintenance_item_type_id')) {
+                                $subQuery->where('maintenance_items.maintenance_item_type_id', request()->input('maintenance_item_type_id'));
+                            }
+                        });
+                    }
+                })
+
+                ->when(request()->boolean("is_next_inspection_date_passed"), function ($query) {
+                    $query->whereHas("inspections", function ($subQuery) {
+                        $subQuery->whereDate('tenant_inspections.next_follow_up_date', '<', Carbon::today());
+                    });
+                })
+
+                ->when(request()->filled("next_inspection_date_in"), function ($query) {
+                    $expiryDays = request()->input('next_inspection_date_in'); // Get the number of days passed from the front end
+
+                    // Check if a valid number of days is provided
+                    if (is_numeric($expiryDays) && $expiryDays > 0) {
+                        $query->whereHas('inspections', function ($subQuery) use ($expiryDays) {
+                            $subQuery->whereDate('tenant_inspections.next_inspection_date', '>=', Carbon::today())
+                                ->whereDate('tenant_inspections.next_inspection_date', '<=', Carbon::today()->addDays($expiryDays));
+
+                            // Apply this filter only if `maintenance_item_type_id` is provided in the request
+
+                        });
+                    }
+                });
 
 
 
 
 
             $propertyQuery = $propertyQuery
-            ->when(
-                request()->only(['start_inspection_date', 'end_inspection_date']),
-                function ($query) {
-                    $query->whereHas('inspections', function ($query) {
-                        $query->when(request()->filled('start_inspection_date'), function ($query) {
-                            $query->whereDate('tenant_inspections.date', '>=', request()->input('start_inspection_date'));
+                ->when(
+                    request()->only(['start_inspection_date', 'end_inspection_date']),
+                    function ($query) {
+                        $query->whereHas('inspections', function ($query) {
+                            $query->when(request()->filled('start_inspection_date'), function ($query) {
+                                $query->whereDate('tenant_inspections.date', '>=', request()->input('start_inspection_date'));
+                            });
+                            $query->when(request()->filled('end_inspection_date'), function ($query) {
+                                $query->whereDate('tenant_inspections.date', '<=', request()->input('end_inspection_date'));
+                            });
                         });
-                        $query->when(request()->filled('end_inspection_date'), function ($query) {
-                            $query->whereDate('tenant_inspections.date', '<=', request()->input('end_inspection_date'));
+                    }
+                )
+                ->when(
+                    request()->only(['start_next_inspection_date', 'end_next_inspection_date']),
+                    function ($query) {
+                        $query->whereHas('inspections', function ($query) {
+                            $query->when(request()->filled('start_next_inspection_date'), function ($query) {
+                                $query->whereDate('tenant_inspections.next_inspection_date', '>=', request()->input('start_next_inspection_date'));
+                            });
+                            $query->when(request()->filled('end_next_inspection_date'), function ($query) {
+                                $query->whereDate('tenant_inspections.next_inspection_date', '<=', request()->input('end_next_inspection_date'));
+                            });
                         });
-                    });
-                }
-            )
-            ->when(
-                request()->only(['start_next_inspection_date', 'end_next_inspection_date']),
-                function ($query) {
-                    $query->whereHas('inspections', function ($query) {
-                        $query->when(request()->filled('start_next_inspection_date'), function ($query) {
-                            $query->whereDate('tenant_inspections.next_inspection_date', '>=', request()->input('start_next_inspection_date'));
+                    }
+                )
+                ->when(
+                    request()->filled('inspected_by'),
+                    function ($query) {
+                        $query->whereHas('inspections', function ($query) {
+                            $query->where('tenant_inspections.inspected_by', 'like', '%' . request()->input('inspected_by') . '%');
                         });
-                        $query->when(request()->filled('end_next_inspection_date'), function ($query) {
-                            $query->whereDate('tenant_inspections.next_inspection_date', '<=', request()->input('end_next_inspection_date'));
+                    }
+                )
+                ->when(
+                    request()->filled('inspection_duration'),
+                    function ($query) {
+                        $query->whereHas('inspections', function ($query) {
+                            $query->where('tenant_inspections.inspection_duration', 'like', '%' . request()->input('inspection_duration') . '%');
                         });
-                    });
-                }
-            )
-            ->when(
-                request()->filled('inspected_by'),
-                function ($query) {
-                    $query->whereHas('inspections', function ($query) {
-                        $query->where('tenant_inspections.inspected_by', 'like', '%' . request()->input('inspected_by') . '%');
-                    });
-                }
-            )
-            ->when(
-                request()->filled('inspection_duration'),
-                function ($query) {
-                    $query->whereHas('inspections', function ($query) {
-                        $query->where('tenant_inspections.inspection_duration', 'like', '%' . request()->input('inspection_duration') . '%');
-                    });
-                }
-            )
-            ->when(
-                request()->filled('maintenance_item_type_id'),
-                function ($query) {
-                    $query->whereHas('inspections.maintenance_item', function ($query) {
-                        $query->where('maintenance_items.maintenance_item_type_id', request()->input('maintenance_item_type_id'));
-                    });
-                }
-            )
-            ->when(
-                request()->only(['start_next_follow_up_date', 'end_next_follow_up_date']),
-                function ($query) {
-                    $query->whereHas('inspections.maintenance_item', function ($query) {
-                        $query->when(request()->filled('start_next_follow_up_date'), function ($query) {
-                            $query->whereDate('maintenance_items.next_follow_up_date', '>=', request()->input('start_next_follow_up_date'));
+                    }
+                )
+                ->when(
+                    request()->filled('maintenance_item_type_id'),
+                    function ($query) {
+                        $query->whereHas('inspections.maintenance_item', function ($query) {
+                            $query->where('maintenance_items.maintenance_item_type_id', request()->input('maintenance_item_type_id'));
                         });
-                        $query->when(request()->filled('end_next_follow_up_date'), function ($query) {
-                            $query->whereDate('maintenance_items.next_follow_up_date', '<=', request()->input('end_next_follow_up_date'));
+                    }
+                )
+                ->when(
+                    request()->only(['start_next_follow_up_date', 'end_next_follow_up_date']),
+                    function ($query) {
+                        $query->whereHas('inspections.maintenance_item', function ($query) {
+                            $query->when(request()->filled('start_next_follow_up_date'), function ($query) {
+                                $query->whereDate('maintenance_items.next_follow_up_date', '>=', request()->input('start_next_follow_up_date'));
+                            });
+                            $query->when(request()->filled('end_next_follow_up_date'), function ($query) {
+                                $query->whereDate('maintenance_items.next_follow_up_date', '<=', request()->input('end_next_follow_up_date'));
+                            });
                         });
-                    });
-                }
-            );
+                    }
+                );
 
 
             $properties = $propertyQuery->orderBy("properties.address", $request->order_by)
@@ -1805,7 +1854,7 @@ $document->save();
 
         $images = array_unique($newImages);
 
-        $property->images = $this->storeUploadedFiles($images, "", "images", false,$property->id);
+        $property->images = $this->storeUploadedFiles($images, "", "images", false, $property->id);
 
 
 
@@ -1976,7 +2025,7 @@ $document->save();
 
             // $automobilesQuery = AutomobileMake::with("makes");
 
-            $propertyQuery =  Property::with("property_landlords","property_tenants")
+            $propertyQuery =  Property::with("property_landlords", "property_tenants")
 
                 ->where(["properties.created_by" => $request->user()->id]);
 
@@ -2001,20 +2050,18 @@ $document->save();
 
 
             if (!empty($request->landlord_ids)) {
-                $propertyQuery =  $propertyQuery->whereHas("property_landlords", function($query) {
+                $propertyQuery =  $propertyQuery->whereHas("property_landlords", function ($query) {
                     $landlord_ids = explode(',', request()->input("landlord_ids"));
-                   $query
-                   ->whereIn("property_landlords.landlord_id", $landlord_ids)
-                   ;
+                    $query
+                        ->whereIn("property_landlords.landlord_id", $landlord_ids);
                 });
             }
 
             if (!empty($request->tenant_ids)) {
-                $propertyQuery =  $propertyQuery->whereHas("property_tenants", function($query) {
+                $propertyQuery =  $propertyQuery->whereHas("property_tenants", function ($query) {
                     $tenant_ids = explode(',', request()->input("tenant_ids"));
-                   $query
-                   ->whereIn("property_tenants.tenant_id", $tenant_ids)
-                   ;
+                    $query
+                        ->whereIn("property_tenants.tenant_id", $tenant_ids);
                 });
             }
 
@@ -2175,20 +2222,18 @@ $document->save();
             }
 
             if (!empty($request->landlord_ids)) {
-                $propertyQuery =  $propertyQuery->whereHas("property_landlords", function($query) {
+                $propertyQuery =  $propertyQuery->whereHas("property_landlords", function ($query) {
                     $landlord_ids = explode(',', request()->input("landlord_ids"));
-                   $query
-                   ->whereIn("property_landlords.landlord_id", $landlord_ids)
-                   ;
+                    $query
+                        ->whereIn("property_landlords.landlord_id", $landlord_ids);
                 });
             }
 
             if (!empty($request->tenant_ids)) {
-                $propertyQuery =  $propertyQuery->whereHas("property_tenants", function($query) {
+                $propertyQuery =  $propertyQuery->whereHas("property_tenants", function ($query) {
                     $tenant_ids = explode(',', request()->input("tenant_ids"));
-                   $query
-                   ->whereIn("property_tenants.tenant_id", $tenant_ids)
-                   ;
+                    $query
+                        ->whereIn("property_tenants.tenant_id", $tenant_ids);
                 });
             }
 
@@ -2310,28 +2355,28 @@ $document->save();
             }
 
 
-                $updatedFiles = []; // Create a new array for modified files
-                if(!is_array($property->images)) {
-                    $images = json_decode($property->images);
-                } else {
-                    $images = $property->images;
-                }
+            $updatedFiles = []; // Create a new array for modified files
+            if (!is_array($property->images)) {
+                $images = json_decode($property->images);
+            } else {
+                $images = $property->images;
+            }
 
 
-                foreach ($images as $image) {
-                    // Modify the file name
-                    $updatedFiles[] = "/" . str_replace(' ', '_', auth()->user()->my_business->name) . "/" . base64_encode($property->id) . "/images/" . $image;
-                }
+            foreach ($images as $image) {
+                // Modify the file name
+                $updatedFiles[] = "/" . str_replace(' ', '_', auth()->user()->my_business->name) . "/" . base64_encode($property->id) . "/images/" . $image;
+            }
 
 
-                // Replace the files property with the updated array if needed
-                $property->images = $updatedFiles; // Use a new attribute to avoid issues
+            // Replace the files property with the updated array if needed
+            $property->images = $updatedFiles; // Use a new attribute to avoid issues
 
 
             foreach ($property->documents as $document) {
 
                 $updatedFiles = []; // Create a new array for modified files
-                if(!is_array($document->files)) {
+                if (!is_array($document->files)) {
                     $files = json_decode($document->files);
                 } else {
                     $files = $document->files;
@@ -2447,19 +2492,19 @@ $document->save();
                 ], 404);
             }
 
-              // Construct the folder path
-        $businessFolderName = str_replace(' ', '_', auth()->user()->my_business->name);
-        $propertyFolderName = base64_encode($property->id); // Base64 encoding the property ID
-        $folderPath = public_path("{$businessFolderName}/{$propertyFolderName}");
+            // Construct the folder path
+            $businessFolderName = str_replace(' ', '_', auth()->user()->my_business->name);
+            $propertyFolderName = base64_encode($property->id); // Base64 encoding the property ID
+            $folderPath = public_path("{$businessFolderName}/{$propertyFolderName}");
 
-        // Delete the property folder if it exists
-        if (File::exists($folderPath)) {
-            if (File::deleteDirectory($folderPath)) {
-                Log::info("Folder {$folderPath} successfully deleted.");
-            } else {
-                Log::warning("Failed to delete folder {$folderPath}.");
+            // Delete the property folder if it exists
+            if (File::exists($folderPath)) {
+                if (File::deleteDirectory($folderPath)) {
+                    Log::info("Folder {$folderPath} successfully deleted.");
+                } else {
+                    Log::warning("Failed to delete folder {$folderPath}.");
+                }
             }
-        }
 
             $property->delete();
 
