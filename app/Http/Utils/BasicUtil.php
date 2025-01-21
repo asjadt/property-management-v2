@@ -72,7 +72,7 @@ trait BasicUtil
         } else {
             // Log and throw an error if the file does not exist
             Log::error("File does not exist: {$temporaryFilePath}");
-            throw new Exception("File does not exist at {$temporaryFilePath}", 500);
+            // throw new Exception("File does not exist at {$temporaryFilePath}", 500);
         }
 
         // Update the file path in the item
