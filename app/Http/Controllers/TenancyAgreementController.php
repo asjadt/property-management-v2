@@ -217,8 +217,6 @@ class TenancyAgreementController extends Controller
                 }
                 // Ensure agreement exists
 
-
-
                 // Fill the model with the mass-assignable attributes
                 $agreement->fill($request_data);
                 $agreement->save(); // Save the agreement
@@ -313,7 +311,7 @@ class TenancyAgreementController extends Controller
         );
                 }
             ])
-            ->when((request()->filled('year') && request()->filled('month')), function ($q) use ($request) {
+            ->when(request()->filled('year') && request()->filled('month'), function ($query) use ($request) {
                 $year = $request->year;
                 $month = $request->month;
 
@@ -321,14 +319,13 @@ class TenancyAgreementController extends Controller
                 $startDate = Carbon::createFromDate($year, $month, 1)->startOfDay();
                 $endDate = Carbon::createFromDate($year, $month, 1)->endOfMonth()->endOfDay();
 
-                $q
-                ->where(function ($query) use ($startDate, $endDate) {
-                    $query->where('tenancy_agreements.date_of_moving', '<=', $endDate)
-                          ->where('tenancy_agreements.tenant_contact_expired_date', '>=', $startDate);
+                $query->where(function ($subQuery) use ($startDate, $endDate) {
+                    $subQuery->where('tenancy_agreements.date_of_moving', '<=', $endDate)
+                             ->where('tenancy_agreements.tenant_contact_expired_date', '>=', $startDate);
                 })
-                ->doesntHave("rent", function ($query) use ($year, $month) {
-                    $query->where('rents.year', $year)
-                          ->where('rents.month', $month);
+                ->doesntHave("rent", function ($subQuery) use ($year, $month) {
+                    $subQuery->where('rents.year', $year)
+                             ->where('rents.month', $month);
                 });
             })
 
@@ -463,4 +460,6 @@ class TenancyAgreementController extends Controller
             return response()->json(['message' => 'An error occurred.'], 500);
         }
     }
+
+
 }
