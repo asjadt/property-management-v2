@@ -1400,6 +1400,14 @@ $document->save();
  *     required=false,
  *     example="1"
  * ),
+ *
+ *  * * @OA\Parameter(
+ *     name="maintenance_item_type_id",
+ *     in="query",
+ *     description="maintenance_item_type_id",
+ *     required=false,
+ *     example=""
+ * ),
  * * @OA\Parameter(
  *     name="is_next_follow_up_date_passed",
  *     in="query",
@@ -1636,6 +1644,13 @@ $document->save();
 
 
             })
+
+            ->when(request()->filles("maintenance_item_type_id"), function ($query) {
+                $query->whereHas("inspections.maintenance_item", function ($subQuery) {
+                    $subQuery->where('maintenance_items.maintenance_item_type_id', request()->input("maintenance_item_type_id"));
+                });
+            })
+
             ->when(request()->boolean("is_next_follow_up_date_passed"), function ($query) {
                 $query->whereHas("inspections.maintenance_item", function ($subQuery) {
                     $subQuery->whereDate('maintenance_items.next_follow_up_date', '<', Carbon::today());
