@@ -770,6 +770,14 @@ class LandlordController extends Controller
 * required=true,
 * example="1"
 * ),
+ * *  @OA\Parameter(
+* name="ids",
+* in="query",
+* description="ids",
+* required=false,
+* example=""
+* ),
+
 
      *      summary="This method is to get landlords ",
      *      description="This method is to get landlords",
@@ -831,8 +839,6 @@ class LandlordController extends Controller
          });
      }
 
-
-
                      $query->orWhere("landlords.phone", "like", "%" . $term . "%");
                      $query->orWhere("landlords.address_line_1", "like", "%" . $term . "%");
                      $query->orWhere("landlords.address_line_2", "like", "%" . $term . "%");
@@ -843,7 +849,10 @@ class LandlordController extends Controller
 
                  });
              }
-
+             if (!empty($request->ids)) {
+                $ids = explode(',', request()->input("ids"));
+                $landlordQuery =  $landlordQuery->whereIn("landlords.id", $ids);
+            }
 
             if(!empty($request->property_id)){
                 $landlordQuery = $landlordQuery->whereHas('properties',function($query) {
@@ -853,7 +862,7 @@ class LandlordController extends Controller
 
             if(!empty($request->property_ids)) {
                 $null_filter = collect(array_filter($request->property_ids))->values();
-            $property_ids =  $null_filter->all();
+                $property_ids = $null_filter->all();
                 if(count($property_ids)) {
                     $landlordQuery = $landlordQuery->whereHas('properties',function($query) use($property_ids){
                         $query->whereIn("properties",$property_ids);
