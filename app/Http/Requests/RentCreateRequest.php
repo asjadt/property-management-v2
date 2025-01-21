@@ -30,6 +30,8 @@ class RentCreateRequest extends FormRequest
 
         $rules = [
 
+            'rent_taken_by' => "required|string",
+            'remarks' => "required|string",
             'tenancy_agreement_id' => [
                 'required',
                 'numeric',

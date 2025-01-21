@@ -49,6 +49,9 @@ class RentUpdateRequest extends FormRequest
 
             ],
 
+            'rent_taken_by' => "required|string",
+            'remarks' => "required|string",
+
             'tenancy_agreement_id' => [
                 'required',
                 'numeric',

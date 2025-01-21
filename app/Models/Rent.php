@@ -13,6 +13,9 @@ class Rent extends Model
     use HasFactory, DefaultQueryScopesTrait;
 
     protected $fillable = [
+
+        'rent_taken_by',
+        'remarks',
                     'tenancy_agreement_id',
                     'payment_date',
                     'payment_status',

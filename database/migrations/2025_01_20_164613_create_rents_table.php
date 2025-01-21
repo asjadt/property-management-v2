@@ -26,6 +26,9 @@ class CreateRentsTable extends Migration
 
             $table->string("payment_status");
 
+            $table->string("rent_taken_by");
+            $table->text("remarks");
+
             $table->decimal("rent_amount",10,2);
 
             $table->decimal("paid_amount",10,2);

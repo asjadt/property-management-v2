@@ -623,13 +623,9 @@ Route::get('/v1.0/rents', [RentController::class, "getRents"]);
 Route::delete('/v1.0/rents/{ids}', [RentController::class, "deleteRentsByIds"]);
 
 
-
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // end rents management section
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-
-
 
 
 
