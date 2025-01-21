@@ -1801,7 +1801,15 @@ $document->save();
         // Merge new images with existing ones
         $existingImages = $property->images ?? [];
         $newImages = array_merge($existingImages, $request->input('images'));
-        $property->images = array_unique($newImages);
+
+
+        $images = array_unique($newImages);
+
+        $property->images = $this->storeUploadedFiles($images, "", "images", false,$property->id);
+
+
+
+
 
         $property->save();
 
