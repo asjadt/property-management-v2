@@ -571,7 +571,7 @@ class TenancyAgreementController extends Controller
             });;
 
                  $responseData = [
-                    "tenancy_agreements" => $tenancyAgreement,
+                    "selectable_tenancy_agreements" => $tenancyAgreement,
                     "taken_rents" => $rents
                  ];
 
