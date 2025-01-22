@@ -1160,7 +1160,6 @@ COALESCE(
                     $subQuery ->whereDate('property_documents.gas_end_date', ">", Carbon::today())
                     ->whereDate('property_documents.gas_end_date', "<=", Carbon::today()->addDays(30));
                 })
-
                     ->count(),
                 'expires_in_45_days' => (clone $base_documents_query)
                 ->whereHas("latest_documents", function ($subQuery)  {
@@ -1190,8 +1189,8 @@ COALESCE(
              when(request()->filled("property_id"), function($query) {
                  $query->where("properties.property_id",request()->input("property_id"));
              })
-             ->where("properties.created_by", auth()->user()->id)
-             ->whereNull("properties.deleted_at");
+             ->where("properties.created_by", auth()->user()->id);
+
 
              // Count documents for different expiration periods
              $maintainance_report = [
@@ -1262,7 +1261,7 @@ COALESCE(
                 $query->where("tenant_inspections.property_id",request()->input("property_id"));
             })
             ->where("properties.created_by", auth()->user()->id)
-            ->whereNull("properties.deleted_at")
+
 
             ->whereHas("latest_inspection.maintenance_item", function ($subQuery) use($maintainance_item_type) {
                 $subQuery

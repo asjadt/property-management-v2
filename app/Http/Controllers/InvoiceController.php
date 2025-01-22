@@ -1484,9 +1484,9 @@ public function updateInvoice(InvoiceUpdateRequest $request)
        else if($request->status == "next_15_days_invoice_due") {
             $currentDate = Carbon::now();
             $endDate = $currentDate->copy()->addDays(15);
-            $invoiceQuery =      $invoiceQuery->whereNotIn("status", ['draft','paid']);
-            $invoiceQuery =      $invoiceQuery->whereDate('invoices.due_date', '>=', $currentDate);
-            $invoiceQuery =      $invoiceQuery->whereDate('invoices.due_date', '<=', $endDate);
+            $invoiceQuery =  $invoiceQuery->whereNotIn("status", ['draft','paid']);
+            $invoiceQuery =  $invoiceQuery->whereDate('invoices.due_date', '>=', $currentDate);
+            $invoiceQuery =   $invoiceQuery->whereDate('invoices.due_date', '<=', $endDate);
         }
         else {
             $invoiceQuery =      $invoiceQuery->where("status", $request->status);

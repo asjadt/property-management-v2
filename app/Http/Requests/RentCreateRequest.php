@@ -54,11 +54,6 @@ class RentCreateRequest extends FormRequest
             'paid_amount' => [
                 'required',
                 'numeric',
-                function ($attribute, $value, $fail) {
-                    if ($value > request()->input('rent_amount')) {
-                        $fail('The paid amount must be less than or equal to the rent amount.');
-                    }
-                },
             ],
 
 

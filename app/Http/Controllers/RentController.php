@@ -103,19 +103,30 @@ class RentController extends Controller
 
             $request_data["created_by"] = auth()->user()->id;
 
-            if($request_data["paid_amount"] == 0) {
-                $request_data["payment_status"] = "unpaid";
-            } else if($request_data["rent_amount"] == $request_data["paid_amount"]) {
-                $request_data["payment_status"] = "paid";
-            } else if($request_data["rent_amount"] > $request_data["paid_amount"]){
-                $request_data["payment_status"] = "partially_paid";
+            $agreement_rents = Rent::where([
+                "tenancy_agreement_id" => $request_data["tenancy_agreement_id"]
+            ])->get();
+
+            // Calculate total rent amount (rent + arrears)
+            $total_rent = $agreement_rents->sum('rent_amount');
+            $total_paid = $agreement_rents->sum('paid_amount');
+            $previous_arrears = $total_rent - $total_paid;
+
+            // Calculate total due and total payment
+            $total_due = $previous_arrears + $request_data["rent_amount"];
+            $total_payment = $total_paid + $request_data["paid_amount"];
+
+            // Determine payment status
+            if ($total_due > $total_payment) {
+                $request_data["payment_status"] = 'arrears'; // Outstanding balance remains
+            } elseif ($total_due == $total_payment) {
+                $request_data["payment_status"] = 'paid'; // Exact payment made, no arrears
+            } else {
+                $request_data["payment_status"] = 'overpaid'; // Payment exceeds due amount
             }
 
-
-
-
+            // Create the rent record
             $rent = Rent::create($request_data);
-
 
 
             DB::commit();
@@ -228,18 +239,18 @@ class RentController extends Controller
 
 
         return $query->where('rents.created_by', auth()->user()->id)
-        ->when(request()->filled("tenant_ids"), function ($query) {
-            return $query->whereHas("tenancy_agreement.tenants",function($query) {
-                $tenant_ids = explode(',', request()->input("tenant_ids"));
-                   $query->whereIn("tenants.id",$tenant_ids);
-            });
-        })
-        ->when(request()->filled("property_ids"), function ($query) {
-            return $query->whereHas("tenancy_agreement",function($query) {
-                $property_ids = explode(',', request()->input("property_ids"));
-                   $query->whereIn("tenancy_agreements.property_id", $property_ids);
-            });
-        })
+            ->when(request()->filled("tenant_ids"), function ($query) {
+                return $query->whereHas("tenancy_agreement.tenants", function ($query) {
+                    $tenant_ids = explode(',', request()->input("tenant_ids"));
+                    $query->whereIn("tenants.id", $tenant_ids);
+                });
+            })
+            ->when(request()->filled("property_ids"), function ($query) {
+                return $query->whereHas("tenancy_agreement", function ($query) {
+                    $property_ids = explode(',', request()->input("property_ids"));
+                    $query->whereIn("tenancy_agreements.property_id", $property_ids);
+                });
+            })
             ->when(request()->filled("start_payment_date"), function ($query) {
                 return $query->whereDate(
                     'rents.payment_date',
@@ -273,7 +284,7 @@ class RentController extends Controller
             });
     }
 
- /**
+    /**
      *
      * @OA\Get(
      * path="/v1.0/rents",
@@ -406,26 +417,26 @@ class RentController extends Controller
      * )
      */
 
-     public function getRents(Request $request)
-     {
-         try {
-             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
+    public function getRents(Request $request)
+    {
+        try {
+            $this->storeActivity($request, "DUMMY activity", "DUMMY description");
 
 
 
-             $query = Rent::with("tenancy_agreement.property","tenancy_agreement.tenants");
-             $query = $this->query_filters($query);
-             $rents = $this->retrieveData($query, "id", "rents");
+            $query = Rent::with("tenancy_agreement.property", "tenancy_agreement.tenants");
+            $query = $this->query_filters($query);
+            $rents = $this->retrieveData($query, "id", "rents");
 
 
 
 
-             return response()->json($rents, 200);
-         } catch (Exception $e) {
+            return response()->json($rents, 200);
+        } catch (Exception $e) {
 
-             return $this->sendError($e, 500, $request);
-         }
-     }
+            return $this->sendError($e, 500, $request);
+        }
+    }
 
     /**
      *
@@ -567,24 +578,24 @@ class RentController extends Controller
 
 
 
-            $query = Rent::with("tenancy_agreement.property","tenancy_agreement.tenants");
+            $query = Rent::with("tenancy_agreement.property", "tenancy_agreement.tenants");
             $query = $this->query_filters($query);
             $rents = $this->retrieveData($query, "id", "rents");
 
 
 
-        // Calculate data highlights
-        $data_highlights = $query->selectRaw(
-            'SUM(rent_amount) as total_rent,
+            // Calculate data highlights
+            $data_highlights = $query->selectRaw(
+                'SUM(rent_amount) as total_rent,
              SUM(paid_amount) as total_paid,
              SUM(rent_amount - paid_amount) as total_arrears'
-        )->first();
+            )->first();
 
-        // Add data highlights to the response
-        $response = [
-            'data' => $rents,
-            'data_highlights' => $data_highlights,
-        ];
+            // Add data highlights to the response
+            $response = [
+                'data' => $rents,
+                'data_highlights' => $data_highlights,
+            ];
 
             return response()->json($response, 200);
         } catch (Exception $e) {
@@ -681,6 +692,5 @@ class RentController extends Controller
 
             return $this->sendError($e, 500, $request);
         }
-
     }
 }
