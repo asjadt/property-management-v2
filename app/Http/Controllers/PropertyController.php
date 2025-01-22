@@ -1675,7 +1675,8 @@ class PropertyController extends Controller
 
                         // Apply this filter only if `maintenance_item_type_id` is provided in the request
                         if (request()->filled('maintenance_item_type_id')) {
-                            $subQuery->where('maintenance_items.maintenance_item_type_id', request()->input('maintenance_item_type_id'));
+                            $subQuery->where('maintenance_items.maintenance_item_type_id', request()->input('maintenance_item_type_id'))
+                            ->where("maintenance_items.status", "work_required");
                         }
                     });
                 })

@@ -1047,8 +1047,7 @@ COALESCE(
             $document_report = [];
             foreach ($document_types as $document_type) {
                 $base_documents_query = PropertyDocument::whereHas("property", function ($query) {
-                    $query->where("properties.created_by", auth()->user()->id)
-                    ->whereNull("properties.deleted_at");
+                    $query->where("properties.created_by", auth()->user()->id);
                 })
                     ->where("document_type_id", $document_type->id);
 
@@ -1223,8 +1222,7 @@ COALESCE(
         ->when(request()->filled("property_id"), function ($query) {
             $query->where("properties.property_id", request()->input("property_id"));
         })
-        ->where("properties.created_by", auth()->user()->id)
-        ->whereNull("properties.deleted_at");
+        ->where("properties.created_by", auth()->user()->id);
 
     $maintainance_report = $baseQuery
         ->withCount([
@@ -1267,61 +1265,79 @@ COALESCE(
 
 public function getMaintainanceReport()
 {
-    $maintainance_item_types = MaintenanceItemType::all();
+    $maintainance_item_types = MaintenanceItemType::get();
     $maintainance_report = [];
 
     foreach ($maintainance_item_types as $maintainance_item_type) {
-        // Base query for the maintenance type
-        $base_maintance_query = Property::query()
+        $baseQuery = Property::query()
             ->when(request()->filled("property_id"), function ($query) {
                 $query->where("tenant_inspections.property_id", request()->input("property_id"));
             })
             ->where("properties.created_by", auth()->user()->id)
-            ->whereNull("properties.deleted_at")
             ->whereHas("latest_inspection.maintenance_item", function ($subQuery) use ($maintainance_item_type) {
                 $subQuery
                     ->where("maintenance_items.maintenance_item_type_id", $maintainance_item_type->id)
                     ->where("maintenance_items.status", "work_required");
             });
 
-        // Helper function to clone base query and add date conditions
-        $countWithDateCondition = function ($baseQuery, $dateCondition) {
-            return (clone $baseQuery)
-                ->whereHas("latest_inspection.maintenance_item", $dateCondition)
-                ->count();
-        };
+        $report = $baseQuery->withCount([
+            'latest_inspection as total_expired' => function ($query) {
+                $query->whereHas("maintenance_item", function ($subQuery) {
+                    $subQuery->whereDate('maintenance_items.next_follow_up_date', '<', Carbon::today());
+                });
+            },
+            'latest_inspection as today_expiry' => function ($query) {
+                $query->whereHas("maintenance_item", function ($subQuery) {
+                    $subQuery->whereDate('maintenance_items.next_follow_up_date', Carbon::today());
+                });
+            },
+            'latest_inspection as expires_in_15_days' => function ($query) {
+                $query->whereHas("maintenance_item", function ($subQuery) {
+                    $subQuery
+                        ->whereDate('maintenance_items.next_follow_up_date', '>', Carbon::today())
+                        ->whereDate('maintenance_items.next_follow_up_date', '<=', Carbon::today()->addDays(15));
+                });
+            },
+            'latest_inspection as expires_in_30_days' => function ($query) {
+                $query->whereHas("maintenance_item", function ($subQuery) {
+                    $subQuery
+                        ->whereDate('maintenance_items.next_follow_up_date', '>', Carbon::today())
+                        ->whereDate('maintenance_items.next_follow_up_date', '<=', Carbon::today()->addDays(30));
+                });
+            },
+            'latest_inspection as expires_in_45_days' => function ($query) {
+                $query->whereHas("maintenance_item", function ($subQuery) {
+                    $subQuery
+                        ->whereDate('maintenance_items.next_follow_up_date', '>', Carbon::today())
+                        ->whereDate('maintenance_items.next_follow_up_date', '<=', Carbon::today()->addDays(45));
+                });
+            },
+            'latest_inspection as expires_in_60_days' => function ($query) {
+                $query->whereHas("maintenance_item", function ($subQuery) {
+                    $subQuery
+                        ->whereDate('maintenance_items.next_follow_up_date', '>', Carbon::today())
+                        ->whereDate('maintenance_items.next_follow_up_date', '<=', Carbon::today()->addDays(60));
+                });
+            },
+        ])
+        ->selectRaw('COUNT(*) as total_data')
+        ->first();
 
-        // Populate report for the current maintenance type
         $maintainance_report[$maintainance_item_type->id] = [
             "maintainance_item_type" => $maintainance_item_type->name,
-            'total_data' => (clone $base_maintance_query)->count(),
-            'total_expired' => $countWithDateCondition($base_maintance_query, function ($query) {
-                $query->whereDate('maintenance_items.next_follow_up_date', '<', Carbon::today());
-            }),
-            'today_expiry' => $countWithDateCondition($base_maintance_query, function ($query) {
-                $query->whereDate('maintenance_items.next_follow_up_date', Carbon::today());
-            }),
-            'expires_in_15_days' => $countWithDateCondition($base_maintance_query, function ($query) {
-                $query->whereDate('maintenance_items.next_follow_up_date', '>', Carbon::today())
-                    ->whereDate('maintenance_items.next_follow_up_date', '<=', Carbon::today()->addDays(15));
-            }),
-            'expires_in_30_days' => $countWithDateCondition($base_maintance_query, function ($query) {
-                $query->whereDate('maintenance_items.next_follow_up_date', '>', Carbon::today())
-                    ->whereDate('maintenance_items.next_follow_up_date', '<=', Carbon::today()->addDays(30));
-            }),
-            'expires_in_45_days' => $countWithDateCondition($base_maintance_query, function ($query) {
-                $query->whereDate('maintenance_items.next_follow_up_date', '>', Carbon::today())
-                    ->whereDate('maintenance_items.next_follow_up_date', '<=', Carbon::today()->addDays(45));
-            }),
-            'expires_in_60_days' => $countWithDateCondition($base_maintance_query, function ($query) {
-                $query->whereDate('maintenance_items.next_follow_up_date', '>', Carbon::today())
-                    ->whereDate('maintenance_items.next_follow_up_date', '<=', Carbon::today()->addDays(60));
-            }),
+            'total_data' => $report->total_data ?? 0,
+            'total_expired' => $report->total_expired ?? 0,
+            'today_expiry' => $report->today_expiry ?? 0,
+            'expires_in_15_days' => $report->expires_in_15_days ?? 0,
+            'expires_in_30_days' => $report->expires_in_30_days ?? 0,
+            'expires_in_45_days' => $report->expires_in_45_days ?? 0,
+            'expires_in_60_days' => $report->expires_in_60_days ?? 0,
         ];
     }
 
     return $maintainance_report;
 }
+
 
 
     // public function getMaintainanceReport()

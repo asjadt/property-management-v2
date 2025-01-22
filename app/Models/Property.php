@@ -58,9 +58,8 @@ class Property extends Model
 
     public function latest_inspection()
     {
-        return $this->hasMany(TenantInspection::class, "property_id", "id")
-            ->orderByDesc("tenant_inspections.date")
-            ->first();  // Returns the latest inspection
+        return $this->hasOne(TenantInspection::class, "property_id", "id")
+            ->orderByDesc("tenant_inspections.date");  // Returns the latest inspection
     }
 
 
