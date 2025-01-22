@@ -1552,7 +1552,7 @@ class PropertyController extends Controller
 
             // $automobilesQuery = AutomobileMake::with("makes");
 
-            $propertyQuery =  Property::with("property_landlords", "property_tenants", "inspections.maintenance_item")
+            $propertyQuery =  Property::with("property_landlords", "property_tenants")
 
                 ->where(["properties.created_by" => $request->user()->id]);
 
@@ -1665,13 +1665,13 @@ class PropertyController extends Controller
                 })
 
                 // ->when(request()->filled("maintenance_item_type_id"), function ($query) {
-                //     $query->whereHas("inspections.maintenance_item", function ($subQuery) {
+                //     $query->whereHas("latest_inspection.maintenance_item", function ($subQuery) {
                 //         $subQuery->where('maintenance_items.maintenance_item_type_id', request()->input("maintenance_item_type_id"));
                 //     });
                 // })
 
                 ->when(request()->boolean("is_next_follow_up_date_passed"), function ($query) {
-                    $query->whereHas("inspections.maintenance_item", function ($subQuery) {
+                    $query->whereHas("latest_inspection.maintenance_item", function ($subQuery) {
                         $subQuery->whereDate('maintenance_items.next_follow_up_date', '<', Carbon::today());
 
                         // Apply this filter only if `maintenance_item_type_id` is provided in the request
@@ -1686,7 +1686,7 @@ class PropertyController extends Controller
 
                     // Check if a valid number of days is provided
                     if (is_numeric($expiryDays) && $expiryDays > 0) {
-                        $query->whereHas('inspections.maintenance_item', function ($subQuery) use ($expiryDays) {
+                        $query->whereHas('latest_inspection.maintenance_item', function ($subQuery) use ($expiryDays) {
                             $subQuery->whereDate('maintenance_items.next_follow_up_date', '>=', Carbon::today())
                                 ->whereDate('maintenance_items.next_follow_up_date', '<=', Carbon::today()->addDays($expiryDays));
 
@@ -1699,7 +1699,7 @@ class PropertyController extends Controller
                 })
 
                 ->when(request()->boolean("is_next_inspection_date_passed"), function ($query) {
-                    $query->whereHas("inspections", function ($subQuery) {
+                    $query->whereHas("latest_inspection", function ($subQuery) {
                         $subQuery->whereDate('tenant_inspections.next_follow_up_date', '<', Carbon::today());
                     });
                 })
@@ -1709,7 +1709,7 @@ class PropertyController extends Controller
 
                     // Check if a valid number of days is provided
                     if (is_numeric($expiryDays) && $expiryDays > 0) {
-                        $query->whereHas('inspections', function ($subQuery) use ($expiryDays) {
+                        $query->whereHas('latest_inspection', function ($subQuery) use ($expiryDays) {
                             $subQuery->whereDate('tenant_inspections.next_inspection_date', '>=', Carbon::today())
                                 ->whereDate('tenant_inspections.next_inspection_date', '<=', Carbon::today()->addDays($expiryDays));
 
@@ -1727,7 +1727,7 @@ class PropertyController extends Controller
                 ->when(
                     request()->only(['start_inspection_date', 'end_inspection_date']),
                     function ($query) {
-                        $query->whereHas('inspections', function ($query) {
+                        $query->whereHas('latest_inspection', function ($query) {
                             $query->when(request()->filled('start_inspection_date'), function ($query) {
                                 $query->whereDate('tenant_inspections.date', '>=', request()->input('start_inspection_date'));
                             });
@@ -1740,7 +1740,7 @@ class PropertyController extends Controller
                 ->when(
                     request()->only(['start_next_inspection_date', 'end_next_inspection_date']),
                     function ($query) {
-                        $query->whereHas('inspections', function ($query) {
+                        $query->whereHas('latest_inspection', function ($query) {
                             $query->when(request()->filled('start_next_inspection_date'), function ($query) {
                                 $query->whereDate('tenant_inspections.next_inspection_date', '>=', request()->input('start_next_inspection_date'));
                             });
@@ -1753,7 +1753,7 @@ class PropertyController extends Controller
                 ->when(
                     request()->filled('inspected_by'),
                     function ($query) {
-                        $query->whereHas('inspections', function ($query) {
+                        $query->whereHas('latest_inspection', function ($query) {
                             $query->where('tenant_inspections.inspected_by', 'like', '%' . request()->input('inspected_by') . '%');
                         });
                     }
@@ -1761,7 +1761,7 @@ class PropertyController extends Controller
                 ->when(
                     request()->filled('inspection_duration'),
                     function ($query) {
-                        $query->whereHas('inspections', function ($query) {
+                        $query->whereHas('latest_inspection', function ($query) {
                             $query->where('tenant_inspections.inspection_duration', 'like', '%' . request()->input('inspection_duration') . '%');
                         });
                     }
@@ -1769,7 +1769,7 @@ class PropertyController extends Controller
                 ->when(
                     request()->filled('maintenance_item_type_id'),
                     function ($query) {
-                        $query->whereHas('inspections.maintenance_item', function ($query) {
+                        $query->whereHas('latest_inspection.maintenance_item', function ($query) {
                             $query->where('maintenance_items.maintenance_item_type_id', request()->input('maintenance_item_type_id'));
                         });
                     }
@@ -1777,7 +1777,7 @@ class PropertyController extends Controller
                 ->when(
                     request()->only(['start_next_follow_up_date', 'end_next_follow_up_date']),
                     function ($query) {
-                        $query->whereHas('inspections.maintenance_item', function ($query) {
+                        $query->whereHas('latest_inspection.maintenance_item', function ($query) {
                             $query->when(request()->filled('start_next_follow_up_date'), function ($query) {
                                 $query->whereDate('maintenance_items.next_follow_up_date', '>=', request()->input('start_next_follow_up_date'));
                             });

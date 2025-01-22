@@ -57,6 +57,13 @@ class Property extends Model
         return $this->hasMany(TenantInspection::class,"property_id","id");
     }
 
+    public function latest_inspection()
+    {
+        return $this->hasMany(TenantInspection::class, "property_id", "id")
+            ->orderByDesc("tenant_inspection.date")
+            ->first();  // Returns the latest inspection
+    }
+
 
     public function property_tenants() {
         return $this->belongsToMany(Tenant::class, 'property_tenants', 'property_id', 'tenant_id');
