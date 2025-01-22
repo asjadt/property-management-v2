@@ -1554,7 +1554,7 @@ class PropertyController extends Controller
 
             $propertyQuery =  Property::with("property_landlords", "property_tenants")
 
-                ->where(["properties.created_by" => $request->user()->id]);
+            ->where(["properties.created_by" => $request->user()->id]);
 
             if (!empty($request->search_key)) {
                 $propertyQuery = $propertyQuery->where(function ($query) use ($request) {
@@ -1613,7 +1613,6 @@ class PropertyController extends Controller
             if (!empty($request->end_date_of_instruction)) {
                 $propertyQuery =  $propertyQuery->whereDate("properties.date_of_instruction", "<=", $request->end_date_of_instruction);
             }
-
 
 
             if (!empty($request->start_no_of_beds)) {
@@ -1700,7 +1699,7 @@ class PropertyController extends Controller
 
                 ->when(request()->boolean("is_next_inspection_date_passed"), function ($query) {
                     $query->whereHas("latest_inspection", function ($subQuery) {
-                        $subQuery->whereDate('tenant_inspections.next_follow_up_date', '<', Carbon::today());
+                        $subQuery->whereDate('tenant_inspections.next_inspection_date', '<', Carbon::today());
                     });
                 })
 

@@ -38,9 +38,8 @@ class Property extends Model
         'property_road',
         'is_dss',
         'county',
-        "created_by",
-
-
+        "created_by"
+        
     ];
     protected $casts = [
         'images' => 'array',
