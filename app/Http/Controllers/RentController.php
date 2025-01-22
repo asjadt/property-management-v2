@@ -114,8 +114,6 @@ class RentController extends Controller
 
 
 
-
-
             $rent = Rent::create($request_data);
 
 

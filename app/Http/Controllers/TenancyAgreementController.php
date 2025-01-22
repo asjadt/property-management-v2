@@ -443,7 +443,7 @@ class TenancyAgreementController extends Controller
      {
          try {
 
-             $tenancyAgreement = TenancyAgreement::with([
+             $tenancy_agreements = TenancyAgreement::with([
                  "tenants" => function($query) {
                       $query->select("tenants.id","tenants.first_Name","tenants.last_Name"
          );
@@ -488,21 +488,8 @@ class TenancyAgreementController extends Controller
                      $property_ids = explode(',', request()->input("property_ids"));
                      $q->whereIn('property_id', $property_ids);
                  })
-                 ->when($request->filled('id'), function ($q) use ($request) {
-                     // If specific ID is provided, return that record only
-                     return $q->where('id', $request->input('id'))->first();
-                 }, function ($q) {
-                     // Otherwise, fetch history (including soft-deleted agreements)
-                     return $q
-                         // ->withTrashed() // Include soft-deleted records
-                         ->when(!empty($request->per_page), function ($q) {
-                             // Paginate if per_page is provided
-                             return $q->paginate(request()->per_page);
-                         }, function ($q) {
-                             // Otherwise, return all agreements
-                             return $q->get();
-                         });
-                 });
+                 ->get();
+
               $rents =   Rent::with("tenancy_agreement.property","tenancy_agreement.tenants")
                  ->where('rents.created_by', auth()->user()->id)
                  ->when(request()->filled('year'), function ($query){
@@ -554,24 +541,23 @@ class TenancyAgreementController extends Controller
             ->when(request()->filled("end_date"), function ($query) {
                 return $query->whereDate('rents.created_at', "<=", request()->input("end_date"));
             })
-            ->when($request->filled('id'), function ($q) use ($request) {
-                // If specific ID is provided, return that record only
-                return $q->where('id', $request->input('id'))->first();
-            }, function ($q) {
-                // Otherwise, fetch history (including soft-deleted agreements)
-                return $q
-                    // ->withTrashed() // Include soft-deleted records
-                    ->when(!empty($request->per_page), function ($q) {
-                        // Paginate if per_page is provided
-                        return $q->paginate(request()->per_page);
-                    }, function ($q) {
-                        // Otherwise, return all agreements
-                        return $q->get();
-                    });
-            });;
+            ->get();
+
+            foreach($tenancy_agreements as $tenancy_agreement) {
+                            // Calculate total arrears
+                        $agreement_rents = Rent::where([
+                    "tenancy_agreement_id" => $tenancy_agreement->id
+                        ])
+                        ->get();
+
+$tenancy_agreement["arrear"] = $agreement_rents->sum(function ($rent) {
+    return $rent->rent_amount - $rent->paid_amount;
+});
+            }
+
 
                  $responseData = [
-                    "selectable_tenancy_agreements" => $tenancyAgreement,
+                    "selectable_tenancy_agreements" => $tenancy_agreements,
                     "taken_rents" => $rents
                  ];
 
