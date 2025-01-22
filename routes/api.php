@@ -625,6 +625,9 @@ Route::delete('/v1.0/receipts/{id}', [ReceiptController::class, "deleteReceiptBy
 Route::post('/v1.0/rents', [RentController::class, "createRent"]);
 Route::put('/v1.0/rents', [RentController::class, "updateRent"]);
 Route::get('/v1.0/rents', [RentController::class, "getRents"]);
+
+Route::get('/v2.0/rents', [RentController::class, "getRentsV2"]);
+
 Route::delete('/v1.0/rents/{ids}', [RentController::class, "deleteRentsByIds"]);
 
 

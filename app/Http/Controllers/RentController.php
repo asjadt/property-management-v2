@@ -273,9 +273,7 @@ class RentController extends Controller
             });
     }
 
-
-
-    /**
+ /**
      *
      * @OA\Get(
      * path="/v1.0/rents",
@@ -408,7 +406,161 @@ class RentController extends Controller
      * )
      */
 
-    public function getRents(Request $request)
+     public function getRents(Request $request)
+     {
+         try {
+             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
+
+
+
+             $query = Rent::with("tenancy_agreement.property","tenancy_agreement.tenants");
+             $query = $this->query_filters($query);
+             $rents = $this->retrieveData($query, "id", "rents");
+
+
+
+
+             return response()->json($rents, 200);
+         } catch (Exception $e) {
+
+             return $this->sendError($e, 500, $request);
+         }
+     }
+
+    /**
+     *
+     * @OA\Get(
+     * path="/v2.0/rents",
+     * operationId="getRentsV2",
+     * tags={"rents"},
+     * security={
+     * {"bearerAuth": {}}
+     * },
+
+     * @OA\Parameter(
+     * name="start_payment_date",
+     * in="query",
+     * description="start_payment_date",
+     * required=false,
+     * example=""
+     * ),
+     * @OA\Parameter(
+     * name="end_payment_date",
+     * in="query",
+     * description="end_payment_date",
+     * required=false,
+     * example=""
+     * ),
+     * @OA\Parameter(
+     * name="payment_status",
+     * in="query",
+     * description="payment_status",
+     * required=false,
+     * example=""
+     * ),
+     * @OA\Parameter(
+     * name="per_page",
+     * in="query",
+     * description="per_page",
+     * required=false,
+     * example=""
+     * ),
+
+     * @OA\Parameter(
+     * name="is_active",
+     * in="query",
+     * description="is_active",
+     * required=false,
+     * example=""
+     * ),
+     * @OA\Parameter(
+     * name="start_date",
+     * in="query",
+     * description="start_date",
+     * required=false,
+     * example=""
+     * ),
+     * * @OA\Parameter(
+     * name="end_date",
+     * in="query",
+     * description="end_date",
+     * required=false,
+     * example=""
+     * ),
+     * * @OA\Parameter(
+     * name="search_key",
+     * in="query",
+     * description="search_key",
+     * required=false,
+     * example=""
+     * ),
+     * * @OA\Parameter(
+     * name="order_by",
+     * in="query",
+     * description="order_by",
+     * required=false,
+     * example="ASC"
+     * ),
+     * * @OA\Parameter(
+     * name="id",
+     * in="query",
+     * description="id",
+     * required=false,
+     * example=""
+     * ),
+     *    * @OA\Parameter(
+     * name="tenant_ids",
+     * in="query",
+     * description="id",
+     * required=false,
+     * example=""
+     * ),
+     * *    * @OA\Parameter(
+     * name="property_ids",
+     * in="query",
+     * description="id",
+     * required=false,
+     * example=""
+     * ),
+     *
+     * summary="This method is to get rents ",
+     * description="This method is to get rents ",
+     *
+     * @OA\Response(
+     * response=200,
+     * description="Successful operation",
+     * @OA\JsonContent(),
+     * ),
+     * @OA\Response(
+     * response=401,
+     * description="Unauthenticated",
+     * @OA\JsonContent(),
+     * ),
+     * @OA\Response(
+     * response=422,
+     * description="Unprocesseble Content",
+     * @OA\JsonContent(),
+     * ),
+     * @OA\Response(
+     * response=403,
+     * description="Forbidden",
+     * @OA\JsonContent()
+     * ),
+     * * @OA\Response(
+     * response=400,
+     * description="Bad Request",
+     * *@OA\JsonContent()
+     * ),
+     * @OA\Response(
+     * response=404,
+     * description="not found",
+     * *@OA\JsonContent()
+     * )
+     * )
+     * )
+     */
+
+    public function getRentsV2(Request $request)
     {
         try {
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
@@ -421,13 +573,28 @@ class RentController extends Controller
 
 
 
+        // Calculate data highlights
+        $data_highlights = $query->selectRaw(
+            'SUM(rent_amount) as total_rent,
+             SUM(paid_amount) as total_paid,
+             SUM(rent_amount - paid_amount) as total_arrears'
+        )->first();
 
-            return response()->json($rents, 200);
+        // Add data highlights to the response
+        $response = [
+            'data' => $rents,
+            'data_highlights' => $data_highlights,
+        ];
+
+            return response()->json($response, 200);
         } catch (Exception $e) {
 
             return $this->sendError($e, 500, $request);
         }
     }
+
+
+
     /**
      *
      * @OA\Delete(
