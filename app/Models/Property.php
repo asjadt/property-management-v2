@@ -39,7 +39,7 @@ class Property extends Model
         'is_dss',
         'county',
         "created_by"
-        
+
     ];
     protected $casts = [
         'images' => 'array',
@@ -59,7 +59,7 @@ class Property extends Model
     public function latest_inspection()
     {
         return $this->hasMany(TenantInspection::class, "property_id", "id")
-            ->orderByDesc("tenant_inspection.date")
+            ->orderByDesc("tenant_inspections.date")
             ->first();  // Returns the latest inspection
     }
 
