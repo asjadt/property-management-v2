@@ -14,8 +14,8 @@ class Rent extends Model
 
     protected $fillable = [
 
-        'rent_taken_by',
-        'remarks',
+                    'rent_taken_by',
+                    'remarks',
                     'tenancy_agreement_id',
                     'payment_date',
                     'payment_status',

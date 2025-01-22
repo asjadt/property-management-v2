@@ -417,7 +417,7 @@ class RentController extends Controller
 
 
 
-            $query = Rent::query();
+            $query = Rent::with("tenancy_agreement.property","tenancy_agreement.tenants");
             $query = $this->query_filters($query);
             $rents = $this->retrieveData($query, "id", "rents");
 
