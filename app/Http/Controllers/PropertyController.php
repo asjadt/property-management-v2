@@ -1552,7 +1552,7 @@ class PropertyController extends Controller
 
             // $automobilesQuery = AutomobileMake::with("makes");
 
-            $propertyQuery =  Property::with("property_landlords", "property_tenants")
+            $propertyQuery =  Property::with("property_landlords", "property_tenants","latest_inspection")
 
             ->where(["properties.created_by" => $request->user()->id]);
 
@@ -1687,7 +1687,7 @@ class PropertyController extends Controller
                     // Check if a valid number of days is provided
                     if (is_numeric($expiryDays) && $expiryDays > 0) {
                         $query->whereHas('latest_inspection.maintenance_item', function ($subQuery) use ($expiryDays) {
-                            $subQuery->whereDate('maintenance_items.next_follow_up_date', '>=', Carbon::today())
+                            $subQuery->whereDate('maintenance_items.next_follow_up_date', '>', Carbon::today())
                                 ->whereDate('maintenance_items.next_follow_up_date', '<=', Carbon::today()->addDays($expiryDays));
 
                             if (request()->filled('maintenance_item_type_id')) {
@@ -1709,7 +1709,7 @@ class PropertyController extends Controller
                     // Check if a valid number of days is provided
                     if (is_numeric($expiryDays) && $expiryDays > 0) {
                         $query->whereHas('latest_inspection', function ($subQuery) use ($expiryDays) {
-                            $subQuery->whereDate('tenant_inspections.next_inspection_date', '>=', Carbon::today())
+                            $subQuery->whereDate('tenant_inspections.next_inspection_date', '>', Carbon::today())
                                 ->whereDate('tenant_inspections.next_inspection_date', '<=', Carbon::today()->addDays($expiryDays));
 
                             // Apply this filter only if `maintenance_item_type_id` is provided in the request
