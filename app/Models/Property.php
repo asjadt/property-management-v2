@@ -50,6 +50,13 @@ class Property extends Model
         return $this->hasMany(PropertyDocument::class);
     }
 
+    public function latest_documents()
+{
+    return $this->hasMany(PropertyDocument::class)
+        ->select('property_documents.*')  // Select all columns of the PropertyDocument model
+        ->distinct('document_type_id')    // Ensure only unique document_type_id records are selected
+        ->orderByDesc('gas_start_date');  // Specify which column determines the latest record
+}
 
     public function inspections()
     {

@@ -1552,7 +1552,9 @@ class PropertyController extends Controller
 
             // $automobilesQuery = AutomobileMake::with("makes");
 
-            $propertyQuery =  Property::with("property_landlords", "property_tenants","latest_inspection")
+            $propertyQuery =  Property::with(
+                "property_landlords", "property_tenants","latest_inspection"
+            )
 
             ->where(["properties.created_by" => $request->user()->id]);
 
@@ -1638,7 +1640,7 @@ class PropertyController extends Controller
                 //     });
                 // })
                 ->when(request()->filled("is_document_expired"), function ($query) {
-                    $query->whereHas("documents", function ($subQuery) {
+                    $query->whereHas("latest_documents", function ($subQuery) {
                         $subQuery->whereDate('property_documents.gas_end_date', '<', Carbon::today());
                         if (request()->filled('document_type_id')) {
                             $subQuery->where('property_documents.document_type_id', request()->input('document_type_id'));
@@ -1650,8 +1652,8 @@ class PropertyController extends Controller
 
                     // Check if a valid number of days is provided
                     if (is_numeric($expiryDays) && $expiryDays > 0) {
-                        $query->whereHas('documents', function ($subQuery) use ($expiryDays) {
-                            $subQuery->whereDate('property_documents.gas_end_date', '>=', Carbon::today())
+                        $query->whereHas('latest_documents', function ($subQuery) use ($expiryDays) {
+                            $subQuery->whereDate('property_documents.gas_end_date', '>', Carbon::today())
                                 ->whereDate('property_documents.gas_end_date', '<=', Carbon::today()->addDays($expiryDays));
 
                             if (request()->filled('document_type_id')) {
@@ -1710,7 +1712,7 @@ class PropertyController extends Controller
                     if (is_numeric($expiryDays) && $expiryDays > 0) {
                         $query->whereHas('latest_inspection', function ($subQuery) use ($expiryDays) {
                             $subQuery->whereDate('tenant_inspections.next_inspection_date', '>', Carbon::today())
-                                ->whereDate('tenant_inspections.next_inspection_date', '<=', Carbon::today()->addDays($expiryDays));
+                            ->whereDate('tenant_inspections.next_inspection_date', '<=', Carbon::today()->addDays($expiryDays));
 
                             // Apply this filter only if `maintenance_item_type_id` is provided in the request
 
