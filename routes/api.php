@@ -358,6 +358,8 @@ Route::put('/v1.0/tenancy-agreement', [TenancyAgreementController::class, "updat
 
 Route::get('/v1.0/tenancy-agreements', [TenancyAgreementController::class, "getTenancyAgreements"]);
 
+Route::get('/v2.0/tenancy-agreements', [TenancyAgreementController::class, "getTenancyAgreementsV2"]);
+
 Route::get('/v1.0/tenancy-agreements-with-rent', [TenancyAgreementController::class, "getTenancyAgreementsWithRent"]);
 
 Route::delete('/v1.0/tenancy-agreements/{agreement_id}', [TenancyAgreementController::class, "deleteTenancyAgreement"]);
