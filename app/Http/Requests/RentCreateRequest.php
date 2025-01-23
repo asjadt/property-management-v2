@@ -45,7 +45,7 @@ class RentCreateRequest extends FormRequest
 
             ],
 
-            "rent_reference" => "required|string",
+          
             "payment_method" => "required|string",
 
 

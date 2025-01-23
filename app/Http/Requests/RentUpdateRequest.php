@@ -68,7 +68,7 @@ class RentUpdateRequest extends FormRequest
                 'numeric',
             ],
 
-            "rent_reference" => "required|string",
+
             "payment_method" => "required|string",
 
             'paid_amount' => [
@@ -77,15 +77,15 @@ class RentUpdateRequest extends FormRequest
 
             ],
 
-            'month' => [
-                'required',
-                'integer'
-            ],
+            // 'month' => [
+            //     'required',
+            //     'integer'
+            // ],
 
-            'year' => [
-                'required',
-                'integer'
-            ],
+            // 'year' => [
+            //     'required',
+            //     'integer'
+            // ],
 
 
         ];

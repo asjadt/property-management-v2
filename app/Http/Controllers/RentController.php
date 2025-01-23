@@ -102,41 +102,53 @@ class RentController extends Controller
 
             $request_data = $request->validated();
 
-            $reference_no_exists =  Rent::where([
-                'rent_reference'=> $request_data['rent_reference'],
-                "created_by" => $request->user()->id
-             ]
-             )->exists();
+            $reference_no_exists =  Rent::where(
+                [
+                    'rent_reference' => $request_data['rent_reference'],
+                    "created_by" => $request->user()->id
+                ]
+            )->exists();
 
 
-             if ($reference_no_exists) {
+            if ($reference_no_exists) {
                 $error =  [
-                       "message" => "The given data was invalid.",
-                       "errors" => ["rent_reference"=>["The rent reference has already been taken."]]
+                    "message" => "The given data was invalid.",
+                    "errors" => ["rent_reference" => ["The rent reference has already been taken."]]
                 ];
-                   throw new Exception(json_encode($error),422);
-               }
+                throw new Exception(json_encode($error), 422);
+            }
 
 
             $request_data["created_by"] = auth()->user()->id;
 
-            $agreement_rents = Rent::where([
+            // Fetch previous rents
+            $previous_rents = Rent::where([
                 "tenancy_agreement_id" => $request_data["tenancy_agreement_id"]
-            ])->get();
+            ])
+                ->where(function ($query) use ($request_data) {
+                    $query->where('year', '<', $request_data["year"])
+                        ->orWhere(function ($query) use ($request_data) {
+                            $query->where('year', $request_data["year"])
+                                ->where('month', '<', $request_data["month"]);
+                        });
+                })
+                ->orderBy('year')
+                ->orderBy('month')
+                ->get();
 
             // Calculate total rent amount (rent + arrears)
-            $total_rent = $agreement_rents->sum('rent_amount');
-            $total_paid = $agreement_rents->sum('paid_amount');
-            $previous_arrears = $total_rent - $total_paid;
+            $total_rent = $previous_rents->sum('rent_amount');
+            $total_paid = $previous_rents->sum('paid_amount');
+
 
             // Calculate total due and total payment
-            $total_due = $previous_arrears + $request_data["rent_amount"];
-            $total_payment = $total_paid + $request_data["paid_amount"];
+            $total_rent = $total_rent + $request_data["rent_amount"];
+            $total_paid = $total_paid + $request_data["paid_amount"];
 
             // Determine payment status
-            if ($total_due > $total_payment) {
+            if ($total_rent > $total_paid) {
                 $request_data["payment_status"] = 'arrears'; // Outstanding balance remains
-            } elseif ($total_due == $total_payment) {
+            } elseif ($total_rent == $total_paid) {
                 $request_data["payment_status"] = 'paid'; // Exact payment made, no arrears
             } else {
                 $request_data["payment_status"] = 'overpaid'; // Payment exceeds due amount
@@ -144,6 +156,36 @@ class RentController extends Controller
 
             // Create the rent record
             $rent = Rent::create($request_data);
+
+            // Fetch rents after the current rent
+            $after_rents = Rent::where(function ($query) use ($request_data) {
+                $query->where('year', '>', $request_data["year"])
+                    ->orWhere(function ($query) use ($request_data) {
+                        $query->where('year', $request_data["year"])
+                            ->where('month', '>', $request_data["month"]);
+                    });
+            })
+                ->orderBy('year')
+                ->orderBy('month')
+                ->get();
+
+            // Update payment status for after_rents
+            foreach ($after_rents as $after_rent) {
+                $total_due = $total_rent + $after_rent->rent_amount;
+                $total_paid = $total_paid + $after_rent->paid_amount;
+
+
+                if ($total_due > $total_paid) {
+                    $after_rent->payment_status = 'arrears'; // Outstanding balance remains
+                } elseif ($total_due == $total_paid) {
+                    $after_rent->payment_status = 'paid'; // Exact payment made, no arrears
+                } else {
+                    $after_rent->payment_status = 'overpaid'; // Payment exceeds due amount
+                }
+
+                $after_rent->save();
+            }
+
 
 
             DB::commit();
@@ -224,24 +266,57 @@ class RentController extends Controller
     {
         DB::beginTransaction();
         try {
+
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
 
             $request_data = $request->validated();
 
-            $reference_no_exists =  Rent::where([
-                'rent_reference'=> $request_data['rent_reference'],
-                "created_by" => $request->user()->id
-             ]
-             )
-             ->whereNotIn('id', [$request_data["id"]])->exists();
-             if ($reference_no_exists) {
+            $reference_no_exists =  Rent::where(
+                [
+                    'rent_reference' => $request_data['rent_reference'],
+                    "created_by" => $request->user()->id
+                ]
+            )
+                ->whereNotIn('id', [$request_data["id"]])->exists();
+            if ($reference_no_exists) {
                 $error =  [
-                       "message" => "The given data was invalid.",
-                       "errors" => ["rent_reference"=>["The rent reference has already been taken."]]
+                    "message" => "The given data was invalid.",
+                    "errors" => ["rent_reference" => ["The rent reference has already been taken."]]
                 ];
-                   throw new Exception(json_encode($error),422);
+                throw new Exception(json_encode($error), 422);
             }
 
+              // Fetch previous rents
+              $previous_rents = Rent::where([
+                "tenancy_agreement_id" => $request_data["tenancy_agreement_id"]
+            ])
+                ->where(function ($query) use ($request_data) {
+                    $query->where('year', '<', $request_data["year"])
+                        ->orWhere(function ($query) use ($request_data) {
+                            $query->where('year', $request_data["year"])
+                                ->where('month', '<', $request_data["month"]);
+                        });
+                })
+                ->orderBy('year')
+                ->orderBy('month')
+                ->get();
+
+            // Calculate total rent amount (rent + arrears)
+            $total_rent = $previous_rents->sum('rent_amount');
+            $total_paid = $previous_rents->sum('paid_amount');
+
+             // Calculate total due and total payment
+             $total_rent = $total_rent + $request_data["rent_amount"];
+             $total_paid = $total_paid + $request_data["paid_amount"];
+
+             // Determine payment status
+             if ($total_rent > $total_paid) {
+                 $request_data["payment_status"] = 'arrears'; // Outstanding balance remains
+             } elseif ($total_rent == $total_paid) {
+                 $request_data["payment_status"] = 'paid'; // Exact payment made, no arrears
+             } else {
+                 $request_data["payment_status"] = 'overpaid'; // Payment exceeds due amount
+             }
 
             $rent_query_params = [
                 "id" => $request_data["id"],
@@ -256,6 +331,37 @@ class RentController extends Controller
                 return response()->json([
                     "message" => "something went wrong."
                 ], 500);
+            }
+
+               // Fetch rents after the current rent
+               $after_rents = Rent::where(function ($query) use ($rent) {
+                $query->where('year', '>', $rent->year)
+                    ->orWhere(function ($query) use ($rent) {
+                        $query->where('year', $rent->year)
+                            ->where('month', '>', $rent->month);
+                    });
+            })
+                ->orderBy('year')
+                ->orderBy('month')
+                ->get();
+
+
+
+            // Update payment status for after_rents
+            foreach ($after_rents as $after_rent) {
+                $total_due = $total_rent + $after_rent->rent_amount;
+                $total_paid = $total_paid + $after_rent->paid_amount;
+
+
+                if ($total_due > $total_paid) {
+                    $after_rent->payment_status = 'arrears'; // Outstanding balance remains
+                } elseif ($total_due == $total_paid) {
+                    $after_rent->payment_status = 'paid'; // Exact payment made, no arrears
+                } else {
+                    $after_rent->payment_status = 'overpaid'; // Payment exceeds due amount
+                }
+
+                $after_rent->save();
             }
 
             DB::commit();
@@ -287,7 +393,7 @@ class RentController extends Controller
                 });
             })
             ->when(request()->filled("rent_reference"), function ($query) {
-                return $query->where('rents.rent_reference',"like", "%" .  request()->input("rent_reference") . "%");
+                return $query->where('rents.rent_reference', "like", "%" .  request()->input("rent_reference") . "%");
             })
 
             ->when(request()->filled("start_payment_date"), function ($query) {
@@ -714,176 +820,233 @@ class RentController extends Controller
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
 
 
-            $idsArray = explode(',', $ids);
-            $existingIds = Rent::whereIn('id', $idsArray)
-                ->where('rents.created_by', auth()->user()->id)
-                ->select('id')
-                ->get()
-                ->pluck('id')
-                ->toArray();
 
-            $nonExistingIds = array_diff($idsArray, $existingIds);
 
-            if (!empty($nonExistingIds)) {
+          $rent =  Rent::where([
+            "id" => $ids
+          ])
+          ->first();
 
-                return response()->json([
-                    "message" => "Some or all of the specified data do not exist."
-                ], 404);
+
+
+          if (!$rent) {
+              return response()->json(["message" => "Rent not found"], 404);
+          }
+
+            // Fetch previous rents
+            $previous_rents = Rent::where([
+                "tenancy_agreement_id" => $rent->tenancy_agreement_id
+            ])
+                ->where(function ($query) use ($rent) {
+                    $query->where('year', '<', $rent->year)
+                        ->orWhere(function ($query) use ($rent) {
+                            $query->where('year', $rent->year)
+                                ->where('month', '<', $rent->month);
+                        });
+                })
+                ->orderBy('year')
+                ->orderBy('month')
+                ->get();
+
+            // Calculate total rent amount (rent + arrears)
+            $total_rent = $previous_rents->sum('rent_amount');
+            $total_paid = $previous_rents->sum('paid_amount');
+
+
+
+
+
+             // Fetch rents after the current rent
+             $after_rents = Rent::where(function ($query) use ($rent) {
+                $query->where('year', '>', $rent->year)
+                    ->orWhere(function ($query) use ($rent) {
+                        $query->where('year', $rent->year)
+                            ->where('month', '>', $rent->month);
+                    });
+            })
+                ->orderBy('year')
+                ->orderBy('month')
+                ->get();
+
+
+
+            // Update payment status for after_rents
+            foreach ($after_rents as $after_rent) {
+                $total_due = $total_rent + $after_rent->rent_amount;
+                $total_paid = $total_paid + $after_rent->paid_amount;
+
+
+                if ($total_due > $total_paid) {
+                    $after_rent->payment_status = 'arrears'; // Outstanding balance remains
+                } elseif ($total_due == $total_paid) {
+                    $after_rent->payment_status = 'paid'; // Exact payment made, no arrears
+                } else {
+                    $after_rent->payment_status = 'overpaid'; // Payment exceeds due amount
+                }
+
+                $after_rent->save();
             }
 
-            Rent::destroy($existingIds);
+            $rent->delete();
 
-
-            return response()->json(["message" => "data deleted sussfully", "deleted_ids" => $existingIds], 200);
+            return response()->json(["message" => "data deleted sussfully"], 200);
         } catch (Exception $e) {
 
             return $this->sendError($e, 500, $request);
         }
     }
 
-/**
- *
- * @OA\Get(
- *      path="/v1.0/rents/generate/rent-reference",
- *      operationId="generateRentReference",
- *      tags={"rents"},
- *       security={
- *           {"bearerAuth": {}}
- *       },
- *      summary="This method is to generate rent reference",
- *      description="This method is to generate rent reference",
- *
 
- *      @OA\Response(
- *          response=200,
- *          description="Successful operation",
- *       @OA\JsonContent(),
- *       ),
- *      @OA\Response(
- *          response=401,
- *          description="Unauthenticated",
- * @OA\JsonContent(),
- *      ),
- *        @OA\Response(
- *          response=422,
- *          description="Unprocesseble Content",
- *    @OA\JsonContent(),
- *      ),
- *      @OA\Response(
- *          response=403,
- *          description="Forbidden",
- *   @OA\JsonContent()
- * ),
- *  * @OA\Response(
- *      response=400,
- *      description="Bad Request",
- *   *@OA\JsonContent()
- *   ),
- * @OA\Response(
- *      response=404,
- *      description="not found",
- *   *@OA\JsonContent()
- *   )
- *      )
- *     )
- */
-public function generateRentReference(Request $request)
-{
-    try {
-        $this->storeActivity($request,"");
+    public function rentReference() {
+        $current_number = 1; // Start from 0001
 
+        do {
+            $rent_reference = str_pad($current_number, 4, '0', STR_PAD_LEFT);
+            $current_number++; // Increment the current number for the next iteration
+        } while (
+            Rent::where([
+                'rent_reference' => $rent_reference,
+                'created_by' => auth()->user()->id
+            ])->exists()
+        );
 
-       $current_number = 1; // Start from 0001
-
-       do {
-           $rent_reference = str_pad($current_number, 4, '0', STR_PAD_LEFT);
-           $current_number++; // Increment the current number for the next iteration
-       } while (
-           Rent::where([
-               'rent_reference' => $rent_reference,
-               'created_by' => $request->user()->id
-           ])->exists()
-       );
-return response()->json(["rent_reference" => $rent_reference],200);
-
-    } catch (Exception $e) {
-        error_log($e->getMessage());
-        return $this->sendError($e, 500,$request);
+        return $rent_reference;
     }
-}
 
-     /**
- *
- * @OA\Get(
- *      path="/v1.0/rents/validate/rent-reference/{rent_reference}",
- *      operationId="validateRentReference",
- *      tags={"rents"},
- *       security={
- *           {"bearerAuth": {}}
- *       },
+    /**
+     *
+     * @OA\Get(
+     *      path="/v1.0/rents/generate/rent-reference",
+     *      operationId="generateRentReference",
+     *      tags={"rents"},
+     *       security={
+     *           {"bearerAuth": {}}
+     *       },
+     *      summary="This method is to generate rent reference",
+     *      description="This method is to generate rent reference",
+     *
 
- *              @OA\Parameter(
- *         name="rent_reference",
- *         in="path",
- *         description="rent_reference",
- *         required=true,
- *  example="1"
- *      ),
-
- *      summary="This method is to validate rent number",
- *      description="This method is to validate rent number",
- *
-
- *      @OA\Response(
- *          response=200,
- *          description="Successful operation",
- *       @OA\JsonContent(),
- *       ),
- *      @OA\Response(
- *          response=401,
- *          description="Unauthenticated",
- * @OA\JsonContent(),
- *      ),
- *        @OA\Response(
- *          response=422,
- *          description="Unprocesseble Content",
- *    @OA\JsonContent(),
- *      ),
- *      @OA\Response(
- *          response=403,
- *          description="Forbidden",
- *   @OA\JsonContent()
- * ),
- *  * @OA\Response(
- *      response=400,
- *      description="Bad Request",
- *   *@OA\JsonContent()
- *   ),
- * @OA\Response(
- *      response=404,
- *      description="not found",
- *   *@OA\JsonContent()
- *   )
- *      )
- *     )
- */
-public function validateRentReference($rent_reference, Request $request)
-{
-    try {
-        $this->storeActivity($request,"");
-
-        $rent_reference_exists =  Rent::where( [
-           'rent_reference'=> $rent_reference,
-           "created_by" => $request->user()->id
-        ]
-        )->exists();
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       @OA\JsonContent(),
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     * @OA\JsonContent(),
+     *      ),
+     *        @OA\Response(
+     *          response=422,
+     *          description="Unprocesseble Content",
+     *    @OA\JsonContent(),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *   @OA\JsonContent()
+     * ),
+     *  * @OA\Response(
+     *      response=400,
+     *      description="Bad Request",
+     *   *@OA\JsonContent()
+     *   ),
+     * @OA\Response(
+     *      response=404,
+     *      description="not found",
+     *   *@OA\JsonContent()
+     *   )
+     *      )
+     *     )
+     */
+    public function generateRentReference(Request $request)
+    {
+        try {
+            $this->storeActivity($request, "");
 
 
-       return response()->json(["rent_reference_exists" => $rent_reference_exists],200);
+          $rent_reference = $this->rentReference();
 
-    } catch (Exception $e) {
-        error_log($e->getMessage());
-        return $this->sendError($e, 500,$request);
+
+            return response()->json(["rent_reference" => $rent_reference], 200);
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            return $this->sendError($e, 500, $request);
+        }
     }
-}
+
+    /**
+     *
+     * @OA\Get(
+     *      path="/v1.0/rents/validate/rent-reference/{rent_reference}",
+     *      operationId="validateRentReference",
+     *      tags={"rents"},
+     *       security={
+     *           {"bearerAuth": {}}
+     *       },
+
+     *              @OA\Parameter(
+     *         name="rent_reference",
+     *         in="path",
+     *         description="rent_reference",
+     *         required=true,
+     *  example="1"
+     *      ),
+
+     *      summary="This method is to validate rent number",
+     *      description="This method is to validate rent number",
+     *
+
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       @OA\JsonContent(),
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     * @OA\JsonContent(),
+     *      ),
+     *        @OA\Response(
+     *          response=422,
+     *          description="Unprocesseble Content",
+     *    @OA\JsonContent(),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *   @OA\JsonContent()
+     * ),
+     *  * @OA\Response(
+     *      response=400,
+     *      description="Bad Request",
+     *   *@OA\JsonContent()
+     *   ),
+     * @OA\Response(
+     *      response=404,
+     *      description="not found",
+     *   *@OA\JsonContent()
+     *   )
+     *      )
+     *     )
+     */
+    public function validateRentReference($rent_reference, Request $request)
+    {
+        try {
+            $this->storeActivity($request, "");
+
+            $rent_reference_exists =  Rent::where(
+                [
+                    'rent_reference' => $rent_reference,
+                    "created_by" => $request->user()->id
+                ]
+            )->exists();
+
+
+            return response()->json(["rent_reference_exists" => $rent_reference_exists], 200);
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            return $this->sendError($e, 500, $request);
+        }
+    }
 }
