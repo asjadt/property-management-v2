@@ -577,7 +577,7 @@ class TenancyAgreementController extends Controller
             $year = $request->year;
             $month = $request->month;
 
-            if(!request()->filled('year') || request()->filled('month')) {
+            if(!request()->filled('year') || !request()->filled('month')) {
 
             return response()->json([
                 "message" => "year and month are required"
