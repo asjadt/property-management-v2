@@ -585,8 +585,8 @@ Route::delete('/v1.0/invoice-reminders/without-pin/{id}', [InvoiceReminderContro
 Route::post('/v1.0/receipts', [ReceiptController::class, "createReceipt"]);
 Route::put('/v1.0/receipts', [ReceiptController::class, "updateReceipt"]);
 Route::get('/v1.0/receipts/{perPage}', [ReceiptController::class, "getReceipts"]);
-
 Route::delete('/v1.0/receipts/{id}', [ReceiptController::class, "deleteReceiptById"]);
+
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // receipt management section
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -606,6 +606,7 @@ Route::delete('/v1.0/receipts/{id}', [ReceiptController::class, "deleteReceiptBy
     Route::put('/v1.0/notifications/change-status', [NotificationController::class, "updateNotificationStatus"]);
 
     Route::delete('/v1.0/notifications/{id}', [NotificationController::class, "deleteNotificationById"]);
+
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // notification management section
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
