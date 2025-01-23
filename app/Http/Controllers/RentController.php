@@ -425,7 +425,10 @@ class RentController extends Controller
             })
             ->when(request()->filled("end_date"), function ($query) {
                 return $query->whereDate('rents.created_at', "<=", request()->input("end_date"));
-            });
+            })
+            ->orderBy('rents.year')
+
+            ;
     }
 
     /**
@@ -576,7 +579,7 @@ class RentController extends Controller
 
             $query = Rent::with("tenancy_agreement.property", "tenancy_agreement.tenants");
             $query = $this->query_filters($query);
-            $rents = $this->retrieveData($query, "id", "rents");
+            $rents = $this->retrieveData($query, "id", "rents.month");
 
             return response()->json($rents, 200);
         } catch (Exception $e) {
@@ -727,7 +730,7 @@ class RentController extends Controller
 
             $query = Rent::with("tenancy_agreement.property", "tenancy_agreement.tenants");
             $query = $this->query_filters($query);
-            $rents = $this->retrieveData($query, "id", "rents");
+            $rents = $this->retrieveData($query, "id", "rents.month");
 
 
 
