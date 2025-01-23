@@ -68,14 +68,13 @@ class RentUpdateRequest extends FormRequest
                 'numeric',
             ],
 
+            "rent_reference" => "required|string",
+            "payment_method" => "required|string",
+
             'paid_amount' => [
                 'required',
                 'numeric',
-                function ($attribute, $value, $fail) {
-                    if ($value > request()->input('rent_amount')) {
-                        $fail('The paid amount must be less than or equal to the rent amount.');
-                    }
-                },
+
             ],
 
             'month' => [

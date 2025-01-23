@@ -45,6 +45,11 @@ class RentCreateRequest extends FormRequest
 
             ],
 
+            "rent_reference" => "required|string",
+            "payment_method" => "required|string",
+
+
+
             'rent_amount' => [
                 'required',
                 'numeric',

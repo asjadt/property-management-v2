@@ -48,6 +48,8 @@ class RentController extends Controller
      *    *  * @OA\Property(property="remarks", type="string", format="string", example="remarks"),
      * @OA\Property(property="payment_status", type="string", format="string", example="payment_status"),
      * @OA\Property(property="rent_amount", type="string", format="string", example="rent_amount"),
+     *    *      * @OA\Property(property="rent_reference", type="string", format="string", example="rent_reference"),
+     *      * @OA\Property(property="payment_method", type="string", format="string", example="payment_method"),
      * @OA\Property(property="paid_amount", type="string", format="string", example="paid_amount"),
      * @OA\Property(property="month", type="string", format="string", example="month"),
      * @OA\Property(property="year", type="string", format="string", example="year"),
@@ -158,6 +160,10 @@ class RentController extends Controller
      *      *  * @OA\Property(property="rent_taken_by", type="string", format="string", example="rent_taken_by"),
      * @OA\Property(property="payment_status", type="string", format="string", example="payment_status"),
      * @OA\Property(property="rent_amount", type="string", format="string", example="rent_amount"),
+     *
+     *      * @OA\Property(property="rent_reference", type="string", format="string", example="rent_reference"),
+     *      * @OA\Property(property="payment_method", type="string", format="string", example="payment_method"),
+
      * @OA\Property(property="paid_amount", type="string", format="string", example="paid_amount"),
 
      * @OA\Property(property="month", type="string", format="string", example="month"),
