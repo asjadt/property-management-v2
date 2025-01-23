@@ -102,6 +102,21 @@ class RentController extends Controller
 
             $request_data = $request->validated();
 
+            $reference_no_exists =  Rent::where([
+                'rent_reference'=> $request_data['rent_reference'],
+                "created_by" => $request->user()->id
+             ]
+             )->exists();
+
+
+             if ($reference_no_exists) {
+                $error =  [
+                       "message" => "The given data was invalid.",
+                       "errors" => ["rent_reference"=>["The rent reference has already been taken."]]
+                ];
+                   throw new Exception(json_encode($error),422);
+               }
+
 
             $request_data["created_by"] = auth()->user()->id;
 
@@ -213,6 +228,20 @@ class RentController extends Controller
 
             $request_data = $request->validated();
 
+            $reference_no_exists =  Rent::where([
+                'rent_reference'=> $request_data['rent_reference'],
+                "created_by" => $request->user()->id
+             ]
+             )
+             ->whereNotIn('id', [$request_data["id"]])->exists();
+             if ($reference_no_exists) {
+                $error =  [
+                       "message" => "The given data was invalid.",
+                       "errors" => ["rent_reference"=>["The rent reference has already been taken."]]
+                ];
+                   throw new Exception(json_encode($error),422);
+            }
+
 
             $rent_query_params = [
                 "id" => $request_data["id"],
@@ -257,6 +286,10 @@ class RentController extends Controller
                     $query->whereIn("tenancy_agreements.property_id", $property_ids);
                 });
             })
+            ->when(request()->filled("rent_reference"), function ($query) {
+                return $query->where('rents.rent_reference',"like", "%" .  request()->input("rent_reference") . "%");
+            })
+
             ->when(request()->filled("start_payment_date"), function ($query) {
                 return $query->whereDate(
                     'rents.payment_date',
@@ -385,6 +418,14 @@ class RentController extends Controller
      * required=false,
      * example=""
      * ),
+     *  * *    * @OA\Parameter(
+     * name="rent_reference",
+     * in="query",
+     * description="rent_reference",
+     * required=false,
+     * example=""
+     * ),
+     *
      *
      * summary="This method is to get rents ",
      * description="This method is to get rents ",
@@ -699,4 +740,150 @@ class RentController extends Controller
             return $this->sendError($e, 500, $request);
         }
     }
+
+/**
+ *
+ * @OA\Get(
+ *      path="/v1.0/rents/generate/rent-reference",
+ *      operationId="generateRentReference",
+ *      tags={"rents"},
+ *       security={
+ *           {"bearerAuth": {}}
+ *       },
+ *      summary="This method is to generate rent reference",
+ *      description="This method is to generate rent reference",
+ *
+
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *       @OA\JsonContent(),
+ *       ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ * @OA\JsonContent(),
+ *      ),
+ *        @OA\Response(
+ *          response=422,
+ *          description="Unprocesseble Content",
+ *    @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *   @OA\JsonContent()
+ * ),
+ *  * @OA\Response(
+ *      response=400,
+ *      description="Bad Request",
+ *   *@OA\JsonContent()
+ *   ),
+ * @OA\Response(
+ *      response=404,
+ *      description="not found",
+ *   *@OA\JsonContent()
+ *   )
+ *      )
+ *     )
+ */
+public function generateRentReference(Request $request)
+{
+    try {
+        $this->storeActivity($request,"");
+
+
+       $current_number = 1; // Start from 0001
+
+       do {
+           $rent_reference = str_pad($current_number, 4, '0', STR_PAD_LEFT);
+           $current_number++; // Increment the current number for the next iteration
+       } while (
+           Rent::where([
+               'rent_reference' => $rent_reference,
+               'created_by' => $request->user()->id
+           ])->exists()
+       );
+return response()->json(["rent_reference" => $rent_reference],200);
+
+    } catch (Exception $e) {
+        error_log($e->getMessage());
+        return $this->sendError($e, 500,$request);
+    }
+}
+
+     /**
+ *
+ * @OA\Get(
+ *      path="/v1.0/rents/validate/rent-reference/{rent_reference}",
+ *      operationId="validateRentReference",
+ *      tags={"rents"},
+ *       security={
+ *           {"bearerAuth": {}}
+ *       },
+
+ *              @OA\Parameter(
+ *         name="rent_reference",
+ *         in="path",
+ *         description="rent_reference",
+ *         required=true,
+ *  example="1"
+ *      ),
+
+ *      summary="This method is to validate rent number",
+ *      description="This method is to validate rent number",
+ *
+
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *       @OA\JsonContent(),
+ *       ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ * @OA\JsonContent(),
+ *      ),
+ *        @OA\Response(
+ *          response=422,
+ *          description="Unprocesseble Content",
+ *    @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *   @OA\JsonContent()
+ * ),
+ *  * @OA\Response(
+ *      response=400,
+ *      description="Bad Request",
+ *   *@OA\JsonContent()
+ *   ),
+ * @OA\Response(
+ *      response=404,
+ *      description="not found",
+ *   *@OA\JsonContent()
+ *   )
+ *      )
+ *     )
+ */
+public function validateRentReference($rent_reference, Request $request)
+{
+    try {
+        $this->storeActivity($request,"");
+
+        $rent_reference_exists =  Rent::where( [
+           'rent_reference'=> $rent_reference,
+           "created_by" => $request->user()->id
+        ]
+        )->exists();
+
+
+       return response()->json(["rent_reference_exists" => $rent_reference_exists],200);
+
+    } catch (Exception $e) {
+        error_log($e->getMessage());
+        return $this->sendError($e, 500,$request);
+    }
+}
 }
