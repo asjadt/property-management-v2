@@ -24,8 +24,7 @@ class Rent extends Model
                     'paid_amount',
                     'month',
                     'year',
-
-        "created_by"
+                    "created_by"
     ];
 
     protected $casts = [

@@ -426,6 +426,7 @@ class RentController extends Controller
             ->when(request()->filled("end_date"), function ($query) {
                 return $query->whereDate('rents.created_at', "<=", request()->input("end_date"));
             })
+            ->orderBy('rents.tenancy_agreement_id')
             ->orderBy('rents.year')
 
             ;
