@@ -574,15 +574,27 @@ class TenancyAgreementController extends Controller
      {
          try {
 
+            $year = $request->year;
+            $month = $request->month;
+
+            if(!request()->filled('year') || request()->filled('month')) {
+
+            return response()->json([
+                "message" => "year and month are required"
+              ],
+            404);
+
+            }
+
+
              $tenancy_agreements = TenancyAgreement::with([
                  "tenants" => function($query) {
                       $query->select("tenants.id","tenants.first_Name","tenants.last_Name"
          );
                  }
              ])
-             ->when(request()->filled('year') && request()->filled('month'), function ($query) use ($request) {
-                 $year = $request->year;
-                 $month = $request->month;
+             ->where(function ($query) use ($year, $month) {
+
 
                  // Create the start and end dates for the given month
                  $startDate = Carbon::createFromDate($year, $month, 1)->startOfDay();
@@ -621,21 +633,21 @@ class TenancyAgreementController extends Controller
                  })
                  ->get();
 
-              $rents =   Rent::with("tenancy_agreement.property","tenancy_agreement.tenants")
+
+
+                $rents = Rent::with("tenancy_agreement.property","tenancy_agreement.tenants")
                  ->where('rents.created_by', auth()->user()->id)
-                 ->when(request()->filled('year'), function ($query){
-                    $query->where('rents.year', request()->input('year'));
-                })
-                ->when(request()->filled('month'), function ($query){
-                    $query->where('rents.month', request()->input('month'));
-                })
-        ->when(request()->filled("tenant_ids"), function ($query) {
+                 ->where('rents.year', request()->input('year'))
+                 ->where('rents.month', request()->input('month'))
+
+
+                ->when(request()->filled("tenant_ids"), function ($query) {
             return $query->whereHas("tenancy_agreement.tenants",function($query) {
                 $tenant_ids = explode(',', request()->input("tenant_ids"));
                    $query->whereIn("tenants.id",$tenant_ids);
             });
         })
-        ->when(request()->filled("property_ids"), function ($query) {
+                  ->when(request()->filled("property_ids"), function ($query) {
             return $query->whereHas("tenancy_agreement",function($query) {
                 $property_ids = explode(',', request()->input("property_ids"));
                    $query->whereIn("tenancy_agreements.property_id", $property_ids);
@@ -679,6 +691,15 @@ class TenancyAgreementController extends Controller
                         $agreement_rents = Rent::where([
                     "tenancy_agreement_id" => $tenancy_agreement->id
                         ])
+                            ->where(function ($query) use($year,$month)  {
+                                $query->where('year', '<', ["year"])
+                                    ->orWhere(function ($query) use ($year,$month) {
+                                        $query->where('year', $year)
+                                            ->where('month', '<', $month);
+                                    });
+                            })
+                            ->orderBy('year')
+                            ->orderBy('month')
                         ->get();
 
 $tenancy_agreement["arrear"] = $agreement_rents->sum(function ($rent) {

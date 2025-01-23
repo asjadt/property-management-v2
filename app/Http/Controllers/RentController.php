@@ -102,21 +102,21 @@ class RentController extends Controller
 
             $request_data = $request->validated();
 
-            $reference_no_exists =  Rent::where(
-                [
-                    'rent_reference' => $request_data['rent_reference'],
-                    "created_by" => $request->user()->id
-                ]
-            )->exists();
+            // $reference_no_exists =  Rent::where(
+            //     [
+            //         'rent_reference' => $request_data['rent_reference'],
+            //         "created_by" => $request->user()->id
+            //     ]
+            // )->exists();
 
 
-            if ($reference_no_exists) {
-                $error =  [
-                    "message" => "The given data was invalid.",
-                    "errors" => ["rent_reference" => ["The rent reference has already been taken."]]
-                ];
-                throw new Exception(json_encode($error), 422);
-            }
+            // if ($reference_no_exists) {
+            //     $error =  [
+            //         "message" => "The given data was invalid.",
+            //         "errors" => ["rent_reference" => ["The rent reference has already been taken."]]
+            //     ];
+            //     throw new Exception(json_encode($error), 422);
+            // }
 
 
             $request_data["created_by"] = auth()->user()->id;
@@ -271,20 +271,20 @@ class RentController extends Controller
 
             $request_data = $request->validated();
 
-            $reference_no_exists =  Rent::where(
-                [
-                    'rent_reference' => $request_data['rent_reference'],
-                    "created_by" => $request->user()->id
-                ]
-            )
-                ->whereNotIn('id', [$request_data["id"]])->exists();
-            if ($reference_no_exists) {
-                $error =  [
-                    "message" => "The given data was invalid.",
-                    "errors" => ["rent_reference" => ["The rent reference has already been taken."]]
-                ];
-                throw new Exception(json_encode($error), 422);
-            }
+            // $reference_no_exists =  Rent::where(
+            //     [
+            //         'rent_reference' => $request_data['rent_reference'],
+            //         "created_by" => $request->user()->id
+            //     ]
+            // )
+            //     ->whereNotIn('id', [$request_data["id"]])->exists();
+            // if ($reference_no_exists) {
+            //     $error =  [
+            //         "message" => "The given data was invalid.",
+            //         "errors" => ["rent_reference" => ["The rent reference has already been taken."]]
+            //     ];
+            //     throw new Exception(json_encode($error), 422);
+            // }
 
               // Fetch previous rents
               $previous_rents = Rent::where([
@@ -377,7 +377,6 @@ class RentController extends Controller
 
     public function query_filters($query)
     {
-
 
         return $query->where('rents.created_by', auth()->user()->id)
             ->when(request()->filled("tenant_ids"), function ($query) {
@@ -575,14 +574,9 @@ class RentController extends Controller
         try {
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
 
-
-
             $query = Rent::with("tenancy_agreement.property", "tenancy_agreement.tenants");
             $query = $this->query_filters($query);
             $rents = $this->retrieveData($query, "id", "rents");
-
-
-
 
             return response()->json($rents, 200);
         } catch (Exception $e) {
