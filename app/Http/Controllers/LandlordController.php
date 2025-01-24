@@ -1133,7 +1133,7 @@ class LandlordController extends Controller
             $property_ids =  $null_filter->all();
                 if(count($property_ids)) {
                     $landlordQuery = $landlordQuery->whereHas('properties',function($query) use($property_ids){
-                        $query->whereIn("properties",$property_ids);
+                        $query->whereIn("properties.id",$property_ids);
                        });
                 }
             }
@@ -1447,7 +1447,7 @@ class LandlordController extends Controller
             $property_ids =  $null_filter->all();
                 if(count($property_ids)) {
                     $landlordQuery = $landlordQuery->whereHas('properties',function($query) use($property_ids){
-                        $query->whereIn("properties",$property_ids);
+                        $query->whereIn("properties.id",$property_ids);
                        });
                 }
             }
