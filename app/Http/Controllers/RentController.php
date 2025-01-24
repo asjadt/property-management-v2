@@ -573,7 +573,7 @@ class RentController extends Controller
 
     public function getRents(Request $request)
     {
-        $request->merge(['order_by' => 'ASC']);
+       
         try {
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
 
@@ -723,7 +723,7 @@ class RentController extends Controller
 
     public function getRentsV2(Request $request)
     {
-        $request->merge(['order_by' => 'ASC']);
+
         try {
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
 
