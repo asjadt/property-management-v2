@@ -1122,54 +1122,60 @@ COALESCE(
 
         $document_report = [];
         foreach ($document_types as $document_type) {
-            $base_documents_query = Property::where("properties.created_by", auth()->user()->id)
-
-            ->whereHas("latest_documents", function ($subQuery) use($document_type) {
-
-            $subQuery->where("property_documents.document_type_id", $document_type->id);
-
-                });
+            $base_documents_query = Property::where("properties.created_by", auth()->user()->id);
 
             // Count documents for different expiration periods
             $document_report[$document_type->name] = [
                 'total_data' => (clone $base_documents_query)->count(),
                 'total_expired' => (clone $base_documents_query)
-                ->whereHas("latest_documents", function ($subQuery) {
-                    $subQuery->whereDate('property_documents.gas_end_date', "<", Carbon::today());
+                ->whereHas("latest_documents", function ($subQuery) use ($document_type) {
+                    $subQuery
+                    ->where("property_documents.document_type_id", $document_type->id)
+                    ->whereDate('property_documents.gas_end_date', "<", Carbon::today());
                 })
                 ->count(),
 
                 'today_expiry' => (clone $base_documents_query)
 
-                ->whereHas("latest_documents", function ($subQuery)  {
-                    $subQuery->whereDate('property_documents.gas_end_date', Carbon::today());
+                ->whereHas("latest_documents", function ($subQuery) use ($document_type)  {
+                    $subQuery
+                    ->where("property_documents.document_type_id", $document_type->id)
+                    ->whereDate('property_documents.gas_end_date', Carbon::today());
                 })
 
                 ->count(),
 
                 'expires_in_15_days' => (clone $base_documents_query)
-                ->whereHas("latest_documents", function ($subQuery)  {
-                    $subQuery->whereDate('property_documents.gas_end_date', ">", Carbon::today())
+                ->whereHas("latest_documents", function ($subQuery) use ($document_type)  {
+                    $subQuery
+                    ->where("property_documents.document_type_id", $document_type->id)
+                    ->whereDate('property_documents.gas_end_date', ">", Carbon::today())
                     ->whereDate('property_documents.gas_end_date', "<=", Carbon::today()->addDays(15));
                 })
                     ->count(),
 
                 'expires_in_30_days' => (clone $base_documents_query)
 
-                ->whereHas("latest_documents", function ($subQuery)  {
-                    $subQuery ->whereDate('property_documents.gas_end_date', ">", Carbon::today())
+                ->whereHas("latest_documents", function ($subQuery) use ($document_type)  {
+                    $subQuery
+                    ->where("property_documents.document_type_id", $document_type->id)
+                    ->whereDate('property_documents.gas_end_date', ">", Carbon::today())
                     ->whereDate('property_documents.gas_end_date', "<=", Carbon::today()->addDays(30));
                 })
                     ->count(),
                 'expires_in_45_days' => (clone $base_documents_query)
-                ->whereHas("latest_documents", function ($subQuery)  {
-                    $subQuery ->whereDate('property_documents.gas_end_date', ">", Carbon::today())
+                ->whereHas("latest_documents", function ($subQuery) use ($document_type)  {
+                    $subQuery
+                    ->where("property_documents.document_type_id", $document_type->id)
+                    ->whereDate('property_documents.gas_end_date', ">", Carbon::today())
                     ->whereDate('property_documents.gas_end_date', "<=", Carbon::today()->addDays(45));
                 })
                     ->count(),
                 'expires_in_60_days' => (clone $base_documents_query)
-                ->whereHas("latest_documents", function ($subQuery)  {
-                    $subQuery ->whereDate('property_documents.gas_end_date', ">", Carbon::today())
+                ->whereHas("latest_documents", function ($subQuery) use ($document_type)  {
+                    $subQuery
+                    ->where("property_documents.document_type_id", $document_type->id)
+                    ->whereDate('property_documents.gas_end_date', ">", Carbon::today())
                     ->whereDate('property_documents.gas_end_date', "<=", Carbon::today()->addDays(60));
                 })
                     ->count(),
@@ -1260,39 +1266,39 @@ COALESCE(
             $base_maintance_query = Property::when(request()->filled("property_id"), function($query) {
                 $query->where("properties.id",request()->input("property_id"));
             })
-            ->where("properties.created_by", auth()->user()->id)
-
-
-            ->whereHas("latest_inspection.maintenance_item", function ($subQuery) use($maintainance_item_type) {
-                $subQuery
-                ->where("maintenance_items.maintenance_item_type_id", $maintainance_item_type->id)
-                ->where("maintenance_items.status", "work_required");
-            })
-
-            ;
+            ->where("properties.created_by", auth()->user()->id);
 
             // Count documents for different expiration periods
             $maintainance_report[$maintainance_item_type->id] = [
+
+
                 "maintainance_item_type" => $maintainance_item_type->name,
                 'total_data' => (clone $base_maintance_query)->count(),
-                'total_expired' => (clone $base_maintance_query)
 
-                ->whereHas("latest_inspection.maintenance_item", function ($subQuery) {
+
+                'total_expired' => (clone $base_maintance_query)
+                ->whereHas("latest_inspection.maintenance_item", function ($subQuery) use($maintainance_item_type) {
                     $subQuery
-                    ->whereDate('maintenance_items.next_follow_up_date', "<", Carbon::today());
+                    ->where("maintenance_items.maintenance_item_type_id", $maintainance_item_type->id)
+                    ->where("maintenance_items.status", "work_required")
+                    ->whereDate('maintenance_items.next_follow_up_date', "<", today());
                 })
 
                 ->count(),
                 'today_expiry' => (clone $base_maintance_query)
-                ->whereHas("latest_inspection.maintenance_item", function ($subQuery) {
+                ->whereHas("latest_inspection.maintenance_item", function ($subQuery) use($maintainance_item_type) {
                     $subQuery
-                    ->whereDate('maintenance_items.next_follow_up_date', Carbon::today());
+                    ->where("maintenance_items.maintenance_item_type_id", $maintainance_item_type->id)
+                    ->where("maintenance_items.status", "work_required")
+                    ->whereDate('maintenance_items.next_follow_up_date', today());
                 })
                 ->count(),
 
                 'expires_in_15_days' => (clone $base_maintance_query)
-                ->whereHas("latest_inspection.maintenance_item", function ($subQuery) {
+                ->whereHas("latest_inspection.maintenance_item", function ($subQuery) use($maintainance_item_type) {
                     $subQuery
+                    ->where("maintenance_items.maintenance_item_type_id", $maintainance_item_type->id)
+                    ->where("maintenance_items.status", "work_required")
                     ->whereDate('maintenance_items.next_follow_up_date', ">", Carbon::today())
                     ->whereDate('maintenance_items.next_follow_up_date', "<=", Carbon::today()->addDays(15));
                 })
@@ -1300,24 +1306,30 @@ COALESCE(
 
                     ->count(),
                 'expires_in_30_days' => (clone $base_maintance_query)
-                ->whereHas("latest_inspection.maintenance_item", function ($subQuery) {
+                ->whereHas("latest_inspection.maintenance_item", function ($subQuery) use($maintainance_item_type) {
                     $subQuery
+                    ->where("maintenance_items.maintenance_item_type_id", $maintainance_item_type->id)
+                    ->where("maintenance_items.status", "work_required")
                     ->whereDate('maintenance_items.next_follow_up_date', ">", Carbon::today())
                     ->whereDate('maintenance_items.next_follow_up_date', "<=", Carbon::today()->addDays(30));
                 })
                     ->count(),
 
                 'expires_in_45_days' => (clone $base_maintance_query)
-                ->whereHas("latest_inspection.maintenance_item", function ($subQuery) {
+                ->whereHas("latest_inspection.maintenance_item", function ($subQuery) use($maintainance_item_type) {
                     $subQuery
+                    ->where("maintenance_items.maintenance_item_type_id", $maintainance_item_type->id)
+                    ->where("maintenance_items.status", "work_required")
                     ->whereDate('maintenance_items.next_follow_up_date', ">", Carbon::today())
                     ->whereDate('maintenance_items.next_follow_up_date', "<=", Carbon::today()->addDays(45));
                 })
                 ->count(),
 
                 'expires_in_60_days' => (clone $base_maintance_query)
-                ->whereHas("latest_inspection.maintenance_item", function ($subQuery) {
+                ->whereHas("latest_inspection.maintenance_item", function ($subQuery) use($maintainance_item_type) {
                     $subQuery
+                    ->where("maintenance_items.maintenance_item_type_id", $maintainance_item_type->id)
+                    ->where("maintenance_items.status", "work_required")
                     ->whereDate('maintenance_items.next_follow_up_date', ">", Carbon::today())
                     ->whereDate('maintenance_items.next_follow_up_date', "<=", Carbon::today()->addDays(60));
                 })

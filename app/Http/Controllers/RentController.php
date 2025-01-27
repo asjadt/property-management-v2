@@ -120,8 +120,19 @@ class RentController extends Controller
 
 
             $request_data["rent_reference"] = $this->rentReference();
-            
+
             $request_data["created_by"] = auth()->user()->id;
+
+            $rent_exists = Rent::where([
+                "tenancy_agreement_id" => $request_data["tenancy_agreement_id"],
+                'month' => $request_data["month"],
+                'year' => $request_data["year"],
+            ])
+            ->exists();
+
+            if ($rent_exists && $request_data["month"] != now()->month && $request_data["year"] != now()->year) {
+                throw new \Exception("A rent record exists, but not for the current month and year.", 409);
+            }
 
             // Fetch previous rents
             $previous_rents = Rent::where([
@@ -131,7 +142,7 @@ class RentController extends Controller
                     $query->where('year', '<', $request_data["year"])
                         ->orWhere(function ($query) use ($request_data) {
                             $query->where('year', $request_data["year"])
-                                ->where('month', '<', $request_data["month"]);
+                                ->where('month', '<=', $request_data["month"]);
                         });
                 })
                 ->orderBy('year')
@@ -155,6 +166,7 @@ class RentController extends Controller
             } else {
                 $request_data["payment_status"] = 'overpaid'; // Payment exceeds due amount
             }
+
 
             // Create the rent record
             $rent = Rent::create($request_data);
@@ -288,15 +300,27 @@ class RentController extends Controller
             //     throw new Exception(json_encode($error), 422);
             // }
 
+            $rent_query_params = [
+                "id" => $request_data["id"],
+            ];
+            $rent = Rent::where($rent_query_params)->first();
+
+            if(empty($rent)){
+                return response()->json([
+                    "message" => "something went wrong."
+                ], 500);
+            }
+
               // Fetch previous rents
               $previous_rents = Rent::where([
                 "tenancy_agreement_id" => $request_data["tenancy_agreement_id"]
             ])
-                ->where(function ($query) use ($request_data) {
+                ->where(function ($query) use ($request_data, $rent)  {
                     $query->where('year', '<', $request_data["year"])
-                        ->orWhere(function ($query) use ($request_data) {
+                        ->orWhere(function ($query) use ($request_data,$rent) {
                             $query->where('year', $request_data["year"])
-                                ->where('month', '<', $request_data["month"]);
+                                ->where('month', '<=', $request_data["month"])
+                                ->whereNotIn("id",[$rent->id]);
                         });
                 })
                 ->orderBy('year')
@@ -320,19 +344,13 @@ class RentController extends Controller
                  $request_data["payment_status"] = 'overpaid'; // Payment exceeds due amount
              }
 
-            $rent_query_params = [
-                "id" => $request_data["id"],
-            ];
 
-            $rent = Rent::where($rent_query_params)->first();
+
+
 
             if ($rent) {
                 $rent->fill($request_data);
                 $rent->save();
-            } else {
-                return response()->json([
-                    "message" => "something went wrong."
-                ], 500);
             }
 
                // Fetch rents after the current rent
@@ -841,8 +859,9 @@ class RentController extends Controller
                     $query->where('year', '<', $rent->year)
                         ->orWhere(function ($query) use ($rent) {
                             $query->where('year', $rent->year)
-                                ->where('month', '<', $rent->month);
-                        });
+                                ->where('month', '<=', $rent->month);
+                        })
+                        ->whereNotIn("id",[$rent->id]);
                 })
                 ->orderBy('year')
                 ->orderBy('month')
