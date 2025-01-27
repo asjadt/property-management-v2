@@ -1189,7 +1189,8 @@ COALESCE(
 
 
         // Get distinct statuses
-        $statuses = Repair::where("created_by",auth()->user()->id)->distinct()->pluck('status');
+        $statuses = Repair::where("created_by",auth()->user()->id)
+        ->whereNotNull("status")->distinct()->pluck('status');
 
         foreach ($statuses as $status) {
 
