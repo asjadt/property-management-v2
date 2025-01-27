@@ -1115,9 +1115,7 @@ COALESCE(
     public function getRepairReport()
     {
 
-        $repair_category = RepairCategory::where([
-            "created_by" => auth()->user()->id
-        ])->get();
+        $repair_category = RepairCategory::get();
 
         $repair_report = [];
         $repair_report['category_wise'] = [];
@@ -1186,10 +1184,13 @@ COALESCE(
                     ->count(),
             ];
         }
+
+
         // Get distinct statuses
         $statuses = Repair::distinct()->pluck('status');
 
         foreach ($statuses as $status) {
+
             $base_status_query = Repair::where("repairs.created_by", auth()->user()->id)
                 ->where("repairs.status", $status);
 
