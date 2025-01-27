@@ -729,6 +729,7 @@ public function deleteRepairCategoryById($id, Request $request)
         //          "message" => "invalid pin"
         //         ],401);
         //  }
+
         $repair_category = RepairCategory::where([
             "id" => $id,
             "created_by" => $request->user()->id
@@ -737,7 +738,7 @@ public function deleteRepairCategoryById($id, Request $request)
 
         if(!$repair_category) {
      return response()->json([
-"message" => "no repair category found"
+ "message" => "no repair category found"
 ],404);
         }
         $repair_category->delete();

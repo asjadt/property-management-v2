@@ -8,15 +8,19 @@ class CreatePropertyAgreementsTable extends Migration
     public function up()
     {
         Schema::create('property_agreements', function (Blueprint $table) {
-            $table->id();
 
+            $table->id();
 
             $table->unsignedBigInteger('property_id');
 
             $table->date('start_date');
+
             $table->date('end_date');
+
             $table->date('landlord_sign_date')->nullable();
+
             $table->date('agency_sign_date')->nullable();
+
             $table->integer('rent_due_day')->nullable();
 
             $table->enum('type', ['let_property', 'manage_property', 'sale_property'])->nullable();
@@ -38,7 +42,7 @@ class CreatePropertyAgreementsTable extends Migration
             $table->timestamps();
             $table->softDeletes(); // To keep soft deletion history
 
-
+            
             $table->foreign('property_id')->references('id')->on('properties')->onDelete('cascade');
 
 
