@@ -1039,7 +1039,7 @@ COALESCE(
             $data["next_15_days_invoice_due_amounts"] = (int)$data["next_15_days_invoice_due_amounts"]->sum('total_due');
 
 
-            $data["repair_report"] = $this->getDocumentReport();
+            $data["repair_report"] = $this->getRepairReport();
 
             $data["document_report"] = $this->getDocumentReport();
             $data["maintainance_report"] = $this->getMaintainanceReport();
