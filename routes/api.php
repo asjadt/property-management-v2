@@ -179,8 +179,11 @@ Route::post('/v1.0/shop-image-multiple', [ShopsController::class, "createShopIma
 // Protected Routes
 // !!!!!!!@@@@@@@@@@@@$$$$$$$$$$$$%%%%%%%%%%%%%%%%^^^^^^^^^^
 Route::middleware(['auth:api'])->group(function () {
+
     Route::get('/v1.0/user', [AuthController::class, "getUser"]);
+
     Route::get('/v1.0/user-with-business', [AuthController::class, "getUserWithBusiness"]);
+
     Route::patch('/auth/changepassword', [AuthController::class, "changePassword"]);
 
     Route::put('/v1.0/update-user-info', [AuthController::class, "updateUserInfo"]);
