@@ -119,6 +119,8 @@ class RentController extends Controller
             // }
 
 
+            $request_data["rent_reference"] = $this->rentReference();
+            
             $request_data["created_by"] = auth()->user()->id;
 
             // Fetch previous rents
@@ -573,7 +575,7 @@ class RentController extends Controller
 
     public function getRents(Request $request)
     {
-       
+
         try {
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
 
