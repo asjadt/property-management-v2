@@ -1120,7 +1120,8 @@ COALESCE(
         ])->get();
 
         $repair_report = [];
-
+        $repair_report['category_wise'] = [];
+        $repair_report['status_wise'] = [];
         // Category-wise report
         foreach ($repair_category as $repair_category) {
             $base_documents_query = Repair::where("repairs.created_by", auth()->user()->id)
@@ -1130,7 +1131,7 @@ COALESCE(
             $pending_expiry_query = (clone $base_documents_query)
                 ->where("repairs.status", "pending");
 
-            $repair_report['category_wise'][$repair_category->name][] = [
+            $repair_report['category_wise'][$repair_category->name] = [
                 'total_data' => (clone $base_documents_query)
 
                     ->count(),
@@ -1196,7 +1197,7 @@ COALESCE(
             $pending_expiry_query = Repair::where("repairs.created_by", auth()->user()->id)
                 ->where("repairs.status", "pending");
 
-            $repair_report['status_wise'][$status][] = [
+            $repair_report['status_wise'][$status] = [
                 'total_data' => $base_status_query->count(),
 
                 // Expiry data only if the status is "pending"
