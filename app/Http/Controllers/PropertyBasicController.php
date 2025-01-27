@@ -1399,8 +1399,13 @@ COALESCE(
 
                 "maintainance_item_type" => $maintainance_item_type->name,
                 'total_data' => (clone $base_maintance_query)
-                    ->where("maintenance_items.maintenance_item_type_id", $maintainance_item_type->id)
-                    ->where("maintenance_items.status", "work_required")
+                ->whereHas("latest_inspection.maintenance_item", function ($subQuery) use ($maintainance_item_type) {
+                    $subQuery
+                        ->where("maintenance_items.maintenance_item_type_id", $maintainance_item_type->id)
+                        ->where("maintenance_items.status", "work_required")
+                        ;
+                })
+
                     ->count(),
 
 
