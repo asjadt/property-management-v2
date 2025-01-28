@@ -2340,7 +2340,9 @@ class PropertyController extends Controller
                 [
                 "property_tenants",
                 "property_tenants.tenancy_agreements" => function($query) use($id) {
-                    $query->where("tenancy_agreements.property_id",$id);
+                    $query->whereHas("property", function($query) use($id) {
+                        $query->where("properties.generated_id",$id);
+                    });
                 },
                 "property_landlords",
                 "repairs.repair_category",
