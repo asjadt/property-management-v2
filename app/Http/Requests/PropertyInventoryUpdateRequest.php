@@ -121,16 +121,9 @@ $rules = [
 
 ],
 
-    'files' => [
-    'required',
-    'array',
-
-
-
-
-
-
-
+'files' => [
+    'present',
+    'array'
 ],
 
 

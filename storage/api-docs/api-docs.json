@@ -5352,10 +5352,14 @@
                                         "format": "number",
                                         "example": "1"
                                     },
-                                    "landlord_id": {
-                                        "type": "number",
-                                        "format": "number",
-                                        "example": "1"
+                                    "landlord_ids": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            1,
+                                            2,
+                                            3
+                                        ]
                                     },
                                     "payment_mode": {
                                         "type": "string",
@@ -21249,6 +21253,13 @@
                         "description": "max_total_over_due",
                         "required": true,
                         "example": "1"
+                    },
+                    {
+                        "name": "ids",
+                        "in": "query",
+                        "description": "ids",
+                        "required": false,
+                        "example": ""
                     }
                 ],
                 "responses": {
@@ -24602,7 +24613,7 @@
                                         "format": "date",
                                         "example": "2025-11-01"
                                     },
-                                    "rent_due_date": {
+                                    "rent_due_day": {
                                         "type": "string",
                                         "format": "date",
                                         "example": "2025-11-01"
@@ -24702,7 +24713,7 @@
                                             "format": "date",
                                             "example": "2025-11-01"
                                         },
-                                        "rent_due_date": {
+                                        "rent_due_day": {
                                             "type": "string",
                                             "format": "date",
                                             "example": "2025-11-01"
@@ -24928,7 +24939,7 @@
                                             "format": "date",
                                             "example": "2025-11-01"
                                         },
-                                        "rent_due_date": {
+                                        "rent_due_day": {
                                             "type": "string",
                                             "format": "date",
                                             "example": "2025-11-01"
@@ -26928,6 +26939,41 @@
                         "example": "1"
                     },
                     {
+                        "name": "maintenance_item_type_id",
+                        "in": "query",
+                        "description": "maintenance_item_type_id",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "is_next_follow_up_date_passed",
+                        "in": "query",
+                        "description": "Filter properties by document type ID",
+                        "required": false,
+                        "example": "1"
+                    },
+                    {
+                        "name": "next_follow_up_date_in",
+                        "in": "query",
+                        "description": "Filter properties by document type ID",
+                        "required": false,
+                        "example": "1"
+                    },
+                    {
+                        "name": "next_inspection_date_passed",
+                        "in": "query",
+                        "description": "Filter properties by document type ID",
+                        "required": false,
+                        "example": "1"
+                    },
+                    {
+                        "name": "next_inspection_date_in",
+                        "in": "query",
+                        "description": "Filter properties by document type ID",
+                        "required": false,
+                        "example": "1"
+                    },
+                    {
                         "name": "start_inspection_date",
                         "in": "query",
                         "description": "Filter inspections by start date",
@@ -27689,6 +27735,449 @@
                 ]
             }
         },
+        "/v1.0/property-inventories": {
+            "get": {
+                "tags": [
+                    "property_inventories"
+                ],
+                "summary": "This method is to get property inventories ",
+                "description": "This method is to get property inventories ",
+                "operationId": "getPropertyInventories",
+                "parameters": [
+                    {
+                        "name": "item_name",
+                        "in": "query",
+                        "description": "item_name",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "item_location",
+                        "in": "query",
+                        "description": "item_location",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "item_condition",
+                        "in": "query",
+                        "description": "item_condition",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "item_details",
+                        "in": "query",
+                        "description": "item_details",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "per_page",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "is_active",
+                        "in": "query",
+                        "description": "is_active",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "start_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "end_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "search_key",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "description": "order_by",
+                        "required": false,
+                        "example": "ASC"
+                    },
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "description": "id",
+                        "required": false,
+                        "example": ""
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "property_inventories"
+                ],
+                "summary": "This method is to update property inventories ",
+                "description": "This method is to update property inventories ",
+                "operationId": "updatePropertyInventory",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "1"
+                                    },
+                                    "item_name": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "item_name"
+                                    },
+                                    "item_location": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "item_location"
+                                    },
+                                    "item_quantity": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "item_quantity"
+                                    },
+                                    "item_condition": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "item_condition"
+                                    },
+                                    "item_details": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "item_details"
+                                    },
+                                    "property_id": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "property_id"
+                                    },
+                                    "files": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "files"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "property_inventories"
+                ],
+                "summary": "This method is to store property inventories",
+                "description": "This method is to store property inventories",
+                "operationId": "createPropertyInventory",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "item_name": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "item_name"
+                                    },
+                                    "item_location": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "item_location"
+                                    },
+                                    "item_quantity": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "item_quantity"
+                                    },
+                                    "item_condition": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "item_condition"
+                                    },
+                                    "item_details": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "item_details"
+                                    },
+                                    "property_id": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "property_id"
+                                    },
+                                    "files": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "files"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/property-inventories/{ids}": {
+            "delete": {
+                "tags": [
+                    "property_inventories"
+                ],
+                "summary": "This method is to delete property inventory by id",
+                "description": "This method is to delete property inventory by id",
+                "operationId": "deletePropertyInventoriesByIds",
+                "parameters": [
+                    {
+                        "name": "ids",
+                        "in": "path",
+                        "description": "ids",
+                        "required": true,
+                        "example": "1,2,3"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/v1.0/receipts": {
             "put": {
                 "tags": [
@@ -28243,6 +28732,793 @@
                     },
                     {
                         "pin": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/rents": {
+            "get": {
+                "tags": [
+                    "rents"
+                ],
+                "summary": "This method is to get rents ",
+                "description": "This method is to get rents ",
+                "operationId": "getRents",
+                "parameters": [
+                    {
+                        "name": "start_payment_date",
+                        "in": "query",
+                        "description": "start_payment_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "end_payment_date",
+                        "in": "query",
+                        "description": "end_payment_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "payment_status",
+                        "in": "query",
+                        "description": "payment_status",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "per_page",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "is_active",
+                        "in": "query",
+                        "description": "is_active",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "start_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "end_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "search_key",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "description": "order_by",
+                        "required": false,
+                        "example": "ASC"
+                    },
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "description": "id",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "tenant_ids",
+                        "in": "query",
+                        "description": "id",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "property_ids",
+                        "in": "query",
+                        "description": "id",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "rent_reference",
+                        "in": "query",
+                        "description": "rent_reference",
+                        "required": false,
+                        "example": ""
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "rents"
+                ],
+                "summary": "This method is to update rents ",
+                "description": "This method is to update rents ",
+                "operationId": "updateRent",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "1"
+                                    },
+                                    "tenancy_agreement_id": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "tenancy_agreement_id"
+                                    },
+                                    "payment_date": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "payment_date"
+                                    },
+                                    "remarks": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "remarks"
+                                    },
+                                    "rent_taken_by": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "rent_taken_by"
+                                    },
+                                    "payment_status": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "payment_status"
+                                    },
+                                    "rent_amount": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "rent_amount"
+                                    },
+                                    "rent_reference": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "rent_reference"
+                                    },
+                                    "payment_method": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "payment_method"
+                                    },
+                                    "paid_amount": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "paid_amount"
+                                    },
+                                    "month": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "month"
+                                    },
+                                    "year": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "year"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "rents"
+                ],
+                "summary": "This method is to store rents",
+                "description": "This method is to store rents",
+                "operationId": "createRent",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "tenancy_agreement_id": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "tenancy_agreement_id"
+                                    },
+                                    "payment_date": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "payment_date"
+                                    },
+                                    "rent_taken_by": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "rent_taken_by"
+                                    },
+                                    "remarks": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "remarks"
+                                    },
+                                    "payment_status": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "payment_status"
+                                    },
+                                    "rent_amount": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "rent_amount"
+                                    },
+                                    "rent_reference": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "rent_reference"
+                                    },
+                                    "payment_method": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "payment_method"
+                                    },
+                                    "paid_amount": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "paid_amount"
+                                    },
+                                    "month": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "month"
+                                    },
+                                    "year": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "year"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v2.0/rents": {
+            "get": {
+                "tags": [
+                    "rents"
+                ],
+                "summary": "This method is to get rents ",
+                "description": "This method is to get rents ",
+                "operationId": "getRentsV2",
+                "parameters": [
+                    {
+                        "name": "start_payment_date",
+                        "in": "query",
+                        "description": "start_payment_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "end_payment_date",
+                        "in": "query",
+                        "description": "end_payment_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "payment_status",
+                        "in": "query",
+                        "description": "payment_status",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "per_page",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "is_active",
+                        "in": "query",
+                        "description": "is_active",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "start_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "end_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "search_key",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "description": "order_by",
+                        "required": false,
+                        "example": "ASC"
+                    },
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "description": "id",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "tenant_ids",
+                        "in": "query",
+                        "description": "id",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "property_ids",
+                        "in": "query",
+                        "description": "id",
+                        "required": false,
+                        "example": ""
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/rents/{ids}": {
+            "delete": {
+                "tags": [
+                    "rents"
+                ],
+                "summary": "This method is to delete rent by id",
+                "description": "This method is to delete rent by id",
+                "operationId": "deleteRentsByIds",
+                "parameters": [
+                    {
+                        "name": "ids",
+                        "in": "path",
+                        "description": "ids",
+                        "required": true,
+                        "example": "1,2,3"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/rents/generate/rent-reference": {
+            "get": {
+                "tags": [
+                    "rents"
+                ],
+                "summary": "This method is to generate rent reference",
+                "description": "This method is to generate rent reference",
+                "operationId": "generateRentReference",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/rents/validate/rent-reference/{rent_reference}": {
+            "get": {
+                "tags": [
+                    "rents"
+                ],
+                "summary": "This method is to validate rent number",
+                "description": "This method is to validate rent number",
+                "operationId": "validateRentReference",
+                "parameters": [
+                    {
+                        "name": "rent_reference",
+                        "in": "path",
+                        "description": "rent_reference",
+                        "required": true,
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
                     }
                 ]
             }
@@ -34813,7 +36089,7 @@
                                         "example": "2025-11-01",
                                         "nullable": true
                                     },
-                                    "rent_due_date": {
+                                    "rent_due_day": {
                                         "type": "string",
                                         "format": "date",
                                         "example": "2024-11-05"
@@ -34999,7 +36275,7 @@
                                         "example": "2025-11-01",
                                         "nullable": true
                                     },
-                                    "rent_due_date": {
+                                    "rent_due_day": {
                                         "type": "string",
                                         "format": "date",
                                         "example": "2024-11-05"
@@ -35163,6 +36439,24 @@
                 "operationId": "getTenancyAgreements",
                 "parameters": [
                     {
+                        "name": "year",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "month",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
                         "name": "tenant_ids",
                         "in": "query",
                         "required": false,
@@ -35172,7 +36466,213 @@
                         }
                     },
                     {
-                        "name": "property_id",
+                        "name": "property_ids",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v2.0/tenancy-agreements": {
+            "get": {
+                "tags": [
+                    "property_management.property_agreement"
+                ],
+                "summary": "Get property agreements",
+                "description": "This method retrieves the history of property agreements for a given property and landlord, including soft-deleted agreements.",
+                "operationId": "getTenancyAgreementsV2",
+                "parameters": [
+                    {
+                        "name": "year",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "month",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "tenant_ids",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "property_ids",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/tenancy-agreements-with-rent": {
+            "get": {
+                "tags": [
+                    "property_management.property_agreement"
+                ],
+                "summary": "Get property agreements",
+                "description": "This method retrieves the history of property agreements for a given property and landlord, including soft-deleted agreements.",
+                "operationId": "getTenancyAgreementsWithRent",
+                "parameters": [
+                    {
+                        "name": "year",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "month",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "tenant_ids",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "property_ids",
                         "in": "query",
                         "required": false,
                         "schema": {
@@ -35728,6 +37228,13 @@
                         "description": "property_ids",
                         "required": true,
                         "example": "1,2"
+                    },
+                    {
+                        "name": "ids",
+                        "in": "query",
+                        "description": "ids",
+                        "required": false,
+                        "example": ""
                     }
                 ],
                 "responses": {
@@ -37056,6 +38563,7 @@
                                             "receipt_footer": "t srt stgh st h",
                                             "account_name": "thdht rth s",
                                             "account_number": "fdghdgh",
+                                            "send_email_alert": "1",
                                             "sort_code": "sort_coderthdrfth",
                                             "pin": "1234",
                                             "type": "other",
@@ -37212,6 +38720,7 @@
                                             "receipt_footer": "receipt_footer",
                                             "account_name": "thdht rth s",
                                             "account_number": "fdghdgh",
+                                            "send_email_alert": "1",
                                             "sort_code": "sort_coderthdrfth",
                                             "pin": "1234",
                                             "type": "other",

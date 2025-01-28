@@ -50,7 +50,7 @@ class BillController extends Controller
    *    *  *             @OA\Property(property="payment_date", type="string", format="string",example="2019-06-29"),
    *
     *             @OA\Property(property="property_id", type="number", format="number",example="1"),
-   *            @OA\Property(property="landlord_id", type="number", format="number",example="1"),
+   *            @OA\Property(property="landlord_ids", type="string", format="array",example={1,2,3}),
    *
    *
    *  *  *            @OA\Property(property="payment_mode", type="string", format="string",example="card"),

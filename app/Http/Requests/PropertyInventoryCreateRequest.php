@@ -62,7 +62,7 @@ class PropertyInventoryCreateRequest extends FormRequest
             ],
 
             'files' => [
-                'required',
+                'present',
                 'array'
             ],
 
