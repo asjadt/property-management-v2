@@ -2336,12 +2336,19 @@ class PropertyController extends Controller
             $this->storeActivity($request, "");
 
             $property = Property::with(
-                "property_tenants.tenancy_agreements",
+
+                [
+                "property_tenants",
+                "property_tenants.tenancy_agreements" => function($query) use($id) {
+                    $query->where("tenancy_agreements.property_id",$id);
+                },
                 "property_landlords",
                 "repairs.repair_category",
                 "invoices",
                 "documents",
                 "maintenance_item_types",
+                ]
+
             )
                 ->where([
                     "generated_id" => $id,

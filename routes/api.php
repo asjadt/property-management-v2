@@ -389,6 +389,7 @@ Route::put('/v1.0/maintenance-item-types', [MaintenanceItemTypeController::class
 Route::put('/v1.0/maintenance-item-types/toggle-active', [MaintenanceItemTypeController::class, "toggleActiveMaintenanceItemType"]);
 
 Route::get('/v1.0/maintenance-item-types', [MaintenanceItemTypeController::class, "getMaintenanceItemTypes"]);
+
 Route::delete('/v1.0/maintenance-item-types/{ids}', [MaintenanceItemTypeController::class, "deleteMaintenanceItemTypesByIds"]);
 
 
@@ -415,7 +416,9 @@ Route::get('/v1.0/properties/get/all', [PropertyController::class, "getAllProper
 Route::get('/v1.0/properties/get/single/{id}', [PropertyController::class, "getPropertyById"]);
 
 Route::delete('/v1.0/properties/{id}', [PropertyController::class, "deletePropertyById"]);
+
 Route::get('/v1.0/properties/generate/property-reference_no', [PropertyController::class, "generatePropertyReferenceNumber"]);
+
 Route::get('/v1.0/properties/validate/property-reference_no/{reference_no}', [PropertyController::class, "validatePropertyReferenceNumber"]);
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
