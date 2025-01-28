@@ -48,6 +48,7 @@ use App\Http\Controllers\property_management\BasicController;
 use App\Http\Controllers\PropertyAgreementController;
 use App\Http\Controllers\PropertyBasicController;
 use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\PropertyInventoryController;
 use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\RentController;
 use App\Http\Controllers\RepairCategoryController;
@@ -344,6 +345,29 @@ Route::put('/v1.0/properties/documents', [PropertyController::class, "updateDocu
 
 // test comment update
 Route::delete('/v1.0/properties/{property_id}/documents/{document_id}', [PropertyController::class, "deleteDocumentFromProperty"]);
+
+
+
+
+
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// property inventories management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Route::post('/v1.0/property-inventories', [PropertyInventoryController::class, "createPropertyInventory"]);
+Route::put('/v1.0/property-inventories', [PropertyInventoryController::class, "updatePropertyInventory"]);
+
+Route::get('/v1.0/property-inventories', [PropertyInventoryController::class, "getPropertyInventories"]);
+Route::delete('/v1.0/property-inventories/{ids}', [PropertyInventoryController::class, "deletePropertyInventoriesByIds"]);
+
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// end property inventories management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 
 
 

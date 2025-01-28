@@ -695,7 +695,7 @@ class TenancyAgreementController extends Controller
                                 $query->where('year', '<', ["year"])
                                     ->orWhere(function ($query) use ($year,$month) {
                                         $query->where('year', $year)
-                                            ->where('month', '<', $month);
+                                            ->where('month', '<=', $month);
                                     });
                             })
                             ->orderBy('year')
@@ -707,6 +707,27 @@ $tenancy_agreement["arrear"] = $agreement_rents->sum(function ($rent) {
 });
             }
 
+            foreach($rents as $rent) {
+                // Calculate total arrears
+            $taken_rents = Rent::where([
+        "tenancy_agreement_id" => $rent->tenancy_agreement_id
+            ])
+                ->where(function ($query) use($rent)  {
+                    $query->where('year', '<', $rent->year)
+                        ->orWhere(function ($query) use ($rent) {
+                            $query->where('year', $rent->year)
+                                ->where('month', '<=', $rent->month);
+                        });
+                })
+                ->orderBy('year')
+                ->orderBy('month')
+            ->get();
+
+$rent["arrear"] = $taken_rents->sum(function ($rent) {
+return $rent->rent_amount - $rent->paid_amount;
+});
+
+}
 
                  $responseData = [
                     "selectable_tenancy_agreements" => $tenancy_agreements,
