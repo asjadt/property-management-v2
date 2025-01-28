@@ -1138,6 +1138,11 @@ class LandlordController extends Controller
                 }
             }
 
+            if (!empty($request->ids)) {
+                $ids = explode(',', request()->input("ids"));
+                $landlordQuery =  $landlordQuery->whereIn("landlords.id", $ids);
+            }
+
 
              $currentDate = Carbon::now();
              $endDate = $currentDate->copy()->addDays(15);
