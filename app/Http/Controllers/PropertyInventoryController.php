@@ -9,6 +9,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PropertyInventoryCreateRequest;
 use App\Http\Requests\PropertyInventoryUpdateRequest;
 use App\Http\Requests\GetIdRequest;
+use App\Http\Utils\BasicUtil;
 use App\Http\Utils\BusinessUtil;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
@@ -23,7 +24,7 @@ use Illuminate\Support\Facades\DB;
 class PropertyInventoryController extends Controller
 {
 
-    use ErrorUtil, UserActivityUtil;
+    use ErrorUtil, UserActivityUtil, BasicUtil;
 
 
     /**
