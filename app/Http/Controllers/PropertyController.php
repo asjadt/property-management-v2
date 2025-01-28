@@ -2332,11 +2332,11 @@ class PropertyController extends Controller
     public function getPropertyById($id, Request $request)
     {
         try {
+
             $this->storeActivity($request, "");
 
-
             $property = Property::with(
-                "property_tenants",
+                "property_tenants.tenancy_agreements",
                 "property_landlords",
                 "repairs.repair_category",
                 "invoices",

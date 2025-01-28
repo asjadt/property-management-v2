@@ -37,4 +37,13 @@ class Tenant extends Model
     {
         return $this->belongsToMany(Property::class, 'property_tenants', 'tenant_id', 'property_id');
     }
+
+
+    public function tenancy_agreements()
+    {
+        return $this->belongsToMany(TenancyAgreement::class, 'agreement_tenants', 'tenant_id',"tenancy_agreement_id");
+    }
+
+
+
 }
