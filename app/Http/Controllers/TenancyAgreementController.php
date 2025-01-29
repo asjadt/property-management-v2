@@ -649,8 +649,6 @@ class TenancyAgreementController extends Controller
 
 
 
-
-
                 $all_rents = Rent::with("tenancy_agreement.property", "tenancy_agreement.tenants")
                 ->where('rents.created_by', auth()->user()->id)
                 ->where('rents.year', request()->input('year'))
@@ -720,6 +718,11 @@ class TenancyAgreementController extends Controller
             $paid_rents = $all_rents->filter(fn($rent) => $rent->payment_status === 'paid')->values();
             $arrears_rents = $all_rents->filter(fn($rent) => $rent->payment_status === 'arrears')->values();
             $overpaid_rents = $all_rents->filter(fn($rent) => $rent->payment_status === 'overpaid')->values();
+
+
+            if(!empty($paid_rents) || !empty($overpaid_rents)) {
+              $arrears_rents = [];
+            }
 
 
 
