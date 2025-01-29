@@ -18,7 +18,7 @@ class TenancyAgreement extends Model
 
 
         'holder_reference_number',
-        'holder_entity',
+        'holder_entity_id',
 
         'let_only_agreement_expired_date',
         'tenant_contact_expired_date',

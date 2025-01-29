@@ -34,7 +34,7 @@ class TenancyAgreementCreateRequest extends FormRequest
             'date_of_moving' => 'required|date',
 
             'holder_reference_number' => "nullable|string",
-            'holder_entity' => "nullable|string",
+            'holder_entity_id' => "nullable|numeric|exists:holder_entities,id",
 
             'let_only_agreement_expired_date' => 'nullable|date',
             'tenant_contact_expired_date' => 'nullable|date',

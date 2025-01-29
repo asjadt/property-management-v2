@@ -20,8 +20,11 @@ class CreateTenancyAgreementsTable extends Migration
             $table->string('rent_payment_option');
             $table->string('tenant_contact_duration');
 
+
+
             $table->string('holder_reference_number')->nullable();
-            $table->string('holder_entity')->nullable();
+            $table->foreignId('holder_entity_id')->nullable()->constrained("holder_entities")->onDelete('set null');
+
 
 
 

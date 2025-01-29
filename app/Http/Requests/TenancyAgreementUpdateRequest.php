@@ -35,7 +35,7 @@ class TenancyAgreementUpdateRequest extends FormRequest
             'date_of_moving' => 'required|date',
 
             'holder_reference_number' => "nullable|string",
-            'holder_entity' => "nullable|string",
+            'holder_entity_id' => "nullable|numeric|exists:holder_entities,id",
 
 
 

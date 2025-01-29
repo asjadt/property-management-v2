@@ -42,7 +42,7 @@ class TenancyAgreementController extends Controller
      *         @OA\Property(property="tenant_contact_duration", type="string", example="12 months"),
      *         @OA\Property(property="date_of_moving", type="string", format="date", example="2024-11-01"),
      *      *         @OA\Property(property="holder_reference_number", type="string", format="string", example="holder_reference_number"),
-    *         @OA\Property(property="holder_entity", type="string", format="string", example="holder_entity"),
+     *         @OA\Property(property="holder_entity_id", type="number", format="number", example="1"),
      *         @OA\Property(property="let_only_agreement_expired_date", type="string", format="date", example="2025-11-01", nullable=true),
      *         @OA\Property(property="tenant_contact_expired_date", type="string", format="date", example="2025-11-01", nullable=true),
      *         @OA\Property(property="rent_due_day", type="string", format="date", example="2024-11-05"),
@@ -153,7 +153,7 @@ class TenancyAgreementController extends Controller
      *         @OA\Property(property="tenant_contact_duration", type="string", example="12 months"),
      *         @OA\Property(property="date_of_moving", type="string", format="date", example="2024-11-01"),
      *         @OA\Property(property="holder_reference_number", type="string", format="string", example="holder_reference_number"),
-    *         @OA\Property(property="holder_entity", type="string", format="string", example="holder_entity"),
+    *         @OA\Property(property="holder_entity_id", type="number", format="number", example="1"),
      *
      *
      *         @OA\Property(property="let_only_agreement_expired_date", type="string", format="date", example="2025-11-01", nullable=true),
@@ -649,56 +649,7 @@ class TenancyAgreementController extends Controller
 
 
 
-            $rents = Rent::with("tenancy_agreement.property", "tenancy_agreement.tenants")
-                ->where('rents.created_by', auth()->user()->id)
-                ->where('rents.year', request()->input('year'))
-                ->where('rents.month', request()->input('month'))
 
-
-                ->when(request()->filled("tenant_ids"), function ($query) {
-                    return $query->whereHas("tenancy_agreement.tenants", function ($query) {
-                        $tenant_ids = explode(',', request()->input("tenant_ids"));
-                        $query->whereIn("tenants.id", $tenant_ids);
-                    });
-                })
-                ->when(request()->filled("property_ids"), function ($query) {
-                    return $query->whereHas("tenancy_agreement", function ($query) {
-                        $property_ids = explode(',', request()->input("property_ids"));
-                        $query->whereIn("tenancy_agreements.property_id", $property_ids);
-                    });
-                })
-                ->when(request()->filled("start_payment_date"), function ($query) {
-                    return $query->whereDate(
-                        'rents.payment_date',
-                        ">=",
-                        request()->input("start_payment_date")
-                    );
-                })
-
-                ->when(request()->filled("end_payment_date"), function ($query) {
-                    return $query->whereDate('rents.payment_date', "<=", request()->input("end_payment_date"));
-                })
-                ->when(request()->filled("payment_status"), function ($query) {
-                    return $query->where(
-                        'rents.payment_status',
-                        request()->input("payment_status")
-                    );
-                })
-                ->when(request()->filled("search_key"), function ($query) {
-                    return $query->where(function ($query) {
-                        $term = request()->input("search_key");
-                        $query
-
-                            ->orWhere("rents.payment_status", "like", "%" . $term . "%");
-                    });
-                })
-                ->when(request()->filled("start_date"), function ($query) {
-                    return $query->whereDate('rents.created_at', ">=", request()->input("start_date"));
-                })
-                ->when(request()->filled("end_date"), function ($query) {
-                    return $query->whereDate('rents.created_at', "<=", request()->input("end_date"));
-                })
-                ->get();
 
             foreach ($tenancy_agreements as $tenancy_agreement) {
                 // Calculate total arrears
@@ -721,30 +672,43 @@ class TenancyAgreementController extends Controller
                 });
             }
 
-            foreach ($rents as $rent) {
-                // Calculate total arrears
-                $taken_rents = Rent::where([
-                    "tenancy_agreement_id" => $rent->tenancy_agreement_id
-                ])
-                    ->where(function ($query) use ($rent) {
-                        $query->where('year', '<', $rent->year)
-                            ->orWhere(function ($query) use ($rent) {
-                                $query->where('year', $rent->year)
-                                    ->where('month', '<=', $rent->month);
-                            });
-                    })
-                    ->orderBy('year')
-                    ->orderBy('month')
-                    ->get();
 
-                $rent["arrear"] = $taken_rents->sum(function ($rent) {
-                    return $rent->rent_amount - $rent->paid_amount;
-                });
-            }
+            $all_rents = Rent::with("tenancy_agreement.property", "tenancy_agreement.tenants")
+            ->where('rents.created_by', auth()->user()->id)
+            ->where('rents.year', request()->input('year'))
+            ->where('rents.month', request()->input('month'))
+            ->whereIn('rents.payment_status', ['paid', 'arrears'])
+            ->get();
+
+        foreach ($all_rents as $rent) {
+            $past_rents = Rent::where("tenancy_agreement_id", $rent->tenancy_agreement_id)
+                ->where(function ($query) use ($rent) {
+                    $query->where('year', '<', $rent->year)
+                        ->orWhere(function ($query) use ($rent) {
+                            $query->where('year', $rent->year)
+                                ->where('month', '<=', $rent->month);
+                        });
+                })
+                ->orderBy('year')
+                ->orderBy('month')
+                ->get();
+
+            $rent["arrear"] = $past_rents->sum(fn ($r) => $r->rent_amount - $r->paid_amount);
+        }
+
+        $paid_rents = $all_rents->filter(fn($rent) => $rent->payment_status === 'paid')->values();
+        $arrears_rents = $all_rents->filter(fn($rent) => $rent->payment_status === 'arrears')->values();
+        $overpaid_rents = $all_rents->filter(fn($rent) => $rent->payment_status === 'overpaid')->values();
+
+
+
+
 
             $responseData = [
                 "selectable_tenancy_agreements" => $tenancy_agreements,
-                "taken_rents" => $rents
+                "paid_rents" => $paid_rents,
+                "arrears_rents" => $arrears_rents,
+                "overpaid_rents" => $overpaid_rents,
             ];
 
             return response()->json($responseData, 200);
