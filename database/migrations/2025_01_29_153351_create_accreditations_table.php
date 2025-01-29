@@ -30,9 +30,7 @@ class CreateAccreditationsTable extends Migration
 
             $table->string("logo")->nullable();
 
-            $table->foreignId("property_id")
-            ->constrained("properties")
-            ->onDelete("cascade");
+        
 
             $table->boolean("is_active")->default(false);
             $table->foreignId("created_by")

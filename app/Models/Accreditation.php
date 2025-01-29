@@ -12,14 +12,14 @@ use Illuminate\Database\Eloquent\Model;
 class Accreditation extends Model
 {
     use HasFactory, DefaultQueryScopesTrait;
-    
+
     protected $fillable = [
                     'name',
                     'description',
                     'accreditation_start_date',
                     'accreditation_expiry_date',
                     'logo',
-                    'property_id',
+
        "is_active",
         "created_by"
     ];
@@ -29,10 +29,6 @@ class Accreditation extends Model
 
 
 
-    public function property()
-    {
-        return $this->belongsTo(Property::class, 'property_id','id');
-    }
 
 
 

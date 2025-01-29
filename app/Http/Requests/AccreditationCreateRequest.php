@@ -56,12 +56,7 @@ $rules = [
 
     ],
 
-        'property_id' => [
-        'required',
-        'numeric',
-        'exists:properties,id'
-
-    ],
+     
 
 
 

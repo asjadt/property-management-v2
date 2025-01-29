@@ -48,7 +48,7 @@ class AccreditationController extends Controller
      * @OA\Property(property="accreditation_start_date", type="string", format="string", example="accreditation_start_date"),
      * @OA\Property(property="accreditation_expiry_date", type="string", format="string", example="accreditation_expiry_date"),
      * @OA\Property(property="logo", type="string", format="string", example="logo"),
-     * @OA\Property(property="property_id", type="string", format="string", example="property_id"),
+
 
      *
      *
@@ -138,7 +138,7 @@ class AccreditationController extends Controller
      * @OA\Property(property="accreditation_start_date", type="string", format="string", example="accreditation_start_date"),
      * @OA\Property(property="accreditation_expiry_date", type="string", format="string", example="accreditation_expiry_date"),
      * @OA\Property(property="logo", type="string", format="string", example="logo"),
-     * @OA\Property(property="property_id", type="string", format="string", example="property_id"),
+
      *
      * ),
      * ),
@@ -229,7 +229,7 @@ class AccreditationController extends Controller
      * required=true,
      * @OA\JsonContent(
 
-     * @OA\Property(property="id", type="string", format="number",example="1"),
+
      *
      * ),
      * ),

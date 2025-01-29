@@ -88,12 +88,7 @@ class AccreditationUpdateRequest extends FormRequest
 
             ],
 
-            'property_id' => [
-                'required',
-                'numeric',
-                'exists:properties,id'
 
-            ]
 
 
         ];
