@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccreditationController;
 use App\Http\Controllers\AffiliationController;
 use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\AuthController;
@@ -349,6 +350,27 @@ Route::delete('/v1.0/properties/{property_id}/documents/{document_id}', [Propert
 
 
 
+
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// accreditations management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Route::post('/v1.0/accreditations', [AccreditationController::class, "createAccreditation"]);
+
+Route::put('/v1.0/accreditations', [AccreditationController::class, "updateAccreditation"]);
+
+Route::put('/v1.0/accreditations/toggle-active', [AccreditationController::class, "toggleActiveAccreditation"]);
+
+Route::get('/v1.0/accreditations', [AccreditationController::class, "getAccreditations"]);
+Route::delete('/v1.0/accreditations/{ids}', [AccreditationController::class, "deleteAccreditationsByIds"]);
+
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// end accreditations management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 
 

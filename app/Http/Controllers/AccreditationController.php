@@ -4,24 +4,25 @@
 
 
 
+
 namespace App\Http\Controllers;
 
-use App\Http\Requests\HolderEntityCreateRequest;
-use App\Http\Requests\HolderEntityUpdateRequest;
+use App\Http\Requests\AccreditationCreateRequest;
+use App\Http\Requests\AccreditationUpdateRequest;
 use App\Http\Requests\GetIdRequest;
 use App\Http\Utils\BasicUtil;
 use App\Http\Utils\BusinessUtil;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
-use App\Models\HolderEntity;
-use App\Models\DisabledHolderEntity;
+use App\Models\Accreditation;
+use App\Models\DisabledAccreditation;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class HolderEntityController extends Controller
+class AccreditationController extends Controller
 {
 
     use ErrorUtil, UserActivityUtil, BasicUtil;
@@ -30,20 +31,25 @@ class HolderEntityController extends Controller
     /**
      *
      * @OA\Post(
-     * path="/v1.0/holder-entities",
-     * operationId="createHolderEntity",
-     * tags={"holder_entities"},
+     * path="/v1.0/accreditations",
+     * operationId="createAccreditation",
+     * tags={"accreditations"},
      * security={
      * {"bearerAuth": {}}
      * },
-     * summary="This method is to store holder entities",
-     * description="This method is to store holder entities",
+     * summary="This method is to store accreditations",
+     * description="This method is to store accreditations",
      *
      * @OA\RequestBody(
      * required=true,
      * @OA\JsonContent(
      * @OA\Property(property="name", type="string", format="string", example="name"),
      * @OA\Property(property="description", type="string", format="string", example="description"),
+     * @OA\Property(property="accreditation_start_date", type="string", format="string", example="accreditation_start_date"),
+     * @OA\Property(property="accreditation_expiry_date", type="string", format="string", example="accreditation_expiry_date"),
+     * @OA\Property(property="logo", type="string", format="string", example="logo"),
+     * @OA\Property(property="property_id", type="string", format="string", example="property_id"),
+
      *
      *
      *
@@ -83,7 +89,7 @@ class HolderEntityController extends Controller
      * )
      */
 
-    public function createHolderEntity(HolderEntityCreateRequest $request)
+    public function createAccreditation(AccreditationCreateRequest $request)
     {
 
         DB::beginTransaction();
@@ -95,19 +101,17 @@ class HolderEntityController extends Controller
             $request_data = $request->validated();
 
             $request_data["is_active"] = 1;
+
             $request_data["created_by"] = auth()->user()->id;
 
 
 
-
-
-
-            $holder_entity = HolderEntity::create($request_data);
+            $accreditation = Accreditation::create($request_data);
 
 
 
             DB::commit();
-            return response($holder_entity, 201);
+            return response($accreditation, 201);
         } catch (Exception $e) {
             DB::rollBack();
             return $this->sendError($e, 500, $request);
@@ -116,14 +120,14 @@ class HolderEntityController extends Controller
     /**
      *
      * @OA\Put(
-     * path="/v1.0/holder-entities",
-     * operationId="updateHolderEntity",
-     * tags={"holder_entities"},
+     * path="/v1.0/accreditations",
+     * operationId="updateAccreditation",
+     * tags={"accreditations"},
      * security={
      * {"bearerAuth": {}}
      * },
-     * summary="This method is to update holder entities ",
-     * description="This method is to update holder entities ",
+     * summary="This method is to update accreditations ",
+     * description="This method is to update accreditations ",
      *
      * @OA\RequestBody(
      * required=true,
@@ -131,6 +135,10 @@ class HolderEntityController extends Controller
      * @OA\Property(property="id", type="number", format="number", example="1"),
      * @OA\Property(property="name", type="string", format="string", example="name"),
      * @OA\Property(property="description", type="string", format="string", example="description"),
+     * @OA\Property(property="accreditation_start_date", type="string", format="string", example="accreditation_start_date"),
+     * @OA\Property(property="accreditation_expiry_date", type="string", format="string", example="accreditation_expiry_date"),
+     * @OA\Property(property="logo", type="string", format="string", example="logo"),
+     * @OA\Property(property="property_id", type="string", format="string", example="property_id"),
      *
      * ),
      * ),
@@ -168,7 +176,7 @@ class HolderEntityController extends Controller
      * )
      */
 
-    public function updateHolderEntity(HolderEntityUpdateRequest $request)
+    public function updateAccreditation(AccreditationUpdateRequest $request)
     {
         DB::beginTransaction();
         try {
@@ -177,18 +185,18 @@ class HolderEntityController extends Controller
 
             $request_data = $request->validated();
 
-
-
-            $holder_entity_query_params = [
+            $accreditation_query_params = [
                 "id" => $request_data["id"],
             ];
 
-            $holder_entity =
-                HolderEntity::where($holder_entity_query_params)->first();
+            $accreditation =
+                Accreditation::where($accreditation_query_params)->first();
 
-            if ($holder_entity) {
-                $holder_entity->fill($request_data);
-                $holder_entity->save();
+            if ($accreditation) {
+
+                $accreditation->fill($request_data);
+                $accreditation->save();
+
             } else {
                 return response()->json([
                     "message" => "something went wrong."
@@ -198,7 +206,7 @@ class HolderEntityController extends Controller
 
 
             DB::commit();
-            return response($holder_entity, 201);
+            return response($accreditation, 201);
         } catch (Exception $e) {
             DB::rollBack();
             return $this->sendError($e, 500, $request);
@@ -208,14 +216,14 @@ class HolderEntityController extends Controller
     /**
      *
      * @OA\Put(
-     * path="/v1.0/holder-entities/toggle-active",
-     * operationId="toggleActiveHolderEntity",
-     * tags={"holder_entities"},
+     * path="/v1.0/accreditations/toggle-active",
+     * operationId="toggleActiveAccreditation",
+     * tags={"accreditations"},
      * security={
      * {"bearerAuth": {}}
      * },
-     * summary="This method is to toggle holder entities",
-     * description="This method is to toggle holder entities",
+     * summary="This method is to toggle accreditations",
+     * description="This method is to toggle accreditations",
      *
      * @OA\RequestBody(
      * required=true,
@@ -259,39 +267,35 @@ class HolderEntityController extends Controller
      * )
      */
 
-    public function toggleActiveHolderEntity(GetIdRequest $request)
+    public function toggleActiveAccreditation(GetIdRequest $request)
     {
 
         try {
 
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
 
-            if (!$request->user()->hasPermissionTo('holder_entity_activate')) {
-                return response()->json([
-                    "message" => "You can not perform this action"
-                ], 401);
-            }
+
             $request_data = $request->validated();
 
-            $holder_entity = HolderEntity::where([
+            $accreditation = Accreditation::where([
                 "id" => $request_data["id"],
             ])
                 ->first();
-            if (!$holder_entity) {
+            if (!$accreditation) {
 
                 return response()->json([
                     "message" => "no data found"
                 ], 404);
             }
 
-            $holder_entity->update([
-                'is_active' => !$holder_entity->is_active
+            $accreditation->update([
+                'is_active' => !$accreditation->is_active
             ]);
 
 
 
 
-            return response()->json(['message' => 'holder entity status updated successfully'], 200);
+            return response()->json(['message' => 'accreditation status updated successfully'], 200);
         } catch (Exception $e) {
             error_log($e->getMessage());
             return $this->sendError($e, 500, $request);
@@ -303,36 +307,69 @@ class HolderEntityController extends Controller
     public function query_filters($query)
     {
 
-        return $query->where('holder_entities.created_by', auth()->user()->id)
+
+
+        return $query->where('accreditations.created_by', auth()->user()->id)
+
             ->when(request()->filled("name"), function ($query) {
                 return $query->where(
-                    'holder_entities.name',
+                    'accreditations.name',
                     request()->input("name")
                 );
             })
             ->when(request()->filled("description"), function ($query) {
                 return $query->where(
-                    'holder_entities.description',
+                    'accreditations.description',
                     request()->input("description")
                 );
             })
+            ->when(request()->filled("start_accreditation_start_date"), function ($query) {
+                return $query->whereDate(
+                    'accreditations.accreditation_start_date',
+                    ">=",
+                    request()->input("start_accreditation_start_date")
+                );
+            })
+            ->when(request()->filled("end_accreditation_start_date"), function ($query) {
+                return $query->whereDate('accreditations.accreditation_start_date', "<=", request()->input("end_accreditation_start_date"));
+            })
+            ->when(request()->filled("start_accreditation_expiry_date"), function ($query) {
+                return $query->whereDate(
+                    'accreditations.accreditation_expiry_date',
+                    ">=",
+                    request()->input("start_accreditation_expiry_date")
+                );
+            })
+            ->when(request()->filled("end_accreditation_expiry_date"), function ($query) {
+                return $query->whereDate('accreditations.accreditation_expiry_date', "<=", request()->input("end_accreditation_expiry_date"));
+            })
+            ->when(request()->filled("logo"), function ($query) {
+                return $query->where(
+                    'accreditations.logo',
+                    request()->input("logo")
+                );
+            })
+
 
             ->when(request()->filled("search_key"), function ($query) {
                 return $query->where(function ($query) {
                     $term = request()->input("search_key");
                     $query
 
-                        ->orWhere("holder_entities.name", "like", "%" . $term . "%")
-                        ->where("holder_entities.description", "like", "%" . $term . "%")
+                        ->orWhere("accreditations.name", "like", "%" . $term . "%")
+                        ->where("accreditations.description", "like", "%" . $term . "%")
+                        ->orWhere("accreditations.logo", "like", "%" . $term . "%")
+
                     ;
                 });
             })
 
+
             ->when(request()->filled("start_date"), function ($query) {
-                return $query->whereDate('holder_entities.created_at', ">=", request()->input("start_date"));
+                return $query->whereDate('accreditations.created_at', ">=", request()->input("start_date"));
             })
             ->when(request()->filled("end_date"), function ($query) {
-                return $query->whereDate('holder_entities.created_at', "<=", request()->input("end_date"));
+                return $query->whereDate('accreditations.created_at', "<=", request()->input("end_date"));
             });
     }
 
@@ -341,9 +378,9 @@ class HolderEntityController extends Controller
     /**
      *
      * @OA\Get(
-     * path="/v1.0/holder-entities",
-     * operationId="getHolderEntities",
-     * tags={"holder_entities"},
+     * path="/v1.0/accreditations",
+     * operationId="getAccreditations",
+     * tags={"accreditations"},
      * security={
      * {"bearerAuth": {}}
      * },
@@ -362,6 +399,42 @@ class HolderEntityController extends Controller
      * required=false,
      * example=""
      * ),
+     * @OA\Parameter(
+     * name="start_accreditation_start_date",
+     * in="query",
+     * description="start_accreditation_start_date",
+     * required=false,
+     * example=""
+     * ),
+     * @OA\Parameter(
+     * name="end_accreditation_start_date",
+     * in="query",
+     * description="end_accreditation_start_date",
+     * required=false,
+     * example=""
+     * ),
+     * @OA\Parameter(
+     * name="start_accreditation_expiry_date",
+     * in="query",
+     * description="start_accreditation_expiry_date",
+     * required=false,
+     * example=""
+     * ),
+     * @OA\Parameter(
+     * name="end_accreditation_expiry_date",
+     * in="query",
+     * description="end_accreditation_expiry_date",
+     * required=false,
+     * example=""
+     * ),
+     * @OA\Parameter(
+     * name="logo",
+     * in="query",
+     * description="logo",
+     * required=false,
+     * example=""
+     * ),
+
      * @OA\Parameter(
      * name="per_page",
      * in="query",
@@ -416,8 +489,8 @@ class HolderEntityController extends Controller
 
 
 
-     * summary="This method is to get holder entities ",
-     * description="This method is to get holder entities ",
+     * summary="This method is to get accreditations ",
+     * description="This method is to get accreditations ",
      *
 
      * @OA\Response(
@@ -454,21 +527,21 @@ class HolderEntityController extends Controller
      * )
      */
 
-    public function getHolderEntities(Request $request)
+    public function getAccreditations(Request $request)
     {
         try {
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
 
 
 
-            $query = HolderEntity::query();
+            $query = Accreditation::query();
             $query = $this->query_filters($query);
-            $holder_entities = $this->retrieveData($query, "id", "holder_entities");
+            $accreditations = $this->retrieveData($query, "id", "accreditations");
 
 
 
 
-            return response()->json($holder_entities, 200);
+            return response()->json($accreditations, 200);
         } catch (Exception $e) {
 
             return $this->sendError($e, 500, $request);
@@ -477,9 +550,9 @@ class HolderEntityController extends Controller
     /**
      *
      * @OA\Delete(
-     * path="/v1.0/holder-entities/{ids}",
-     * operationId="deleteHolderEntitiesByIds",
-     * tags={"holder_entities"},
+     * path="/v1.0/accreditations/{ids}",
+     * operationId="deleteAccreditationsByIds",
+     * tags={"accreditations"},
      * security={
      * {"bearerAuth": {}}
      * },
@@ -490,8 +563,8 @@ class HolderEntityController extends Controller
      * required=true,
      * example="1,2,3"
      * ),
-     * summary="This method is to delete holder entity by id",
-     * description="This method is to delete holder entity by id",
+     * summary="This method is to delete accreditation by id",
+     * description="This method is to delete accreditation by id",
      *
 
      * @OA\Response(
@@ -528,16 +601,17 @@ class HolderEntityController extends Controller
      * )
      */
 
-    public function deleteHolderEntitiesByIds(Request $request, $ids)
+    public function deleteAccreditationsByIds(Request $request, $ids)
     {
 
         try {
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
 
 
+
             $idsArray = explode(',', $ids);
-            $existingIds = HolderEntity::whereIn('id', $idsArray)
-                ->where('holder_entities.created_by', auth()->user()->id)
+            $existingIds = Accreditation::whereIn('id', $idsArray)
+                ->where('accreditations.created_by', auth()->user()->id)
 
                 ->select('id')
                 ->get()
@@ -554,12 +628,12 @@ class HolderEntityController extends Controller
 
 
 
-            HolderEntity::destroy($existingIds);
+
+
+            Accreditation::destroy($existingIds);
 
 
             return response()->json(["message" => "data deleted sussfully", "deleted_ids" => $existingIds], 200);
-
-
         } catch (Exception $e) {
 
             return $this->sendError($e, 500, $request);
