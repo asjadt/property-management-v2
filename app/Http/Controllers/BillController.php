@@ -148,6 +148,8 @@ class BillController extends Controller
 
             $bill->save();
 
+            $bill->landlords()->sync($request_data['landlord_ids']);
+
               $bill_items = collect($request_data["bill_items"])->map(function ($item)use ($bill) {
 
                     // $bill_item_exists =    BillBillItem::where([
@@ -232,6 +234,7 @@ class BillController extends Controller
         ];
     });
 
+
     $bill->bill_repair_items()->createMany($repair_items->all());
 
 
@@ -267,7 +270,7 @@ class BillController extends Controller
 
           "status"=>"paid",
 
-          "landlord_id" =>  $bill->landlord_id,
+
 
           "sub_total"=>$bill->deduction,
           "total_amount"=>$bill->deduction,
@@ -287,6 +290,8 @@ class BillController extends Controller
         $invoice->shareable_link =  env("FRONT_END_URL_DASHBOARD")."/share/invoice/". Str::random(4) . "-". $invoice->generated_id ."-" . Str::random(4);
 
         $invoice->save();
+
+        $invoice->landlords()->sync($request_data['landlord_ids']);
 
         $invoice_items_data = $sale_items->merge($repair_items);
 
@@ -400,7 +405,7 @@ class BillController extends Controller
         *  *             @OA\Property(property="payment_date", type="string", format="string",example="2019-06-29"),
 
     *             @OA\Property(property="property_id", type="number", format="number",example="1"),
-   *            @OA\Property(property="landlord_id", type="number", format="number",example="1"),
+     *            @OA\Property(property="landlord_ids", type="string", format="array",example={1,2,3}),
    *
    *
    *  *  *            @OA\Property(property="payment_mode", type="string", format="string",example="card"),
@@ -486,7 +491,6 @@ class BillController extends Controller
                     'create_date',
                     "payment_date",
                     'property_id',
-                    'landlord_id',
                     'payment_mode',
                     "payabble_amount",
                     "deduction",
@@ -496,6 +500,8 @@ class BillController extends Controller
                 ->first();
 
                 $bill->bill_bill_items()->delete();
+                $bill->landlords()->sync($request_data['landlord_ids']);
+
                 $bill_items = collect($request_data["bill_items"])->map(function ($item)use ($bill) {
 
                     // $bill_item_exists =    BillBillItem::where([
@@ -525,6 +531,7 @@ class BillController extends Controller
             $bill->bill_bill_items()->createMany($bill_items->all());
 
             $bill->bill_sale_items()->delete();
+
             $sale_items = collect($request_data["sale_items"])->map(function ($item)use ($bill) {
 
                 // $sale_items_exists =    BillSaleItem::where([
@@ -614,7 +621,7 @@ class BillController extends Controller
 
           "status"=>"paid",
 
-          "landlord_id" =>  $bill->landlord_id,
+
 
           "sub_total"=>$bill->deduction,
           "total_amount"=>$bill->deduction,
@@ -646,7 +653,6 @@ $invoice_prev = Invoice::where([
 
                     "note",
                     "property_id",
-                    "landlord_id",
                     "tenant_id",
                     "client_id",
                     "discount_description",
@@ -660,7 +666,6 @@ $invoice_prev = Invoice::where([
                 ])->toArray()
             )
 
-
                 ->first();
            } else {
             $invoice  = Invoice::create($invoice_data);
@@ -670,7 +675,7 @@ $invoice_prev = Invoice::where([
             $invoice->save();
            }
 
-
+           $invoice->landlords()->sync($request_data['landlord_ids']);
 
 
                      $invoice_items_data = $sale_items->merge($repair_items);
@@ -786,14 +791,16 @@ $invoice_prev = Invoice::where([
   public function billQueryTest(Request $request) {
     // $automobilesQuery = AutomobileMake::with("makes");
 
-    $billQuery = Bill::with("bill_bill_items","bill_sale_items","bill_repair_items","landlord","property")
-    ->leftJoin('invoices', 'invoices.bill_id', '=', 'bills.id')
+    $billQuery = Bill::with("bill_bill_items","bill_sale_items","bill_repair_items","landlords","property")
+    ->leftJoin('invoices', 'invoices.bill_id', '=', 'bills.id');
 
-  ;
-
-  if (!empty($request->landlord_id)) {
-   $billQuery =   $billQuery->where("bills.landlord_id", $request->landlord_id);
-}
+    if (!empty($request->landlord_ids)) {
+        $billQuery =  $billQuery->whereHas("landlords", function ($query) {
+            $landlord_ids = explode(',', request()->input("landlord_ids"));
+            $query
+                ->whereIn("landlords.id", $landlord_ids);
+        });
+    }
 
 
 if (!empty($request->start_date)) {
@@ -920,16 +927,20 @@ if(!empty($request->search_key)) {
    public function billQuery(Request $request) {
      // $automobilesQuery = AutomobileMake::with("makes");
 
-     $billQuery = Bill::with("bill_bill_items","bill_sale_items","bill_repair_items","landlord","property")
+     $billQuery = Bill::with("bill_bill_items","bill_sale_items","bill_repair_items","landlords","property")
      ->leftJoin('invoices', 'invoices.bill_id', '=', 'bills.id')
      ->where([
           "bills.created_by" => $request->user()->id
-     ])
-   ;
+     ]);
 
-   if (!empty($request->landlord_id)) {
-    $billQuery =   $billQuery->where("bills.landlord_id", $request->landlord_id);
-}
+     if (!empty($request->landlord_ids)) {
+        $billQuery =  $billQuery->whereHas("landlords", function ($query) {
+            $landlord_ids = explode(',', request()->input("landlord_ids"));
+            $query
+                ->whereIn("landlords.id", $landlord_ids);
+        });
+    }
+
 
 
 if (!empty($request->start_date)) {
@@ -1115,9 +1126,9 @@ if(!empty($request->search_key)) {
   * ),
 
    * *  @OA\Parameter(
-  * name="landlord_id",
+  * name="landlord_ids",
   * in="query",
-  * description="landlord_id",
+  * description="landlord_ids",
   * required=true,
   * example="1"
   * ),
@@ -1273,9 +1284,9 @@ if(!empty($request->search_key)) {
   * ),
 
    * *  @OA\Parameter(
-  * name="landlord_id",
+  * name="landlord_ids",
   * in="query",
-  * description="landlord_id",
+  * description="landlord_ids",
   * required=true,
   * example="1"
   * ),
@@ -1473,7 +1484,7 @@ if(!empty($request->search_key)) {
           $this->storeActivity($request,"");
 
 
-          $bill = Bill::with("bill_bill_items","bill_sale_items","bill_repair_items","landlord","property")
+          $bill = Bill::with("bill_bill_items","bill_sale_items","bill_repair_items","landlords","property")
           ->leftJoin('invoices', 'invoices.bill_id', '=', 'bills.id')
           ->where([
               "bills.generated_id" => $id,

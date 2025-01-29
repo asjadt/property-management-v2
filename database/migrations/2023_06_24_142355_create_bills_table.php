@@ -25,8 +25,7 @@ class CreateBillsTable extends Migration
             $table->unsignedBigInteger("property_id")->nullable();
             $table->foreign('property_id')->references('id')->on('properties')->onDelete('set null');
 
-            $table->unsignedBigInteger("landlord_id")->nullable();
-            $table->foreign('landlord_id')->references('id')->on('landlords')->onDelete('set null');
+     
 
 
             $table->string("payment_mode");

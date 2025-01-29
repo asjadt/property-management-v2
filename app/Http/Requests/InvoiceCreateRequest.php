@@ -114,36 +114,9 @@ class InvoiceCreateRequest extends FormRequest
 
                 },
             ],
-            "landlord_id" => [
-                "nullable",
-                "numeric",
-                "exists:landlords,id",
-                function ($attribute, $value, $fail) {
-                    $client_id = request()->input('client_id');
-                    $tenantId = request()->input('tenant_id');
-                    $business_type = request()->input('business_type');
-                    // if($business_type == "property_dealer") {
 
-                    //     if (empty($value) && empty($tenantId)) {
-                    //         $fail('Either tenant_id or landlord_id is required.');
-                    //     }
-                    //     if (!empty($value) && !empty($tenantId)) {
-                    //         $fail('Only one of tenant_id or landlord_id should have a value.');
-                    //     }
-                    // }
-                    // else {
-                    //     if (!empty($value)) {
-                    //         $fail('for business type other you can not select a landlord.');
-                    //     }
-                    // }
-                    if($business_type != "property_dealer")  {
-                        if (!empty($value)) {
-                            $fail('for business type other you can not select a landlord.');
-                        }
-                    }
-
-                },
-            ],
+            'landlord_ids' => 'present|array',
+            'landlord_ids.*' => 'numeric|exists:landlords,id',
 
 
             "invoice_items" => "required|array",

@@ -12,8 +12,7 @@ use App\Models\Business;
 use App\Models\Invoice;
 use App\Models\InvoicePayment;
 use App\Models\InvoicePaymentReceipt;
-use App\Models\Landlord;
-use App\Models\Tenant;
+
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -157,21 +156,7 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
             $invoice_payment->save();
 
 
-        //     // email section
-        //  $recipients = [$request->user()->email];
 
-        //  $tenant =  Tenant::where(["id" => $invoice->tenant_id])->first();
-        //  if($tenant) {
-        //     array_push($recipients,$tenant->email);
-        //  }
-        //  $landlord =  Landlord::where(["id" => $invoice->tenant_id])->first();
-        //  if($landlord) {
-        //     array_push($recipients,$landlord->email);
-        //  }
-
-        //  Mail::to($recipients)
-        //  ->send(new PaymentEmail($invoice,$invoice_payment));
-        //     // end email section
 
 
 
@@ -470,7 +455,7 @@ public function getInvoicePayments($perPage, Request $request)
 
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $invoice_paymentQuery =  InvoicePayment::with("invoice.tenant","invoice.landlord","invoice.client","invoice.property")->leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
+        $invoice_paymentQuery =  InvoicePayment::with("invoice.tenant","invoice.landlords","invoice.client","invoice.property")->leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
         ->where([
             "invoices.created_by" => $request->user()->id
         ]);
@@ -590,7 +575,7 @@ public function getInvoicePaymentById($invoice_id,$id, Request $request)
         $this->storeActivity($request,"");
 
 
-        $invoice_payment = InvoicePayment::with("invoice.tenant","invoice.landlord","invoice.client","invoice.property")
+        $invoice_payment = InvoicePayment::with("invoice.tenant","invoice.landlords","invoice.client","invoice.property")
         ->leftJoin('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
         ->where([
             "invoice_payments.generated_id" => $id,

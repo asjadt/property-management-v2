@@ -217,6 +217,7 @@ public function createInvoiceReminder(InvoiceReminderCreateRequest $request)
 
             ])
             ->first();
+
             if(!$invoice) {
                 throw new Exception("something went wrong");
             }
@@ -379,9 +380,9 @@ $invoice_reminder->reminder_date_amount = $endDate->diffInDays($startDate);
 * example="1"
 * ),
  * *  @OA\Parameter(
-* name="landlord_id",
+* name="landlord_ids",
 * in="query",
-* description="landlord_id",
+* description="landlord_ids",
 * required=true,
 * example="1"
 * ),
@@ -478,9 +479,14 @@ public function getInvoiceReminders($perPage, Request $request)
             $invoice_reminderQuery = $invoice_reminderQuery->where('invoice_reminders.created_at', "<=", $request->end_date);
         }
 
-        if (!empty($request->landlord_id)) {
-            $invoice_reminderQuery =   $invoice_reminderQuery->where("invoices.landlord_id", $request->landlord_id);
+        if (!empty($request->landlord_ids)) {
+            $invoice_reminderQuery =  $invoice_reminderQuery->whereHas("invoice.landlords", function ($query) {
+                $landlord_ids = explode(',', request()->input("landlord_ids"));
+                $query
+                    ->whereIn("landlords.id", $landlord_ids);
+            });
         }
+
         if (!empty($request->tenant_id)) {
             $invoice_reminderQuery =   $invoice_reminderQuery->where("invoices.tenant_id", $request->tenant_id);
         }

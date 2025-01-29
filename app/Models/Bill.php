@@ -13,7 +13,6 @@ class Bill extends Model
         'create_date',
         "payment_date",
         'property_id',
-        'landlord_id',
         'payment_mode',
         "payabble_amount",
         "deduction",
@@ -34,8 +33,9 @@ class Bill extends Model
         }
 
 
-        public function landlord(){
-            return $this->belongsTo(Landlord::class,'landlord_id', 'id');
+
+        public function landlords() {
+            return $this->belongsToMany(Landlord::class, 'bill_landlords', 'bill_id', 'landlord_id');
         }
 
         public function property(){

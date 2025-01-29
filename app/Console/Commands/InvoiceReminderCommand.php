@@ -58,8 +58,13 @@ class InvoiceReminderCommand extends Command
                 if($invoice_reminder->invoice->tenant) {
                     array_push($recipients, $invoice_reminder->invoice->tenant->email);
                 }
-                if($invoice_reminder->invoice->landlord) {
-                    array_push($recipients, $invoice_reminder->invoice->landlord->email);
+        $landlords =     $invoice_reminder->invoice->landlords;
+
+                if(!empty($landlords)) {
+                    foreach($landlords as $landlord){
+                        array_push($recipients, $landlord->email);
+                    }
+
                 }
 
                 Mail::to($recipients)

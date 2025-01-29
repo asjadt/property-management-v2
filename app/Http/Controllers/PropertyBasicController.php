@@ -143,25 +143,7 @@ class PropertyBasicController extends Controller
                     ], 404);
                 }
 
-                // opening balance calculate start
-                // $total_past_invoice_amount = Invoice::where([
-                //     "invoices.property_id" => $property->id,
-                //     "invoices.created_by" => $request->user()->id
-                // ])
-                //     ->when(!empty($request->start_date), function ($query) use ($request) {
-                //         return $query->where('invoices.invoice_date', "<", $request->start_date);
-                //     })
-                //     ->sum("invoices.total_amount");
-                // $total_past_invoice_payment_amount = InvoicePayment::leftJoin('invoices', 'invoices.id', '=', 'invoice_payments.invoice_id')
-                //     ->where([
-                //         "invoices.property_id" => $property->id,
-                //         "invoices.created_by" => $request->user()->id
-                //     ])
-                //     ->when(!empty($request->start_date), function ($query) use ($request) {
-                //         return $query->where('invoice_payments.payment_date', "<", $request->start_date);
-                //     })
 
-                //     ->sum("invoice_payments.amount");
                 $opening_balance_data = Invoice::where([
                     "invoices.property_id" => $property->id,
                     "invoices.created_by" => $request->user()->id
@@ -354,9 +336,9 @@ class PropertyBasicController extends Controller
      * example="tenant_id"
      * ),
      * *  @OA\Parameter(
-     * name="landlord_id",
+     * name="landlord_ids",
      * in="query",
-     * description="landlord_id",
+     * description="landlord_ids",
      * required=true,
      * example="1"
      * ),
@@ -425,44 +407,27 @@ class PropertyBasicController extends Controller
 
 
             if (!empty($request->landlord_id)) {
-                $landlord = Landlord::where([
-                    "id" => $request->landlord_id,
+                $landlord_ids = explode(',', request()->input("landlord_ids"));
+                $landlords = Landlord::where([
                     "created_by" => $request->user()->id
                 ])
-                    ->first();
-                if (!$landlord) {
+                ->whereIn("id",$landlord_ids)
+                    ->get();
+
+                if (empty($landlords)) {
                     return response()->json([
                         "message" => "no landlord found"
                     ], 404);
                 }
 
-                // opening balance calculate start
-                // $total_past_invoice_amount = Invoice::where([
-                //     "invoices.landlord_id" => $landlord->id,
-                //     "invoices.created_by" => $request->user()->id
-                // ])
-                //     ->when(!empty($request->start_date), function ($query) use ($request) {
-                //         return $query->where('invoices.invoice_date', "<", $request->start_date);
-                //     })
-                //     ->sum("invoices.total_amount");
-                // $total_past_invoice_payment_amount = InvoicePayment::leftJoin('invoices', 'invoices.id', '=', 'invoice_payments.invoice_id')
-                //     ->where([
-                //         "invoices.landlord_id" => $landlord->id,
-                //         "invoices.created_by" => $request->user()->id
-                //     ])
-                //     ->when(!empty($request->start_date), function ($query) use ($request) {
-                //         return $query->where('invoice_payments.payment_date', "<", $request->start_date);
-                //     })
-                //     ->when(!empty($request->property_ids), function ($query) use ($request) {
-                //         $null_filter = collect(array_filter($request->property_ids))->values();
-                //         $property_ids =  $null_filter->all();
-                //         return $query->whereIn("invoices.property_id",$property_ids);
-                //     })
-                //     ->sum("invoice_payments.amount");
+
                 $opening_balance_data = Invoice::where([
-                    "invoices.landlord_id" => $landlord->id,
                     "invoices.created_by" => $request->user()->id
                 ])
+                ->whereHas("landlords", function ($query) use($landlord_ids) {
+                   return $query
+                        ->whereIn("landlords.id", $landlord_ids);
+                })
                     ->when(!empty($request->start_date), function ($query) use ($request) {
                         return $query->where('invoices.invoice_date', "<", $request->start_date);
                     })
@@ -482,9 +447,13 @@ class PropertyBasicController extends Controller
 
 
                 $invoiceQuery = Invoice::with("invoice_payments")->where([
-                    "invoices.landlord_id" => $landlord->id,
+
                     "invoices.created_by" => $request->user()->id
                 ])
+                ->whereHas("landlords", function ($query) use($landlord_ids) {
+                    return $query
+                         ->whereIn("landlords.id", $landlord_ids);
+                 })
                     ->when(!empty($request->start_date), function ($query) use ($request) {
                         return $query->where('invoices.invoice_date', ">=", $request->start_date);
                     })
@@ -509,23 +478,7 @@ class PropertyBasicController extends Controller
                         )
                     );
 
-                // $invoicePaymentQuery = InvoicePayment::leftJoin('invoices', 'invoices.id', '=', 'invoice_payments.invoice_id')
-                //     ->where([
-                //         "invoices.landlord_id" => $landlord->id,
-                //         "invoices.created_by" => $request->user()->id
-                //     ])
-                //     ->when(!empty($request->start_date), function ($query) use ($request) {
-                //         return $query->where('invoice_payments.payment_date', ">=", $request->start_date);
-                //     })
-                //     ->when(!empty($request->end_date), function ($query) use ($request) {
-                //         return $query->where('invoice_payments.payment_date', "<",  $request['next_day'] );
-                //     })
-                //     ->when(!empty($request->property_ids), function ($query) use ($request) {
-                //         $null_filter = collect(array_filter($request->property_ids))->values();
-                //         $property_ids =  $null_filter->all();
-                //         return $query->whereIn("invoices.property_id",$property_ids);
-                //     })
-                //     ->select('invoice_payments.invoice_id', 'invoice_payments.amount as total_amount', 'invoice_payments.payment_date as created_at', 'invoices.invoice_reference', DB::raw("'invoice_payment' as type"), 'invoices.due_date as due_date');
+
 
 
 
@@ -551,7 +504,7 @@ class PropertyBasicController extends Controller
 
                 $section_1["start_date"] = $request->start_date;
                 $section_1["end_date"] = $request->end_date;
-                $section_1["landlord"] = $landlord;
+                $section_1["landlords"] = $landlords;
                 return response()->json([
                     "section_1" => $section_1,
                     "section_2" => $activitiesPaginated,
@@ -832,7 +785,7 @@ class PropertyBasicController extends Controller
                     "errors" => [
                         "property_id" => ["property must be selected if landlord or tenant is not selected."],
                         "tenant_id" => ["tenant must be selected if landlord or property is not selected."],
-                        "landlord_id" => ["landlord must be selected if tenant or property is not selected."],
+                        "landlord_ids" => ["landlord must be selected if tenant or property is not selected."],
                         "client_id" => ["client must be selected if business is other"]
 
                     ]

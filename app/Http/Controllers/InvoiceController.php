@@ -169,7 +169,7 @@ public function createInvoiceImage(ImageUploadRequest $request)
  * *  *  @OA\Property(property="note", type="string", format="string",example="note"),
  *  * *  *  @OA\Property(property="business_type", type="string", format="string",example="note"),
  *
- *  *  * *  @OA\Property(property="landlord_id", type="number", format="number",example="1"),
+   *            @OA\Property(property="landlord_ids", type="string", format="array",example={1,2,3}),
  *  * *  @OA\Property(property="property_id", type="number", format="number",example="1"),
  *  * *  @OA\Property(property="tenant_id", type="number", format="number",example="1"),
  * *  * *  @OA\Property(property="client_id", type="number", format="number",example="1"),
@@ -299,7 +299,7 @@ public function createInvoice(InvoiceCreateRequest $request)
             });
 
             $invoice->invoice_items()->createMany($invoiceItems->all());
-
+            $invoice->landlords()->sync($request_data['landlord_ids']);
 
             // $invoicePayments = collect($request_data["invoice_payments"])->map(function ($item) {
             //     return [
@@ -406,181 +406,6 @@ public function createInvoice(InvoiceCreateRequest $request)
 
 
 
-        //     for($i=0;$i<1000;$i++) {
-
-        //         $request_data["created_by"] = $request->user()->id;
-
-
-        //         $request_data2 = json_decode(json_encode($request_data),true);
-
-        //         $request_data2["invoice_reference"] = $request_data["invoice_reference"] . Str::random(4);
-
-
-        //         $reference_no_exists =  DB::table( 'invoices' )->where([
-        //             'invoice_reference'=> $request_data2['invoice_reference'],
-        //             "created_by" => $request->user()->id
-        //          ]
-        //          )->exists();
-
-
-
-        //          if ($reference_no_exists) {
-        //             $error =  [
-        //                    "message" => "The given data was invalid.",
-        //                    "errors" => ["invoice_reference"=>["The invoice reference has already been taken."]]
-        //             ];
-        //                throw new Exception(json_encode($error),422);
-        //            }
-
-
-        //         $invoice =  Invoice::create($request_data2);
-        //         if(!$invoice) {
-        //             throw new Exception("something went wrong");
-        //         }
-
-        //         $invoice->generated_id = Str::random(4) . $invoice->id . Str::random(4);
-        //         $invoice->shareable_link =  env("FRONT_END_URL_DASHBOARD")."/share/invoice/". Str::random(4) . "-". $invoice->generated_id ."-" . Str::random(4);
-
-        //         $invoice->save();
-
-        //         $invoiceItems = collect($request_data2["invoice_items"])->map(function ($item)use ($invoice) {
-        //             if(!empty($item["repair_id"])) {
-        //                 $invoice_item_exists =    InvoiceItem::where([
-        //                         "repair_id" => $item["repair_id"]
-        //                     ])
-        //                    ->whereNotIn("invoice_id",[$invoice->id])
-        //                     ->first();
-        //                     if($invoice_item_exists) {
-        //                         $error =  [
-        //                             "message" => "The given data was invalid.",
-        //                             "errors" => ["invoice_items"=>["invalid repair item"]]
-        //                      ];
-        //                         throw new Exception(json_encode($error),422);
-        //                     }
-
-        //         }
-
-        //             return [
-        //                 "name" => $item["name"],
-        //                 "description" => $item["description"],
-        //                 "quantity" => $item["quantity"],
-        //                 "price" => $item["price"],
-        //                 "tax" => $item["tax"],
-        //                 "amount" => $item["amount"],
-        //                 "repair_id" => !empty($item["repair_id"])?$item["repair_id"]:NULL,
-        //                 "sale_id" => !empty($item["sale_id"])?$item["sale_id"]:NULL,
-
-        //             ];
-        //         });
-
-        //         $invoice->invoice_items()->createMany($invoiceItems->all());
-
-
-        //         // $invoicePayments = collect($request_data["invoice_payments"])->map(function ($item) {
-        //         //     return [
-        //         //         "amount" => $item["amount"],
-        //         //         "payment_method" => $item["payment_method"],
-        //         //         "payment_date" => $item["payment_date"],
-        //         //     ];
-        //         // });
-        //         // $sum_payment_amounts = $invoicePayments->sum('amount');
-
-        //         // if($sum_payment_amounts > $invoice->total_amount) {
-        //         //     $error =  [
-        //         //         "message" => "The given data was invalid.",
-        //         //         "errors" => ["invoice_payments"=>["payment is more than total amount"]]
-        //         //  ];
-        //         //     throw new Exception(json_encode($error),422);
-        //         // }
-
-
-
-        //         // $invoice->invoice_payments()->createMany($invoicePayments->all());
-
-        //         // if($sum_payment_amounts == $invoice->total_amount) {
-        //         //     $invoice->status = "paid";
-        //         //     $invoice->invoice_reminder()->delete();
-        //         //     $invoice->save();
-        //         //  }
-        //         //  else {
-
-        //         //  }
-
-
-
-        //          if(!empty($request_data2["reminder_dates"]) &&  $invoice->status != "paid") {
-
-        //             InvoiceReminder::where([
-        //                 "invoice_id" => $invoice->id
-        //             ])
-        //             ->delete();
-        //             foreach($request_data2["reminder_dates"] as $reminder_date_amount) {
-
-
-        //                 $due_date = DateTime::createFromFormat('Y-m-d', $request_data2["due_date"]);
-        //                 if ($due_date !== false) {
-        //                     $due_date->modify(($reminder_date_amount . ' days'));
-        //                     $reminder_date = $due_date->format('Y-m-d');
-        //                 } else {
-        //                     // Handle invalid input date format
-        //                     // You can throw an exception, log an error, or provide a default value
-        //                     $reminder_date = null; // or set a default value
-        //                 }
-
-        //  InvoiceReminder::create([
-        //     "reminder_date_amount" => $reminder_date_amount,
-        //     "reminder_status" => "not_sent",
-        //     "send_reminder" => !empty($request_data2["send_reminder"])?$request_data2["send_reminder"]:0,
-        //     "reminder_date" =>$reminder_date,
-        //     "invoice_id" => $invoice->id,
-        //     "created_by" => $invoice->created_by
-        // ]);
-
-
-        //             }
-
-
-        //         }
-
-
-
-
-
-
-
-        //         $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder")
-        //         ->where([
-        //             "id" => $invoice->id,
-        //             "invoices.created_by" => $request->user()->id
-        //         ])
-        //         ->select("invoices.*",
-        //         DB::raw('
-        //             COALESCE(
-        //                 (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
-        //                 0
-        //             ) AS total_paid
-        //         '),
-        //         DB::raw('
-        //             COALESCE(
-        //                 invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
-        //                 invoices.total_amount
-        //             ) AS total_due
-        //         ')
-        //     )
-
-        //         ->first();
-
-        //         if(!$invoice) {
-        //      return response()->json([
-        // "message" => "no invoice found"
-        // ],404);
-        //         }
-
-
-
-
-
-        //     }
 
             return response($invoice, 201);
 
@@ -648,7 +473,7 @@ public function createInvoice(InvoiceCreateRequest $request)
  *  *  @OA\Property(property="note", type="string", format="string",example="note"),
  *   *  * *  *  @OA\Property(property="business_type", type="string", format="string",example="note"),
  *  * *  @OA\Property(property="property_id", type="number", format="number",example="1"),
- *  *  *  * *  @OA\Property(property="landlord_id", type="number", format="number",example="1"),
+   *            @OA\Property(property="landlord_ids", type="string", format="array",example={1,2,3}),
  *  * *  @OA\Property(property="tenant_id", type="number", format="number",example="1"),
  *  *  * *  @OA\Property(property="client_id", type="number", format="number",example="1"),
  *
@@ -746,16 +571,13 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 
                     "note",
                     "property_id",
-                    "landlord_id",
+
                     "tenant_id",
                     "client_id",
                     "discount_description",
                     "discound_type",
                     "discount_amount",
                     "due_date",
-
-
-
 
                 ])->toArray()
             )
@@ -809,6 +631,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 
                 $invoice->invoice_items()->upsert($invoiceItemsData->all(), ['id',"invoice_id"], ['name', 'description', 'quantity', 'price', 'tax', 'amount',"invoice_id"]);
 
+                $invoice->landlords()->sync($request_data['landlord_ids']);
 
                 // $invoicePayments = collect($request_data["invoice_payments"])->map(function ($item)use ($invoice) {
                 //     return [
@@ -939,32 +762,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 
 
 
-                // if(!empty($invoice->bill_id) ) {
-                //     $bill_data = [
-                //         "create_date"=>$invoice->invoice_date,
-                //         "property_id"=>$invoice->property_id,
-                //         "landlord_id"=>$invoice->landlord_id,
-                //         "landlord_id" => $invoice->landlord_id,
-                //          "payabble_amount" => $invoice->total_amount
-                //     ];
 
-
-                //     $bill  =  tap(Bill::where([
-                //         "bills.id" => $request_data["id"],
-                //         "bills.created_by" => $request->user()->id
-                //     ]))->update(
-                //         collect($bill_data)->only([
-                //             'create_date',
-                //             'property_id',
-                //             'landlord_id',
-                //             "payabble_amount",
-                //             "remarks",
-                //         ])->toArray()
-                //     )
-                //         ->first();
-
-
-                // }
 
 
 
@@ -1358,10 +1156,8 @@ public function updateInvoice(InvoiceUpdateRequest $request)
  public function invoiceQueryTest(Request $request) {
     // $automobilesQuery = AutomobileMake::with("makes");
 
-    $invoiceQuery = Invoice::with("invoice_items")
- //    with("invoice_items","invoice_payments","invoice_reminder","tenant","landlord","client")
-    ;
-    // ->leftJoin('users', 'invoices.created_by', '=', 'users.id')
+    $invoiceQuery = Invoice::with("invoice_items");
+
 
 
 
@@ -1395,9 +1191,14 @@ public function updateInvoice(InvoiceUpdateRequest $request)
         $invoiceQuery =   $invoiceQuery->where("invoices.invoice_reference", "like", "%" . $request->invoice_reference . "%");
     }
 
-    if (!empty($request->landlord_id)) {
-        $invoiceQuery =   $invoiceQuery->where("invoices.landlord_id", $request->landlord_id);
+    if (!empty($request->landlord_ids)) {
+        $invoiceQuery =  $invoiceQuery->whereHas("landlords", function ($query) {
+            $landlord_ids = explode(',', request()->input("landlord_ids"));
+            $query
+                ->whereIn("landlords.id", $landlord_ids);
+        });
     }
+
     if (!empty($request->tenant_id)) {
         $invoiceQuery =   $invoiceQuery->where("invoices.tenant_id", $request->tenant_id);
     }
@@ -1466,7 +1267,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 
     $invoiceQuery = Invoice::with("invoice_items")
 
- //    with("invoice_items","invoice_payments","invoice_reminder","tenant","landlord","client")
+
     ->where([
          "invoices.created_by" => $request->user()->id
     ])
@@ -1504,9 +1305,14 @@ public function updateInvoice(InvoiceUpdateRequest $request)
         $invoiceQuery =   $invoiceQuery->where("invoices.invoice_reference", "like", "%" . $request->invoice_reference . "%");
     }
 
-    if (!empty($request->landlord_id)) {
-        $invoiceQuery =   $invoiceQuery->where("invoices.landlord_id", $request->landlord_id);
+    if (!empty($request->landlord_ids)) {
+        $invoiceQuery =  $invoiceQuery->whereHas("landlords", function ($query) {
+            $landlord_ids = explode(',', request()->input("landlord_ids"));
+            $query
+                ->whereIn("landlords.id", $landlord_ids);
+        });
     }
+
     if (!empty($request->tenant_id)) {
         $invoiceQuery =   $invoiceQuery->where("invoices.tenant_id", $request->tenant_id);
     }
@@ -1590,7 +1396,6 @@ public function updateInvoice(InvoiceUpdateRequest $request)
    // $automobilesQuery = AutomobileMake::with("makes");
 
    $invoiceQuery = Invoice::
-//    with("invoice_items","invoice_payments","invoice_reminder","tenant","landlord","client")
    where([
         "invoices.created_by" => $request->user()->id
    ])
@@ -1628,9 +1433,15 @@ public function updateInvoice(InvoiceUpdateRequest $request)
        $invoiceQuery =   $invoiceQuery->where("invoices.invoice_reference", "like", "%" . $request->invoice_reference . "%");
    }
 
-   if (!empty($request->landlord_id)) {
-       $invoiceQuery =   $invoiceQuery->where("invoices.landlord_id", $request->landlord_id);
-   }
+   if (!empty($request->landlord_ids)) {
+    $invoiceQuery =  $invoiceQuery->whereHas("landlords", function ($query) {
+        $landlord_ids = explode(',', request()->input("landlord_ids"));
+        $query
+            ->whereIn("landlords.id", $landlord_ids);
+    });
+}
+
+
    if (!empty($request->tenant_id)) {
        $invoiceQuery =   $invoiceQuery->where("invoices.tenant_id", $request->tenant_id);
    }
@@ -1780,9 +1591,9 @@ $invoiceQuery = $invoiceQuery->orderBy("invoices.id",$request->order_by);
 * ),
 
  * *  @OA\Parameter(
-* name="landlord_id",
+* name="landlord_ids",
 * in="query",
-* description="landlord_id",
+* description="landlord_ids",
 * required=true,
 * example="1"
 * ),
@@ -1883,36 +1694,6 @@ public function getInvoices($perPage, Request $request)
         $invoices = $this->invoiceQuery2($request)->paginate($perPage);
         return response()->json($invoices, 200);
 
-    //   $invoices = $this->invoiceQuery($request)->paginate($perPage);
-
-
-    //     $invoiceQuery = Invoice::with("invoice_items","invoice_payments","invoice_reminder")
-    //     ->where([
-    //          "invoices.created_by" => $request->user()->id
-    //     ]);
-    //     // ->leftJoin('users', 'invoices.created_by', '=', 'users.id')
-
-
-
-
-
-
-    //     if(!empty($request->status)) {
-    //         if($request->status == "unpaid") {
-    //             $invoiceQuery =      $invoiceQuery->whereNotIn("status", ['draft','paid']);
-    //         }
-    //        else if($request->status == "next_15_days_invoice_due") {
-    //             $currentDate = Carbon::now();
-    //             $endDate = $currentDate->copy()->addDays(15);
-    //             $invoiceQuery =      $invoiceQuery->whereNotIn("status", ['draft','paid']);
-    //             $invoiceQuery =      $invoiceQuery->whereDate('invoices.due_date', '>=', $currentDate);
-    //             $invoiceQuery =      $invoiceQuery->whereDate('invoices.due_date', '<=', $endDate);
-    //         }
-    //         else {
-    //             $invoiceQuery =      $invoiceQuery->where("status", $request->status);
-    //         }
-
-    //      }
 
 
 
@@ -1920,71 +1701,6 @@ public function getInvoices($perPage, Request $request)
 
 
 
-    //     if (!empty($request->invoice_reference)) {
-    //         $invoiceQuery =   $invoiceQuery->where("invoices.invoice_reference", "like", "%" . $request->invoice_reference . "%");
-    //     }
-
-    //     if (!empty($request->landlord_id)) {
-    //         $invoiceQuery =   $invoiceQuery->where("invoices.landlord_id", $request->landlord_id);
-    //     }
-    //     if (!empty($request->tenant_id)) {
-    //         $invoiceQuery =   $invoiceQuery->where("invoices.tenant_id", $request->tenant_id);
-    //     }
-        //     if (!empty($request->client_id)) {
-    //         $invoiceQuery =   $invoiceQuery->where("invoices.client_id", $request->client_id);
-    //     }
-
-
-    //     if (!empty($request->property_id)) {
-    //         $invoiceQuery =   $invoiceQuery->where("invoices.property_id", $request->property_id);
-    //     }
-
-
-    //     if(!empty($request->property_ids)) {
-    //         $null_filter = collect(array_filter($request->property_ids))->values();
-    //     $property_ids =  $null_filter->all();
-    //         if(count($property_ids)) {
-    //             $invoiceQuery =   $invoiceQuery->whereIn("invoices.property_id",$property_ids);
-    //         }
-
-    //     }
-
-
-    //     // if (!empty($request->search_key)) {
-    //     //     $invoiceQuery = $invoiceQuery->where(function ($query) use ($request) {
-    //     //         $term = $request->search_key;
-    //     //         $query->where("name", "like", "%" . $term . "%");
-    //     //     });
-    //     // }
-
-    //     if (!empty($request->start_date)) {
-    //         $invoiceQuery = $invoiceQuery->where('invoices.created_at', ">=", $request->start_date);
-    //     }
-
-    //     if (!empty($request->end_date)) {
-    //         $invoiceQuery = $invoiceQuery->where('invoices.created_at', "<=", $request->end_date);
-    //     }
-
-    //     $invoices = $invoiceQuery
-    //     ->select("invoices.*",
-    //     DB::raw('
-    //         COALESCE(
-    //             (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
-    //             0
-    //         ) AS total_paid
-    //     '),
-    //     DB::raw('
-    //         COALESCE(
-    //             invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
-    //             invoices.total_amount
-    //         ) AS total_due
-    //     ')
-    // )
-
-
-    //     ->orderByDesc("invoices.id")->paginate($perPage);
-
-    //      return response()->json($invoices, 200);
     } catch (Exception $e) {
 
         return $this->sendError($e, 500,$request);
@@ -2046,9 +1762,9 @@ public function getInvoices($perPage, Request $request)
 * ),
 
  * *  @OA\Parameter(
-* name="landlord_id",
+* name="landlord_ids",
 * in="query",
-* description="landlord_id",
+* description="landlord_ids",
 * required=true,
 * example="1"
 * ),
@@ -2165,18 +1881,19 @@ return $pdf->stream(); // Stream the PDF content
 
       $data =    ["invoices"=>$invoices,"business"=>$business];
 
-          if (!empty($request->landlord_id)) {
-            $landlord = Landlord::where([
-                "id" => $request->landlord_id,
-                // "created_by" => $request->user()->id
+          if (!empty($request->landlord_ids)) {
+            $landlord_ids = explode(',', request()->input("landlord_ids"));
+            $landlords = Landlord::whereIn("id",$landlord_ids)
+            ->where([
+                "created_by" => $request->user()->id
             ])
-                ->first();
-            if (!$landlord) {
+                ->get();
+            if (empty($landlords)) {
                 return response()->json([
                     "message" => "no landlord found"
                 ], 404);
             }
-            $data["client"] = $landlord;
+            $data["client"] = $landlords;
         }
         else   if (!empty($request->tenant_id)) {
             $tenant = Tenant::where([
@@ -2210,7 +1927,7 @@ return $pdf->stream(); // Stream the PDF content
                 "errors" => [
 
                     "tenant_id" => ["tenant must be selected if landlord or client_id is not selected."],
-                    "landlord_id" => ["landlord must be selected if tenant or client_id is not selected."],
+                    "landlord_ids" => ["landlord must be selected if tenant or client_id is not selected."],
                     "client_id" => ["client must be selected if business is other"]
 
                 ]
@@ -2284,9 +2001,9 @@ return $pdf->stream(); // Stream the PDF content
 * ),
 
  * *  @OA\Parameter(
-* name="landlord_id",
+* name="landlord_ids",
 * in="query",
-* description="landlord_id",
+* description="landlord_ids",
 * required=true,
 * example="1"
 * ),
@@ -2538,7 +2255,7 @@ public function getInvoiceById($id, Request $request)
         $this->storeActivity($request,"");
 
 
-        $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder","tenant","landlord","property","client")
+        $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder","tenant","landlords","property","client")
         ->where([
             "generated_id" => $id,
             // "invoices.created_by" => $request->user()->id
@@ -2635,7 +2352,7 @@ public function getInvoiceById($id, Request $request)
          $this->storeActivity($request,"");
 
 
-         $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder","tenant","landlord","property","client")
+         $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder","tenant","landlords","property","client")
          ->where([
              "invoice_reference" => $reference,
              "invoices.created_by" => $request->user()->id
