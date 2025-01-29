@@ -10,6 +10,7 @@ use App\Http\Requests\PropertyCreateRequestV2;
 use App\Http\Requests\PropertyUpdateLandlordRequest;
 use App\Http\Requests\PropertyUpdateRequest;
 use App\Http\Requests\PropertyUpdateRequestV2;
+use App\Http\Requests\PropertyUpdateTenantRequest;
 use App\Http\Utils\BasicUtil;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
@@ -1180,7 +1181,81 @@ class PropertyController extends Controller
         }
     }
 
+  /**
+     *
+     * @OA\Put(
+     *      path="/v1.0/properties-update-tenant",
+     *      operationId="updatePropertyTenant",
+     *      tags={"property_management.property_management"},
+     *       security={
+     *           {"bearerAuth": {}}
+     *       },
+     *      summary="This method is to update property",
+     *      description="This method is to update property",
+     *
+     *  @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *            required={"id","name","description","logo"},
+     *     *             @OA\Property(property="id", type="number", format="number",example="1"),
+     *                @OA\Property(property="tenant_ids", type="string", format="array",example={1,2,3}),
+     *
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       @OA\JsonContent(),
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     * @OA\JsonContent(),
+     *      ),
+     *        @OA\Response(
+     *          response=422,
+     *          description="Unprocesseble Content",
+     *    @OA\JsonContent(),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *   @OA\JsonContent()
+     * ),
+     *  * @OA\Response(
+     *      response=400,
+     *      description="Bad Request",
+     *   *@OA\JsonContent()
+     *   ),
+     * @OA\Response(
+     *      response=404,
+     *      description="not found",
+     *   *@OA\JsonContent()
+     *   )
+     *      )
+     *     )
+     */
+    public function updatePropertyTenant(PropertyUpdateTenantRequest $request)
+    {
+        try {
 
+            // Find the property by ID
+            $property = Property::findOrFail($request->input('id'));
+
+            // Store activity (if needed)
+            $this->storeActivity($request, "updated");
+
+            // Validate request data
+            $request_data = $request->validated();
+
+            $property->property_tenants()->sync($request_data['tenant_ids']);
+
+
+            return response()->json($property, 200);
+        } catch (Exception $e) {
+            return $this->sendError($e, 500, $request);
+        }
+    }
 
     /**
      *

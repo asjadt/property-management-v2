@@ -15,6 +15,11 @@ class TenancyAgreement extends Model
         'rent_payment_option',
         'tenant_contact_duration',
         'date_of_moving',
+
+
+        'holder_reference_number',
+        'holder_entity',
+
         'let_only_agreement_expired_date',
         'tenant_contact_expired_date',
         'rent_due_day',

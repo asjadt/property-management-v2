@@ -19,7 +19,7 @@ class TenancyAgreementController extends Controller
     use ErrorUtil, UserActivityUtil;
 
 
-     /**
+    /**
      * @OA\Post(
      *      path="/v1.0/tenancy-agreement",
      *      operationId="createTenancyAgreement",
@@ -41,6 +41,8 @@ class TenancyAgreementController extends Controller
      *         @OA\Property(property="rent_payment_option", type="string", enum={"By_Cash", "By_Cheque", "Bank_Transfer"}, example="By_Cash"),
      *         @OA\Property(property="tenant_contact_duration", type="string", example="12 months"),
      *         @OA\Property(property="date_of_moving", type="string", format="date", example="2024-11-01"),
+     *      *         @OA\Property(property="holder_reference_number", type="string", format="string", example="holder_reference_number"),
+    *         @OA\Property(property="holder_entity", type="string", format="string", example="holder_entity"),
      *         @OA\Property(property="let_only_agreement_expired_date", type="string", format="date", example="2025-11-01", nullable=true),
      *         @OA\Property(property="tenant_contact_expired_date", type="string", format="date", example="2025-11-01", nullable=true),
      *         @OA\Property(property="rent_due_day", type="string", format="date", example="2024-11-05"),
@@ -139,38 +141,42 @@ class TenancyAgreementController extends Controller
      *      },
      *      summary="Update property agreement",
      *      description="This method updates an existing property agreement based on the provided data.",
-  * @OA\RequestBody(
- *     required=true,
- *     @OA\JsonContent(
- *         required={},
- *         @OA\Property(property="id", type="string", example="1"),
- *         @OA\Property(property="agreed_rent", type="string", example="1000.00"),
- *         @OA\Property(property="security_deposit_hold", type="string", example="2000.00"),
- *         @OA\Property(property="tenant_ids", type="array", @OA\Items(type="integer"), example={1, 2, 3}),
- *         @OA\Property(property="rent_payment_option", type="string", enum={"By_Cash", "By_Cheque", "Bank_Transfer"}, example="By_Cash"),
- *         @OA\Property(property="tenant_contact_duration", type="string", example="12 months"),
- *         @OA\Property(property="date_of_moving", type="string", format="date", example="2024-11-01"),
- *         @OA\Property(property="let_only_agreement_expired_date", type="string", format="date", example="2025-11-01", nullable=true),
- *         @OA\Property(property="tenant_contact_expired_date", type="string", format="date", example="2025-11-01", nullable=true),
- *         @OA\Property(property="rent_due_day", type="string", format="date", example="2024-11-05"),
- *         @OA\Property(property="no_of_occupants", type="string", example="3"),
- *         @OA\Property(property="tenant_contact_year_duration", type="string", example="tenant_contact_year_duration"),
- *         @OA\Property(property="renewal_fee", type="string", example="50.00"),
- *         @OA\Property(property="housing_act", type="string", example="Housing Act 1988"),
- *         @OA\Property(property="let_type", type="string", example="Standard Let"),
- *         @OA\Property(property="terms_and_conditions", type="string", example="Updated terms and conditions..."),
- *         @OA\Property(property="agency_name", type="string", example="XYZ Realty"),
- *         @OA\Property(property="landlord_name", type="string", example="John Doe"),
- *         @OA\Property(property="agency_witness_name", type="string", example="Jane Smith"),
- *         @OA\Property(property="tenant_witness_name", type="string", example="Mark Johnson"),
- *         @OA\Property(property="agency_witness_address", type="string", example="123 Agency St, City, Country"),
- *         @OA\Property(property="tenant_witness_address", type="string", example="456 Tenant Rd, City, Country"),
- *         @OA\Property(property="guarantor_name", type="string", example="Sarah Lee", nullable=true),
- *         @OA\Property(property="guarantor_address", type="string", example="789 Guarantor Ave, City, Country", nullable=true),
- *    *       @OA\Property(property="tenant_sign_date", type="string", format="date", example="2024-11-01"),
+     * @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(
+     *         required={},
+     *         @OA\Property(property="id", type="string", example="1"),
+     *         @OA\Property(property="agreed_rent", type="string", example="1000.00"),
+     *         @OA\Property(property="security_deposit_hold", type="string", example="2000.00"),
+     *         @OA\Property(property="tenant_ids", type="array", @OA\Items(type="integer"), example={1, 2, 3}),
+     *         @OA\Property(property="rent_payment_option", type="string", enum={"By_Cash", "By_Cheque", "Bank_Transfer"}, example="By_Cash"),
+     *         @OA\Property(property="tenant_contact_duration", type="string", example="12 months"),
+     *         @OA\Property(property="date_of_moving", type="string", format="date", example="2024-11-01"),
+     *         @OA\Property(property="holder_reference_number", type="string", format="string", example="holder_reference_number"),
+    *         @OA\Property(property="holder_entity", type="string", format="string", example="holder_entity"),
+     *
+     *
+     *         @OA\Property(property="let_only_agreement_expired_date", type="string", format="date", example="2025-11-01", nullable=true),
+     *         @OA\Property(property="tenant_contact_expired_date", type="string", format="date", example="2025-11-01", nullable=true),
+     *         @OA\Property(property="rent_due_day", type="string", format="date", example="2024-11-05"),
+     *         @OA\Property(property="no_of_occupants", type="string", example="3"),
+     *         @OA\Property(property="tenant_contact_year_duration", type="string", example="tenant_contact_year_duration"),
+     *         @OA\Property(property="renewal_fee", type="string", example="50.00"),
+     *         @OA\Property(property="housing_act", type="string", example="Housing Act 1988"),
+     *         @OA\Property(property="let_type", type="string", example="Standard Let"),
+     *         @OA\Property(property="terms_and_conditions", type="string", example="Updated terms and conditions..."),
+     *         @OA\Property(property="agency_name", type="string", example="XYZ Realty"),
+     *         @OA\Property(property="landlord_name", type="string", example="John Doe"),
+     *         @OA\Property(property="agency_witness_name", type="string", example="Jane Smith"),
+     *         @OA\Property(property="tenant_witness_name", type="string", example="Mark Johnson"),
+     *         @OA\Property(property="agency_witness_address", type="string", example="123 Agency St, City, Country"),
+     *         @OA\Property(property="tenant_witness_address", type="string", example="456 Tenant Rd, City, Country"),
+     *         @OA\Property(property="guarantor_name", type="string", example="Sarah Lee", nullable=true),
+     *         @OA\Property(property="guarantor_address", type="string", example="789 Guarantor Ave, City, Country", nullable=true),
+     *    *       @OA\Property(property="tenant_sign_date", type="string", format="date", example="2024-11-01"),
      *       @OA\Property(property="agency_sign_date", type="string", format="date", example="2025-11-01")
- *     )
- * ),
+     *     )
+     * ),
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
@@ -204,12 +210,11 @@ class TenancyAgreementController extends Controller
                 $request_data = $request->validated();
 
                 // Find the agreement, including soft-deleted records
-                $agreement = TenancyAgreement::
-                whereHas('property', function ($q) {
-                    // Ensure the property is created by the authenticated user
-                    $q->where('properties.created_by', auth()->user()->id);
-                })
-                ->where('id', $request_data['id'])
+                $agreement = TenancyAgreement::whereHas('property', function ($q) {
+                        // Ensure the property is created by the authenticated user
+                        $q->where('properties.created_by', auth()->user()->id);
+                    })
+                    ->where('id', $request_data['id'])
                     ->first();  // Returns null if not found
 
                 // Check if agreement exists
@@ -234,7 +239,7 @@ class TenancyAgreementController extends Controller
 
 
 
- /**
+    /**
      * @OA\Get(
      *      path="/v1.0/tenancy-agreements",
      *      operationId="getTenancyAgreements",
@@ -301,59 +306,62 @@ class TenancyAgreementController extends Controller
      * )
      */
 
-     public function getTenancyAgreements(Request $request)
-     {
-         try {
-             // Start building the query for history
-             $query = TenancyAgreement::with([
-                 "tenants" => function($query) {
-                      $query->select("tenants.id","tenants.first_Name","tenants.last_Name"
-         );
-                 }
-             ])
+    public function getTenancyAgreements(Request $request)
+    {
+        try {
+            // Start building the query for history
+            $query = TenancyAgreement::with([
+                "tenants" => function ($query) {
+                    $query->select(
+                        "tenants.id",
+                        "tenants.first_Name",
+                        "tenants.last_Name"
+                    );
+                }
+            ])
 
-             ->whereHas('property', function ($q) {
-                 // Ensure the property is created by the authenticated user
-                 $q->where('properties.created_by', auth()->user()->id);
-             })
-             ->when($request->filled('tenant_ids'), function ($q) use ($request) {
-                 // Filter by property_id if provided
-                 $q->whereHas('tenants', function ($q) {
-                     $tenant_ids = explode(',', request()->input('tenant_ids'));
-                     // Ensure the property is created by the authenticated user
-                     $q->whereIn('tenants.id', $tenant_ids);
-                 });
-             })
-                 ->when($request->filled('property_id'), function ($q) use ($request) {
-                     // Filter by property_id if provided
-                     $q->where('property_id', $request->property_id);
-                 })
-                 ->when($request->filled('property_ids'), function ($q) use ($request) {
-                     // Filter by property_id if provided
-                     $property_ids = explode(',', request()->input("property_ids"));
-                     $q->whereIn('property_id', $property_ids);
-                 })
-                 ->when($request->filled('id'), function ($q) use ($request) {
-                     // If specific ID is provided, return that record only
-                     return $q->where('id', $request->input('id'))->first();
-                 }, function ($q) {
-                     // Otherwise, fetch history (including soft-deleted agreements)
-                     return $q
-                         // ->withTrashed() // Include soft-deleted records
-                         ->when(!empty($request->per_page), function ($q) {
-                             // Paginate if per_page is provided
-                             return $q->paginate(request()->per_page);
-                         }, function ($q) {
-                             // Otherwise, return all agreements
-                             return $q->get();
-                         });
-                 });
+                ->whereHas('property', function ($q) {
+                    // Ensure the property is created by the authenticated user
+                    $q->where('properties.created_by', auth()->user()->id);
+                })
+                ->when($request->filled('tenant_ids'), function ($q) use ($request) {
+                    // Filter by property_id if provided
+                    $q->whereHas('tenants', function ($q) {
+                        $tenant_ids = explode(',', request()->input('tenant_ids'));
+                        // Ensure the property is created by the authenticated user
+                        $q->whereIn('tenants.id', $tenant_ids);
+                    });
+                })
+                ->when($request->filled('property_id'), function ($q) use ($request) {
+                    // Filter by property_id if provided
+                    $q->where('property_id', $request->property_id);
+                })
+                ->when($request->filled('property_ids'), function ($q) use ($request) {
+                    // Filter by property_id if provided
+                    $property_ids = explode(',', request()->input("property_ids"));
+                    $q->whereIn('property_id', $property_ids);
+                })
+                ->when($request->filled('id'), function ($q) use ($request) {
+                    // If specific ID is provided, return that record only
+                    return $q->where('id', $request->input('id'))->first();
+                }, function ($q) {
+                    // Otherwise, fetch history (including soft-deleted agreements)
+                    return $q
+                        // ->withTrashed() // Include soft-deleted records
+                        ->when(!empty($request->per_page), function ($q) {
+                            // Paginate if per_page is provided
+                            return $q->paginate(request()->per_page);
+                        }, function ($q) {
+                            // Otherwise, return all agreements
+                            return $q->get();
+                        });
+                });
 
-             return response()->json($query, 200);
-         } catch (Exception $e) {
-             return $this->sendError($e, 500, $request);
-         }
-     }
+            return response()->json($query, 200);
+        } catch (Exception $e) {
+            return $this->sendError($e, 500, $request);
+        }
+    }
 
 
     /**
@@ -423,29 +431,32 @@ class TenancyAgreementController extends Controller
      * )
      */
 
-     public function getTenancyAgreementsV2(Request $request)
-     {
-         try {
-             // Start building the query for tenancy agreements
-             $agreements = TenancyAgreement::with([
-                "tenants" => function($query) {
-                     $query->select("tenants.id","tenants.first_Name","tenants.last_Name"
-        );
+    public function getTenancyAgreementsV2(Request $request)
+    {
+        try {
+            // Start building the query for tenancy agreements
+            $agreements = TenancyAgreement::with([
+                "tenants" => function ($query) {
+                    $query->select(
+                        "tenants.id",
+                        "tenants.first_Name",
+                        "tenants.last_Name"
+                    );
                 }
             ])
 
-            ->whereHas('property', function ($q) {
-                // Ensure the property is created by the authenticated user
-                $q->where('properties.created_by', auth()->user()->id);
-            })
-            ->when($request->filled('tenant_ids'), function ($q) use ($request) {
-                // Filter by property_id if provided
-                $q->whereHas('tenants', function ($q) {
-                    $tenant_ids = explode(',', request()->input('tenant_ids'));
+                ->whereHas('property', function ($q) {
                     // Ensure the property is created by the authenticated user
-                    $q->whereIn('tenants.id', $tenant_ids);
-                });
-            })
+                    $q->where('properties.created_by', auth()->user()->id);
+                })
+                ->when($request->filled('tenant_ids'), function ($q) use ($request) {
+                    // Filter by property_id if provided
+                    $q->whereHas('tenants', function ($q) {
+                        $tenant_ids = explode(',', request()->input('tenant_ids'));
+                        // Ensure the property is created by the authenticated user
+                        $q->whereIn('tenants.id', $tenant_ids);
+                    });
+                })
                 ->when($request->filled('property_id'), function ($q) use ($request) {
                     // Filter by property_id if provided
                     $q->where('property_id', $request->property_id);
@@ -471,39 +482,38 @@ class TenancyAgreementController extends Controller
                         });
                 });
 
-                if ($agreements instanceof \Illuminate\Pagination\LengthAwarePaginator || $agreements instanceof \Illuminate\Support\Collection) {
-                    $agreementIds = $agreements->pluck('id')->all();
-                } elseif ($agreements instanceof \App\Models\TenancyAgreement) {
-                    $agreementIds = [$agreements->id];
-                } else {
-                    $agreementIds = [];
-                }
+            if ($agreements instanceof \Illuminate\Pagination\LengthAwarePaginator || $agreements instanceof \Illuminate\Support\Collection) {
+                $agreementIds = $agreements->pluck('id')->all();
+            } elseif ($agreements instanceof \App\Models\TenancyAgreement) {
+                $agreementIds = [$agreements->id];
+            } else {
+                $agreementIds = [];
+            }
 
-                 // Calculate rent highlights (total rent, total paid, total arrears, highest rent)
-        $rentHighlights = Rent::whereIn('tenancy_agreement_id', $agreementIds)
-        ->selectRaw(
-            'SUM(rent_amount) as total_rent,
+            // Calculate rent highlights (total rent, total paid, total arrears, highest rent)
+            $rentHighlights = Rent::whereIn('tenancy_agreement_id', $agreementIds)
+                ->selectRaw(
+                    'SUM(rent_amount) as total_rent,
              SUM(paid_amount) as total_paid,
              SUM(rent_amount - paid_amount) as total_arrears,
              MAX(rent_amount) as highest_rent'
-        )
-        ->first();
+                )
+                ->first();
 
 
-             return response()->json([
-                 'data' => $agreements,
-                 'rent_highlights' => $rentHighlights,
-             ], 200);
-
-         } catch (Exception $e) {
-             return $this->sendError($e, 500, $request);
-         }
-     }
-
+            return response()->json([
+                'data' => $agreements,
+                'rent_highlights' => $rentHighlights,
+            ], 200);
+        } catch (Exception $e) {
+            return $this->sendError($e, 500, $request);
+        }
+    }
 
 
 
- /**
+
+    /**
      * @OA\Get(
      *      path="/v1.0/tenancy-agreements-with-rent",
      *      operationId="getTenancyAgreementsWithRent",
@@ -570,175 +580,178 @@ class TenancyAgreementController extends Controller
      * )
      */
 
-     public function getTenancyAgreementsWithRent(Request $request)
-     {
-         try {
+    public function getTenancyAgreementsWithRent(Request $request)
+    {
+        try {
 
             $year = $request->year;
             $month = $request->month;
 
-            if(!request()->filled('year') || !request()->filled('month')) {
+            if (!request()->filled('year') || !request()->filled('month')) {
 
-            return response()->json([
-                "message" => "year and month are required"
-              ],
-            404);
-
+                return response()->json(
+                    [
+                        "message" => "year and month are required"
+                    ],
+                    404
+                );
             }
 
 
-             $tenancy_agreements = TenancyAgreement::with([
-                 "tenants" => function($query) {
-                      $query->select("tenants.id","tenants.first_Name","tenants.last_Name"
-         );
-                 }
-             ])
-             ->where(function ($query) use ($year, $month) {
+            $tenancy_agreements = TenancyAgreement::with([
+                "tenants" => function ($query) {
+                    $query->select(
+                        "tenants.id",
+                        "tenants.first_Name",
+                        "tenants.last_Name"
+                    );
+                }
+            ])
+                ->where(function ($query) use ($year, $month) {
 
 
-                 // Create the start and end dates for the given month
-                 $startDate = Carbon::createFromDate($year, $month, 1)->startOfDay();
-                 $endDate = Carbon::createFromDate($year, $month, 1)->endOfMonth()->endOfDay();
+                    // Create the start and end dates for the given month
+                    $startDate = Carbon::createFromDate($year, $month, 1)->startOfDay();
+                    $endDate = Carbon::createFromDate($year, $month, 1)->endOfMonth()->endOfDay();
 
-                 $query->where(function ($subQuery) use ($startDate, $endDate) {
-                     $subQuery->where('tenancy_agreements.date_of_moving', '<=', $endDate)
-                              ->where('tenancy_agreements.tenant_contact_expired_date', '>=', $startDate);
-                 })
-                 ->whereDoesntHave("rent", function ($subQuery) use ($year, $month) {
-                     $subQuery->where('rents.year', $year)
-                              ->where('rents.month', $month);
-                 });
-             })
+                    $query->where(function ($subQuery) use ($startDate, $endDate) {
+                        $subQuery->where('tenancy_agreements.date_of_moving', '<=', $endDate)
+                            ->where('tenancy_agreements.tenant_contact_expired_date', '>=', $startDate);
+                    })
+                        ->whereDoesntHave("rent", function ($subQuery) use ($year, $month) {
+                            $subQuery->where('rents.year', $year)
+                                ->where('rents.month', $month);
+                        });
+                })
 
-             ->whereHas('property', function ($q) {
-                 // Ensure the property is created by the authenticated user
-                 $q->where('properties.created_by', auth()->user()->id);
-             })
-             ->when($request->filled('tenant_ids'), function ($q) use ($request) {
-                 // Filter by property_id if provided
-                 $q->whereHas('tenants', function ($q) {
-                     $tenant_ids = explode(',', request()->input('tenant_ids'));
-                     // Ensure the property is created by the authenticated user
-                     $q->whereIn('tenants.id', $tenant_ids);
-                 });
-             })
-                 ->when($request->filled('property_id'), function ($q) use ($request) {
-                     // Filter by property_id if provided
-                     $q->where('property_id', $request->property_id);
-                 })
-                 ->when($request->filled('property_ids'), function ($q) use ($request) {
-                     // Filter by property_id if provided
-                     $property_ids = explode(',', request()->input("property_ids"));
-                     $q->whereIn('property_id', $property_ids);
-                 })
-                 ->get();
+                ->whereHas('property', function ($q) {
+                    // Ensure the property is created by the authenticated user
+                    $q->where('properties.created_by', auth()->user()->id);
+                })
+                ->when($request->filled('tenant_ids'), function ($q) use ($request) {
+                    // Filter by property_id if provided
+                    $q->whereHas('tenants', function ($q) {
+                        $tenant_ids = explode(',', request()->input('tenant_ids'));
+                        // Ensure the property is created by the authenticated user
+                        $q->whereIn('tenants.id', $tenant_ids);
+                    });
+                })
+                ->when($request->filled('property_id'), function ($q) use ($request) {
+                    // Filter by property_id if provided
+                    $q->where('property_id', $request->property_id);
+                })
+                ->when($request->filled('property_ids'), function ($q) use ($request) {
+                    // Filter by property_id if provided
+                    $property_ids = explode(',', request()->input("property_ids"));
+                    $q->whereIn('property_id', $property_ids);
+                })
+                ->get();
 
 
 
-                $rents = Rent::with("tenancy_agreement.property","tenancy_agreement.tenants")
-                 ->where('rents.created_by', auth()->user()->id)
-                 ->where('rents.year', request()->input('year'))
-                 ->where('rents.month', request()->input('month'))
+            $rents = Rent::with("tenancy_agreement.property", "tenancy_agreement.tenants")
+                ->where('rents.created_by', auth()->user()->id)
+                ->where('rents.year', request()->input('year'))
+                ->where('rents.month', request()->input('month'))
 
 
                 ->when(request()->filled("tenant_ids"), function ($query) {
-            return $query->whereHas("tenancy_agreement.tenants",function($query) {
-                $tenant_ids = explode(',', request()->input("tenant_ids"));
-                   $query->whereIn("tenants.id",$tenant_ids);
-            });
-        })
-                  ->when(request()->filled("property_ids"), function ($query) {
-            return $query->whereHas("tenancy_agreement",function($query) {
-                $property_ids = explode(',', request()->input("property_ids"));
-                   $query->whereIn("tenancy_agreements.property_id", $property_ids);
-            });
-        })
-            ->when(request()->filled("start_payment_date"), function ($query) {
-                return $query->whereDate(
-                    'rents.payment_date',
-                    ">=",
-                    request()->input("start_payment_date")
-                );
-            })
+                    return $query->whereHas("tenancy_agreement.tenants", function ($query) {
+                        $tenant_ids = explode(',', request()->input("tenant_ids"));
+                        $query->whereIn("tenants.id", $tenant_ids);
+                    });
+                })
+                ->when(request()->filled("property_ids"), function ($query) {
+                    return $query->whereHas("tenancy_agreement", function ($query) {
+                        $property_ids = explode(',', request()->input("property_ids"));
+                        $query->whereIn("tenancy_agreements.property_id", $property_ids);
+                    });
+                })
+                ->when(request()->filled("start_payment_date"), function ($query) {
+                    return $query->whereDate(
+                        'rents.payment_date',
+                        ">=",
+                        request()->input("start_payment_date")
+                    );
+                })
 
-            ->when(request()->filled("end_payment_date"), function ($query) {
-                return $query->whereDate('rents.payment_date', "<=", request()->input("end_payment_date"));
-            })
-            ->when(request()->filled("payment_status"), function ($query) {
-                return $query->where(
-                    'rents.payment_status',
-                    request()->input("payment_status")
-                );
-            })
-            ->when(request()->filled("search_key"), function ($query) {
-                return $query->where(function ($query) {
-                    $term = request()->input("search_key");
-                    $query
+                ->when(request()->filled("end_payment_date"), function ($query) {
+                    return $query->whereDate('rents.payment_date', "<=", request()->input("end_payment_date"));
+                })
+                ->when(request()->filled("payment_status"), function ($query) {
+                    return $query->where(
+                        'rents.payment_status',
+                        request()->input("payment_status")
+                    );
+                })
+                ->when(request()->filled("search_key"), function ($query) {
+                    return $query->where(function ($query) {
+                        $term = request()->input("search_key");
+                        $query
 
-                        ->orWhere("rents.payment_status", "like", "%" . $term . "%");
-                });
-            })
-            ->when(request()->filled("start_date"), function ($query) {
-                return $query->whereDate('rents.created_at', ">=", request()->input("start_date"));
-            })
-            ->when(request()->filled("end_date"), function ($query) {
-                return $query->whereDate('rents.created_at', "<=", request()->input("end_date"));
-            })
-            ->get();
+                            ->orWhere("rents.payment_status", "like", "%" . $term . "%");
+                    });
+                })
+                ->when(request()->filled("start_date"), function ($query) {
+                    return $query->whereDate('rents.created_at', ">=", request()->input("start_date"));
+                })
+                ->when(request()->filled("end_date"), function ($query) {
+                    return $query->whereDate('rents.created_at', "<=", request()->input("end_date"));
+                })
+                ->get();
 
-            foreach($tenancy_agreements as $tenancy_agreement) {
-                            // Calculate total arrears
-                        $agreement_rents = Rent::where([
+            foreach ($tenancy_agreements as $tenancy_agreement) {
+                // Calculate total arrears
+                $agreement_rents = Rent::where([
                     "tenancy_agreement_id" => $tenancy_agreement->id
-                        ])
-                            ->where(function ($query) use($year,$month)  {
-                                $query->where('year', '<', ["year"])
-                                    ->orWhere(function ($query) use ($year,$month) {
-                                        $query->where('year', $year)
-                                            ->where('month', '<=', $month);
-                                    });
-                            })
-                            ->orderBy('year')
-                            ->orderBy('month')
-                        ->get();
+                ])
+                    ->where(function ($query) use ($year, $month) {
+                        $query->where('year', '<', ["year"])
+                            ->orWhere(function ($query) use ($year, $month) {
+                                $query->where('year', $year)
+                                    ->where('month', '<=', $month);
+                            });
+                    })
+                    ->orderBy('year')
+                    ->orderBy('month')
+                    ->get();
 
-$tenancy_agreement["arrear"] = $agreement_rents->sum(function ($rent) {
-    return $rent->rent_amount - $rent->paid_amount;
-});
+                $tenancy_agreement["arrear"] = $agreement_rents->sum(function ($rent) {
+                    return $rent->rent_amount - $rent->paid_amount;
+                });
             }
 
-            foreach($rents as $rent) {
+            foreach ($rents as $rent) {
                 // Calculate total arrears
-            $taken_rents = Rent::where([
-        "tenancy_agreement_id" => $rent->tenancy_agreement_id
-            ])
-                ->where(function ($query) use($rent)  {
-                    $query->where('year', '<', $rent->year)
-                        ->orWhere(function ($query) use ($rent) {
-                            $query->where('year', $rent->year)
-                                ->where('month', '<=', $rent->month);
-                        });
-                })
-                ->orderBy('year')
-                ->orderBy('month')
-            ->get();
+                $taken_rents = Rent::where([
+                    "tenancy_agreement_id" => $rent->tenancy_agreement_id
+                ])
+                    ->where(function ($query) use ($rent) {
+                        $query->where('year', '<', $rent->year)
+                            ->orWhere(function ($query) use ($rent) {
+                                $query->where('year', $rent->year)
+                                    ->where('month', '<=', $rent->month);
+                            });
+                    })
+                    ->orderBy('year')
+                    ->orderBy('month')
+                    ->get();
 
-$rent["arrear"] = $taken_rents->sum(function ($rent) {
-return $rent->rent_amount - $rent->paid_amount;
-});
+                $rent["arrear"] = $taken_rents->sum(function ($rent) {
+                    return $rent->rent_amount - $rent->paid_amount;
+                });
+            }
 
-}
+            $responseData = [
+                "selectable_tenancy_agreements" => $tenancy_agreements,
+                "taken_rents" => $rents
+            ];
 
-                 $responseData = [
-                    "selectable_tenancy_agreements" => $tenancy_agreements,
-                    "taken_rents" => $rents
-                 ];
-
-             return response()->json($responseData, 200);
-         } catch (Exception $e) {
-             return $this->sendError($e, 500, $request);
-         }
-     }
+            return response()->json($responseData, 200);
+        } catch (Exception $e) {
+            return $this->sendError($e, 500, $request);
+        }
+    }
 
 
 
@@ -756,7 +769,7 @@ return $rent->rent_amount - $rent->paid_amount;
      *       },
      *      summary="Delete a document from a property",
      *      description="This method deletes a document associated with a specific property",
-      *      @OA\Parameter(
+     *      @OA\Parameter(
      *          name="agreement_id",
      *          in="path",
      *          required=true,
@@ -807,15 +820,14 @@ return $rent->rent_amount - $rent->paid_amount;
             }
 
             // Find the property
-            $property_agreement = TenancyAgreement::
-            whereHas('property', function ($q) {
-                // Ensure the property is created by the authenticated user
-                $q->where('properties.created_by', auth()->user()->id);
-            })
-            ->where([
-                "id" => $agreement_id
-            ])
-            ->first();
+            $property_agreement = TenancyAgreement::whereHas('property', function ($q) {
+                    // Ensure the property is created by the authenticated user
+                    $q->where('properties.created_by', auth()->user()->id);
+                })
+                ->where([
+                    "id" => $agreement_id
+                ])
+                ->first();
             if (!$property_agreement) {
                 return response()->json([
                     "message" => "no agreement found"
@@ -831,6 +843,4 @@ return $rent->rent_amount - $rent->paid_amount;
             return response()->json(['message' => 'An error occurred.'], 500);
         }
     }
-
-
 }

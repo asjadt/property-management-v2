@@ -19,6 +19,12 @@ class CreateTenancyAgreementsTable extends Migration
             $table->string('security_deposit_hold');
             $table->string('rent_payment_option');
             $table->string('tenant_contact_duration');
+
+            $table->string('holder_reference_number')->nullable();
+            $table->string('holder_entity')->nullable();
+
+
+
             $table->date('date_of_moving');
             $table->date('let_only_agreement_expired_date')->nullable();
             $table->date('tenant_contact_expired_date')->nullable();

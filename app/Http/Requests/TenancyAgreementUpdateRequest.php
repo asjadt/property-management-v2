@@ -33,9 +33,15 @@ class TenancyAgreementUpdateRequest extends FormRequest
             'rent_payment_option' => 'required|string|max:255',
             'tenant_contact_duration' => 'required|string|max:255',
             'date_of_moving' => 'required|date',
+
+            'holder_reference_number' => "nullable|string",
+            'holder_entity' => "nullable|string",
+
+
+
             'let_only_agreement_expired_date' => 'nullable|date',
             'tenant_contact_expired_date' => 'nullable|date',
-            
+
             'rent_due_day' => 'required|integer',
 
             'no_of_occupants' => 'required|string|max:255',

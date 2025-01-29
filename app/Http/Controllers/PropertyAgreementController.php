@@ -113,6 +113,7 @@ class PropertyAgreementController extends Controller
                 $agreement = PropertyAgreement::create($request_data);
 
                 $agreement->landlords()->sync($request_data['landlord_ids']);
+                
                 return response($agreement, 201);
             });
         } catch (Exception $e) {

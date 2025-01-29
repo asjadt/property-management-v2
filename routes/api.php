@@ -32,6 +32,7 @@ use App\Http\Controllers\GaragesController;
 use App\Http\Controllers\GarageServiceController;
 use App\Http\Controllers\GarageServicePriceController;
 use App\Http\Controllers\GarageTimesController;
+use App\Http\Controllers\HolderEntityController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\InvoicePaymentController;
 use App\Http\Controllers\InvoiceReminderController;
@@ -402,6 +403,24 @@ Route::delete('/v1.0/tenant-inspections/{id}', [TenantInspectionController::clas
 
 
 
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// holder entities management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Route::post('/v1.0/holder-entities', [HolderEntityController::class, "createHolderEntity"]);
+Route::put('/v1.0/holder-entities', [HolderEntityController::class, "updateHolderEntity"]);
+Route::put('/v1.0/holder-entities/toggle-active', [HolderEntityController::class, "toggleActiveHolderEntity"]);
+Route::get('/v1.0/holder-entities', [HolderEntityController::class, "getHolderEntities"]);
+Route::delete('/v1.0/holder-entities/{ids}', [HolderEntityController::class, "deleteHolderEntitiesByIds"]);
+
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// end holder entities management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // maintenance item types management section
@@ -428,6 +447,8 @@ Route::put('/v1.0/properties', [PropertyController::class, "updateProperty"]);
 Route::put('/v2.0/properties-update', [PropertyController::class, "updatePropertyV2"]);
 
 Route::put('/v1.0/properties-update-landlord', [PropertyController::class, "updatePropertyLandlord"]);
+
+Route::put('/v1.0/properties-update-tenant', [PropertyController::class, "updatePropertyTenant"]);
 
 Route::get('/v1.0/properties/{perPage}', [PropertyController::class, "getProperties"]);
 
