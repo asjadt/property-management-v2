@@ -715,17 +715,14 @@ class TenancyAgreementController extends Controller
                 $rent["arrear"] = $past_rents->sum(fn ($r) => $r->rent_amount - $r->paid_amount);
             }
 
-            $paid_rents = $all_rents->filter(fn($rent) => $rent->payment_status === 'paid')->values();
-            $arrears_rents = $all_rents->filter(fn($rent) => $rent->payment_status === 'arrears')->values();
-            $overpaid_rents = $all_rents->filter(fn($rent) => $rent->payment_status === 'overpaid')->values();
+            $paid_rents = $all_rents->filter(fn($rent) => $rent->payment_status === 'paid')->toArray();
+            $arrears_rents = $all_rents->filter(fn($rent) => $rent->payment_status === 'arrears')->toArray();
+            $overpaid_rents = $all_rents->filter(fn($rent) => $rent->payment_status === 'overpaid')->toArray();
 
 
             if(!empty($paid_rents) || !empty($overpaid_rents)) {
               $arrears_rents = [];
             }
-
-
-
 
 
             foreach ($tenancy_agreements as $tenancy_agreement) {
@@ -755,7 +752,6 @@ class TenancyAgreementController extends Controller
                 "paid_rents" => $paid_rents,
                 "arrears_rents" => $arrears_rents,
                 "overpaid_rents" => $overpaid_rents
-
             ];
 
             return response()->json($responseData, 200);

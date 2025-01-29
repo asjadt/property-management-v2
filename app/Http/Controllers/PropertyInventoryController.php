@@ -227,6 +227,13 @@ class PropertyInventoryController extends Controller
     {
 
         return $query->where('property_inventories.created_by', auth()->user()->id)
+
+        ->when(request()->filled("property_ids"), function ($query) {
+            return $query->whereHas("tenancy_agreement", function ($query) {
+                $property_ids = explode(',', request()->input("property_ids"));
+                $query->whereIn("property_inventories.property_id", $property_ids);
+            });
+        })
             ->when(request()->filled("item_name"), function ($query) {
                 return $query->where(
                     'property_inventories.item_name',
