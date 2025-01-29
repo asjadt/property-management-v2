@@ -550,7 +550,7 @@ class LandlordController extends Controller
              DB::raw(
 
                 '
-          COALESCE(
+      COALESCE(
     (
         SELECT SUM(invoices.total_amount)
         FROM invoices
@@ -559,24 +559,12 @@ class LandlordController extends Controller
     ),
     0
 ) AS total_amount
+
              '
 
              ),
              DB::raw('
-            COALESCE(
-    (
-        SELECT COUNT(DISTINCT invoices.id)
-        FROM invoices
-        JOIN invoice_landlords ON invoice_landlords.invoice_id = invoices.id
-        WHERE invoice_landlords.landlord_id = landlords.id
-    ),
-    0
-) AS total_invoices
-
-             '),
-             DB::raw(
-                '
-            COALESCE(
+           COALESCE(
     (
         SELECT COUNT(invoices.id)
         FROM invoices
@@ -585,13 +573,26 @@ class LandlordController extends Controller
     ),
     0
 ) AS total_invoices
+             '),
+             DB::raw(
+                '
+      COALESCE(
+    (
+        SELECT SUM(invoice_payments.amount)
+        FROM invoices
+        LEFT JOIN invoice_payments ON invoices.id = invoice_payments.invoice_id
+        JOIN invoice_landlords ON invoice_landlords.invoice_id = invoices.id
+        WHERE invoice_landlords.landlord_id = landlords.id
+    ),
+    0
+) AS total_paid
 
              '
              ),
              DB::raw(
                 '
                 COALESCE(
-                COALESCE(
+              COALESCE(
     (
         SELECT SUM(invoices.total_amount)
         FROM invoices
@@ -600,8 +601,9 @@ class LandlordController extends Controller
     ),
     0
 )
+
                 -
-              COALESCE(
+                COALESCE(
     (
         SELECT SUM(invoice_payments.amount)
         FROM invoices
@@ -632,8 +634,9 @@ class LandlordController extends Controller
     ),
     0
 )
+
                     -
-                   COALESCE(
+                    COALESCE(
     (
         SELECT SUM(invoice_payments.amount)
         FROM invoices
@@ -666,7 +669,7 @@ class LandlordController extends Controller
 )
 
                     -
-                   COALESCE(
+                 COALESCE(
     (
         SELECT SUM(invoice_payments.amount)
         FROM invoices
@@ -921,7 +924,7 @@ class LandlordController extends Controller
               DB::raw('
             COALESCE(
     (
-        SELECT COUNT(DISTINCT invoices.id)
+        SELECT COUNT(invoices.id)
         FROM invoices
         JOIN invoice_landlords ON invoice_landlords.invoice_id = invoices.id
         WHERE invoice_landlords.landlord_id = landlords.id
@@ -966,7 +969,7 @@ class LandlordController extends Controller
                  DB::raw(
                      '
                      COALESCE(
-                   COALESCE(
+                    COALESCE(
     (
         SELECT SUM(invoices.total_amount)
         FROM invoices
@@ -978,7 +981,7 @@ class LandlordController extends Controller
 )
 
                      -
-                     COALESCE(
+                    COALESCE(
     (
         SELECT SUM(invoice_payments.amount)
         FROM invoices
@@ -1208,7 +1211,7 @@ class LandlordController extends Controller
               DB::raw('
              COALESCE(
     (
-        SELECT COUNT(DISTINCT invoices.id)
+        SELECT COUNT(invoices.id)
         FROM invoices
         JOIN invoice_landlords ON invoice_landlords.invoice_id = invoices.id
         WHERE invoice_landlords.landlord_id = landlords.id
@@ -1221,7 +1224,7 @@ class LandlordController extends Controller
               DB::raw(
 
                  '
-              COALESCE(
+            COALESCE(
     (
         SELECT SUM(invoices.total_amount)
         FROM invoices
@@ -1296,7 +1299,7 @@ class LandlordController extends Controller
 )
 
                      -
-                     COALESCE(
+                    COALESCE(
     (
         SELECT SUM(invoice_payments.amount)
         FROM invoices
@@ -1327,8 +1330,9 @@ class LandlordController extends Controller
     ),
     0
 )
+
                      -
-                     COALESCE(
+                    COALESCE(
     (
         SELECT SUM(invoice_payments.amount)
         FROM invoices
