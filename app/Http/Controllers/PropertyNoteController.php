@@ -478,8 +478,6 @@ class PropertyNoteController extends Controller
 
 
 
-
-
             PropertyNote::destroy($existingIds);
 
 

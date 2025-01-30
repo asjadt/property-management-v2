@@ -171,7 +171,7 @@ public function createInvoiceImage(ImageUploadRequest $request)
  *
    *            @OA\Property(property="landlord_ids", type="string", format="array",example={1,2,3}),
  *  * *  @OA\Property(property="property_id", type="number", format="number",example="1"),
- *  * *  @OA\Property(property="tenant_id", type="number", format="number",example="1"),
+  *            @OA\Property(property="tenant_ids", type="string", format="array",example={1,2,3}),
  * *  * *  @OA\Property(property="client_id", type="number", format="number",example="1"),
  *
 
@@ -300,7 +300,7 @@ public function createInvoice(InvoiceCreateRequest $request)
 
             $invoice->invoice_items()->createMany($invoiceItems->all());
             $invoice->landlords()->sync($request_data['landlord_ids']);
-
+            $invoice->tenants()->sync($request_data['tenant_ids']);
             // $invoicePayments = collect($request_data["invoice_payments"])->map(function ($item) {
             //     return [
             //         "amount" => $item["amount"],
@@ -474,7 +474,7 @@ public function createInvoice(InvoiceCreateRequest $request)
  *   *  * *  *  @OA\Property(property="business_type", type="string", format="string",example="note"),
  *  * *  @OA\Property(property="property_id", type="number", format="number",example="1"),
    *            @OA\Property(property="landlord_ids", type="string", format="array",example={1,2,3}),
- *  * *  @OA\Property(property="tenant_id", type="number", format="number",example="1"),
+  *            @OA\Property(property="tenant_ids", type="string", format="array",example={1,2,3}),
  *  *  * *  @OA\Property(property="client_id", type="number", format="number",example="1"),
  *
 
@@ -571,8 +571,6 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 
                     "note",
                     "property_id",
-
-                    "tenant_id",
                     "client_id",
                     "discount_description",
                     "discound_type",
@@ -632,7 +630,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                 $invoice->invoice_items()->upsert($invoiceItemsData->all(), ['id',"invoice_id"], ['name', 'description', 'quantity', 'price', 'tax', 'amount',"invoice_id"]);
 
                 $invoice->landlords()->sync($request_data['landlord_ids']);
-
+                $invoice->tenants()->sync($request_data['tenant_ids']);
                 // $invoicePayments = collect($request_data["invoice_payments"])->map(function ($item)use ($invoice) {
                 //     return [
                 //         "id" => $item["id"],
@@ -1199,9 +1197,15 @@ public function updateInvoice(InvoiceUpdateRequest $request)
         });
     }
 
-    if (!empty($request->tenant_id)) {
-        $invoiceQuery =   $invoiceQuery->where("invoices.tenant_id", $request->tenant_id);
+    if (!empty($request->tenant_ids)) {
+        $invoiceQuery =  $invoiceQuery->whereHas("tenants", function ($query) {
+            $tenant_ids = explode(',', request()->input("tenant_ids"));
+            $query
+                ->whereIn("tenants.id", $tenant_ids);
+        });
     }
+
+
     if (!empty($request->client_id)) {
      $invoiceQuery =   $invoiceQuery->where("invoices.client_id", $request->client_id);
  }
@@ -1313,9 +1317,15 @@ public function updateInvoice(InvoiceUpdateRequest $request)
         });
     }
 
-    if (!empty($request->tenant_id)) {
-        $invoiceQuery =   $invoiceQuery->where("invoices.tenant_id", $request->tenant_id);
+    if (!empty($request->tenant_ids)) {
+        $invoiceQuery =  $invoiceQuery->whereHas("tenants", function ($query) {
+            $tenant_ids = explode(',', request()->input("tenant_ids"));
+            $query
+                ->whereIn("tenants.id", $tenant_ids);
+        });
     }
+
+
     if (!empty($request->client_id)) {
      $invoiceQuery =   $invoiceQuery->where("invoices.client_id", $request->client_id);
  }
@@ -1442,9 +1452,15 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 }
 
 
-   if (!empty($request->tenant_id)) {
-       $invoiceQuery =   $invoiceQuery->where("invoices.tenant_id", $request->tenant_id);
-   }
+if (!empty($request->tenant_ids)) {
+    $invoiceQuery =  $invoiceQuery->whereHas("tenants", function ($query) {
+        $tenant_ids = explode(',', request()->input("tenant_ids"));
+        $query
+            ->whereIn("tenants.id", $tenant_ids);
+    });
+}
+
+
    if (!empty($request->client_id)) {
     $invoiceQuery =   $invoiceQuery->where("invoices.client_id", $request->client_id);
 }
@@ -1598,9 +1614,9 @@ $invoiceQuery = $invoiceQuery->orderBy("invoices.id",$request->order_by);
 * example="1"
 * ),
  * *  @OA\Parameter(
-* name="tenant_id",
+* name="tenant_ids",
 * in="query",
-* description="tenant_id",
+* description="tenant_ids",
 * required=true,
 * example="1"
 * ),
@@ -1769,9 +1785,9 @@ public function getInvoices($perPage, Request $request)
 * example="1"
 * ),
  * *  @OA\Parameter(
-* name="tenant_id",
+* name="tenant_ids",
 * in="query",
-* description="tenant_id",
+* description="tenant_ids",
 * required=true,
 * example="1"
 * ),
@@ -1895,18 +1911,19 @@ return $pdf->stream(); // Stream the PDF content
             }
             $data["client"] = $landlords;
         }
-        else   if (!empty($request->tenant_id)) {
-            $tenant = Tenant::where([
-                "id" => $request->tenant_id,
-                // "created_by" => $request->user()->id
+        else  if (!empty($request->tenant_ids)) {
+            $tenant_ids = explode(',', request()->input("tenant_ids"));
+            $tenants = Tenant::whereIn("id",$tenant_ids)
+            ->where([
+                "created_by" => $request->user()->id
             ])
-                ->first();
-            if (!$tenant) {
+                ->get();
+            if (!$tenants) {
                 return response()->json([
                     "message" => "no tenant found"
                 ], 404);
             }
-            $data["client"] = $tenant;
+            $data["client"] = $tenants;
         }
         else if ($request->client_id) {
             $client = Client::where([
@@ -1926,7 +1943,7 @@ return $pdf->stream(); // Stream the PDF content
                 "message" => "The given data was invalid.",
                 "errors" => [
 
-                    "tenant_id" => ["tenant must be selected if landlord or client_id is not selected."],
+                    "tenant_ids" => ["tenant must be selected if landlord or client_id is not selected."],
                     "landlord_ids" => ["landlord must be selected if tenant or client_id is not selected."],
                     "client_id" => ["client must be selected if business is other"]
 
@@ -2008,9 +2025,9 @@ return $pdf->stream(); // Stream the PDF content
 * example="1"
 * ),
  * *  @OA\Parameter(
-* name="tenant_id",
+* name="tenant_ids",
 * in="query",
-* description="tenant_id",
+* description="tenant_ids",
 * required=true,
 * example="1"
 * ),
@@ -2255,7 +2272,7 @@ public function getInvoiceById($id, Request $request)
         $this->storeActivity($request,"");
 
 
-        $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder","tenant","landlords","property","client")
+        $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder","tenants","landlords","property","client")
         ->where([
             "generated_id" => $id,
             // "invoices.created_by" => $request->user()->id
@@ -2352,7 +2369,7 @@ public function getInvoiceById($id, Request $request)
          $this->storeActivity($request,"");
 
 
-         $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder","tenant","landlords","property","client")
+         $invoice = Invoice::with("invoice_items","invoice_payments","invoice_reminder","tenants","landlords","property","client")
          ->where([
              "invoice_reference" => $reference,
              "invoices.created_by" => $request->user()->id

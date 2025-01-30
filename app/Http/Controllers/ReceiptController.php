@@ -179,7 +179,7 @@ else {
 
                   "status"=>$status,
 
-                  "tenant_id" =>  $receipt->tenant_id,
+
 
                   "sub_total"=> $sale_items->sum('amount'),
                   "total_amount"=>$sale_items->sum('amount'),
@@ -190,9 +190,12 @@ else {
 
               // Bill Adjustment
                 $invoice =  Invoice::create($invoice_data);
+
                 if(!$invoice) {
                     throw new Exception("something went wrong");
                 }
+                $invoice->tenants()->sync([$receipt->tenant_id]);
+
                 $receipt->generated_id = Str::random(4) . $receipt->id . Str::random(4);
                 $receipt->invoice_id = $invoice->id;
                 $receipt->save();

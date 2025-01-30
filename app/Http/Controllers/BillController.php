@@ -653,7 +653,7 @@ $invoice_prev = Invoice::where([
 
                     "note",
                     "property_id",
-                    "tenant_id",
+
                     "client_id",
                     "discount_description",
                     "discound_type",
@@ -802,6 +802,13 @@ $invoice_prev = Invoice::where([
         });
     }
 
+    if (!empty($request->tenant_ids)) {
+        $billQuery =  $billQuery->whereHas("tenants", function ($query) {
+            $tenant_ids = explode(',', request()->input("tenant_ids"));
+            $query
+                ->whereIn("tenants.id", $tenant_ids);
+        });
+    }
 
 if (!empty($request->start_date)) {
    $billQuery = $billQuery->whereDate('bills.create_date', ">=", $request->start_date);
@@ -838,8 +845,6 @@ if(!empty($request->search_key)) {
 
 
 
-
-
     if(!empty($request->status)) {
         if($request->status == "unpaid") {
             $billQuery =      $billQuery->whereNotIn("invoices.status", ['draft','paid']);
@@ -859,18 +864,14 @@ if(!empty($request->search_key)) {
 
 
 
-
-
-
-
     if (!empty($request->invoice_reference)) {
         $billQuery =   $billQuery->where("invoices.invoice_reference", "like", "%" . $request->invoice_reference . "%");
     }
 
 
-    if (!empty($request->tenant_id)) {
-        $billQuery =   $billQuery->where("invoices.tenant_id", $request->tenant_id);
-    }
+
+
+
     if (!empty($request->client_id)) {
      $billQuery =   $billQuery->where("invoices.client_id", $request->client_id);
  }
@@ -941,6 +942,13 @@ if(!empty($request->search_key)) {
         });
     }
 
+    if (!empty($request->tenant_ids)) {
+        $billQuery =  $billQuery->whereHas("tenants", function ($query) {
+            $tenant_ids = explode(',', request()->input("tenant_ids"));
+            $query
+                ->whereIn("tenants.id", $tenant_ids);
+        });
+    }
 
 
 if (!empty($request->start_date)) {
@@ -998,19 +1006,12 @@ if(!empty($request->search_key)) {
       }
 
 
-
-
-
-
-
      if (!empty($request->invoice_reference)) {
          $billQuery =   $billQuery->where("invoices.invoice_reference", "like", "%" . $request->invoice_reference . "%");
      }
 
 
-     if (!empty($request->tenant_id)) {
-         $billQuery =   $billQuery->where("invoices.tenant_id", $request->tenant_id);
-     }
+
      if (!empty($request->client_id)) {
       $billQuery =   $billQuery->where("invoices.client_id", $request->client_id);
   }
@@ -1133,9 +1134,9 @@ if(!empty($request->search_key)) {
   * example="1"
   * ),
    * *  @OA\Parameter(
-  * name="tenant_id",
+  * name="tenant_ids",
   * in="query",
-  * description="tenant_id",
+  * description="tenant_ids",
   * required=true,
   * example="1"
   * ),
@@ -1306,9 +1307,9 @@ if(!empty($request->search_key)) {
   * ),
 
    * *  @OA\Parameter(
-  * name="tenant_id",
+  * name="tenant_ids",
   * in="query",
-  * description="tenant_id",
+  * description="tenant_ids",
   * required=true,
   * example="1"
   * ),

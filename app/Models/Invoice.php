@@ -25,7 +25,6 @@ class Invoice extends Model
         "shareable_link",
         "note",
         "property_id",
-        "tenant_id",
         "client_id",
         "discount_description",
         "discound_type",
@@ -48,8 +47,8 @@ class Invoice extends Model
         return $this->hasMany(InvoiceReminder::class,'invoice_id', 'id');
     }
 
-    public function tenant(){
-        return $this->belongsTo(Tenant::class,'tenant_id', 'id');
+    public function tenants() {
+        return $this->belongsToMany(Tenant::class, 'invoice_tenants', 'invoice_id', 'tenant_id');
     }
 
     public function landlords() {

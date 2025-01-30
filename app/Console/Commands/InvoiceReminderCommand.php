@@ -55,11 +55,15 @@ class InvoiceReminderCommand extends Command
         foreach($invoice_reminders as $invoice_reminder) {
             if($invoice_reminder->send_reminder == 1) {
                 $recipients = [];
-                if($invoice_reminder->invoice->tenant) {
-                    array_push($recipients, $invoice_reminder->invoice->tenant->email);
-                }
-        $landlords =     $invoice_reminder->invoice->landlords;
+                $tenants =  $invoice_reminder->invoice->tenants;
+                if(!empty($tenants)) {
+            foreach($tenants as $tenant){
+                array_push($recipients, $tenant->email);
+            }
 
+                }
+
+        $landlords = $invoice_reminder->invoice->landlords;
                 if(!empty($landlords)) {
                     foreach($landlords as $landlord){
                         array_push($recipients, $landlord->email);

@@ -373,9 +373,9 @@ $invoice_reminder->reminder_date_amount = $endDate->diffInDays($startDate);
  *  example="6"
  *      ),
  *  * *  @OA\Parameter(
-* name="tenant_id",
+* name="tenant_ids",
 * in="query",
-* description="tenant_id",
+* description="tenant_ids",
 * required=true,
 * example="1"
 * ),
@@ -487,8 +487,12 @@ public function getInvoiceReminders($perPage, Request $request)
             });
         }
 
-        if (!empty($request->tenant_id)) {
-            $invoice_reminderQuery =   $invoice_reminderQuery->where("invoices.tenant_id", $request->tenant_id);
+        if (!empty($request->tenant_ids)) {
+            $invoice_reminderQuery =  $invoice_reminderQuery->whereHas("invoice.tenants", function ($query) {
+                $tenant_ids = explode(',', request()->input("tenant_ids"));
+                $query
+                    ->whereIn("tenants.id", $tenant_ids);
+            });
         }
 
 

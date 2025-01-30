@@ -52,10 +52,6 @@ class CreateInvoicesTable extends Migration
             $table->unsignedBigInteger("property_id")->nullable();
             $table->foreign('property_id')->references('id')->on('properties')->onDelete('set null');
 
-          
-
-            $table->unsignedBigInteger("tenant_id")->nullable();
-            $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('set null');
 
 
             $table->unsignedBigInteger("client_id")->nullable();

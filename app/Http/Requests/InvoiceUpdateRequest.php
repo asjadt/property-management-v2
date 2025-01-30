@@ -82,35 +82,9 @@ class InvoiceUpdateRequest extends FormRequest
 
                 },
             ],
-            "tenant_id" => [
-                "nullable",
-                "numeric",
-                "exists:tenants,id",
-                function ($attribute, $value, $fail) {
-                    $client_id = request()->input('client_id');
-                    $landlordId = request()->input('landlord_id');
-                    $business_type = request()->input('business_type');
-                    // if($business_type == "property_dealer") {
-                    //     if (empty($value) && empty($landlordId)) {
-                    //         $fail('Either tenant_id or landlord_id is required.');
-                    //     }
-                    //     if (!empty($value) && !empty($landlordId)) {
-                    //         $fail('Only one of tenant_id or landlord_id should have a value.');
-                    //     }
-                    // }
-                    // else {
-                    //     if (!empty($value)) {
-                    //         $fail('for business type other you can not select a tenant.');
-                    //     }
-                    // }
-                    if($business_type != "property_dealer") {
-                        if (!empty($value)) {
-                            $fail('for business type other you can not select a tenant.');
-                        }
-                    }
 
-                },
-            ],
+            'tenant_ids' => 'present|array',
+            'tenant_ids.*' => 'numeric|exists:tenants,id',
 
 
             'landlord_ids' => 'present|array',
