@@ -162,7 +162,13 @@ class RentController extends Controller
                 ->orderBy('month')
                 ->get();
 
-                $total_rent += $current_rents->sum('rent_amount')/$current_rents->count();
+                if ($current_rents->count() > 0 && $current_rents->sum('rent_amount') > 0) {
+                    $total_rent += $current_rents->sum('rent_amount') / $current_rents->count();
+                } else {
+                    // Handle the case where either the sum or the count is zero
+                    $total_rent += 0;
+                }
+
                 $total_paid += $current_rents->sum('paid_amount') + $request_data["paid_amount"];
 
 
@@ -350,7 +356,13 @@ class RentController extends Controller
             ->orderBy('month')
             ->get();
 
-            $total_rent += $current_rents->sum('rent_amount')/$current_rents->count();
+            if ($current_rents->count() > 0 && $current_rents->sum('rent_amount') > 0) {
+                $total_rent += $current_rents->sum('rent_amount') / $current_rents->count();
+            } else {
+                // Handle the case where either the sum or the count is zero
+                $total_rent += 0;
+            }
+
             $total_paid += $current_rents->sum('paid_amount') + $request_data["paid_amount"];
 
              // Determine payment status
