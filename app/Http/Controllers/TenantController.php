@@ -438,7 +438,7 @@ public function updateTenant(TenantUpdateRequest $request)
 public function getTenants($perPage, Request $request)
 {
     try {
-        
+
         $this->storeActivity($request,"");
         $currentDate = Carbon::now();
         $endDate = $currentDate->copy()->addDays(15);
@@ -511,45 +511,61 @@ public function getTenants($perPage, Request $request)
          DB::raw(
 
             '
-         COALESCE(
-             (SELECT SUM(invoices.total_amount) FROM invoices WHERE invoices.tenant_id = tenants.id),
-             0
-         ) AS total_amount
+        COALESCE(
+    (SELECT SUM(invoices.total_amount)
+     FROM invoices
+     INNER JOIN invoice_tenants ON invoice_tenants.invoice_id = invoices.id
+     WHERE invoice_tenants.tenant_id = tenants.id),
+    0
+) AS total_amount
+
          '
 
          ),
          DB::raw('
-         COALESCE(
-             (SELECT COUNT(invoices.id) FROM invoices WHERE invoices.tenant_id = tenants.id),
-             0
-         ) AS total_invoices
+      COALESCE(
+    (SELECT COUNT(invoices.id)
+     FROM invoices
+     INNER JOIN invoice_tenants ON invoice_tenants.invoice_id = invoices.id
+     WHERE invoice_tenants.tenant_id = tenants.id),
+    0
+) AS total_invoices
+
          '),
          DB::raw(
             '
          COALESCE(
-             (SELECT SUM(invoice_payments.amount) FROM invoices
-             LEFT JOIN
-                invoice_payments ON invoices.id = invoice_payments.invoice_id
-             WHERE invoices.tenant_id = tenants.id),
-             0
-         ) AS total_paid
+    (SELECT SUM(invoice_payments.amount)
+     FROM invoices
+     LEFT JOIN invoice_payments ON invoices.id = invoice_payments.invoice_id
+     INNER JOIN invoice_tenants ON invoice_tenants.invoice_id = invoices.id
+     WHERE invoice_tenants.tenant_id = tenants.id),
+    0
+) AS total_paid
+
          '
          ),
          DB::raw(
             '
             COALESCE(
-            COALESCE(
-                (SELECT SUM(invoices.total_amount) FROM invoices WHERE invoices.tenant_id = tenants.id),
-                0
-            )
+           COALESCE(
+    (SELECT SUM(invoices.total_amount)
+     FROM invoices
+     INNER JOIN invoice_tenants ON invoice_tenants.invoice_id = invoices.id
+     WHERE invoice_tenants.tenant_id = tenants.id),
+    0
+)
+
             -
-            COALESCE(
-                (SELECT SUM(invoice_payments.amount) FROM invoices
-                LEFT JOIN
-                   invoice_payments ON invoices.id = invoice_payments.invoice_id
-                WHERE invoices.tenant_id = tenants.id),
-                0
-            )
+           COALESCE(
+    (SELECT SUM(invoice_payments.amount)
+     FROM invoices
+     LEFT JOIN invoice_payments ON invoices.id = invoice_payments.invoice_id
+     INNER JOIN invoice_tenants ON invoice_tenants.invoice_id = invoices.id
+     WHERE invoice_tenants.tenant_id = tenants.id),
+    0
+)
+
          )
          as total_due
 
@@ -559,27 +575,28 @@ public function getTenants($perPage, Request $request)
             DB::raw(
                 '
                 COALESCE(
-                COALESCE(
-                    (SELECT SUM(invoices.total_amount) FROM invoices
-                    WHERE  invoices.tenant_id = tenants.id
-                    AND invoices.due_date >= "' . $currentDate . '"
-                    AND invoices.due_date <= "' . $endDate . '"
+              COALESCE(
+    (SELECT SUM(invoices.total_amount)
+     FROM invoices
+     INNER JOIN invoice_tenants ON invoice_tenants.invoice_id = invoices.id
+     WHERE invoice_tenants.tenant_id = tenants.id
+     AND invoices.due_date >= "' . $currentDate . '"
+     AND invoices.due_date <= "' . $endDate . '"),
+    0
+)
 
-                ),
-                    0
-                )
                 -
-                COALESCE(
-                    (SELECT SUM(invoice_payments.amount) FROM invoices
-                    LEFT JOIN
-                       invoice_payments ON invoices.id = invoice_payments.invoice_id
-                    WHERE invoices.tenant_id = tenants.id
-                    AND invoices.due_date >= "' . $currentDate . '"
-                    AND invoices.due_date <= "' . $endDate . '"
+               COALESCE(
+    (SELECT SUM(invoice_payments.amount)
+     FROM invoices
+     LEFT JOIN invoice_payments ON invoices.id = invoice_payments.invoice_id
+     INNER JOIN invoice_tenants ON invoice_tenants.invoice_id = invoices.id
+     WHERE invoice_tenants.tenant_id = tenants.id
+     AND invoices.due_date >= "' . $currentDate . '"
+     AND invoices.due_date <= "' . $endDate . '"),
+    0
+)
 
-                ),
-                    0
-                )
              )
              as total_due_next_15_days
 
@@ -588,27 +605,26 @@ public function getTenants($perPage, Request $request)
             DB::raw(
                 '
                 COALESCE(
-                COALESCE(
-                    (SELECT SUM(invoices.total_amount) FROM invoices
-                    WHERE  invoices.tenant_id = tenants.id
-                    AND invoices.due_date < "' . today() . '"
+               COALESCE(
+    (SELECT SUM(invoices.total_amount)
+     FROM invoices
+     INNER JOIN invoice_tenants ON invoice_tenants.invoice_id = invoices.id
+     WHERE invoice_tenants.tenant_id = tenants.id
+     AND invoices.due_date < "' . today() . '"),
+    0
+)
 
-
-                ),
-                    0
-                )
                 -
-                COALESCE(
-                    (SELECT SUM(invoice_payments.amount) FROM invoices
-                    LEFT JOIN
-                       invoice_payments ON invoices.id = invoice_payments.invoice_id
-                    WHERE invoices.tenant_id = tenants.id
-                    AND invoices.due_date < "' . today() . '"
+              COALESCE(
+    (SELECT SUM(invoice_payments.amount)
+     FROM invoices
+     LEFT JOIN invoice_payments ON invoices.id = invoice_payments.invoice_id
+     INNER JOIN invoice_tenants ON invoice_tenants.invoice_id = invoices.id
+     WHERE invoice_tenants.tenant_id = tenants.id
+     AND invoices.due_date < "' . today() . '" ),
+    0
+)
 
-
-                ),
-                    0
-                )
              )
              as total_over_due
 
