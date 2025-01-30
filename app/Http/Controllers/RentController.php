@@ -14,9 +14,7 @@ use App\Http\Utils\BusinessUtil;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Rent;
-use App\Models\DisabledRent;
-use App\Models\User;
-use Carbon\Carbon;
+
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -142,7 +140,7 @@ class RentController extends Controller
                     $query->where('year', '<', $request_data["year"])
                         ->orWhere(function ($query) use ($request_data) {
                             $query->where('year', $request_data["year"])
-                                ->where('month', '<=', $request_data["month"]);
+                                ->where('month', '<', $request_data["month"]);
                         });
                 })
                 ->orderBy('year')
@@ -154,9 +152,20 @@ class RentController extends Controller
             $total_paid = $previous_rents->sum('paid_amount');
 
 
-            // Calculate total due and total payment
-            $total_rent = $total_rent + $rent_exists?0:$request_data["rent_amount"];
-            $total_paid = $total_paid + $request_data["paid_amount"];
+             // Fetch previous rents
+             $current_rents = Rent::where([
+                "tenancy_agreement_id" => $request_data["tenancy_agreement_id"]
+            ])
+            ->where('year', $request_data["year"])
+            ->where('month', '<', $request_data["month"])
+                ->orderBy('year')
+                ->orderBy('month')
+                ->get();
+
+                $total_rent += $current_rents->sum('rent_amount')/$current_rents->count();
+                $total_paid += $current_rents->sum('paid_amount') + $request_data["paid_amount"];
+
+
 
             // Determine payment status
             if ($total_rent > $total_paid) {
@@ -319,7 +328,7 @@ class RentController extends Controller
                     $query->where('year', '<', $request_data["year"])
                         ->orWhere(function ($query) use ($request_data,$rent) {
                             $query->where('year', $request_data["year"])
-                                ->where('month', '<=', $request_data["month"])
+                                ->where('month', '<', $request_data["month"])
                                 ->whereNotIn("id",[$rent->id]);
                         });
                 })
@@ -331,9 +340,18 @@ class RentController extends Controller
             $total_rent = $previous_rents->sum('rent_amount');
             $total_paid = $previous_rents->sum('paid_amount');
 
-             // Calculate total due and total payment
-             $total_rent = $total_rent + $rent_exists?0:$request_data["rent_amount"];
-             $total_paid = $total_paid + $request_data["paid_amount"];
+           // Fetch previous rents
+           $current_rents = Rent::where([
+            "tenancy_agreement_id" => $request_data["tenancy_agreement_id"]
+        ])
+        ->where('year', $request_data["year"])
+        ->where('month', '<', $request_data["month"])
+            ->orderBy('year')
+            ->orderBy('month')
+            ->get();
+
+            $total_rent += $current_rents->sum('rent_amount')/$current_rents->count();
+            $total_paid += $current_rents->sum('paid_amount') + $request_data["paid_amount"];
 
              // Determine payment status
              if ($total_rent > $total_paid) {

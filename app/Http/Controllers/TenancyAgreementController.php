@@ -720,6 +720,7 @@ class TenancyAgreementController extends Controller
             $overpaid_rents = $all_rents->filter(fn($rent) => $rent->payment_status === 'overpaid')->toArray();
 
 
+
             if(!empty($paid_rents) || !empty($overpaid_rents)) {
               $arrears_rents = [];
             }
