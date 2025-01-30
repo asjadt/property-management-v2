@@ -6,22 +6,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\DocVoletCreateRequest;
-use App\Http\Requests\DocVoletUpdateRequest;
+use App\Http\Requests\PropertyNoteCreateRequest;
+use App\Http\Requests\PropertyNoteUpdateRequest;
 use App\Http\Requests\GetIdRequest;
 use App\Http\Utils\BasicUtil;
 use App\Http\Utils\BusinessUtil;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
-use App\Models\DocVolet;
-use App\Models\DisabledDocVolet;
+use App\Models\PropertyNote;
+use App\Models\DisabledPropertyNote;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class DocVoletController extends Controller
+class PropertyNoteController extends Controller
 {
 
     use ErrorUtil, UserActivityUtil, BasicUtil;
@@ -30,23 +30,20 @@ class DocVoletController extends Controller
     /**
      *
      * @OA\Post(
-     * path="/v1.0/doc-volets",
-     * operationId="createDocVolet",
-     * tags={"doc_volets"},
+     * path="/v1.0/property-notes",
+     * operationId="createPropertyNote",
+     * tags={"property_notes"},
      * security={
      * {"bearerAuth": {}}
      * },
-     * summary="This method is to store doc volets",
-     * description="This method is to store doc volets",
+     * summary="This method is to store property notes",
+     * description="This method is to store property notes",
      *
      * @OA\RequestBody(
      * required=true,
      * @OA\JsonContent(
      * @OA\Property(property="title", type="string", format="string", example="title"),
      * @OA\Property(property="description", type="string", format="string", example="description"),
-     * @OA\Property(property="date", type="string", format="string", example="date"),
-     * @OA\Property(property="note", type="string", format="string", example="note"),
-     * @OA\Property(property="files", type="string", format="string", example="files"),
      * @OA\Property(property="property_id", type="string", format="string", example="property_id"),
      *
      *
@@ -87,7 +84,7 @@ class DocVoletController extends Controller
      * )
      */
 
-    public function createDocVolet(DocVoletCreateRequest $request)
+    public function createPropertyNote(PropertyNoteCreateRequest $request)
     {
 
         DB::beginTransaction();
@@ -98,15 +95,16 @@ class DocVoletController extends Controller
 
             $request_data = $request->validated();
 
+
             $request_data["created_by"] = auth()->user()->id;
 
 
-            $doc_volet = DocVolet::create($request_data);
+            $property_note = PropertyNote::create($request_data);
 
 
 
             DB::commit();
-            return response($doc_volet, 201);
+            return response($property_note, 201);
         } catch (Exception $e) {
             DB::rollBack();
             return $this->sendError($e, 500, $request);
@@ -115,14 +113,14 @@ class DocVoletController extends Controller
     /**
      *
      * @OA\Put(
-     * path="/v1.0/doc-volets",
-     * operationId="updateDocVolet",
-     * tags={"doc_volets"},
+     * path="/v1.0/property-notes",
+     * operationId="updatePropertyNote",
+     * tags={"property_notes"},
      * security={
      * {"bearerAuth": {}}
      * },
-     * summary="This method is to update doc volets ",
-     * description="This method is to update doc volets ",
+     * summary="This method is to update property notes ",
+     * description="This method is to update property notes ",
      *
      * @OA\RequestBody(
      * required=true,
@@ -130,9 +128,6 @@ class DocVoletController extends Controller
      * @OA\Property(property="id", type="number", format="number", example="1"),
      * @OA\Property(property="title", type="string", format="string", example="title"),
      * @OA\Property(property="description", type="string", format="string", example="description"),
-     * @OA\Property(property="date", type="string", format="string", example="date"),
-     * @OA\Property(property="note", type="string", format="string", example="note"),
-     * @OA\Property(property="files", type="string", format="string", example="files"),
      * @OA\Property(property="property_id", type="string", format="string", example="property_id"),
      *
      * ),
@@ -171,7 +166,7 @@ class DocVoletController extends Controller
      * )
      */
 
-    public function updateDocVolet(DocVoletUpdateRequest $request)
+    public function updatePropertyNote(PropertyNoteUpdateRequest $request)
     {
         DB::beginTransaction();
         try {
@@ -181,28 +176,17 @@ class DocVoletController extends Controller
             $request_data = $request->validated();
 
 
-            $doc_volet_query_params = [
+
+            $property_note_query_params = [
                 "id" => $request_data["id"],
             ];
 
-            $doc_volet =
-                DocVolet::where($doc_volet_query_params)->first();
+            $property_note =
+                PropertyNote::where($property_note_query_params)->first();
 
-            if ($doc_volet) {
-                $doc_volet->fill(collect($request_data)->only([
-
-                    "title",
-                    "description",
-                    "date",
-                    "note",
-                    "files",
-                    "property_id",
-                    // "is_default",
-                    // "is_active",
-                    // "business_id",
-                    // "created_by"
-                ])->toArray());
-                $doc_volet->save();
+            if ($property_note) {
+                $property_note->fill($request_data);
+                $property_note->save();
             } else {
                 return response()->json([
                     "message" => "something went wrong."
@@ -212,7 +196,7 @@ class DocVoletController extends Controller
 
 
             DB::commit();
-            return response($doc_volet, 201);
+            return response($property_note, 201);
         } catch (Exception $e) {
             DB::rollBack();
             return $this->sendError($e, 500, $request);
@@ -226,35 +210,27 @@ class DocVoletController extends Controller
     {
 
 
-        return $query->where('doc_volets.created_by', auth()->user()->id)
 
-        ->when(request()->filled('property_ids'), function ($q)  {
-            $property_ids = explode(',', request()->input('property_ids'));
-            $q->whereIn('doc_volets.property_id', $property_ids);
-        })
+        return $query->where('property_notes.created_by', auth()->user()->id)
+
             ->when(request()->filled("title"), function ($query) {
                 return $query->where(
-                    'doc_volets.title',
+                    'property_notes.title',
                     request()->input("title")
                 );
             })
             ->when(request()->filled("description"), function ($query) {
                 return $query->where(
-                    'doc_volets.description',
+                    'property_notes.description',
                     request()->input("description")
                 );
             })
-            ->when(request()->filled("date"), function ($query) {
-                return $query->where(
-                    'doc_volets.date',
-                    request()->input("date")
-                );
-            })
-            ->when(request()->filled("note"), function ($query) {
-                return $query->where(
-                    'doc_volets.note',
-                    request()->input("note")
-                );
+
+            ->when(request()->filled("property_ids"), function ($query) {
+                return $query->whereHas('property', function ($q) {
+                    $property_ids = explode(',', request()->input("property_ids"));
+                    $q->whereIn('properties.id', $property_ids);
+                });
             })
 
             ->when(request()->filled("search_key"), function ($query) {
@@ -262,20 +238,18 @@ class DocVoletController extends Controller
                     $term = request()->input("search_key");
                     $query
 
-                        ->orWhere("doc_volets.title", "like", "%" . $term . "%")
-                        ->where("doc_volets.description", "like", "%" . $term . "%")
-                        ->orWhere("doc_volets.date", "like", "%" . $term . "%")
-                        ->orWhere("doc_volets.note", "like", "%" . $term . "%")
+                        ->orWhere("property_notes.title", "like", "%" . $term . "%")
+                        ->where("property_notes.description", "like", "%" . $term . "%")
                     ;
                 });
             })
 
 
             ->when(request()->filled("start_date"), function ($query) {
-                return $query->whereDate('doc_volets.created_at', ">=", request()->input("start_date"));
+                return $query->whereDate('property_notes.created_at', ">=", request()->input("start_date"));
             })
             ->when(request()->filled("end_date"), function ($query) {
-                return $query->whereDate('doc_volets.created_at', "<=", request()->input("end_date"));
+                return $query->whereDate('property_notes.created_at', "<=", request()->input("end_date"));
             });
     }
 
@@ -284,21 +258,13 @@ class DocVoletController extends Controller
     /**
      *
      * @OA\Get(
-     * path="/v1.0/doc-volets",
-     * operationId="getDocVolets",
-     * tags={"doc_volets"},
+     * path="/v1.0/property-notes",
+     * operationId="getPropertyNotes",
+     * tags={"property_notes"},
      * security={
      * {"bearerAuth": {}}
      * },
 
-
-          * @OA\Parameter(
-     * name="property_ids",
-     * in="query",
-     * description="property_ids",
-     * required=false,
-     * example=""
-     * ),
      * @OA\Parameter(
      * name="title",
      * in="query",
@@ -314,16 +280,9 @@ class DocVoletController extends Controller
      * example=""
      * ),
      * @OA\Parameter(
-     * name="date",
+     * name="property_ids",
      * in="query",
-     * description="date",
-     * required=false,
-     * example=""
-     * ),
-     * @OA\Parameter(
-     * name="note",
-     * in="query",
-     * description="note",
+     * description="property_id",
      * required=false,
      * example=""
      * ),
@@ -381,8 +340,8 @@ class DocVoletController extends Controller
 
 
 
-     * summary="This method is to get doc volets ",
-     * description="This method is to get doc volets ",
+     * summary="This method is to get property notes ",
+     * description="This method is to get property notes ",
      *
 
      * @OA\Response(
@@ -419,19 +378,21 @@ class DocVoletController extends Controller
      * )
      */
 
-    public function getDocVolets(Request $request)
+    public function getPropertyNotes(Request $request)
     {
         try {
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
 
 
 
-            $query = DocVolet::query();
+            $query = PropertyNote::query();
             $query = $this->query_filters($query);
-            $doc_volets = $this->retrieveData($query, "id", "doc_volets");
+            $property_notes = $this->retrieveData($query, "id", "property_notes");
 
 
-            return response()->json($doc_volets, 200);
+
+
+            return response()->json($property_notes, 200);
         } catch (Exception $e) {
 
             return $this->sendError($e, 500, $request);
@@ -440,9 +401,9 @@ class DocVoletController extends Controller
     /**
      *
      * @OA\Delete(
-     * path="/v1.0/doc-volets/{ids}",
-     * operationId="deleteDocVoletsByIds",
-     * tags={"doc_volets"},
+     * path="/v1.0/property-notes/{ids}",
+     * operationId="deletePropertyNotesByIds",
+     * tags={"property_notes"},
      * security={
      * {"bearerAuth": {}}
      * },
@@ -453,8 +414,8 @@ class DocVoletController extends Controller
      * required=true,
      * example="1,2,3"
      * ),
-     * summary="This method is to delete doc volet by id",
-     * description="This method is to delete doc volet by id",
+     * summary="This method is to delete property note by id",
+     * description="This method is to delete property note by id",
      *
 
      * @OA\Response(
@@ -491,15 +452,16 @@ class DocVoletController extends Controller
      * )
      */
 
-    public function deleteDocVoletsByIds(Request $request, $ids)
+    public function deletePropertyNotesByIds(Request $request, $ids)
     {
 
         try {
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
 
+
             $idsArray = explode(',', $ids);
-            $existingIds = DocVolet::whereIn('id', $idsArray)
-                ->where('doc_volets.created_by', auth()->user()->id)
+            $existingIds = PropertyNote::whereIn('id', $idsArray)
+                ->where('property_notes.created_by', auth()->user()->id)
 
                 ->select('id')
                 ->get()
@@ -508,12 +470,18 @@ class DocVoletController extends Controller
             $nonExistingIds = array_diff($idsArray, $existingIds);
 
             if (!empty($nonExistingIds)) {
+
                 return response()->json([
                     "message" => "Some or all of the specified data do not exist."
                 ], 404);
             }
 
-            DocVolet::destroy($existingIds);
+
+
+
+
+            PropertyNote::destroy($existingIds);
+
 
             return response()->json(["message" => "data deleted sussfully", "deleted_ids" => $existingIds], 200);
         } catch (Exception $e) {

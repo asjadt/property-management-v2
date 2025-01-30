@@ -52,6 +52,7 @@ use App\Http\Controllers\PropertyAgreementController;
 use App\Http\Controllers\PropertyBasicController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\PropertyInventoryController;
+use App\Http\Controllers\PropertyNoteController;
 use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\RentController;
 use App\Http\Controllers\RepairCategoryController;
@@ -704,10 +705,29 @@ Route::put('/v1.0/doc-volets', [DocVoletController::class, "updateDocVolet"]);
 Route::get('/v1.0/doc-volets', [DocVoletController::class, "getDocVolets"]);
 Route::delete('/v1.0/doc-volets/{ids}', [DocVoletController::class, "deleteDocVoletsByIds"]);
 
-
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // end doc volets management section
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// property notes management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Route::post('/v1.0/property-notes', [PropertyNoteController::class, "createPropertyNote"]);
+Route::put('/v1.0/property-notes', [PropertyNoteController::class, "updatePropertyNote"]);
+
+Route::get('/v1.0/property-notes', [PropertyNoteController::class, "getPropertyNotes"]);
+Route::delete('/v1.0/property-notes/{ids}', [PropertyNoteController::class, "deletePropertyNotesByIds"]);
+
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// end property notes management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 
 
 
