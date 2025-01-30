@@ -155,7 +155,7 @@ class RentController extends Controller
 
 
             // Calculate total due and total payment
-            $total_rent = $total_rent + $request_data["rent_amount"];
+            $total_rent = $total_rent + $rent_exists?0:$request_data["rent_amount"];
             $total_paid = $total_paid + $request_data["paid_amount"];
 
             // Determine payment status
@@ -332,7 +332,7 @@ class RentController extends Controller
             $total_paid = $previous_rents->sum('paid_amount');
 
              // Calculate total due and total payment
-             $total_rent = $total_rent + $request_data["rent_amount"];
+             $total_rent = $total_rent + $rent_exists?0:$request_data["rent_amount"];
              $total_paid = $total_paid + $request_data["paid_amount"];
 
              // Determine payment status
@@ -870,8 +870,6 @@ class RentController extends Controller
             // Calculate total rent amount (rent + arrears)
             $total_rent = $previous_rents->sum('rent_amount');
             $total_paid = $previous_rents->sum('paid_amount');
-
-
 
 
 

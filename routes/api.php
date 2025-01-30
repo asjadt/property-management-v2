@@ -18,6 +18,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\DashboardManagementController;
 use App\Http\Controllers\DocumentTypeController;
+use App\Http\Controllers\DocVoletController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\EmailTemplateWrapperController;
 use App\Http\Controllers\FileManagementController;
@@ -692,6 +693,21 @@ Route::delete('/v1.0/receipts/{id}', [ReceiptController::class, "deleteReceiptBy
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// doc volets management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Route::post('/v1.0/doc-volets', [DocVoletController::class, "createDocVolet"]);
+Route::put('/v1.0/doc-volets', [DocVoletController::class, "updateDocVolet"]);
+Route::get('/v1.0/doc-volets', [DocVoletController::class, "getDocVolets"]);
+Route::delete('/v1.0/doc-volets/{ids}', [DocVoletController::class, "deleteDocVoletsByIds"]);
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// end doc volets management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 
 
