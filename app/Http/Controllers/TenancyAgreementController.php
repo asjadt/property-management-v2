@@ -506,7 +506,7 @@ class TenancyAgreementController extends Controller
 
             $rentHighlights = TenancyAgreement::whereIn('id', $agreementIds)
             ->withSum('rents', 'paid_amount') // Sum of all paid amounts in related rents
-            ->withSum('rents', 'total_agreed_rent') // Sum of all total agreed rents in related rents
+
             ->selectRaw(
                 'SUM(tenancy_agreements.total_agreed_rent) as total_rent,
                  SUM(COALESCE(rents.paid_amount, 0)) as total_paid,
