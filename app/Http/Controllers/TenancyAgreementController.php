@@ -707,9 +707,9 @@ $rentHighlightsData = [
                     ->orderBy('month')
                     ->get();
 
+                $tenancy_agreement["total_rent"] =   $this->processArrears($tenancy_agreement,$agreement_rents,false);
 
-
-                $tenancy_agreement["arrear"] =   $this->processArrears($tenancy_agreement,$agreement_rents,false);
+                $tenancy_agreement["arrear"] =   $tenancy_agreement["total_rent"] - $tenancy_agreement["rent_amount"];
             }
 
 

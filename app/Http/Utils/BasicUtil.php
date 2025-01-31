@@ -16,7 +16,6 @@ trait BasicUtil
 
         if(request()->filled("year") && request()->filled("month") && !$updateRecords) {
             $endDate = Carbon::createFromDate(request()->input("year"), request()->input("month"), 1)
-            ->subMonth()
             ->endOfMonth()->endOfDay();
         } else {
             $endDate = Carbon::parse($agreement->tenant_contact_expired_date);
