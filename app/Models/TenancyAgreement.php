@@ -56,7 +56,7 @@ class TenancyAgreement extends Model
 
     public function property()
     {
-        return $this->hasOne(Property::class, 'id', 'property_id');
+        return $this->hasOne(Property::class, 'id', 'property_id')->withTrashed();
     }
 
     public function rent()
