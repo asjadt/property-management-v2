@@ -650,7 +650,7 @@ $rentHighlightsData = [
                         $subQuery->where('tenancy_agreements.date_of_moving', '<=', $endDate)
                             ->where('tenancy_agreements.tenant_contact_expired_date', '>=', $startDate);
                     })
-                        ->whereDoesntHave("rent", function ($subQuery) use ($year, $month) {
+                        ->whereDoesntHave("rents", function ($subQuery) use ($year, $month) {
                             $subQuery->where('rents.year', $year)
                                 ->where('rents.month', $month);
                         });
