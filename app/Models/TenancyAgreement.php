@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class TenancyAgreement extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = [
         'property_id',
         'agreed_rent',
@@ -61,9 +61,9 @@ class TenancyAgreement extends Model
         return $this->hasOne(Property::class, 'id', 'property_id')->withTrashed();
     }
 
-    public function rent()
+    public function rents()
     {
-        return $this->hasOne(Rent::class,"tenancy_agreement_id","id");
+        return $this->hasMany(Rent::class,"tenancy_agreement_id","id");
     }
 
     public function tenants()

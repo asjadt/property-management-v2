@@ -504,12 +504,13 @@ class TenancyAgreementController extends Controller
 
             // Calculate rent highlights (total rent, total paid, total arrears, highest rent)
 
-            $rentHighlights = Rent::whereIn('tenancy_agreement_id', $agreementIds)
-            ->join('tenancy_agreements', 'tenancy_agreements.id', '=', 'rents.tenancy_agreement_id')
+            $rentHighlights = TenancyAgreement::whereIn('id', $agreementIds)
+            ->withSum('rents', 'paid_amount') // Sum of all paid amounts in related rents
+            ->withSum('rents', 'total_agreed_rent') // Sum of all total agreed rents in related rents
             ->selectRaw(
                 'SUM(tenancy_agreements.total_agreed_rent) as total_rent,
-                 SUM(rents.paid_amount) as total_paid,
-                 SUM(tenancy_agreements.total_agreed_rent - rents.paid_amount) as total_arrears,
+                 SUM(COALESCE(rents.paid_amount, 0)) as total_paid,
+                 SUM(tenancy_agreements.total_agreed_rent - COALESCE(rents.paid_amount, 0)) as total_arrears,
                  MAX(tenancy_agreements.total_agreed_rent) as highest_rent'
             )
             ->first();
