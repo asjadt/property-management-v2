@@ -20,7 +20,7 @@ trait BasicUtil
             $endDate = Carbon::parse($agreement->tenant_contact_expired_date);
         }
 
-        $rentAmount = $agreement->rent_amount;
+        $rentAmount = $agreement->agreed_rent;
         $total_arrear = 0; // Initial arrear balance
 
         $currentYear = $startDate->year;
@@ -46,6 +46,7 @@ trait BasicUtil
 
                     // Update arrear balance
                     $total_arrear += $rentAmount - $paidAmount;
+
 
                     $rent->arrear = $total_arrear;
 

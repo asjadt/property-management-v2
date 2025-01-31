@@ -157,7 +157,8 @@ class RentController extends Controller
             ->orderBy('id')
             ->get();
 
-            $this->processArrears($agreement,$all_rents,true);
+     $this->processArrears($agreement,$all_rents,true);
+
 
 
             DB::commit();
@@ -677,11 +678,15 @@ class RentController extends Controller
 
 
             // Calculate data highlights
-            $data_highlights = $query->selectRaw(
-                'SUM(rent_amount) as total_rent,
-             SUM(paid_amount) as total_paid,
-             SUM(rent_amount - paid_amount) as total_arrears'
-            )->first();
+            $data_highlights = $query->
+            join('tenancy_agreements', 'tenancy_agreements.id', '=', 'rents.tenancy_agreement_id')
+            ->selectRaw(
+                'SUM(tenancy_agreements.total_agreed_rent) as total_rent,
+                 SUM(rents.paid_amount) as total_paid,
+                 SUM(tenancy_agreements.total_agreed_rent - rents.paid_amount) as total_arrears,
+                 MAX(tenancy_agreements.total_agreed_rent) as highest_rent'
+            )
+            ->first();
 
             // Add data highlights to the response
             $response = [
