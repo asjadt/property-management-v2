@@ -1577,6 +1577,34 @@ class PropertyController extends Controller
      *     required=false,
      *     example="2023-12-31"
      * ),
+     *      * @OA\Parameter(
+     *     name="end_tenancy_agreement_date",
+     *     in="query",
+     *     description="end_tenancy_agreement_date",
+     *     required=false,
+     *     example=""
+     * ),
+      *      * @OA\Parameter(
+     *     name="start_tenancy_agreement_date",
+     *     in="query",
+     *     description="start_tenancy_agreement_date",
+     *     required=false,
+     *     example=""
+     * ),
+     *   *      * @OA\Parameter(
+     *     name="start_document_end_date",
+     *     in="query",
+     *     description="start_document_end_date",
+     *     required=false,
+     *     example=""
+     * ),
+     *   *      * @OA\Parameter(
+     *     name="end_document_end_date",
+     *     in="query",
+     *     description="end_document_end_date",
+     *     required=false,
+     *     example=""
+     * ),
      * @OA\Parameter(
      *     name="order_by",
      *     in="query",
@@ -1693,11 +1721,17 @@ class PropertyController extends Controller
                 ->when(request()->filled("is_dss"), function ($query) {
                     $query->where("properties.is_dss", request()->boolean("is_dss"));
                 })
-                ->when(request()->filled("is_document_expired") || request()->filled("document_expired_in") || request()->filled("document_type_ids") || request()->filled('document_type_id'), function ($query) {
+                ->when(request()->filled("is_document_expired") || request()->filled("document_expired_in") || request()->filled("document_type_ids") || request()->filled('document_type_id') || request()->filled('start_document_end_date') || request()->filled('end_document_end_date'), function ($query) {
                     $query->whereHas("latest_documents", function ($subQuery) {
                         // Check if the "is_document_expired" flag is set
                         if (request()->filled('is_document_expired')) {
                             $subQuery->whereDate('property_documents.gas_end_date', '<', Carbon::today());
+                        }
+                        if (request()->filled('start_document_end_date')) {
+                            $subQuery ->whereDate('property_documents.gas_end_date', '>=', request()->input('start_document_end_date'));
+                        }
+                        if (request()->filled('end_document_end_date')) {
+                            $subQuery ->whereDate('property_documents.gas_end_date', '<=', request()->input('end_document_end_date'));
                         }
 
                         // Check if the "document_expired_in" is set and apply the expiry date range filter
@@ -1721,7 +1755,18 @@ class PropertyController extends Controller
                         }
                     });
                 })
+                ->when(request()->filled('start_tenancy_agreement_date') || request()->filled('end_tenancy_agreement_date'), function ($query) {
+                    $query->whereHas("tenancy_agreements", function ($subQuery) {
 
+                        if (request()->filled('start_tenancy_agreement_date')) {
+                            $subQuery ->whereDate('tenancy_agreements.date_of_moving', '>=', request()->input('start_tenancy_agreement_date'));
+                        }
+                        if (request()->filled('end_tenancy_agreement_date')) {
+                            $subQuery ->whereDate('tenancy_agreements.tenant_contact_expired_date', '<=', request()->input('end_tenancy_agreement_date'));
+                        }
+
+                    });
+                })
                 ->when(request()->boolean("is_next_follow_up_date_passed"), function ($query) {
                     $query->whereHas("latest_inspection.maintenance_item", function ($subQuery) {
                         $subQuery->whereDate('maintenance_items.next_follow_up_date', '<', Carbon::today());

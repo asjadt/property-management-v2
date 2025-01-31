@@ -707,18 +707,19 @@ $rentHighlightsData = [
                     ->orderBy('month')
                     ->get();
 
-                $tenancy_agreement["total_rent"] =   $this->processArrears($tenancy_agreement,$agreement_rents,false);
 
                 $this_month_rents = $agreement_rents->filter(function ($rent) use ($year, $month) {
                     return $rent->year == $year && $rent->month == $month;
                 })->toArray();
 
-    
+
+                $tenancy_agreement["total_rent"] =   $this->processArrears($tenancy_agreement,$agreement_rents,false);
+
                 if(!empty($this_month_rents)) {
                     $tenancy_agreement["arrear"] = $tenancy_agreement["total_rent"];
+
                 } else {
                     $tenancy_agreement["arrear"] =   $tenancy_agreement["total_rent"] - $tenancy_agreement["agreed_rent"];
-
                 }
 
 

@@ -16,6 +16,7 @@ class TenancyAgreement extends Model
         'security_deposit_hold',
         'rent_payment_option',
         'tenant_contact_duration',
+
         'date_of_moving',
         'tenant_contact_expired_date',
 

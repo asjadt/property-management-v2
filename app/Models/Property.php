@@ -63,6 +63,12 @@ class Property extends Model
         return $this->hasMany(TenantInspection::class,"property_id","id");
     }
 
+    public function tenancy_agreements()
+    {
+        return $this->hasMany(TenancyAgreement::class,"property_id","id");
+    }
+
+
     public function latest_inspection()
     {
         return $this->hasOne(TenantInspection::class, "property_id", "id")

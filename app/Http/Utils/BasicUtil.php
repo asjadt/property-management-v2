@@ -36,25 +36,25 @@ trait BasicUtil
                     return $rent->year == $currentYear && $rent->month == $month;
                 });
 
-                if ($this_month_rents->isEmpty()) {
-                    // No rent record for this month, carry arrear forward
-                    $total_arrear += $rentAmount;
-                    continue;
-                }
+
+                $total_arrear += $rentAmount;
+
+
 
                 foreach ($this_month_rents as &$rent) {
                     $paidAmount = $rent->paid_amount ?? 0;
 
-                    // Update arrear balance
-                    $total_arrear += $rentAmount - $paidAmount;
 
+
+                    // Update arrear balance
+                    $total_arrear -=  $paidAmount;
 
                     $rent->arrear = $total_arrear;
 
                     if ($total_arrear > 0) {
-                        $rent->payment_status = 'arrears'; // Outstanding balance remains
+                        $rent->payment_status = 'partially_paid'; // Outstanding balance remains
                     } elseif ($total_arrear == 0) {
-                        $rent->payment_status = 'paid'; // Exact payment made, no arrears
+                        $rent->payment_status = 'fully_paid'; // Exact payment made, no arrears
                     } else {
                         $rent->payment_status  = 'overpaid'; // Payment exceeds due amount
                     }
