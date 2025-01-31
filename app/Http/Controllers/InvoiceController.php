@@ -1197,14 +1197,15 @@ public function updateInvoice(InvoiceUpdateRequest $request)
         });
     }
 
-    if (!empty($request->tenant_ids)) {
+    if (!empty($request->tenant_ids) || !empty($request->tenant_id)) {
         $invoiceQuery =  $invoiceQuery->whereHas("tenants", function ($query) {
-            $tenant_ids = explode(',', request()->input("tenant_ids"));
+            $tenant_ids = request()->filled("tenant_ids")?explode(',', request()->input("tenant_ids")):explode(',', request()->input("tenant_id"));
             $query
                 ->whereIn("tenants.id", $tenant_ids);
         });
     }
 
+   
 
     if (!empty($request->client_id)) {
      $invoiceQuery =   $invoiceQuery->where("invoices.client_id", $request->client_id);
@@ -1317,14 +1318,13 @@ public function updateInvoice(InvoiceUpdateRequest $request)
         });
     }
 
-    if (!empty($request->tenant_ids)) {
+    if (!empty($request->tenant_ids) || !empty($request->tenant_id)) {
         $invoiceQuery =  $invoiceQuery->whereHas("tenants", function ($query) {
-            $tenant_ids = explode(',', request()->input("tenant_ids"));
+            $tenant_ids = request()->filled("tenant_ids")?explode(',', request()->input("tenant_ids")):explode(',', request()->input("tenant_id"));
             $query
                 ->whereIn("tenants.id", $tenant_ids);
         });
     }
-
 
     if (!empty($request->client_id)) {
      $invoiceQuery =   $invoiceQuery->where("invoices.client_id", $request->client_id);
@@ -1452,9 +1452,9 @@ public function updateInvoice(InvoiceUpdateRequest $request)
 }
 
 
-if (!empty($request->tenant_ids)) {
+if (!empty($request->tenant_ids) || !empty($request->tenant_id)) {
     $invoiceQuery =  $invoiceQuery->whereHas("tenants", function ($query) {
-        $tenant_ids = explode(',', request()->input("tenant_ids"));
+        $tenant_ids = request()->filled("tenant_ids")?explode(',', request()->input("tenant_ids")):explode(',', request()->input("tenant_id"));
         $query
             ->whereIn("tenants.id", $tenant_ids);
     });
@@ -1911,8 +1911,8 @@ return $pdf->stream(); // Stream the PDF content
             }
             $data["client"] = $landlords;
         }
-        else  if (!empty($request->tenant_ids)) {
-            $tenant_ids = explode(',', request()->input("tenant_ids"));
+        else  if (!empty($request->tenant_ids) || !empty($request->tenant_id)) {
+            $tenant_ids = request()->filled("tenant_ids")?explode(',', request()->input("tenant_ids")):explode(',', request()->input("tenant_id"));
             $tenants = Tenant::whereIn("id",$tenant_ids)
             ->where([
                 "created_by" => $request->user()->id

@@ -1181,7 +1181,7 @@ class PropertyController extends Controller
         }
     }
 
-    
+
   /**
      *
      * @OA\Put(
@@ -1632,120 +1632,95 @@ class PropertyController extends Controller
                 "property_landlords", "property_tenants","latest_inspection"
             )
 
-            ->where(["properties.created_by" => $request->user()->id]);
+            ->where(["properties.created_by" => $request->user()->id])
 
-            if (!empty($request->search_key)) {
-                $propertyQuery = $propertyQuery->where(function ($query) use ($request) {
-                    $term = $request->search_key;
-                    // $query->where("name", "like", "%" . $term . "%");
-                    $query->where("properties.reference_no", "like", "%" . $term . "%");
-                    $query->orWhere("properties.address", "like", "%" . $term . "%");
-                    $query->orWhere("properties.type", "like", "%" . $term . "%");
+            ->when($request->filled("search_key"), function ($query) use ($request) {
+                $term = $request->search_key;
+                $query->where(function ($query) use ($term) {
+                    $query->where("properties.reference_no", "like", "%" . $term . "%")
+                          ->orWhere("properties.address", "like", "%" . $term . "%")
+                          ->orWhere("properties.type", "like", "%" . $term . "%");
                 });
-            }
-
-            if (!empty($request->landlord_ids)) {
-                $propertyQuery =  $propertyQuery->whereHas("property_landlords", function ($query) {
-                    $landlord_ids = explode(',', request()->input("landlord_ids"));
-                    $query
-                        ->whereIn("property_landlords.landlord_id", $landlord_ids);
+            })
+            ->when($request->filled("landlord_ids"), function ($query) {
+                $landlord_ids = explode(',', request()->input("landlord_ids"));
+                $query->whereHas("property_landlords", function ($query) use ($landlord_ids) {
+                    $query->whereIn("property_landlords.landlord_id", $landlord_ids);
                 });
-            }
-
-            if (!empty($request->tenant_ids)) {
-                $propertyQuery =  $propertyQuery->whereHas("property_tenants", function ($query) {
-                    $tenant_ids = explode(',', request()->input("tenant_ids"));
-                    $query
-                        ->whereIn("property_tenants.tenant_id", $tenant_ids);
-                });
-            }
-
-
-            if (!empty($request->category)) {
-                $propertyQuery =  $propertyQuery->where("properties.category", $request->category);
-            }
-
-            if (!empty($request->address)) {
-                $propertyQuery =  $propertyQuery->orWhere("properties.address", "like", "%" . $request->address . "%");
-            }
-
-            if (!empty($request->start_date)) {
-                $propertyQuery = $propertyQuery->where('properties.created_at', ">=", $request->start_date);
-            }
-            if (!empty($request->end_date)) {
-                $propertyQuery = $propertyQuery->where('properties.created_at', "<=", $request->end_date);
-            }
-
-            if (!empty($request->reference_no)) {
-                $propertyQuery =  $propertyQuery->where("properties.reference_no", "like", "%" . $request->reference_no . "%");
-            }
-
-            if (!empty($request->category)) {
-                $propertyQuery =  $propertyQuery->where("properties.category", $request->category);
-            }
-
-            if (!empty($request->start_date_of_instruction)) {
-                $propertyQuery =  $propertyQuery->whereDate("properties.date_of_instruction", ">=", $request->start_date_of_instruction);
-            }
-
-            if (!empty($request->end_date_of_instruction)) {
-                $propertyQuery =  $propertyQuery->whereDate("properties.date_of_instruction", "<=", $request->end_date_of_instruction);
-            }
-
-
-            if (!empty($request->start_no_of_beds)) {
-                $propertyQuery =  $propertyQuery->where("properties.no_of_beds", ">=", $request->start_no_of_beds);
-            }
-
-            if (!empty($request->end_no_of_beds)) {
-                $propertyQuery =  $propertyQuery->where("properties.no_of_beds", "<=", $request->end_no_of_beds);
-            }
-
-            if (request()->boolean("is_garden")) {
-                $propertyQuery =  $propertyQuery->where("properties.is_garden", 1);
-            }
-            if (request()->boolean("is_dss")) {
-                $propertyQuery =  $propertyQuery->where("properties.is_dss", 1);
-            }
-
-            $propertyQuery = $propertyQuery
+            })
 
                 // ->when(request()->filled("document_type_id"), function ($query) {
                 //     $query->whereHas("documents", function ($subQuery) {
                 //         $subQuery->where("property_documents.document_type_id", request()->input("document_type_id"));
                 //     });
                 // })
-                ->when(request()->filled("is_document_expired"), function ($query) {
+                ->when($request->filled("category"), function ($query) {
+                    $query->where("properties.category", request()->category);
+                })
+                ->when($request->filled("property_category"), function ($query) {
+                    $query->where("properties.category", request()->property_category);
+                })
+                ->when($request->filled("type"), function ($query) {
+                    $query->where("properties.type", request()->type);
+                })
+                ->when($request->filled("address"), function ($query) {
+                    $query->orWhere("properties.address", "like", "%" . request()->address . "%");
+                })
+                ->when($request->filled("start_date"), function ($query) {
+                    $query->where('properties.created_at', ">=", request()->start_date);
+                })
+                ->when($request->filled("end_date"), function ($query) {
+                    $query->where('properties.created_at', "<=", request()->end_date);
+                })
+                ->when($request->filled("reference_no"), function ($query) {
+                    $query->where("properties.reference_no", "like", "%" . request()->reference_no . "%");
+                })
+                ->when($request->filled("start_date_of_instruction"), function ($query)   {
+                    $query->whereDate("properties.date_of_instruction", ">=", request()->start_date_of_instruction);
+                })
+                ->when($request->filled("end_date_of_instruction"), function ($query)  {
+                    $query->whereDate("properties.date_of_instruction", "<=", request()->end_date_of_instruction);
+                })
+                ->when(request()->filled("start_no_of_beds"), function ($query) {
+                    $query->where("properties.no_of_beds", ">=", request()->start_no_of_beds);;
+                })
+                ->when(request()->filled("end_no_of_beds"), function ($query) {
+                    $query->where("properties.no_of_beds", "<=", request()->end_no_of_beds);
+                })
+                ->when(request()->filled("is_garden"), function ($query) {
+                    $query->where("properties.is_garden", request()->boolean("is_garden"));
+                })
+                ->when(request()->filled("is_dss"), function ($query) {
+                    $query->where("properties.is_dss", request()->boolean("is_dss"));
+                })
+                ->when(request()->filled("is_document_expired") || request()->filled("document_expired_in") || request()->filled("document_type_ids") || request()->filled('document_type_id'), function ($query) {
                     $query->whereHas("latest_documents", function ($subQuery) {
-                        $subQuery->whereDate('property_documents.gas_end_date', '<', Carbon::today());
+                        // Check if the "is_document_expired" flag is set
+                        if (request()->filled('is_document_expired')) {
+                            $subQuery->whereDate('property_documents.gas_end_date', '<', Carbon::today());
+                        }
+
+                        // Check if the "document_expired_in" is set and apply the expiry date range filter
+                        if (request()->filled('document_expired_in')) {
+                            $expiryDays = request()->input('document_expired_in');
+                            if (is_numeric($expiryDays) && $expiryDays > 0) {
+                                $subQuery->whereDate('property_documents.gas_end_date', '>', Carbon::today())
+                                    ->whereDate('property_documents.gas_end_date', '<=', Carbon::today()->addDays($expiryDays));
+                            }
+                        }
+
+                        // Check if "document_type_ids" is provided and filter by multiple document types
+                        if (request()->filled('document_type_ids')) {
+                            $document_type_ids = explode(',', request()->input('document_type_ids'));
+                            $subQuery->whereIn("property_documents.document_type_id", $document_type_ids);
+                        }
+
+                        // Check if the "document_type_id" is provided and filter by a single document type
                         if (request()->filled('document_type_id')) {
                             $subQuery->where('property_documents.document_type_id', request()->input('document_type_id'));
                         }
                     });
                 })
-                ->when(request()->filled("document_expired_in"), function ($query) {
-                    $expiryDays = request()->input('document_expired_in'); // Get the number of days passed from the front end
-
-                    // Check if a valid number of days is provided
-                    if (is_numeric($expiryDays) && $expiryDays > 0) {
-                        $query->whereHas('latest_documents', function ($subQuery) use ($expiryDays) {
-                            $subQuery->whereDate('property_documents.gas_end_date', '>', Carbon::today())
-                                ->whereDate('property_documents.gas_end_date', '<=', Carbon::today()->addDays($expiryDays));
-
-                            if (request()->filled('document_type_id')) {
-                                $subQuery->where('property_documents.document_type_id', request()->input('document_type_id'));
-                            }
-                        });
-                        // Apply this filter only if `maintenance_item_type_id` is provided in the request
-
-                    }
-                })
-
-                // ->when(request()->filled("maintenance_item_type_id"), function ($query) {
-                //     $query->whereHas("latest_inspection.maintenance_item", function ($subQuery) {
-                //         $subQuery->where('maintenance_items.maintenance_item_type_id', request()->input("maintenance_item_type_id"));
-                //     });
-                // })
 
                 ->when(request()->boolean("is_next_follow_up_date_passed"), function ($query) {
                     $query->whereHas("latest_inspection.maintenance_item", function ($subQuery) {
@@ -1790,17 +1765,11 @@ class PropertyController extends Controller
                             $subQuery->whereDate('tenant_inspections.next_inspection_date', '>', Carbon::today())
                             ->whereDate('tenant_inspections.next_inspection_date', '<=', Carbon::today()->addDays($expiryDays));
 
-                            // Apply this filter only if `maintenance_item_type_id` is provided in the request
+
 
                         });
                     }
-                });
-
-
-
-
-
-            $propertyQuery = $propertyQuery
+                })
                 ->when(
                     request()->only(['start_inspection_date', 'end_inspection_date']),
                     function ($query) {
@@ -2134,9 +2103,9 @@ class PropertyController extends Controller
                 });
             }
 
-            if (!empty($request->tenant_ids)) {
+            if (!empty($request->tenant_ids) || !empty($request->tenant_id)) {
                 $propertyQuery =  $propertyQuery->whereHas("property_tenants", function ($query) {
-                    $tenant_ids = explode(',', request()->input("tenant_ids"));
+                    $tenant_ids = request()->filled("tenant_ids")?explode(',', request()->input("tenant_ids")):explode(',', request()->input("tenant_id"));
                     $query
                         ->whereIn("property_tenants.tenant_id", $tenant_ids);
                 });
@@ -2306,9 +2275,9 @@ class PropertyController extends Controller
                 });
             }
 
-            if (!empty($request->tenant_ids)) {
+            if (!empty($request->tenant_ids) || !empty($request->tenant_id)) {
                 $propertyQuery =  $propertyQuery->whereHas("property_tenants", function ($query) {
-                    $tenant_ids = explode(',', request()->input("tenant_ids"));
+                    $tenant_ids = request()->filled("tenant_ids")?explode(',', request()->input("tenant_ids")):explode(',', request()->input("tenant_id"));
                     $query
                         ->whereIn("property_tenants.tenant_id", $tenant_ids);
                 });

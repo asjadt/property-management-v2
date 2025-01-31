@@ -802,13 +802,14 @@ $invoice_prev = Invoice::where([
         });
     }
 
-    if (!empty($request->tenant_ids)) {
+    if (!empty($request->tenant_ids) || !empty($request->tenant_id)) {
         $billQuery =  $billQuery->whereHas("tenants", function ($query) {
-            $tenant_ids = explode(',', request()->input("tenant_ids"));
+            $tenant_ids = request()->filled("tenant_ids")?explode(',', request()->input("tenant_ids")):explode(',', request()->input("tenant_id"));
             $query
                 ->whereIn("tenants.id", $tenant_ids);
         });
     }
+
 
 if (!empty($request->start_date)) {
    $billQuery = $billQuery->whereDate('bills.create_date', ">=", $request->start_date);
@@ -942,13 +943,14 @@ if(!empty($request->search_key)) {
         });
     }
 
-    if (!empty($request->tenant_ids)) {
+    if (!empty($request->tenant_ids) || !empty($request->tenant_id) ) {
         $billQuery =  $billQuery->whereHas("tenants", function ($query) {
-            $tenant_ids = explode(',', request()->input("tenant_ids"));
+            $tenant_ids = request()->filled("tenant_ids")?explode(',', request()->input("tenant_ids")):explode(',', request()->input("tenant_id"));
             $query
                 ->whereIn("tenants.id", $tenant_ids);
         });
     }
+
 
 
 if (!empty($request->start_date)) {

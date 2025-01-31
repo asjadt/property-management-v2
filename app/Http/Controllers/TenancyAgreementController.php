@@ -641,7 +641,6 @@ $rentHighlightsData = [
             ])
                 ->where(function ($query) use ($year, $month) {
 
-
                     // Create the start and end dates for the given month
                     $startDate = Carbon::createFromDate($year, $month, 1)->startOfDay();
                     $endDate = Carbon::createFromDate($year, $month, 1)->endOfMonth()->endOfDay();
@@ -692,9 +691,6 @@ $rentHighlightsData = [
 
 
 
-
-
-
             foreach ($tenancy_agreements as $tenancy_agreement) {
                 // Calculate total arrears
                 $agreement_rents = Rent::where([
@@ -717,7 +713,7 @@ $rentHighlightsData = [
 
             $responseData = [
                 "selectable_tenancy_agreements" => $tenancy_agreements,
-            
+
             ];
 
             return response()->json($responseData, 200);

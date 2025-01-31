@@ -487,9 +487,9 @@ public function getInvoiceReminders($perPage, Request $request)
             });
         }
 
-        if (!empty($request->tenant_ids)) {
+        if (!empty($request->tenant_ids) || !empty($request->tenant_id)) {
             $invoice_reminderQuery =  $invoice_reminderQuery->whereHas("invoice.tenants", function ($query) {
-                $tenant_ids = explode(',', request()->input("tenant_ids"));
+                $tenant_ids = request()->filled("tenant_ids")?explode(',', request()->input("tenant_ids")):explode(',', request()->input("tenant_id"));
                 $query
                     ->whereIn("tenants.id", $tenant_ids);
             });

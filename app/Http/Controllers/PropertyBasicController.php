@@ -512,8 +512,8 @@ class PropertyBasicController extends Controller
                     // "opening_balance" => ($total_past_invoice_amount - $total_past_invoice_payment_amount)
                     "opening_balance" => $opening_balance
                 ], 200);
-            } else   if (!empty($request->tenant_ids)) {
-                $tenant_ids = explode(',', request()->input("tenant_ids"));
+            } else   if (!empty($request->tenant_ids) || !empty($request->tenant_id)) {
+                $tenant_ids = request()->filled("tenant_ids")?explode(',', request()->input("tenant_ids")):explode(',', request()->input("tenant_id"));
 
                 $tenants = Tenant::where([
                     "created_by" => $request->user()->id
