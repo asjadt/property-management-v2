@@ -11,6 +11,7 @@ class TenancyAgreement extends Model
     protected $fillable = [
         'property_id',
         'agreed_rent',
+        "total_agreed_rent",
         'security_deposit_hold',
         'rent_payment_option',
         'tenant_contact_duration',
