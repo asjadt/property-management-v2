@@ -717,9 +717,7 @@ $rentHighlightsData = [
 
             $responseData = [
                 "selectable_tenancy_agreements" => $tenancy_agreements,
-                "paid_rents" => $paid_rents,
-                "arrears_rents" => $arrears_rents,
-                "overpaid_rents" => $overpaid_rents
+            
             ];
 
             return response()->json($responseData, 200);
