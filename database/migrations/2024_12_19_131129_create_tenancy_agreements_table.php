@@ -15,7 +15,7 @@ class CreateTenancyAgreementsTable extends Migration
     {
         Schema::create('tenancy_agreements', function (Blueprint $table) {
             $table->id();
-            $table->string('agreed_rent');
+
             $table->string('security_deposit_hold');
             $table->string('rent_payment_option');
             $table->string('tenant_contact_duration');
@@ -26,11 +26,16 @@ class CreateTenancyAgreementsTable extends Migration
             $table->foreignId('holder_entity_id')->nullable()->constrained("holder_entities")->onDelete('set null');
 
 
-
+            $table->decimal("agreed_rent",10,2);
+            $table->decimal("total_agreed_rent",10,2);
 
             $table->date('date_of_moving');
-            $table->date('let_only_agreement_expired_date')->nullable();
             $table->date('tenant_contact_expired_date')->nullable();
+
+
+            $table->date('let_only_agreement_expired_date')->nullable();
+
+
             $table->integer('rent_due_day');
             $table->string('no_of_occupants');
             $table->string('tenant_contact_year_duration')->nullable();

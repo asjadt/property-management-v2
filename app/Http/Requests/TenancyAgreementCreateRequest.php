@@ -25,7 +25,7 @@ class TenancyAgreementCreateRequest extends FormRequest
     {
         return [
             'property_id' => 'required|exists:properties,id',
-            'agreed_rent' => 'required|string|max:255',
+            'agreed_rent' => 'required|numeric',
             'security_deposit_hold' => 'required|string|max:255',
             'tenant_ids' => 'required|array|min:1',
             'tenant_ids.*' => 'numeric|exists:tenants,id',
