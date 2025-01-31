@@ -504,21 +504,36 @@ class TenancyAgreementController extends Controller
 
             // Calculate rent highlights (total rent, total paid, total arrears, highest rent)
 
-            $rentHighlights = TenancyAgreement::whereIn('tenancy_agreements.id', $agreementIds)
-    ->join('rents', 'rents.tenancy_agreement_id', '=', 'tenancy_agreements.id')
-    ->selectRaw(
-        'SUM(tenancy_agreements.total_agreed_rent) as total_rent,
-         SUM(COALESCE(rents.paid_amount, 0)) as total_paid,
-         SUM(tenancy_agreements.total_agreed_rent - COALESCE(rents.paid_amount, 0)) as total_arrears,
-         MAX(tenancy_agreements.total_agreed_rent) as highest_rent'
-    )
-    ->first(); 
+          // Calculate total rent (sum of total_agreed_rent across all selected agreements)
+$totalRent = TenancyAgreement::whereIn('tenancy_agreements.id', $agreementIds)
+->sum('total_agreed_rent');
 
+// Calculate total paid amount from the rents table
+$rentHighlights = Rent::whereIn('tenancy_agreement_id', $agreementIds)
+->selectRaw('SUM(COALESCE(paid_amount, 0)) as total_paid')
+->first();
+
+// Get the highest rent from the tenancy agreements
+$highestRent = TenancyAgreement::whereIn('tenancy_agreements.id', $agreementIds)
+->max('total_agreed_rent');
+
+// Calculate total arrears (total rent - total paid)
+$totalArrears = $totalRent - $rentHighlights->total_paid;
+
+// Combine everything into one array
+$rentHighlightsData = [
+'total_rent' => $totalRent,
+'total_paid' => $rentHighlights->total_paid,
+'total_arrears' => $totalArrears,
+'highest_rent' => $highestRent
+];
+
+// Return or use $rentHighlightsData as needed
 
 
             return response()->json([
                 'data' => $agreements,
-                'rent_highlights' => $rentHighlights,
+                'rent_highlights' => $rentHighlightsData,
             ], 200);
 
 
