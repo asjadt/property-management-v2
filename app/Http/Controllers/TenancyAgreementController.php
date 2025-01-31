@@ -442,13 +442,19 @@ class TenancyAgreementController extends Controller
                         "tenants.first_Name",
                         "tenants.last_Name"
                     );
+                },
+                "property" => function ($query) {
+                    $query->select(
+                        "properties.id",
+                        "properties.created_by",
+                    );
                 }
             ])
 
-                ->whereHas('property', function ($q) {
-                    // Ensure the property is created by the authenticated user
-                    $q->where('properties.created_by', auth()->user()->id);
-                })
+                // ->whereHas('property', function ($q) {
+                //     // Ensure the property is created by the authenticated user
+                //     $q->where('properties.created_by', auth()->user()->id);
+                // })
                 ->when($request->filled('tenant_ids'), function ($q) use ($request) {
                     // Filter by property_id if provided
                     $q->whereHas('tenants', function ($q) {
@@ -457,15 +463,16 @@ class TenancyAgreementController extends Controller
                         $q->whereIn('tenants.id', $tenant_ids);
                     });
                 })
-                ->when($request->filled('property_id'), function ($q) use ($request) {
-                    // Filter by property_id if provided
-                    $q->where('property_id', $request->property_id);
-                })
-                ->when($request->filled('property_ids'), function ($q) use ($request) {
-                    // Filter by property_id if provided
-                    $property_ids = explode(',', request()->input("property_ids"));
-                    $q->whereIn('property_id', $property_ids);
-                })
+                ->where('tenancy_agreements.property_id', 30)
+                // ->when($request->filled('property_id'), function ($q) use ($request) {
+                //     // Filter by property_id if provided
+                //     $q->where('tenancy_agreements.property_id', $request->property_id);
+                // })
+                // ->when($request->filled('property_ids'), function ($q) use ($request) {
+                //     // Filter by property_id if provided
+                //     $property_ids = explode(',', request()->input("property_ids"));
+                //     $q->whereIn('tenancy_agreements.property_id', $property_ids);
+                // })
                 ->when($request->filled('id'), function ($q) use ($request) {
                     // If specific ID is provided, return that record only
                     return $q->where('id', $request->input('id'))->first();
@@ -492,6 +499,9 @@ class TenancyAgreementController extends Controller
 
             // Calculate rent highlights (total rent, total paid, total arrears, highest rent)
             $rentHighlights = Rent::whereIn('tenancy_agreement_id', $agreementIds)
+            ->orderByDesc('year')
+            ->orderByDesc('month')
+            ->orderByDesc('id')
                 ->selectRaw(
                     'SUM(rent_amount) as total_rent,
              SUM(paid_amount) as total_paid,
