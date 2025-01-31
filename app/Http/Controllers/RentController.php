@@ -130,7 +130,10 @@ class RentController extends Controller
             ->exists();
 
             if ($rent_exists && $request_data["month"] != now()->month && $request_data["year"] != now()->year) {
-                throw new \Exception("A rent record exists, but not for the current month and year.", 409);
+                return response()->json([
+                    "message" => "A rent record exists, but not for the current month and year."
+                ],409);
+
             }
 
 
