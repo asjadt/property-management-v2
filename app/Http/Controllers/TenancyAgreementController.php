@@ -650,10 +650,20 @@ $rentHighlightsData = [
                         $subQuery->where('tenancy_agreements.date_of_moving', '<=', $endDate)
                             ->where('tenancy_agreements.tenant_contact_expired_date', '>=', $startDate);
                     })
-                        ->whereDoesntHave("rents", function ($subQuery) use ($year, $month) {
-                            $subQuery->where('rents.year', $year)
-                                ->where('rents.month', $month);
-                        });
+                    ->where(function($query) use ($year, $month) {
+                        $query->whereDoesntHave("rents", function ($subQuery) use ($year, $month) {
+                            $subQuery ->where(function ($query) use ($year, $month) {
+                                $query->where('year', '>', $year)
+                                    ->orWhere(function ($query) use ($year, $month)  {
+                                        $query->where('year', $year)
+                                            ->where('month', '>=', $month);
+                                    });
+                            })
+                            ->where('payment_status', "paid");
+                        })
+                        ;
+                    });
+
                 })
 
                 ->whereHas('property', function ($q) {
@@ -681,60 +691,8 @@ $rentHighlightsData = [
 
 
 
-                $all_rents = Rent::with("tenancy_agreement.property", "tenancy_agreement.tenants")
-                ->where('rents.created_by', auth()->user()->id)
-                ->where('rents.year', request()->input('year'))
-                ->where('rents.month', request()->input('month'))
-                ->when(request()->filled("tenant_ids"), function ($query) {
-                    return $query->whereHas("tenancy_agreement.tenants", function ($query) {
-                        $tenant_ids = explode(',', request()->input("tenant_ids"));
-                        $query->whereIn("tenants.id", $tenant_ids);
-                    });
-                })
-                ->when(request()->filled("property_ids"), function ($query) {
-                    return $query->whereHas("tenancy_agreement", function ($query) {
-                        $property_ids = explode(',', request()->input("property_ids"));
-                        $query->whereIn("tenancy_agreements.property_id", $property_ids);
-                    });
-                })
-                ->when(request()->filled("start_payment_date"), function ($query) {
-                    return $query->whereDate(
-                        'rents.payment_date',
-                        ">=",
-                        request()->input("start_payment_date")
-                    );
-                })
-
-                ->when(request()->filled("end_payment_date"), function ($query) {
-                    return $query->whereDate('rents.payment_date', "<=", request()->input("end_payment_date"));
-                })
-                ->when(request()->filled("payment_status"), function ($query) {
-                    return $query->where(
-                        'rents.payment_status',
-                        request()->input("payment_status")
-                    );
-                })
-                ->when(request()->filled("search_key"), function ($query) {
-                    return $query->where(function ($query) {
-                        $term = request()->input("search_key");
-                        $query
-
-                            ->orWhere("rents.payment_status", "like", "%" . $term . "%");
-                    });
-                })
-                ->when(request()->filled("start_date"), function ($query) {
-                    return $query->whereDate('rents.created_at', ">=", request()->input("start_date"));
-                })
-                ->when(request()->filled("end_date"), function ($query) {
-                    return $query->whereDate('rents.created_at', "<=", request()->input("end_date"));
-                })
-
-                ->get();
 
 
-            $paid_rents = $all_rents->filter(fn($rent) => $rent->payment_status === 'paid')->toArray();
-            $arrears_rents = $all_rents->filter(fn($rent) => $rent->payment_status === 'arrears')->toArray();
-            $overpaid_rents = $all_rents->filter(fn($rent) => $rent->payment_status === 'overpaid')->toArray();
 
 
             foreach ($tenancy_agreements as $tenancy_agreement) {
