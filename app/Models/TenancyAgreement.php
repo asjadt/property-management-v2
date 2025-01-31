@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class TenancyAgreement extends Model
 {
     use HasFactory;
+    
     protected $fillable = [
         'property_id',
         'agreed_rent',

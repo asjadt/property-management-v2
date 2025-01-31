@@ -737,7 +737,7 @@ class TenancyAgreementController extends Controller
                     ->orderBy('month')
                     ->get();
 
-                $tenancy_agreement["arrear"] =   $this->processArrears($agreement_rents,$all_rents,false);
+                $tenancy_agreement["arrear"] =   $this->processArrears($tenancy_agreement,$agreement_rents,false);
             }
 
 
