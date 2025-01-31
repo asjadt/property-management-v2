@@ -33,6 +33,9 @@ class CreateRentsTable extends Migration
 
             $table->decimal("paid_amount",10,2);
 
+            $table->decimal("arrear",10,2);
+
+
 
 
             $table->string("rent_reference");

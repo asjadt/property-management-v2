@@ -2,6 +2,7 @@
 
 namespace App\Http\Utils;
 
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -9,6 +10,67 @@ use Illuminate\Support\Facades\Log;
 
 trait BasicUtil
 {
+
+    public function processArrears($agreement, $rents, $updateRecords=false) {
+        $startDate = Carbon::parse($agreement->date_of_moving);
+
+        if(request()->filled("year") && request()->filled("month") && !$updateRecords) {
+            $endDate = Carbon::createFromDate(request()->input("year"), request()->input("month"), 1)->endOfMonth()->endOfDay();
+        } else {
+            $endDate = Carbon::parse($agreement->tenant_contact_expired_date);
+        }
+
+        $rentAmount = $agreement->rent_amount;
+        $total_arrear = 0; // Initial arrear balance
+
+        $currentYear = $startDate->year;
+
+        while ($currentYear <= $endDate->year) {
+            $startMonth = ($currentYear === $startDate->year) ? $startDate->month : 1;
+            $endMonth = ($currentYear === $endDate->year) ? $endDate->month : 12;
+
+            for ($month = $startMonth; $month <= $endMonth; $month++) {
+        // Get rent entry for this year & month
+                $this_month_rents = $rents->filter(function ($rent) use ($currentYear, $month) {
+                    return $rent->year == $currentYear && $rent->month == $month;
+                });
+
+                if ($this_month_rents->isEmpty()) {
+                    // No rent record for this month, carry arrear forward
+                    $total_arrear += $rentAmount;
+                    continue;
+                }
+
+                foreach ($this_month_rents as &$rent) {
+                    $paidAmount = $rent->paid_amount ?? 0;
+
+                    // Update arrear balance
+                    $total_arrear += $rentAmount - $paidAmount;
+
+                    $rent->arrear = $total_arrear;
+
+                    if ($total_arrear > 0) {
+                        $rent->payment_status = 'arrears'; // Outstanding balance remains
+                    } elseif ($total_arrear == 0) {
+                        $rent->payment_status = 'paid'; // Exact payment made, no arrears
+                    } else {
+                        $rent->payment_status  = 'overpaid'; // Payment exceeds due amount
+                    }
+
+                    if($updateRecords) {
+                       $rent->save();
+                    }
+
+                }
+            }
+
+            $currentYear++;
+        }
+
+        return $total_arrear;
+
+    }
+
 
 
     public function storeUploadedFiles($filePaths, $fileKey, $targetLocation, $isNestedFiles = false, $propertyId = null)

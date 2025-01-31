@@ -14,7 +14,7 @@ use App\Http\Utils\BusinessUtil;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Rent;
-
+use App\Models\TenancyAgreement;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -121,6 +121,7 @@ class RentController extends Controller
 
             $request_data["created_by"] = auth()->user()->id;
 
+
             $rent_exists = Rent::where([
                 "tenancy_agreement_id" => $request_data["tenancy_agreement_id"],
                 'month' => $request_data["month"],
@@ -132,89 +133,31 @@ class RentController extends Controller
                 throw new \Exception("A rent record exists, but not for the current month and year.", 409);
             }
 
-            // Fetch previous rents
-            $previous_rents = Rent::where([
-                "tenancy_agreement_id" => $request_data["tenancy_agreement_id"]
-            ])
-                ->where(function ($query) use ($request_data) {
-                    $query->where('year', '<', $request_data["year"])
-                        ->orWhere(function ($query) use ($request_data) {
-                            $query->where('year', $request_data["year"])
-                                ->where('month', '<', $request_data["month"]);
-                        });
-                })
-                ->orderBy('year')
-                ->orderBy('month')
-                ->get();
 
-            // Calculate total rent amount (rent + arrears)
-            $total_rent = $previous_rents->sum('rent_amount');
-            $total_paid = $previous_rents->sum('paid_amount');
-
-
-             // Fetch previous rents
-             $current_rents = Rent::where([
-                "tenancy_agreement_id" => $request_data["tenancy_agreement_id"]
-            ])
-            ->where('year', $request_data["year"])
-            ->where('month', '<', $request_data["month"])
-                ->orderBy('year')
-                ->orderBy('month')
-                ->get();
-
-                if ($current_rents->count() > 0 && $current_rents->sum('rent_amount') > 0) {
-                    $total_rent += $current_rents->sum('rent_amount') / $current_rents->count();
-                } else {
-                    // Handle the case where either the sum or the count is zero
-                    $total_rent += 0;
-                }
-
-                $total_paid += $current_rents->sum('paid_amount') + $request_data["paid_amount"];
-
-
-
-            // Determine payment status
-            if ($total_rent > $total_paid) {
-                $request_data["payment_status"] = 'arrears'; // Outstanding balance remains
-            } elseif ($total_rent == $total_paid) {
-                $request_data["payment_status"] = 'paid'; // Exact payment made, no arrears
-            } else {
-                $request_data["payment_status"] = 'overpaid'; // Payment exceeds due amount
-            }
-
-
+            $request_data["payment_status"] = "pending";
+            $request_data["arrear"] = 0;
             // Create the rent record
             $rent = Rent::create($request_data);
 
-            // Fetch rents after the current rent
-            $after_rents = Rent::where(function ($query) use ($request_data) {
-                $query->where('year', '>', $request_data["year"])
-                    ->orWhere(function ($query) use ($request_data) {
-                        $query->where('year', $request_data["year"])
-                            ->where('month', '>', $request_data["month"]);
-                    });
-            })
-                ->orderBy('year')
-                ->orderBy('month')
-                ->get();
 
-            // Update payment status for after_rents
-            foreach ($after_rents as $after_rent) {
-                $total_due = $total_rent + $after_rent->rent_amount;
-                $total_paid = $total_paid + $after_rent->paid_amount;
+            $agreement = TenancyAgreement::where([
+                "id" => $request_data["tenancy_agreement_id"]
+             ])
 
+             ->first();
+             if(empty($agreement)) {
+                throw new Exception("something went wrong",500);
+             }
 
-                if ($total_due > $total_paid) {
-                    $after_rent->payment_status = 'arrears'; // Outstanding balance remains
-                } elseif ($total_due == $total_paid) {
-                    $after_rent->payment_status = 'paid'; // Exact payment made, no arrears
-                } else {
-                    $after_rent->payment_status = 'overpaid'; // Payment exceeds due amount
-                }
+            $all_rents = Rent::where([
+                "tenancy_agreement_id" => $agreement->id
+            ])
+            ->orderBy('year')
+            ->orderBy('month')
+            ->orderBy('id')
+            ->get();
 
-                $after_rent->save();
-            }
-
+            $this->processArrears($agreement,$all_rents,true);
 
 
             DB::commit();
@@ -315,10 +258,13 @@ class RentController extends Controller
             //     throw new Exception(json_encode($error), 422);
             // }
 
-            $rent_query_params = [
-                "id" => $request_data["id"],
-            ];
-            $rent = Rent::where($rent_query_params)->first();
+
+
+            $rent = Rent::where(
+                [
+                    "id" => $request_data["id"],
+                ]
+            )->first();
 
             if(empty($rent)){
                 return response()->json([
@@ -326,93 +272,38 @@ class RentController extends Controller
                 ], 500);
             }
 
-              // Fetch previous rents
-              $previous_rents = Rent::where([
-                "tenancy_agreement_id" => $request_data["tenancy_agreement_id"]
-            ])
-                ->where(function ($query) use ($request_data, $rent)  {
-                    $query->where('year', '<', $request_data["year"])
-                        ->orWhere(function ($query) use ($request_data,$rent) {
-                            $query->where('year', $request_data["year"])
-                                ->where('month', '<', $request_data["month"])
-                                ->whereNotIn("id",[$rent->id]);
-                        });
-                })
-                ->orderBy('year')
-                ->orderBy('month')
-                ->get();
-
-            // Calculate total rent amount (rent + arrears)
-            $total_rent = $previous_rents->sum('rent_amount');
-            $total_paid = $previous_rents->sum('paid_amount');
-
-           // Fetch previous rents
-           $current_rents = Rent::where([
-            "tenancy_agreement_id" => $request_data["tenancy_agreement_id"]
-        ])
-        ->where('year', $request_data["year"])
-        ->where('month', '<', $request_data["month"])
-            ->orderBy('year')
-            ->orderBy('month')
-            ->get();
-
-            if ($current_rents->count() > 0 && $current_rents->sum('rent_amount') > 0) {
-                $total_rent += $current_rents->sum('rent_amount') / $current_rents->count();
-            } else {
-                // Handle the case where either the sum or the count is zero
-                $total_rent += 0;
-            }
-
-            $total_paid += $current_rents->sum('paid_amount') + $request_data["paid_amount"];
-
-             // Determine payment status
-             if ($total_rent > $total_paid) {
-                 $request_data["payment_status"] = 'arrears'; // Outstanding balance remains
-             } elseif ($total_rent == $total_paid) {
-                 $request_data["payment_status"] = 'paid'; // Exact payment made, no arrears
-             } else {
-                 $request_data["payment_status"] = 'overpaid'; // Payment exceeds due amount
-             }
-
-
-
-
-
             if ($rent) {
+                $request_data["payment_status"] = "pending";
+                $request_data["arrear"] = 0;
+
                 $rent->fill($request_data);
                 $rent->save();
             }
 
-               // Fetch rents after the current rent
-               $after_rents = Rent::where(function ($query) use ($rent) {
-                $query->where('year', '>', $rent->year)
-                    ->orWhere(function ($query) use ($rent) {
-                        $query->where('year', $rent->year)
-                            ->where('month', '>', $rent->month);
-                    });
-            })
-                ->orderBy('year')
-                ->orderBy('month')
-                ->get();
 
 
 
-            // Update payment status for after_rents
-            foreach ($after_rents as $after_rent) {
-                $total_due = $total_rent + $after_rent->rent_amount;
-                $total_paid = $total_paid + $after_rent->paid_amount;
+            $agreement = TenancyAgreement::where([
+                "id" => $request_data["tenancy_agreement_id"]
+             ])
+
+             ->first();
+
+             if(empty($agreement)) {
+                throw new Exception("something went wrong",500);
+             }
 
 
-                if ($total_due > $total_paid) {
-                    $after_rent->payment_status = 'arrears'; // Outstanding balance remains
-                } elseif ($total_due == $total_paid) {
-                    $after_rent->payment_status = 'paid'; // Exact payment made, no arrears
-                } else {
-                    $after_rent->payment_status = 'overpaid'; // Payment exceeds due amount
-                }
+            $all_rents = Rent::where([
+                "tenancy_agreement_id" => $agreement->id
+            ])
+            ->orderBy('year')
+            ->orderBy('month')
+            ->orderBy('id')
+            ->get();
 
-                $after_rent->save();
-            }
+            $this->processArrears($agreement,$all_rents,true);
+
 
             DB::commit();
             return response($rent, 201);
@@ -875,66 +766,33 @@ class RentController extends Controller
           ])
           ->first();
 
-
-
           if (!$rent) {
               return response()->json(["message" => "Rent not found"], 404);
           }
 
-            // Fetch previous rents
-            $previous_rents = Rent::where([
-                "tenancy_agreement_id" => $rent->tenancy_agreement_id
-            ])
-                ->where(function ($query) use ($rent) {
-                    $query->where('year', '<', $rent->year)
-                        ->orWhere(function ($query) use ($rent) {
-                            $query->where('year', $rent->year)
-                                ->where('month', '<=', $rent->month);
-                        })
-                        ->whereNotIn("id",[$rent->id]);
-                })
-                ->orderBy('year')
-                ->orderBy('month')
-                ->get();
-
-            // Calculate total rent amount (rent + arrears)
-            $total_rent = $previous_rents->sum('rent_amount');
-            $total_paid = $previous_rents->sum('paid_amount');
-
-
-
-             // Fetch rents after the current rent
-             $after_rents = Rent::where(function ($query) use ($rent) {
-                $query->where('year', '>', $rent->year)
-                    ->orWhere(function ($query) use ($rent) {
-                        $query->where('year', $rent->year)
-                            ->where('month', '>', $rent->month);
-                    });
-            })
-                ->orderBy('year')
-                ->orderBy('month')
-                ->get();
-
-
-
-            // Update payment status for after_rents
-            foreach ($after_rents as $after_rent) {
-                $total_due = $total_rent + $after_rent->rent_amount;
-                $total_paid = $total_paid + $after_rent->paid_amount;
-
-
-                if ($total_due > $total_paid) {
-                    $after_rent->payment_status = 'arrears'; // Outstanding balance remains
-                } elseif ($total_due == $total_paid) {
-                    $after_rent->payment_status = 'paid'; // Exact payment made, no arrears
-                } else {
-                    $after_rent->payment_status = 'overpaid'; // Payment exceeds due amount
-                }
-
-                $after_rent->save();
-            }
-
+            $tenancy_agreement_id = $rent->tenancy_agreement_id;
             $rent->delete();
+
+            $agreement = TenancyAgreement::where([
+                "id" => $tenancy_agreement_id
+             ])
+
+             ->first();
+
+             if(empty($agreement)) {
+                throw new Exception("something went wrong",500);
+             }
+
+
+            $all_rents = Rent::where([
+                "tenancy_agreement_id" => $agreement->id
+            ])
+            ->orderBy('year')
+            ->orderBy('month')
+            ->orderBy('id')
+            ->get();
+
+            $this->processArrears($agreement,$all_rents,true);
 
             return response()->json(["message" => "data deleted sussfully"], 200);
         } catch (Exception $e) {

@@ -699,31 +699,10 @@ class TenancyAgreementController extends Controller
 
                 ->get();
 
-            foreach ($all_rents as $rent) {
-                $past_rents = Rent::where("tenancy_agreement_id", $rent->tenancy_agreement_id)
-                    ->where(function ($query) use ($rent) {
-                        $query->where('year', '<', $rent->year)
-                            ->orWhere(function ($query) use ($rent) {
-                                $query->where('year', $rent->year)
-                                    ->where('month', '<=', $rent->month);
-                            });
-                    })
-                    ->orderBy('year')
-                    ->orderBy('month')
-                    ->get();
-
-                $rent["arrear"] = $past_rents->sum(fn ($r) => $r->rent_amount - $r->paid_amount);
-            }
 
             $paid_rents = $all_rents->filter(fn($rent) => $rent->payment_status === 'paid')->toArray();
             $arrears_rents = $all_rents->filter(fn($rent) => $rent->payment_status === 'arrears')->toArray();
             $overpaid_rents = $all_rents->filter(fn($rent) => $rent->payment_status === 'overpaid')->toArray();
-
-
-
-            if(!empty($paid_rents) || !empty($overpaid_rents)) {
-              $arrears_rents = [];
-            }
 
 
             foreach ($tenancy_agreements as $tenancy_agreement) {
@@ -742,9 +721,7 @@ class TenancyAgreementController extends Controller
                     ->orderBy('month')
                     ->get();
 
-                $tenancy_agreement["arrear"] = $agreement_rents->sum(function ($rent) {
-                    return $rent->rent_amount - $rent->paid_amount;
-                });
+                $tenancy_agreement["arrear"] =   $this->processArrears($agreement_rents,$all_rents,false);
             }
 
 
