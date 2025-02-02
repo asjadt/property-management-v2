@@ -1189,9 +1189,9 @@ public function updateInvoice(InvoiceUpdateRequest $request)
         $invoiceQuery =   $invoiceQuery->where("invoices.invoice_reference", "like", "%" . $request->invoice_reference . "%");
     }
 
-    if (!empty($request->landlord_ids)) {
+    if (!empty($request->landlord_ids) || !empty($request->landlord_id)) {
         $invoiceQuery =  $invoiceQuery->whereHas("landlords", function ($query) {
-            $landlord_ids = explode(',', request()->input("landlord_ids"));
+            $landlord_ids = request()->filled("landlord_ids")?explode(',', request()->input("landlord_ids")):explode(',', request()->input("landlord_id"));
             $query
                 ->whereIn("landlords.id", $landlord_ids);
         });
@@ -1205,7 +1205,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
         });
     }
 
-   
+
 
     if (!empty($request->client_id)) {
      $invoiceQuery =   $invoiceQuery->where("invoices.client_id", $request->client_id);
@@ -1310,9 +1310,9 @@ public function updateInvoice(InvoiceUpdateRequest $request)
         $invoiceQuery =   $invoiceQuery->where("invoices.invoice_reference", "like", "%" . $request->invoice_reference . "%");
     }
 
-    if (!empty($request->landlord_ids)) {
+    if (!empty($request->landlord_ids) || !empty($request->landlord_id) ) {
         $invoiceQuery =  $invoiceQuery->whereHas("landlords", function ($query) {
-            $landlord_ids = explode(',', request()->input("landlord_ids"));
+            $landlord_ids = request()->filled("landlord_ids")?explode(',', request()->input("landlord_ids")):explode(',', request()->input("landlord_id"));
             $query
                 ->whereIn("landlords.id", $landlord_ids);
         });
@@ -1443,9 +1443,9 @@ public function updateInvoice(InvoiceUpdateRequest $request)
        $invoiceQuery =   $invoiceQuery->where("invoices.invoice_reference", "like", "%" . $request->invoice_reference . "%");
    }
 
-   if (!empty($request->landlord_ids)) {
+   if (!empty($request->landlord_ids) || !empty($request->landlord_id) ) {
     $invoiceQuery =  $invoiceQuery->whereHas("landlords", function ($query) {
-        $landlord_ids = explode(',', request()->input("landlord_ids"));
+        $landlord_ids = request()->filled("landlord_ids")?explode(',', request()->input("landlord_ids")):explode(',', request()->input("landlord_id"));
         $query
             ->whereIn("landlords.id", $landlord_ids);
     });
@@ -1897,8 +1897,8 @@ return $pdf->stream(); // Stream the PDF content
 
       $data =    ["invoices"=>$invoices,"business"=>$business];
 
-          if (!empty($request->landlord_ids)) {
-            $landlord_ids = explode(',', request()->input("landlord_ids"));
+          if (!empty($request->landlord_ids) || !empty($request->landlord_id)) {
+            $landlord_ids = request()->filled("landlord_ids")?explode(',', request()->input("landlord_ids")):explode(',', request()->input("landlord_id"));
             $landlords = Landlord::whereIn("id",$landlord_ids)
             ->where([
                 "created_by" => $request->user()->id

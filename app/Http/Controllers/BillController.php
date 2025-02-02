@@ -794,9 +794,9 @@ $invoice_prev = Invoice::where([
     $billQuery = Bill::with("bill_bill_items","bill_sale_items","bill_repair_items","landlords","property")
     ->leftJoin('invoices', 'invoices.bill_id', '=', 'bills.id');
 
-    if (!empty($request->landlord_ids)) {
+    if (!empty($request->landlord_ids) || !empty($request->landlord_id)) {
         $billQuery =  $billQuery->whereHas("landlords", function ($query) {
-            $landlord_ids = explode(',', request()->input("landlord_ids"));
+            $landlord_ids = request()->filled("landlord_ids")?explode(',', request()->input("landlord_ids")):explode(',', request()->input("landlord_id"));
             $query
                 ->whereIn("landlords.id", $landlord_ids);
         });
@@ -935,9 +935,9 @@ if(!empty($request->search_key)) {
           "bills.created_by" => $request->user()->id
      ]);
 
-     if (!empty($request->landlord_ids)) {
+     if (!empty($request->landlord_ids) || !empty($request->landlord_id)) {
         $billQuery =  $billQuery->whereHas("landlords", function ($query) {
-            $landlord_ids = explode(',', request()->input("landlord_ids"));
+            $landlord_ids = request()->filled("landlord_ids")?explode(',', request()->input("landlord_ids")):explode(',', request()->input("landlord_id"));
             $query
                 ->whereIn("landlords.id", $landlord_ids);
         });

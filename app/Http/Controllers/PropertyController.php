@@ -1670,8 +1670,8 @@ class PropertyController extends Controller
                           ->orWhere("properties.type", "like", "%" . $term . "%");
                 });
             })
-            ->when($request->filled("landlord_ids"), function ($query) {
-                $landlord_ids = explode(',', request()->input("landlord_ids"));
+            ->when($request->filled("landlord_ids") || !empty($request->landlord_id), function ($query) {
+                $landlord_ids = request()->filled("landlord_ids")?explode(',', request()->input("landlord_ids")):explode(',', request()->input("landlord_id"));
                 $query->whereHas("property_landlords", function ($query) use ($landlord_ids) {
                     $query->whereIn("property_landlords.landlord_id", $landlord_ids);
                 });
@@ -2140,9 +2140,9 @@ class PropertyController extends Controller
             }
 
 
-            if (!empty($request->landlord_ids)) {
+            if (!empty($request->landlord_ids) || !empty($request->landlord_id)) {
                 $propertyQuery =  $propertyQuery->whereHas("property_landlords", function ($query) {
-                    $landlord_ids = explode(',', request()->input("landlord_ids"));
+                    $landlord_ids = request()->filled("landlord_ids")?explode(',', request()->input("landlord_ids")):explode(',', request()->input("landlord_id"));
                     $query
                         ->whereIn("property_landlords.landlord_id", $landlord_ids);
                 });
@@ -2312,9 +2312,9 @@ class PropertyController extends Controller
                 });
             }
 
-            if (!empty($request->landlord_ids)) {
+            if (!empty($request->landlord_ids) || !empty($request->landlord_id)) {
                 $propertyQuery =  $propertyQuery->whereHas("property_landlords", function ($query) {
-                    $landlord_ids = explode(',', request()->input("landlord_ids"));
+                    $landlord_ids = request()->filled("landlord_ids")?explode(',', request()->input("landlord_ids")):explode(',', request()->input("landlord_id"));
                     $query
                         ->whereIn("property_landlords.landlord_id", $landlord_ids);
                 });

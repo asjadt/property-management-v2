@@ -406,8 +406,8 @@ class PropertyBasicController extends Controller
 
 
 
-            if (!empty($request->landlord_id)) {
-                $landlord_ids = explode(',', request()->input("landlord_ids"));
+            if (!empty($request->landlord_ids) || !empty($request->landlord_id)) {
+                $landlord_ids = request()->filled("landlord_ids")?explode(',', request()->input("landlord_ids")):explode(',', request()->input("landlord_id"));
 
                 $landlords = Landlord::where([
                     "created_by" => $request->user()->id

@@ -479,9 +479,9 @@ public function getInvoiceReminders($perPage, Request $request)
             $invoice_reminderQuery = $invoice_reminderQuery->where('invoice_reminders.created_at', "<=", $request->end_date);
         }
 
-        if (!empty($request->landlord_ids)) {
+        if (!empty($request->landlord_ids) || !empty($request->landlord_id)) {
             $invoice_reminderQuery =  $invoice_reminderQuery->whereHas("invoice.landlords", function ($query) {
-                $landlord_ids = explode(',', request()->input("landlord_ids"));
+                $landlord_ids = request()->filled("landlord_ids")?explode(',', request()->input("landlord_ids")):explode(',', request()->input("landlord_id"));
                 $query
                     ->whereIn("landlords.id", $landlord_ids);
             });
