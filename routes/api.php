@@ -515,6 +515,8 @@ Route::delete('/v1.0/repair-categories/{id}', [RepairCategoryController::class, 
 
 
 Route::get('/v1.0/activities/{perPage}', [PropertyBasicController::class, "showActivity"]);
+Route::get('/v2.0/activities/{perPage}', [PropertyBasicController::class, "showActivityV2"]);
+
 Route::get('/v1.0/property-report', [PropertyBasicController::class, "propertyReport"]);
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

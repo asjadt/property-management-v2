@@ -22,13 +22,15 @@ class Rent extends Model
                     'payment_status',
                     'rent_amount',
                     'paid_amount',
+                    'arrear',
                     'month',
                     'year',
                     "created_by"
     ];
 
     protected $casts = [
-                  ];
+
+    ];
 
 
 
