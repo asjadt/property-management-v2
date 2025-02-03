@@ -811,7 +811,7 @@ class PropertyBasicController extends Controller
      * example="search_key"
      * ),
      *  @OA\Parameter(
-     *      name="property_ids[]",
+     *      name="property_ids",
      *      in="query",
      *      description="property_ids",
      *      required=true,
@@ -876,139 +876,244 @@ class PropertyBasicController extends Controller
      *     )
      */
 
+
      public function showActivityV2($perPage, Request $request)
      {
          try {
+             $this->storeActivity($request, "");
+
              if (!empty($request->end_date)) {
                  $request['next_day'] = date('Y-m-d', strtotime($request->end_date) + 86400);
              }
 
-             $entityTypes = [
-                 'landlord' => Landlord::class,
-                 'tenant' => Tenant::class,
-                 'client' => Client::class
-             ];
+             // Determine entity type and corresponding IDs
+             $entityType = '';
+             $entityIds = [];
 
-             foreach ($entityTypes as $type => $model) {
-                 $idsKey = "{$type}_ids";
-                 $idKey = "{$type}_id";
-
-                 if (!empty($request->$idsKey) || !empty($request->$idKey)) {
-                     $ids = request()->filled($idsKey) ? explode(',', request()->input($idsKey)) : explode(',', request()->input($idKey));
-
-                     $entities = $model::where('created_by', $request->user()->id)->whereIn('id', $ids)->get();
-                     if ($entities->isEmpty()) {
-                         return response()->json(["message" => "no {$type} found"], 404);
-                     }
-
-                     // Invoice opening balance
-                     $invoiceOpeningBalance = Invoice::where('invoices.created_by', $request->user()->id)
-                         ->whereHas("{$type}s", fn($query) => $query->whereIn("{$type}s.id", $ids))
-                         ->when(!empty($request->start_date), fn($query) => $query->where('invoices.invoice_date', '<', $request->start_date))
-                         ->select(DB::raw('COALESCE(
-                             invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
-                             invoices.total_amount
-                         ) AS total_due'))
-                         ->get()
-                         ->sum('total_due');
-
-                     // Bill opening balance
-                     $billOpeningBalance = Bill::where('bills.created_by', $request->user()->id)
-                         ->whereHas("property", fn($query) => $query->whereIn("properties.id", $ids))
-                         ->when(!empty($request->start_date), fn($query) => $query->where('bills.create_date', '<', $request->start_date))
-                         ->select(DB::raw('COALESCE(
-                             bills.payabble_amount - (SELECT SUM(bill_payments.amount) FROM bill_payments WHERE bill_payments.bill_id = bills.id),
-                             bills.payabble_amount
-                         ) AS total_due'))
-                         ->get()
-                         ->sum('total_due');
-
-                     // Rent opening balance (for tenants)
-                     $rentOpeningBalance = 0;
-                     if ($type === 'tenant') {
-                         $rentOpeningBalance = Rent::where('rents.created_by', $request->user()->id)
-                             ->whereHas("tenancy_agreement.agreement_tenants", fn($query) => $query->whereIn("agreement_tenants.tenant_id", $ids))
-                             ->when(!empty($request->start_date), fn($query) => $query->where('rents.payment_date', '<', $request->start_date))
-                             ->select(DB::raw('COALESCE(
-                                 rents.rent_amount - (SELECT SUM(rent_payments.amount) FROM rent_payments WHERE rent_payments.rent_id = rents.id),
-                                 rents.rent_amount
-                             ) AS total_due'))
-                             ->get()
-                             ->sum('total_due');
-                     }
-
-                     // Total opening balance including invoices, bills, and rent
-                     $opening_balance = 0;
-
-                     $invoiceQuery = Invoice::with('invoice_payments')
-                         ->where('invoices.created_by', $request->user()->id)
-                         ->whereHas("{$type}s", fn($query) => $query->whereIn("{$type}s.id", $ids))
-                         ->when(!empty($request->start_date), fn($query) => $query->where('invoices.invoice_date', '>=', $request->start_date))
-                         ->when(!empty($request->end_date), fn($query) => $query->where('invoices.invoice_date', '<', $request['next_day']))
-                         ->when(!empty($request->property_ids), fn($query) => $query->whereIn('invoices.property_id', array_filter($request->property_ids)))
-                         ->select(
-                             'invoices.id', 'invoices.total_amount', 'invoices.invoice_date as created_at',
-                             'invoices.invoice_reference', DB::raw("'invoice' as type"),
-                             'invoices.due_date as due_date',
-                             DB::raw('(SELECT COALESCE(SUM(invoice_payments.amount), 0) FROM invoice_payments WHERE invoices.id = invoice_payments.invoice_id) AS total_paid')
-                         );
-
-                     $billQuery = Bill::where('bills.created_by', $request->user()->id)
-                         ->whereHas("property", fn($query) => $query->whereIn("properties.id", $ids))
-                         ->when(!empty($request->start_date), fn($query) => $query->where('bills.create_date', '>=', $request->start_date))
-                         ->when(!empty($request->end_date), fn($query) => $query->where('bills.create_date', '<', $request['next_day']))
-                         ->when(!empty($request->property_ids), fn($query) => $query->whereIn('bills.property_id', array_filter($request->property_ids)))
-                         ->select(
-                             'bills.id', 'bills.payabble_amount as total_amount', 'bills.create_date as created_at',
-                             DB::raw("'bill' as type"), DB::raw('NULL as due_date'),
-                             DB::raw('(bills.payabble_amount - COALESCE(bills.deduction, 0)) AS total_paid')
-                         );
-
-                     // Rent query only for tenants
-                     $rentQuery = null;
-                     if ($type === 'tenant') {
-                         $rentQuery = Rent::where('rents.created_by', $request->user()->id)
-                             ->whereHas("tenancy_agreement.agreement_tenants", fn($query) => $query->whereIn("agreement_tenants.tenant_id", $ids))
-                             ->when(!empty($request->property_ids), function($query) {
-                                 $query->whereHas("tenancy_agreement", fn($query) => $query->whereIn("tenancy_agreement.property_id", array_filter(request()->property_ids)));
-                             })
-                             ->when(!empty($request->start_date), fn($query) => $query->where('rents.payment_date', '>=', $request->start_date))
-                             ->when(!empty($request->end_date), fn($query) => $query->where('rents.payment_date', '<', $request['next_day']))
-                             ->select(
-                                 'rents.id', 'rents.arrear as total_amount', 'rents.payment_date as created_at',
-                                 DB::raw("'rent' as type"), DB::raw('NULL as due_date'),
-                                 'rents.paid_amount as total_paid'  // Using paid_amount for rent
-                             );
-                     }
-
-                     $activitiesPaginated = $invoiceQuery->union($billQuery)
-                         ->when($rentQuery, fn($query) => $query->union($rentQuery))
-                         ->orderBy('created_at', 'asc')
-                         ->paginate($perPage);
-
-                     $section_1 = [
-                         'invoice_payment_total_amount' => collect($activitiesPaginated->items())->where('type', 'invoice')->sum('total_paid'),
-                         'bill_payment_total_amount' => collect($activitiesPaginated->items())->where('type', 'bill')->sum('total_paid'),
-                         'rent_payment_total_amount' => collect($activitiesPaginated->items())->where('type', 'rent')->sum('total_paid'),
-                         'invoice_total_amount' => collect($activitiesPaginated->items())->where('type', 'invoice')->sum('total_amount'),
-                         'bill_total_amount' => collect($activitiesPaginated->items())->where('type', 'bill')->sum('total_amount'),
-                         'rent_total_amount' => collect($activitiesPaginated->items())->where('type', 'rent')->sum('total_amount'),
-                         'start_date' => $request->start_date,
-                         'end_date' => $request->end_date,
-                         "{$type}s" => $entities
-                     ];
-
-                     return response()->json([
-                         'section_1' => $section_1,
-                         'section_2' => $activitiesPaginated,
-                         'opening_balance' => $opening_balance
-                     ], 200);
-                 }
+             if ($request->has('landlord_ids') || $request->has('landlord_id')) {
+                 $entityType = 'landlord';
+                 $entityIds = $request->filled('landlord_ids') ? explode(',', $request->landlord_ids) : explode(',', $request->landlord_id);
+             } elseif ($request->has('tenant_ids') || $request->has('tenant_id')) {
+                 $entityType = 'tenant';
+                 $entityIds = $request->filled('tenant_ids') ? explode(',', $request->tenant_ids) : explode(',', $request->tenant_id);
+             } elseif ($request->has('client_ids') || $request->has('client_id')) {
+                 $entityType = 'client';
+                 $entityIds = $request->filled('client_ids') ? explode(',', $request->client_ids) : explode(',', $request->client_id);
              }
+
+             if (!$entityType) {
+                 return response()->json(['message' => 'Invalid entity type'], 400);
+             }
+
+
+
+             // Invoice query based on entity type
+             $invoices = Invoice::where("invoices.created_by", $request->user()->id)
+
+                 ->when($entityType === 'landlord', function ($query) use ($entityIds) {
+                     return $query->whereHas('landlords', function ($query) use ($entityIds) {
+                         return $query->whereIn('landlords.id', $entityIds);
+                     });
+                 })
+                 ->when($entityType === 'tenant', function ($query) use ($entityIds) {
+                     return $query->whereHas('tenants', function ($query) use ($entityIds) {
+                         return $query->whereIn('tenants.id', $entityIds);
+                     });
+                 })
+                 ->when($entityType === 'client', function ($query) use ($entityIds) {
+                     return $query->whereHas('clients', function ($query) use ($entityIds) {
+                         return $query->whereIn('clients.id', $entityIds);
+                     });
+                 })
+                 ->when(!empty($request->start_date), function ($query) use ($request) {
+                     return $query->where('invoices.invoice_date', ">=", $request->start_date);
+                 })
+                 ->when(!empty($request->end_date), function ($query) use ($request) {
+                     return $query->where('invoices.invoice_date', "<", $request['next_day']);
+                 })
+                 ->when(!empty($request->property_ids), function ($query) use ($request) {
+
+                    return $query->whereIn("invoices.property_id", explode(',', request()->input("property_ids")));
+                })
+                 ->select(
+                     'invoices.id',
+                     'invoices.total_amount',
+                     'invoices.invoice_date',
+                     'invoices.invoice_reference',
+                     DB::raw("'invoice' as type"),
+                     'invoices.due_date',
+                     DB::raw('(SELECT COALESCE(SUM(invoice_payments.amount), 0) FROM invoice_payments WHERE invoices.id = invoice_payments.invoice_id) AS total_paid')
+                 )
+                 ->orderBy('created_at', 'asc')
+                 ->get();
+
+
+
+                         $rents = Rent::where('rents.created_by', $request->user()->id)
+
+                         ->when($entityType === 'landlord', function ($query) use ($entityIds) {
+                            return $query->whereHas('tenancy_agreement.property.property_landlords', function ($query) use ($entityIds) {
+                                return $query->whereIn('landlords.id', $entityIds);
+                            });
+                        })
+                        ->when($entityType === 'tenant', function ($query) use ($entityIds) {
+                            return $query->whereHas('tenancy_agreement.tenants', function ($query) use ($entityIds) {
+                                return $query->whereIn('tenants.id', $entityIds);
+                            });
+                        })
+
+                         ->when(!empty($request->start_date), fn($query) => $query->where('rents.payment_date', '>=', $request->start_date))
+                         ->when(!empty($request->end_date), fn($query) => $query->where('rents.payment_date', '<', $request['next_day']))
+                         ->select(
+                             'rents.id',
+                            'rents.rent_reference',
+                            'rents.payment_date',
+                            'rents.paid_amount',
+                            'rents.arrear',
+                             DB::raw("'rent' as type"),
+                         )
+                         ->get() ;
+
+
+
+                     $bills =  Bill::where('bills.created_by', $request->user()->id)
+                     ->when($entityType === 'landlord', function ($query) use ($entityIds) {
+                        return $query->whereHas('landlords', function ($query) use ($entityIds) {
+                            return $query->whereIn('landlords.id', $entityIds);
+                        });
+                    })
+
+                         ->when(!empty($request->start_date), fn($query) => $query->where('bills.payment_date', '>=', $request->start_date))
+                         ->when(!empty($request->end_date), fn($query) => $query->where('bills.payment_date', '<', $request['next_day']))
+                         ->select(
+                             'bills.id',
+                             'bills.create_date',
+                             'bills.payment_date',
+                             'bills.payabble_amount',
+                             'bills.deduction',
+                             DB::raw("'bill' as type"),
+
+                         )
+                         ->get();
+
+                         $activities = $invoices->merge($rents)->merge($bills)->sortBy(fn($item) => $item->invoice_date ?? $item->payment_date ?? $item->create_date);
+
+
+
+             $section_1["start_date"] = $request->start_date;
+             $section_1["end_date"] = $request->end_date;
+
+
+             return response()->json([
+                 "section_1" => $section_1,
+                 "section_2" => $activities,
+
+             ], 200);
+
          } catch (Exception $e) {
-             return response()->json(['error' => $e->getMessage()], 500);
+             return response()->json(['message' => $e->getMessage()], 500);
          }
      }
+
+
+
+
+    //  public function showActivityV2($perPage, Request $request)
+    //  {
+    //      try {
+    //          if (!empty($request->end_date)) {
+    //              $request['next_day'] = date('Y-m-d', strtotime($request->end_date) + 86400);
+    //          }
+
+    //          $entityTypes = [
+    //              'landlord' => Landlord::class,
+    //              'tenant' => Tenant::class,
+    //              'client' => Client::class
+    //          ];
+
+    //          foreach ($entityTypes as $type => $model) {
+    //              $idsKey = "{$type}_ids";
+    //              $idKey = "{$type}_id";
+
+    //              if (!empty($request->$idsKey) || !empty($request->$idKey)) {
+    //                  $ids = request()->filled($idsKey) ? explode(',', request()->input($idsKey)) : explode(',', request()->input($idKey));
+
+    //                  $entities = $model::where('created_by', $request->user()->id)->whereIn('id', $ids)->get();
+    //                  if ($entities->isEmpty()) {
+    //                      return response()->json(["message" => "no {$type} found"], 404);
+    //                  }
+
+    //                  // Perform the queries for all types (invoice, rent, bill) based on $type
+    //                  $invoiceResults = Invoice::with('invoice_payments')
+    //                      ->where('invoices.created_by', $request->user()->id)
+    //                      ->whereHas("{$type}s", fn($query) => $query->whereIn("{$type}s.id", $ids))
+    //                      ->when(!empty($request->start_date), fn($query) => $query->where('invoices.invoice_date', '>=', $request->start_date))
+    //                      ->when(!empty($request->end_date), fn($query) => $query->where('invoices.invoice_date', '<', $request['next_day']))
+    //                      ->select(
+    //                          'invoices.id', 'invoices.total_amount', 'invoices.invoice_date as created_at',
+    //                          'invoices.invoice_reference', DB::raw("'invoice' as type"),
+    //                          'invoices.due_date as due_date',
+    //                          DB::raw('(SELECT COALESCE(SUM(invoice_payments.amount), 0) FROM invoice_payments WHERE invoices.id = invoice_payments.invoice_id) AS total_paid')
+    //                      )
+    //                      ->get();
+
+    //                  $rentResults = $type === 'tenant' ? Rent::where('rents.created_by', $request->user()->id)
+    //                      ->whereHas("tenancy_agreement.agreement_tenants", fn($query) => $query->whereIn("agreement_tenants.tenant_id", $ids))
+    //                      ->when(!empty($request->start_date), fn($query) => $query->where('rents.payment_date', '>=', $request->start_date))
+    //                      ->when(!empty($request->end_date), fn($query) => $query->where('rents.payment_date', '<', $request['next_day']))
+    //                      ->select(
+    //                          'rents.id', 'rents.arrear as total_amount', 'rents.payment_date as created_at',
+    //                          DB::raw("'rent' as type"), DB::raw('NULL as due_date'),
+    //                          'rents.paid_amount as total_paid'
+    //                      )
+    //                      ->get() : collect();
+
+    //                  $billResults = $type === 'landlord' ? Bill::where('bills.created_by', $request->user()->id)
+    //                      ->whereHas("landlords", fn($query) => $query->whereIn("landlords.id", $ids))
+    //                      ->when(!empty($request->start_date), fn($query) => $query->where('bills.create_date', '>=', $request->start_date))
+    //                      ->when(!empty($request->end_date), fn($query) => $query->where('bills.create_date', '<', $request['next_day']))
+    //                      ->select(
+    //                          'bills.id', 'bills.payabble_amount', 'bills.create_date as created_at',
+    //                          'bills.payment_mode as invoice_reference', DB::raw("'bill' as type"),
+    //                          DB::raw('NULL as due_date'),
+    //                          'bills.payabble_amount - bills.deduction as total_paid'
+    //                      )
+    //                      ->get() : collect();
+
+    //                  // Merge results and sort by created_at
+    //                  $allResults = $invoiceResults->merge($rentResults)->merge($billResults)->sortBy('created_at');
+
+    //                  // Paginate merged results
+    //                  $activitiesPaginated = new \Illuminate\Pagination\LengthAwarePaginator(
+    //                      $allResults->forPage(request('page', 1), $perPage),
+    //                      $allResults->count(),
+    //                      $perPage
+    //                  );
+
+    //                  // Section data for the response
+    //                  $section_1 = [
+    //                      'invoice_payment_total_amount' => $allResults->where('type', 'invoice')->sum('total_paid'),
+    //                      'rent_payment_total_amount' => $allResults->where('type', 'rent')->sum('total_paid'),
+    //                      'bill_payment_total_amount' => $allResults->where('type', 'bill')->sum('total_paid'),
+    //                      'invoice_total_amount' => $allResults->where('type', 'invoice')->sum('total_amount'),
+    //                      'rent_total_amount' => $allResults->where('type', 'rent')->sum('total_amount'),
+    //                      'bill_total_amount' => $allResults->where('type', 'bill')->sum('total_amount'),
+    //                      'start_date' => $request->start_date,
+    //                      'end_date' => $request->end_date,
+    //                      "{$type}s" => $entities
+    //                  ];
+
+    //                  return response()->json([
+    //                      'section_1' => $section_1,
+    //                      'section_2' => $activitiesPaginated,
+    //                  ], 200);
+    //              }
+    //          }
+    //      } catch (Exception $e) {
+    //          return response()->json(['error' => $e->getMessage()], 500);
+    //      }
+    //  }
+
 
 
 

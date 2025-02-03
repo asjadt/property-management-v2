@@ -33,7 +33,6 @@ class Bill extends Model
         }
 
 
-
         public function landlords() {
             return $this->belongsToMany(Landlord::class, 'bill_landlords', 'bill_id', 'landlord_id');
         }

@@ -23,7 +23,6 @@ class Property extends Model
         "long",
         'type',
         'reference_no',
-        'landlord_id',
         'is_active',
         'date_of_instruction',
         'howDetached',
@@ -102,9 +101,7 @@ class Property extends Model
 
 
 
-    public function landlord() {
-        return $this->hasOne(Landlord::class,'id','landlord_id')->withTrashed();
-    }
+
 
     public function repairs() {
         return $this->hasMany(Repair::class,'property_id','id');
