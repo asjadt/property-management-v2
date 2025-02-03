@@ -890,7 +890,6 @@ class PropertyBasicController extends Controller
              ];
 
              foreach ($entityTypes as $type => $model) {
-
                  $idsKey = "{$type}_ids";
                  $idKey = "{$type}_id";
 
@@ -902,45 +901,44 @@ class PropertyBasicController extends Controller
                          return response()->json(["message" => "no {$type} found"], 404);
                      }
 
+                     // Invoice opening balance
                      $invoiceOpeningBalance = Invoice::where('invoices.created_by', $request->user()->id)
-                     ->whereHas("{$type}s", fn($query) => $query->whereIn("{$type}s.id", $ids))
-                     ->when(!empty($request->start_date), fn($query) => $query->where('invoices.invoice_date', '<', $request->start_date))
-                     ->select(DB::raw('COALESCE(
-                         invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
-                         invoices.total_amount
-                     ) AS total_due'))
-                     ->get()
-                     ->sum('total_due');
-
-                 // Bill opening balance
-                 $billOpeningBalance = Bill::where('bills.created_by', $request->user()->id)
-                     ->whereHas("property", fn($query) => $query->whereIn("properties.id", $ids))
-                     ->when(!empty($request->start_date), fn($query) => $query->where('bills.create_date', '<', $request->start_date))
-                     ->select(DB::raw('COALESCE(
-                         bills.payabble_amount - (SELECT SUM(bill_payments.amount) FROM bill_payments WHERE bill_payments.bill_id = bills.id),
-                         bills.payabble_amount
-                     ) AS total_due'))
-                     ->get()
-                     ->sum('total_due');
-
-                 // Rent opening balance (for tenants)
-                 $rentOpeningBalance = 0;
-                 if ($type === 'tenant') {
-                     $rentOpeningBalance = Rent::where('rents.created_by', $request->user()->id)
-                         ->whereHas("tenancy_agreement.agreement_tenants", fn($query) => $query->whereIn("agreement_tenants.tenant_id", $ids))
-                         ->when(!empty($request->start_date), fn($query) => $query->where('rents.payment_date', '<', $request->start_date))
+                         ->whereHas("{$type}s", fn($query) => $query->whereIn("{$type}s.id", $ids))
+                         ->when(!empty($request->start_date), fn($query) => $query->where('invoices.invoice_date', '<', $request->start_date))
                          ->select(DB::raw('COALESCE(
-                             rents.rent_amount - (SELECT SUM(rent_payments.amount) FROM rent_payments WHERE rent_payments.rent_id = rents.id),
-                             rents.rent_amount
+                             invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
+                             invoices.total_amount
                          ) AS total_due'))
                          ->get()
                          ->sum('total_due');
-                 }
 
-                 // Total opening balance including invoices, bills, and rent
-                //  $opening_balance = $invoiceOpeningBalance + $billOpeningBalance + $rentOpeningBalance;
+                     // Bill opening balance
+                     $billOpeningBalance = Bill::where('bills.created_by', $request->user()->id)
+                         ->whereHas("property", fn($query) => $query->whereIn("properties.id", $ids))
+                         ->when(!empty($request->start_date), fn($query) => $query->where('bills.create_date', '<', $request->start_date))
+                         ->select(DB::raw('COALESCE(
+                             bills.payabble_amount - (SELECT SUM(bill_payments.amount) FROM bill_payments WHERE bill_payments.bill_id = bills.id),
+                             bills.payabble_amount
+                         ) AS total_due'))
+                         ->get()
+                         ->sum('total_due');
 
-                $opening_balance = 0;
+                     // Rent opening balance (for tenants)
+                     $rentOpeningBalance = 0;
+                     if ($type === 'tenant') {
+                         $rentOpeningBalance = Rent::where('rents.created_by', $request->user()->id)
+                             ->whereHas("tenancy_agreement.agreement_tenants", fn($query) => $query->whereIn("agreement_tenants.tenant_id", $ids))
+                             ->when(!empty($request->start_date), fn($query) => $query->where('rents.payment_date', '<', $request->start_date))
+                             ->select(DB::raw('COALESCE(
+                                 rents.rent_amount - (SELECT SUM(rent_payments.amount) FROM rent_payments WHERE rent_payments.rent_id = rents.id),
+                                 rents.rent_amount
+                             ) AS total_due'))
+                             ->get()
+                             ->sum('total_due');
+                     }
+
+                     // Total opening balance including invoices, bills, and rent
+                     $opening_balance = 0;
 
                      $invoiceQuery = Invoice::with('invoice_payments')
                          ->where('invoices.created_by', $request->user()->id)
@@ -966,27 +964,27 @@ class PropertyBasicController extends Controller
                              DB::raw('(bills.payabble_amount - COALESCE(bills.deduction, 0)) AS total_paid')
                          );
 
-                         $rentQuery = null;
-                         if ($type === 'tenant') {
-                             $rentQuery = Rent::where('rents.created_by', $request->user()->id)
-                                 ->whereHas("tenancy_agreement.agreement_tenants", fn($query) => $query->whereIn("agreement_tenants.tenant_id", $ids))
-                                 ->when(!empty($request->property_ids), function($query) {
-                                     $query->whereHas("tenancy_agreement", fn($query) => $query->whereIn("tenancy_agreement.property_id", array_filter(request()->property_ids)));
-                                 })
-                                 ->when(!empty($request->start_date), fn($query) => $query->where('rents.payment_date', '>=', $request->start_date))
-                                 ->when(!empty($request->end_date), fn($query) => $query->where('rents.payment_date', '<', $request['next_day']))
-                                 ->select(
-                                      'rents.id', 'rents.arrear as total_amount', 'rents.payment_date as created_at',  // Changed to 'arrear'
-            DB::raw("'rent' as type"), DB::raw('NULL as due_date'),
-            'rents.paid_amount as total_paid'
-                                 );
-                         }
+                     // Rent query only for tenants
+                     $rentQuery = null;
+                     if ($type === 'tenant') {
+                         $rentQuery = Rent::where('rents.created_by', $request->user()->id)
+                             ->whereHas("tenancy_agreement.agreement_tenants", fn($query) => $query->whereIn("agreement_tenants.tenant_id", $ids))
+                             ->when(!empty($request->property_ids), function($query) {
+                                 $query->whereHas("tenancy_agreement", fn($query) => $query->whereIn("tenancy_agreement.property_id", array_filter(request()->property_ids)));
+                             })
+                             ->when(!empty($request->start_date), fn($query) => $query->where('rents.payment_date', '>=', $request->start_date))
+                             ->when(!empty($request->end_date), fn($query) => $query->where('rents.payment_date', '<', $request['next_day']))
+                             ->select(
+                                 'rents.id', 'rents.arrear as total_amount', 'rents.payment_date as created_at',
+                                 DB::raw("'rent' as type"), DB::raw('NULL as due_date'),
+                                 'rents.paid_amount as total_paid'  // Using paid_amount for rent
+                             );
+                     }
 
-                         $activitiesPaginated = $invoiceQuery->union($billQuery)
-                             ->when($rentQuery, fn($query) => $query->union($rentQuery))
-                             ->orderBy('created_at', 'asc')
-                             ->paginate($perPage);
-
+                     $activitiesPaginated = $invoiceQuery->union($billQuery)
+                         ->when($rentQuery, fn($query) => $query->union($rentQuery))
+                         ->orderBy('created_at', 'asc')
+                         ->paginate($perPage);
 
                      $section_1 = [
                          'invoice_payment_total_amount' => collect($activitiesPaginated->items())->where('type', 'invoice')->sum('total_paid'),
