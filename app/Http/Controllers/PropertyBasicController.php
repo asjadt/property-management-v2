@@ -267,8 +267,8 @@ class PropertyBasicController extends Controller
                     ->get();
 
 
-
                 return response()->json($data, 200);
+
             } else {
                 $error =  [
                     "message" => "The given data was invalid.",

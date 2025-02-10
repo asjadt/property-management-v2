@@ -1497,6 +1497,8 @@ Route::delete('/v1.0/products/{id}', [ProductController::class, "deleteProductBy
 // client routes
 // !!!!!!!@@@@@@@@@@@@$$$$$$$$$$$$%%%%%%%%%%%%%%%%^^^^^^^^^^
 
+Route::get('/v1.0/client/properties/{perPage}', [PropertyController::class, "getPropertiesClient"]);
+
 Route::get('/v1.0/client/fuel-station/{perPage}', [FuelStationController::class, "getFuelStationsClient"]);
 Route::get('/v1.0/client/fuel-station/get/single/{id}', [FuelStationController::class, "getFuelStationByIdClient"]);
 
