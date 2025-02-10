@@ -1883,17 +1883,38 @@ class PropertyController extends Controller
 
 
              $properties = $propertyQuery->orderBy("properties.address", $request->order_by)
-                 ->groupBy("properties.id")
-                 ->select(
-                     "properties.*",
-                     DB::raw('
-             COALESCE(
-                 (SELECT COUNT(invoices.id) FROM invoices WHERE invoices.property_id = properties.id),
-                 0
-             ) AS total_invoice
-                            '),
-                 )
-                 ->paginate($perPage);
+             ->groupBy("properties.id")
+             ->select(
+                 "properties.*",
+                 DB::raw('
+         COALESCE(
+             (SELECT COUNT(invoices.id) FROM invoices WHERE invoices.property_id = properties.id),
+             0
+         ) AS total_invoice
+     '),
+             )
+             ->paginate($perPage);
+
+
+             foreach($properties as $property) {
+                 $updatedFiles = []; // Create a new array for modified files
+                 if (!is_array($property->images)) {
+                     $images = json_decode($property->images);
+                 } else {
+                     $images = $property->images;
+                 }
+
+
+                 foreach ($images as $image) {
+                     // Modify the file name
+                     $updatedFiles[] = "/" . str_replace(' ', '_', auth()->user()->my_business->name) . "/" . base64_encode($property->id) . "/images/" . $image;
+                 }
+
+
+                 // Replace the files property with the updated array if needed
+                 $property->images = $updatedFiles; // Use a new attribute to avoid issues
+
+             }
 
 
 
