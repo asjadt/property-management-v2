@@ -43,6 +43,10 @@ class Property extends Model
     protected $casts = [
         'images' => 'array',
     ];
+    public function user()
+    {
+        return $this->belongsTo(User::class, "created_by", "id");  // Returns the latest inspection
+    }
 
     public function documents()
     {

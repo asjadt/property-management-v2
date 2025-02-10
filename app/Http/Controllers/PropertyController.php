@@ -1906,8 +1906,9 @@ class PropertyController extends Controller
 
 
                  foreach ($images as $image) {
+            
                      // Modify the file name
-                     $updatedFiles[] = "/" . str_replace(' ', '_', auth()->user()->my_business->name) . "/" . base64_encode($property->id) . "/images/" . $image;
+                     $updatedFiles[] = "/" . str_replace(' ', '_', $property->user->my_business->name) . "/" . base64_encode($property->id) . "/images/" . $image;
                  }
 
 
