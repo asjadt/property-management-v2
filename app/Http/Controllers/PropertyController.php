@@ -1645,6 +1645,13 @@ class PropertyController extends Controller
      *     required=false,
      *     example="2023-12-31"
      * ),
+     *  *      * @OA\Parameter(
+     *     name="no_of_beds",
+     *     in="query",
+     *     description="Filter properties by the minimum number of beds",
+     *     required=false,
+     *     example="2"
+     * ),
      * @OA\Parameter(
      *     name="start_no_of_beds",
      *     in="query",
@@ -2017,6 +2024,13 @@ class PropertyController extends Controller
      *     description="Filter properties by the instruction end date",
      *     required=false,
      *     example="2023-12-31"
+     * ),
+     *      * @OA\Parameter(
+     *     name="no_of_beds",
+     *     in="query",
+     *     description="Filter properties by the minimum number of beds",
+     *     required=false,
+     *     example="2"
      * ),
      * @OA\Parameter(
      *     name="start_no_of_beds",
