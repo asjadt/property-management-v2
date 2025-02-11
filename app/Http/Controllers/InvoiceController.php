@@ -1501,11 +1501,11 @@ if (!empty($request->tenant_ids) || !empty($request->tenant_id)) {
    // }
 
    if (!empty($request->start_date)) {
-       $invoiceQuery = $invoiceQuery->where('invoices.created_at', ">=", $request->start_date);
+       $invoiceQuery = $invoiceQuery->whereDate('invoices.invoice_date', ">=", $request->start_date);
    }
 
    if (!empty($request->end_date)) {
-       $invoiceQuery = $invoiceQuery->where('invoices.created_at', "<=", $request->end_date);
+       $invoiceQuery = $invoiceQuery->whereDate('invoices.invoice_date', "<=", $request->end_date);
    }
 
    $invoiceQuery = $invoiceQuery
