@@ -2266,6 +2266,13 @@ class PropertyController extends Controller
                     $query->whereIn("property_landlords.landlord_id", $landlord_ids);
                 });
             })
+            ->when($request->filled("tenant_ids") || !empty($request->tenant_id), function ($query) {
+                $landlord_ids = request()->filled("tenant_ids")?explode(',', request()->input("tenant_ids")):explode(',', request()->input("tenant_id"));
+                $query->whereHas("property_tenants", function ($query) use ($landlord_ids) {
+                    $query->whereIn("property_tenants.tenant_id", $landlord_ids);
+                });
+            })
+
 
                 // ->when(request()->filled("document_type_id"), function ($query) {
                 //     $query->whereHas("documents", function ($subQuery) {

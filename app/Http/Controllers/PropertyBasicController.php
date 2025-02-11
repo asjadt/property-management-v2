@@ -482,10 +482,6 @@ class PropertyBasicController extends Controller
                          )
                      );
 
-
-
-
-
                  $activitiesQuery = $invoiceQuery
                      // ->unionAll($invoicePaymentQuery)
                      ->orderBy('created_at', 'asc');

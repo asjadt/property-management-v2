@@ -738,17 +738,14 @@ Route::delete('/v1.0/property-notes/{ids}', [PropertyNoteController::class, "del
 // rents management section
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
+
 Route::post('/v1.0/rents', [RentController::class, "createRent"]);
 Route::put('/v1.0/rents', [RentController::class, "updateRent"]);
 Route::get('/v1.0/rents', [RentController::class, "getRents"]);
-
 Route::get('/v2.0/rents', [RentController::class, "getRentsV2"]);
 Route::delete('/v1.0/rents/{ids}', [RentController::class, "deleteRentsByIds"]);
-
-
 Route::get('/v1.0/rents/generate/rent-reference', [RentController::class, "generateRentReference"]);
 Route::get('/v1.0/rents/validate/rent-reference/{rent_reference}', [RentController::class, "validateRentReference"]);
-
 
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
