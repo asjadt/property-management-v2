@@ -1383,6 +1383,10 @@ class PropertyController extends Controller
             ->when(request()->filled("end_date_of_instruction"), function ($query)  {
                 $query->whereDate("properties.date_of_instruction", "<=", request()->end_date_of_instruction);
             })
+
+            ->when(request()->filled("no_of_beds"), function ($query) {
+                $query->where("properties.no_of_beds", ">=", request()->no_of_beds);;
+            })
             ->when(request()->filled("start_no_of_beds"), function ($query) {
                 $query->where("properties.no_of_beds", ">=", request()->start_no_of_beds);;
             })
@@ -2306,6 +2310,9 @@ class PropertyController extends Controller
                 ->when($request->filled("end_date_of_instruction"), function ($query)  {
                     $query->whereDate("properties.date_of_instruction", "<=", request()->end_date_of_instruction);
                 })
+                ->when(request()->filled("no_of_beds"), function ($query) {
+                    $query->where("properties.no_of_beds", ">=", request()->no_of_beds);;
+                })
                 ->when(request()->filled("start_no_of_beds"), function ($query) {
                     $query->where("properties.no_of_beds", ">=", request()->start_no_of_beds);;
                 })
@@ -2340,7 +2347,10 @@ class PropertyController extends Controller
                             }
                         }
 
+
                         // Check if "document_type_ids" is provided and filter by multiple document types
+
+
                         if (request()->filled('document_type_ids')) {
                             $document_type_ids = explode(',', request()->input('document_type_ids'));
                             $subQuery->whereIn("property_documents.document_type_id", $document_type_ids);
@@ -2364,6 +2374,7 @@ class PropertyController extends Controller
 
                     });
                 })
+
                 ->when(request()->boolean("is_next_follow_up_date_passed"), function ($query) {
                     $query->whereHas("latest_inspection.maintenance_item", function ($subQuery) {
                         $subQuery->whereDate('maintenance_items.next_follow_up_date', '<', Carbon::today());
@@ -2406,8 +2417,6 @@ class PropertyController extends Controller
                         $query->whereHas('latest_inspection', function ($subQuery) use ($expiryDays) {
                             $subQuery->whereDate('tenant_inspections.next_inspection_date', '>', Carbon::today())
                             ->whereDate('tenant_inspections.next_inspection_date', '<=', Carbon::today()->addDays($expiryDays));
-
-
 
                         });
                     }
