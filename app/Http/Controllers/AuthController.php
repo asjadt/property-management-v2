@@ -1284,6 +1284,7 @@ try{
             $user  =  tap(User::where(["id" => $request->user()->id]))->update(collect($request_data)->only([
                 'first_Name' ,
                 'last_Name',
+                'email',
                 'password',
                 'phone',
                 'address_line_1',
