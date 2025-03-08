@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Http\Utils\BasicUtil;
+use App\Mail\DocumentExpiryReminderMail;
 use App\Models\Business;
 use App\Models\Department;
 use App\Models\Notification;
@@ -15,6 +16,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Mail;
 
 class ReminderScheduler extends Command
 {
@@ -142,22 +144,15 @@ class ReminderScheduler extends Command
      {
          $days_difference = now()->diffInDays($document->gas_end_date);
 
-         if ($reminder->send_time == "after_expiry") {
-             $notification_description = "Document expired {$days_difference} days ago. Please renew it now.";
-         } else {
-             $notification_description = "Document expires in {$days_difference} days. Renew now.";
-         }
+         $message = $reminder->send_time == "after_expiry"
+             ? "The document for your property expired {$days_difference} days ago. Please renew it now."
+             : "The document for your property will expire in {$days_difference} days. Please renew it in time.";
 
-         Notification::create([
-             "entity_name" => "document_expiry",
-             "notification_title" => $reminder->title,
-             "notification_description" => $notification_description,
-             "notification_link" => "documents/{$document->id}",
-             "sender_id" => 1,
-             "business_id" => $business->id,
-             "is_system_generated" => 1,
-             "status" => "unread",
-         ]);
+         // Fetch property details
+         $property = $document->property;
+
+         // Send email
+         Mail::to($business->email)->send(new DocumentExpiryReminderMail($reminder->title, $message, $document, $property, $business));
      }
 
 
