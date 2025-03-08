@@ -31,7 +31,7 @@ class ReminderUpdateRequest extends FormRequest
                 function ($attribute, $value, $fail) {
                     $exists = DB::table('reminders')
                         ->where('id', $value)
-                        ->where('reminders.business_id', '=', auth()->user()->business_id)
+                        ->where('reminders.created_by', '=', auth()->user()->id)
                         ->exists();
 
                     if (!$exists) {

@@ -100,30 +100,7 @@ class ReminderController extends Controller
 
                 $request_data = $request->validated();
 
-                $reminder_options = config("setup-config.reminder_options");
 
-                $reminder_option = collect($reminder_options)->first(function ($item) use ($request_data) {
-                    return $item['entity_name'] === $request_data["entity_name"];
-                });
-
-                if(empty($reminder_option)) {
-                    $error =  [
-                        "message" => "The given data was invalid.",
-                        "errors" => ["entity_name"=>["Invalid Entity Name."]]
-                 ];
-                    throw new Exception(json_encode($error),422);
-                }
-
-
-                $request_data["model_name"] = $reminder_option["model_name"];
-                $request_data["issue_date_column"] = $reminder_option["issue_date_column"];
-                $request_data["expiry_date_column"] = $reminder_option["expiry_date_column"];
-                $request_data["user_eligible_field"] = $reminder_option["user_eligible_field"];
-                $request_data["user_relationship"] = $reminder_option["user_relationship"];
-
-
-
-                $request_data["business_id"] = auth()->user()->business_id;
                 $request_data["is_active"] = true;
                 $request_data["created_by"] = $request->user()->id;
 
@@ -208,190 +185,47 @@ class ReminderController extends Controller
             $this->storeActivity($request, "DUMMY activity","DUMMY description");
             return DB::transaction(function () use ($request) {
 
+
                 if (!$request->user()->hasPermissionTo('reminder_update')) {
                     return response()->json([
                         "message" => "You can not perform this action"
                     ], 401);
                 }
-                $business_id =  auth()->user()->business_id;
+
+                $created_by =  auth()->user()->id;
                 $request_data = $request->validated();
 
-                $reminder_options = config("setup-config.reminder_options");
-
-                $reminder_option = collect($reminder_options)->first(function ($item) use ($request_data) {
-                    return $item['entity_name'] === $request_data["entity_name"];
-                });
-
-                if(empty($reminder_option)) {
-                    $error =  [
-                        "message" => "The given data was invalid.",
-                        "errors" => ["entity_name"=>["Invalid Entity Name."]]
-                 ];
-                    throw new Exception(json_encode($error),422);
-                }
-
-
-                $request_data["model_name"] = $reminder_option["model_name"];
-                $request_data["issue_date_column"] = $reminder_option["issue_date_column"];
-                $request_data["expiry_date_column"] = $reminder_option["expiry_date_column"];
-                $request_data["user_eligible_field"] = $reminder_option["user_eligible_field"];
-                $request_data["user_relationship"] = $reminder_option["user_relationship"];
 
 
 
-                $reminder_query_params = [
-                    "id" => $request_data["id"],
-                    "business_id" => $business_id
-                ];
-                // $reminder_prev = Reminder::where($reminder_query_params)
-                //     ->first();
-                // if (!$reminder_prev) {
-                //     return response()->json([
-                //         "message" => "no reminder found"
-                //     ], 404);
-                // }
 
-                $reminder  =  tap(Reminder::where($reminder_query_params))->update(
-                    collect($request_data)->only([
-                        'title',
-                        'model_name',
-                        "issue_date_column",
-                        'expiry_date_column',
-                        "user_eligible_field",
-                        "user_relationship",
-                        'duration',
-                        'duration_unit',
-                        'send_time',
-                        'frequency_after_first_reminder',
-                        'reminder_limit',
-                        'keep_sending_until_update',
-                        'entity_name',
-                    ])->toArray()
-                )
-                    // ->with("somthing")
 
-                    ->first();
+
+                $reminder  =  tap(Reminder::where(
+                    [
+                        "id" => $request_data["id"],
+                        "created_by" => $created_by
+                    ]
+                ))
+                ->first();
 
                 if (!$reminder) {
                     return response()->json([
                         "message" => "something went wrong."
                     ], 500);
                 }
+                $reminder->fill($request_data);
+                $reminder->save();
 
                 return response($reminder, 201);
             });
         } catch (Exception $e) {
-            error_log($e->getMessage());
+
             return $this->sendError($e, 500, $request);
         }
     }
- /**
-     *
-     * @OA\Get(
-     *      path="/v1.0/reminders-entity-names",
-     *      operationId="getReminderEntityNames",
-     *      tags={"reminders"},
-     *       security={
-     *           {"bearerAuth": {}}
-     *       },
-
-     *              @OA\Parameter(
-     *         name="per_page",
-     *         in="query",
-     *         description="per_page",
-     *         required=true,
-     *  example="6"
-     *      ),
-
-     *      * *  @OA\Parameter(
-     * name="start_date",
-     * in="query",
-     * description="start_date",
-     * required=true,
-     * example="2019-06-29"
-     * ),
-     * *  @OA\Parameter(
-     * name="end_date",
-     * in="query",
-     * description="end_date",
-     * required=true,
-     * example="2019-06-29"
-     * ),
-     * *  @OA\Parameter(
-     * name="search_key",
-     * in="query",
-     * description="search_key",
-     * required=true,
-     * example="search_key"
-     * ),
-     * *  @OA\Parameter(
-     * name="order_by",
-     * in="query",
-     * description="order_by",
-     * required=true,
-     * example="ASC"
-     * ),
-
-     *      summary="This method is to get reminders  ",
-     *      description="This method is to get reminders ",
-     *
-
-     *      @OA\Response(
-     *          response=200,
-     *          description="Successful operation",
-     *       @OA\JsonContent(),
-     *       ),
-     *      @OA\Response(
-     *          response=401,
-     *          description="Unauthenticated",
-     * @OA\JsonContent(),
-     *      ),
-     *        @OA\Response(
-     *          response=422,
-     *          description="Unprocesseble Content",
-     *    @OA\JsonContent(),
-     *      ),
-     *      @OA\Response(
-     *          response=403,
-     *          description="Forbidden",
-     *   @OA\JsonContent()
-     * ),
-     *  * @OA\Response(
-     *      response=400,
-     *      description="Bad Request",
-     *   *@OA\JsonContent()
-     *   ),
-     * @OA\Response(
-     *      response=404,
-     *      description="not found",
-     *   *@OA\JsonContent()
-     *   )
-     *      )
-     *     )
-     */
-
-     public function getReminderEntityNames(Request $request)
-     {
-         try {
-             $this->storeActivity($request, "DUMMY activity","DUMMY description");
-             if (!$request->user()->hasPermissionTo('reminder_create')) {
-                 return response()->json([
-                     "message" => "You can not perform this action"
-                 ], 401);
-             }
 
 
-             $reminder_options = config("setup-config.reminder_options");
-
-             $reminder_entity_names = collect($reminder_options)->pluck("entity_name")->toArray();
-
-
-             return response()->json($reminder_entity_names, 200);
-         } catch (Exception $e) {
-
-             return $this->sendError($e, 500, $request);
-         }
-     }
 
 
     /**
@@ -488,10 +322,11 @@ class ReminderController extends Controller
                     "message" => "You can not perform this action"
                 ], 401);
             }
-            $business_id =  auth()->user()->business_id;
+            $created_by =  auth()->user()->id;
+
             $reminders = Reminder::where(
                 [
-                    "reminders.business_id" => $business_id
+                    "reminders.created_by" => $created_by
                 ]
             )
                 ->when(!empty($request->search_key), function ($query) use ($request) {
@@ -519,11 +354,12 @@ class ReminderController extends Controller
                     return $query->paginate($request->per_page);
                 }, function ($query) {
                     return $query->get();
-                });;
+                });
 
 
 
             return response()->json($reminders, 200);
+
         } catch (Exception $e) {
 
             return $this->sendError($e, 500, $request);
@@ -594,12 +430,14 @@ class ReminderController extends Controller
                     "message" => "You can not perform this action"
                 ], 401);
             }
-            $business_id =  auth()->user()->business_id;
+            $created_by =  auth()->user()->id;
+
             $reminder =  Reminder::where([
                 "id" => $id,
-                "business_id" => $business_id
+                "created_by" => $created_by
             ])
                 ->first();
+
             if (!$reminder) {
 
                 return response()->json([
@@ -680,10 +518,10 @@ class ReminderController extends Controller
                     "message" => "You can not perform this action"
                 ], 401);
             }
-            $business_id =  auth()->user()->business_id;
+            $created_by =  auth()->user()->id;
             $idsArray = explode(',', $ids);
             $existingIds = Reminder::where([
-                "business_id" => $business_id
+                "created_by" => $created_by
             ])
                 ->whereIn('id', $idsArray)
                 ->select('id')
@@ -698,10 +536,14 @@ class ReminderController extends Controller
                     "message" => "Some or all of the specified data do not exist."
                 ], 404);
             }
+
             Reminder::destroy($existingIds);
 
 
+
             return response()->json(["message" => "data deleted sussfully","deleted_ids" => $existingIds], 200);
+
+
         } catch (Exception $e) {
 
             return $this->sendError($e, 500, $request);

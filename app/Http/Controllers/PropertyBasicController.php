@@ -1203,9 +1203,6 @@ class PropertyBasicController extends Controller
 
 
 
-
-
-
             $data["total_due_invoice_count"] = (int) Invoice::where([
                 "invoices.created_by" => $request->user()->id
             ])
@@ -1563,7 +1560,7 @@ COALESCE(
                     ->whereHas("latest_documents", function ($subQuery) use ($document_type) {
                         $subQuery
                             ->where("property_documents.document_type_id", $document_type->id)
-                            ->whereDate('property_documents.gas_end_date', ">", Carbon::today())
+                            ->whereDate('property_documents.gas_end_date', ">", Carbon::today()->addDays(15))
                             ->whereDate('property_documents.gas_end_date', "<=", Carbon::today()->addDays(30));
                     })
                     ->count(),
@@ -1571,7 +1568,7 @@ COALESCE(
                     ->whereHas("latest_documents", function ($subQuery) use ($document_type) {
                         $subQuery
                             ->where("property_documents.document_type_id", $document_type->id)
-                            ->whereDate('property_documents.gas_end_date', ">", Carbon::today())
+                            ->whereDate('property_documents.gas_end_date', ">", Carbon::today()->addDays(30))
                             ->whereDate('property_documents.gas_end_date', "<=", Carbon::today()->addDays(45));
                     })
                     ->count(),
@@ -1579,7 +1576,7 @@ COALESCE(
                     ->whereHas("latest_documents", function ($subQuery) use ($document_type) {
                         $subQuery
                             ->where("property_documents.document_type_id", $document_type->id)
-                            ->whereDate('property_documents.gas_end_date', ">", Carbon::today())
+                            ->whereDate('property_documents.gas_end_date', ">", Carbon::today()->addDays(45))
                             ->whereDate('property_documents.gas_end_date', "<=", Carbon::today()->addDays(60));
                     })
                     ->count(),

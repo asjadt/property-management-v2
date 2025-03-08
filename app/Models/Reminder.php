@@ -18,7 +18,6 @@ class Reminder extends Model
         'reminder_limit',
         'keep_sending_until_update',
         'entity_name',
-        "business_id",
         "created_by"
     ];
 
