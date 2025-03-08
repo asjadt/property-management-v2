@@ -48,6 +48,11 @@ return [
                 "document_type_view",
                 "document_type_delete",
 
+                "reminder_create",
+                "reminder_update",
+                "reminder_view",
+                "reminder_delete",
+
             ],
         ],
 
@@ -71,6 +76,12 @@ return [
        "document_type_update",
        "document_type_view",
        "document_type_delete",
+
+
+       "reminder_create",
+       "reminder_update",
+       "reminder_view",
+       "reminder_delete",
 
        "repair_category_create",
        "repair_category_update",
@@ -97,4 +108,10 @@ return [
     "invoice_image" => "invoice_image",
     "repair_category_image" => "repair_category_image",
     "temporary_files_location" => "temporary_files",
+
+
+
+
+
+
 ];

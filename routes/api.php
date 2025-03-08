@@ -54,6 +54,7 @@ use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\PropertyInventoryController;
 use App\Http\Controllers\PropertyNoteController;
 use App\Http\Controllers\ReceiptController;
+use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\RentController;
 use App\Http\Controllers\RepairCategoryController;
 use App\Http\Controllers\RepairController;
@@ -753,24 +754,38 @@ Route::get('/v1.0/rents/validate/rent-reference/{rent_reference}', [RentControll
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // reminders  management section
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+    Route::post('/v1.0/reminders', [ReminderController::class, "createReminder"]);
+    Route::put('/v1.0/reminders', [ReminderController::class, "updateReminder"]);
+    Route::get('/v1.0/reminders-entity-names', [ReminderController::class, "getReminderEntityNames"]);
+    Route::get('/v1.0/reminders', [ReminderController::class, "getReminders"]);
+    Route::get('/v1.0/reminders/{id}', [ReminderController::class, "getReminderById"]);
+    Route::delete('/v1.0/reminders/{ids}', [ReminderController::class, "deleteRemindersByIds"]);
+
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // end reminders management section
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
 
 
 // ********************************************
-// user management section --user
+// user management section
 // ********************************************
 
 Route::post('/v1.0/auth/register-with-business', [UserManagementController::class, "registerUserWithBusiness"]);
 Route::put('/v1.0/auth/update-user-with-business', [UserManagementController::class, "updateBusiness"]);
 Route::put('/v1.0/auth/update-business-defaults', [UserManagementController::class, "updateBusinessDefaults"]);
 
+
 Route::post('/v1.0/users', [UserManagementController::class, "createUser"]);
 Route::put('/v1.0/users', [UserManagementController::class, "updateUser"]);
-
 Route::put('/v1.0/users/toggle-active', [UserManagementController::class, "toggleActive"]);
-
 Route::get('/v1.0/users/{perPage}', [UserManagementController::class, "getUsers"]);
 Route::get('/v1.0/users/get-by-id/{id}', [UserManagementController::class, "getUserById"]);
-
 Route::delete('/v1.0/users/{id}', [UserManagementController::class, "deleteUserById"]);
 
 
