@@ -18,8 +18,15 @@ class Reminder extends Model
         'reminder_limit',
         'keep_sending_until_update',
         'entity_name',
+        "property_id",
         "created_by"
     ];
+
+    public function properties()
+    {
+        return $this->hasOne(Property::class, 'id', 'property_id');
+    }
+
 
 
 }

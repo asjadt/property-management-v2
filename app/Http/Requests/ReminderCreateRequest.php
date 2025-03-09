@@ -31,8 +31,8 @@ class ReminderCreateRequest extends FormRequest
             'frequency_after_first_reminder' => 'required|integer',
             'reminder_limit' => "nullable|integer",
             'keep_sending_until_update' => 'required|boolean',
-            'entity_name' => 'required|string|in:document_expiry',
-
+            'entity_name' => 'required|string|in:document_expiry_reminder,maintainance_expiry_reminder',
+            'property_id' => 'required|numeric|exists:properties,id',
         ];
     }
     public function messages()
@@ -41,7 +41,7 @@ class ReminderCreateRequest extends FormRequest
             'duration_unit.in' => 'The :attribute valid values are days, weeks, months.',
             'send_time.in' => 'The :attribute valid values are before_expiry, after_expiry.',
 
-               'entity_name.in' => 'The :attribute valid values are document_expiry, .'
+               'entity_name.in' => 'The :attribute valid values are document_expiry_reminder,maintainance_expiry_reminder .'
         ];
     }
 }

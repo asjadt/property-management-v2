@@ -22,7 +22,7 @@ class CreateRemindersTable extends Migration
             $table->foreignId('property_id')->constrained("properties")->onDelete("cascade");
 
             $table->string('entity_name');
-            // document_expiry
+            // document_expiry_reminder, maintainance_expiry_reminder
 
             $table->integer('duration');
             $table->enum('duration_unit', ['days', 'weeks', 'months']);
