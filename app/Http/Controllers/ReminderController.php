@@ -92,11 +92,7 @@ class ReminderController extends Controller
             $this->storeActivity($request, "DUMMY activity","DUMMY description");
             return DB::transaction(function () use ($request) {
 
-                if (!$request->user()->hasPermissionTo('reminder_create')) {
-                    return response()->json([
-                        "message" => "You can not perform this action"
-                    ], 401);
-                }
+
 
                 $request_data = $request->validated();
 
@@ -186,11 +182,7 @@ class ReminderController extends Controller
             return DB::transaction(function () use ($request) {
 
 
-                if (!$request->user()->hasPermissionTo('reminder_update')) {
-                    return response()->json([
-                        "message" => "You can not perform this action"
-                    ], 401);
-                }
+
 
                 $created_by =  auth()->user()->id;
                 $request_data = $request->validated();
@@ -317,11 +309,9 @@ class ReminderController extends Controller
     {
         try {
             $this->storeActivity($request, "DUMMY activity","DUMMY description");
-            if (!$request->user()->hasPermissionTo('reminder_view')) {
-                return response()->json([
-                    "message" => "You can not perform this action"
-                ], 401);
-            }
+
+
+
             $created_by =  auth()->user()->id;
 
             $reminders = Reminder::where(
@@ -425,11 +415,9 @@ class ReminderController extends Controller
     {
         try {
             $this->storeActivity($request, "DUMMY activity","DUMMY description");
-            if (!$request->user()->hasPermissionTo('reminder_view')) {
-                return response()->json([
-                    "message" => "You can not perform this action"
-                ], 401);
-            }
+
+
+
             $created_by =  auth()->user()->id;
 
             $reminder =  Reminder::where([
@@ -513,11 +501,9 @@ class ReminderController extends Controller
 
         try {
             $this->storeActivity($request, "DUMMY activity","DUMMY description");
-            if (!$request->user()->hasPermissionTo('reminder_delete')) {
-                return response()->json([
-                    "message" => "You can not perform this action"
-                ], 401);
-            }
+
+           
+
             $created_by =  auth()->user()->id;
             $idsArray = explode(',', $ids);
             $existingIds = Reminder::where([
