@@ -2356,7 +2356,7 @@ class PropertyController extends Controller
                         if (request()->filled('document_expired_in')) {
                             $expiryDays = request()->input('document_expired_in');
                             if (is_numeric($expiryDays) && $expiryDays > 0) {
-                                $subQuery->whereDate('property_documents.gas_end_date', '>', Carbon::today())
+                                $subQuery->whereDate('property_documents.gas_end_date', '>', Carbon::today()->addDays($expiryDays - 15))
                                     ->whereDate('property_documents.gas_end_date', '<=', Carbon::today()->addDays($expiryDays));
                             }
                         }
