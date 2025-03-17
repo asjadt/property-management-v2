@@ -2342,9 +2342,10 @@ class PropertyController extends Controller
                 ->when(request()->filled("is_document_expired") || request()->filled("document_expired_in") || request()->filled("document_type_ids") || request()->filled('document_type_id') || request()->filled('start_document_end_date') || request()->filled('end_document_end_date'), function ($query) {
                     $query->whereHas("latest_documents", function ($subQuery) {
                         // Check if the "is_document_expired" flag is set
-                        if (request()->filled('is_document_expired')) {
+                        if (request()->boolean('is_document_expired')) {
                             $subQuery->whereDate('property_documents.gas_end_date', '<', Carbon::today());
                         }
+
                         if (request()->filled('start_document_end_date')) {
                             $subQuery ->whereDate('property_documents.gas_end_date', '>=', request()->input('start_document_end_date'));
                         }
@@ -2356,7 +2357,7 @@ class PropertyController extends Controller
                         if (request()->filled('document_expired_in')) {
                             $expiryDays = request()->input('document_expired_in');
                             if (is_numeric($expiryDays) && $expiryDays > 0) {
-                                $subQuery->whereDate('property_documents.gas_end_date', '>', Carbon::today()->addDays($expiryDays - 15))
+                                $subQuery->whereDate('property_documents.gas_end_date', '>', Carbon::today())
                                     ->whereDate('property_documents.gas_end_date', '<=', Carbon::today()->addDays($expiryDays));
                             }
                         }
