@@ -1522,6 +1522,7 @@ COALESCE(
 
             // Count documents for different expiration periods
             $document_report[$document_type->name] = [
+                "document_type" => $document_type,
                 'total_data' => (clone $base_documents_query)
                     ->whereHas("latest_documents", function ($subQuery) use ($document_type) {
                         $subQuery
