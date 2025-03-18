@@ -27,6 +27,10 @@ class Reminder extends Model
         return $this->hasOne(Property::class, 'id', 'property_id');
     }
 
+    public function business()
+    {
+        return $this->hasOne(Business::class, 'owner_id', 'created_by');
+    }
 
 
 }

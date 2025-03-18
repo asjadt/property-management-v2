@@ -427,7 +427,6 @@ class ReminderController extends Controller
                 ->first();
 
             if (!$reminder) {
-
                 return response()->json([
                     "message" => "no data found"
                 ], 404);
@@ -502,7 +501,21 @@ class ReminderController extends Controller
         try {
             $this->storeActivity($request, "DUMMY activity","DUMMY description");
 
-           
+            $business = Business::where([
+                "owner_id" => request()->user()->id
+            ])->first();
+
+            if (!$business) {
+                return response()->json([
+                    "message" => "you don't have a valid business"
+                ], 401);
+            }
+
+            if (!($business->pin == request()->header("pin"))) {
+                return response()->json([
+                    "message" => "invalid pin"
+                ], 401);
+            }
 
             $created_by =  auth()->user()->id;
             $idsArray = explode(',', $ids);

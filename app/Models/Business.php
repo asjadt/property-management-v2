@@ -44,4 +44,8 @@ class Business extends Model
         return $this->belongsTo(User::class,'owner_id', 'id');
     }
 
+    public function reminder(){
+        return $this->hasMany(Reminder::class,'created_by', 'owner_id');
+    }
+
 }

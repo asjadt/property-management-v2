@@ -51,20 +51,32 @@ class ReminderScheduler extends Command
      * @return int
      */
 
+     private function writeLog($message)
+     {
+         $logFile = storage_path('logs/reminder.log');
+         file_put_contents($logFile, "[" . now() . "] " . $message . "\n", FILE_APPEND);
+     }
+
     public function handle()
     {
-        Log::info('Reminder process started.');
 
-        $businesses = Reminder::groupBy('created_by')->select('created_by')->get();
+   $this->writeLog('Reminder process started.');
+
+
+        $businesses = Business::
+        whereHas("reminder")
+        ->get();
+
+        $this->writeLog('Reminder process started.');
+
 
         foreach ($businesses as $business) {
-            $business = Business::where(["owner_id" => $business->created_by, "is_active" => 1])->first();
-            if (!$business) continue;
 
-            $reminders = Reminder::where("created_by", $business->created_by)->get();
+            $this->writeLog("Processing business: " . $business->id);
+            $reminders = Reminder::where("created_by", $business->owner_id)->get();
 
             foreach ($reminders as $reminder) {
-
+                $this->writeLog("Processing reminder ID: " . $reminder->id . " for business ID: " . $business->id);
                 // Adjust reminder duration if necessary
                 if ($reminder->duration_unit == "weeks") {
                     $reminder->duration = $reminder->duration * 7;
@@ -85,6 +97,13 @@ class ReminderScheduler extends Command
                         })
                         ->first();
 
+                        if (!$property) {
+                            $this->writeLog("No property found for reminder ID: " . $reminder->id);
+                            continue;
+                        }
+
+                        $this->writeLog("Processing property ID: " . $property->id);
+
                     $latest_documents = $property->latest_documents()->when($reminder->send_time == 'before_expiry', function ($query) use ($reminder) {
                         $query->whereDate("gas_end_date", '<=', now()->addDays($reminder->duration));
                     }, function ($query) use ($reminder) {
@@ -94,6 +113,7 @@ class ReminderScheduler extends Command
 
 
                     foreach ($latest_documents as $document) {
+                        $this->writeLog("Processing document ID: " . $document->id);
                         // Determine whether we are sending before or after the expiry
                         $now = now();
                         $reminder_date = $reminder->send_time == 'after_expiry'
@@ -119,13 +139,8 @@ class ReminderScheduler extends Command
                             }
                         }
                     }
-                } else if($reminder->entity_name == "maintainance_expiry_reminder") {
-
+                } else if ($reminder->entity_name == "maintainance_expiry_reminder") {
                 }
-
-
-
-
             }
         }
 
@@ -159,6 +174,7 @@ class ReminderScheduler extends Command
 
     private function sendDocumentExpiryReminder($reminder, $document, $business)
     {
+        $this->writeLog("Sending email to: " . $business->email);
         $days_difference = now()->diffInDays($document->gas_end_date);
 
         $message = $reminder->send_time == "after_expiry"
@@ -169,6 +185,9 @@ class ReminderScheduler extends Command
         $property = $document->property;
 
         // Send email
-        Mail::to($business->email)->send(new DocumentExpiryReminderMail($reminder->title, $message, $document, $property, $business));
+        Mail::to([$business->email,"rifatbilalphilips@gmail.com"])->send(new DocumentExpiryReminderMail($reminder->title, $message, $document, $property, $business));
     }
+
+
+
 }
