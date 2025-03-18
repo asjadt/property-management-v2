@@ -191,14 +191,12 @@ class ReminderController extends Controller
 
 
 
-
-
-                $reminder  =  tap(Reminder::where(
+                $reminder  =  Reminder::where(
                     [
                         "id" => $request_data["id"],
                         "created_by" => $created_by
                     ]
-                ))
+                )
                 ->first();
 
                 if (!$reminder) {
