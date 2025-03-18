@@ -37,9 +37,9 @@ class DocumentExpiryReminderMail extends Mailable
 
 
                 'message_desc' =>  (($this->reminder->send_time == "after_expiry")
-                ? ("The document for your property expired" .$days_difference. "days ago. Please renew it now.")
+                ? ("The document for your property expired " .$days_difference. " days ago. Please renew it now.")
                 :
-                ("The document for your property will expire in" . $days_difference . "days. Please renew it in time.")),
+                ("The document for your property will expire in " . $days_difference . " days. Please renew it in time.")),
 
                 'document' => $this->document,
                 'property' => $this->property,

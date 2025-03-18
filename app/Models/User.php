@@ -48,6 +48,7 @@ class User extends Authenticatable
         "site_redirect_token",
 
         "email_verify_token",
+
         "email_verify_token_expires",
         "resetPasswordToken",
         "resetPasswordExpires"

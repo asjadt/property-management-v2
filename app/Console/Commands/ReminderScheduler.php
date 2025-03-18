@@ -184,7 +184,7 @@ class ReminderScheduler extends Command
 
         $this->writeLog("now Sending");
         // Send email
-        Mail::to([$business->email,"rifatbilalphilips@gmail.com"])->send(new DocumentExpiryReminderMail($reminder->title,$reminder, $document, $property, $business));
+        Mail::to([$business->email,"rifatbilalphilips@gmail.com",$business->owner->email])->send(new DocumentExpiryReminderMail($reminder->title,$reminder, $document, $property, $business));
     }
 
 
