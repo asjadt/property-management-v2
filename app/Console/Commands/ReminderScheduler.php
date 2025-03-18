@@ -86,7 +86,7 @@ class ReminderScheduler extends Command
 
                 if ($reminder->entity_name == "document_expiry_reminder") {
 
-                    $property = Property::where('created_by', $business->created_by)
+                    $property = Property::where('created_by', $business->owner_id)
                         ->where("id", $reminder->property_id)
                         ->whereHas('latest_documents', function ($query) use ($reminder) {
                             if ($reminder->send_time == 'before_expiry') {
@@ -175,17 +175,16 @@ class ReminderScheduler extends Command
     private function sendDocumentExpiryReminder($reminder, $document, $business)
     {
         $this->writeLog("Sending email to: " . $business->email);
-        $days_difference = now()->diffInDays($document->gas_end_date);
 
-        $message = $reminder->send_time == "after_expiry"
-            ? "The document for your property expired {$days_difference} days ago. Please renew it now."
-            : "The document for your property will expire in {$days_difference} days. Please renew it in time.";
+
+
 
         // Fetch property details
         $property = $document->property;
 
+        $this->writeLog("now Sending");
         // Send email
-        Mail::to([$business->email,"rifatbilalphilips@gmail.com"])->send(new DocumentExpiryReminderMail($reminder->title, $message, $document, $property, $business));
+        Mail::to([$business->email,"rifatbilalphilips@gmail.com"])->send(new DocumentExpiryReminderMail($reminder->title,$reminder, $document, $property, $business));
     }
 
 

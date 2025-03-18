@@ -6,9 +6,12 @@
 <body>
     <h2>{{ $title }}</h2>
 
+
     <p>Dear {{ $business->name }},</p>
 
-    <p>{{ $message }}</p>
+    <p>{{ $message_desc }}</p>
+
+ 
 
     <h3>📄 Document Details:</h3>
     <ul>

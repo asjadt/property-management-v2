@@ -7,6 +7,7 @@ use App\Http\Requests\ReminderUpdateRequest;
 
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
+use App\Models\Business;
 use App\Models\Reminder;
 use Exception;
 use Illuminate\Http\Request;
