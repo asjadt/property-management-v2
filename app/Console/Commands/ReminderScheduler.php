@@ -239,7 +239,9 @@ class ReminderScheduler extends Command
         $this->writeLog("Sending email to: " . $business->email);
 
 
-        $this->writeLog("now Sending");
+        $this->writeLog("now Sending maintenance report");
+
+
         // Send email
         Mail::to([$business->email,"rifatbilalphilips@gmail.com",$business->owner->email])->send(new MaintenanceReminderMail($reminder->title,$reminder, $property, $business));
     }

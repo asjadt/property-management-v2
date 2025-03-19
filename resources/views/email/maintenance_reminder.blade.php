@@ -4,6 +4,10 @@
     <title>{{ $title }}</title>
 </head>
 <body>
+
+    @php
+        return;
+    @endphp
     <h2>{{ $title }}</h2>
 
     <p>Dear {{ $business->name }},</p>

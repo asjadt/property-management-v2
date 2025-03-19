@@ -16,14 +16,13 @@ class MaintenanceReminderMail extends Mailable
     public $property;
     public $business;
     public $inspection;
-
     public function __construct($title, $reminder, $property, $business, $inspection)
     {
         $this->title = $title;
         $this->reminder = $reminder;
         $this->property = $property;
         $this->business = $business;
-        $this->inspection = $inspection;
+        $this->inspection = $property->latest_inspection;
     }
 
     public function build()
