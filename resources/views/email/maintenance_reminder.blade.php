@@ -1,3 +1,6 @@
+@php
+        return;
+@endphp
 <!DOCTYPE html>
 <html>
 <head>

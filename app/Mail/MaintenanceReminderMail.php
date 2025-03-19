@@ -16,7 +16,7 @@ class MaintenanceReminderMail extends Mailable
     public $property;
     public $business;
     public $inspection;
-    public function __construct($title, $reminder, $property, $business, $inspection)
+    public function __construct($title, $reminder, $property, $business)
     {
         $this->title = $title;
         $this->reminder = $reminder;
