@@ -1,6 +1,4 @@
-@php
-        return;
-@endphp
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,7 +6,7 @@
 </head>
 <body>
 
- 
+
     <h2>{{ $title }}</h2>
 
     <p>Dear {{ $business->name }},</p>
