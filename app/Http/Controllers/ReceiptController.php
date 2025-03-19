@@ -179,7 +179,7 @@ else {
 
                   "status"=>$status,
 
-                  "tenant_id" =>  $receipt->tenant_id,
+
 
                   "sub_total"=> $sale_items->sum('amount'),
                   "total_amount"=>$sale_items->sum('amount'),
@@ -190,9 +190,12 @@ else {
 
               // Bill Adjustment
                 $invoice =  Invoice::create($invoice_data);
+
                 if(!$invoice) {
                     throw new Exception("something went wrong");
                 }
+                $invoice->tenants()->sync([$receipt->tenant_id]);
+
                 $receipt->generated_id = Str::random(4) . $receipt->id . Str::random(4);
                 $receipt->invoice_id = $invoice->id;
                 $receipt->save();
@@ -336,10 +339,10 @@ else {
             $this->storeActivity($request,"");
             return  DB::transaction(function () use ($request) {
 
-                $updatableData = $request->validated();
+                $request_data = $request->validated();
 
                 // $affiliationPrev = Receipt::where([
-                //     "id" => $updatableData["id"]
+                //     "id" => $request_data["id"]
                 //    ]);
 
                 //    if(!$request->user()->hasRole('superadmin')) {
@@ -355,12 +358,12 @@ else {
                 //  }
 
 
-                if(empty($updatableData["receipt_by"])) {
-                    $updatableData["receipt_by"] = $request->user()->first_Name . " " . $request->user()->last_Name;
+                if(empty($request_data["receipt_by"])) {
+                    $request_data["receipt_by"] = $request->user()->first_Name . " " . $request->user()->last_Name;
                 }
 
-                $receipt  =  tap(Receipt::where(["id" => $updatableData["id"], "created_by" => $request->user()->id]))->update(
-                    collect($updatableData)->only([
+                $receipt  =  tap(Receipt::where(["id" => $request_data["id"], "created_by" => $request->user()->id]))->update(
+                    collect($request_data)->only([
                         'tenant_id',
                         "tenant_name",
                         'property_address',
@@ -376,7 +379,7 @@ else {
                     ->first();
 
                     $receipt->receipt_sale_items()->delete();
-                    $sale_items = collect($updatableData["sale_items"])->map(function ($item)use ($receipt) {
+                    $sale_items = collect($request_data["sale_items"])->map(function ($item)use ($receipt) {
 
                         // $sale_items_exists =    BillSaleItem::where([
                         //         "sale_id" => $item["sale_id"]

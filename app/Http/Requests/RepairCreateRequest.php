@@ -28,12 +28,16 @@ class RepairCreateRequest extends FormRequest
             'repair_category_id'=>"required|numeric|exists:repair_categories,id",
             'item_description'=>"nullable|string",
 
+            'status'=>"required|string",
+
             'price'=>"required|numeric",
             'create_date'=>"required|date",
             'images' => 'nullable|array',
             'images.*' => 'nullable|string',
+
             'receipt' => 'nullable|array',
             'receipt.*' => 'nullable|string',
+
         ];
     }
 }

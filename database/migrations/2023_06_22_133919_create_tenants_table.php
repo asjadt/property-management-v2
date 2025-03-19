@@ -37,7 +37,8 @@ class CreateTenantsTable extends Migration
 
 
 
-
+            $table->json('files')->nullable();
+            
             $table->softDeletes();
             $table->timestamps();
         });

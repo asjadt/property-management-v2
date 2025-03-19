@@ -337,10 +337,10 @@ class ClientBookingController extends Controller
             $this->storeActivity($request,"");
             return  DB::transaction(function () use ($request) {
 
-                $updatableData = $request->validated();
+                $request_data = $request->validated();
 
                 $booking = Booking::where([
-                    "id" => $updatableData["id"],
+                    "id" => $request_data["id"],
                     "customer_id" =>  auth()->user()->id
                 ])
                     ->first();
@@ -359,8 +359,8 @@ class ClientBookingController extends Controller
 
 
 
-                if ($updatableData["status"] == "rejected_by_client") {
-                    $booking->status = $updatableData["status"];
+                if ($request_data["status"] == "rejected_by_client") {
+                    $booking->status = $request_data["status"];
                     $booking->save();
                     $notification_template = NotificationTemplate::where([
                         "type" => "booking_rejected_by_client"
@@ -382,7 +382,7 @@ class ClientBookingController extends Controller
                     ));
                     }
 
-                } else if ($updatableData["status"] == "accepted") {
+                } else if ($request_data["status"] == "accepted") {
 
                     $job = Job::create([
                         "booking_id" => $booking->id,
@@ -562,10 +562,10 @@ class ClientBookingController extends Controller
             $this->storeActivity($request,"");
             return  DB::transaction(function () use ($request) {
 
-                $updatableData = $request->validated();
+                $request_data = $request->validated();
 
                 $garage = Garage::where([
-                    "id" => $updatableData["garage_id"]
+                    "id" => $request_data["garage_id"]
                 ])
                     ->first();
 
@@ -580,7 +580,7 @@ class ClientBookingController extends Controller
                 }
 
                 $garage_make = GarageAutomobileMake::where([
-                    "automobile_make_id" => $updatableData["automobile_make_id"],
+                    "automobile_make_id" => $request_data["automobile_make_id"],
                     "garage_id"=>$garage->id
                 ])
                     ->first();
@@ -593,7 +593,7 @@ class ClientBookingController extends Controller
                     throw new Exception(json_encode($error),422);
                 }
                 $garage_model = GarageAutomobileModel::where([
-                    "automobile_model_id" => $updatableData["automobile_model_id"],
+                    "automobile_model_id" => $request_data["automobile_model_id"],
                     "garage_automobile_make_id" => $garage_make->id
                 ])
                     ->first();
@@ -610,8 +610,8 @@ class ClientBookingController extends Controller
 
 
 
-                $booking  =  tap(Booking::where(["id" => $updatableData["id"]]))->update(
-                    collect($updatableData)->only([
+                $booking  =  tap(Booking::where(["id" => $request_data["id"]]))->update(
+                    collect($request_data)->only([
                         "garage_id",
                         "automobile_make_id",
                         "automobile_model_id",
@@ -636,7 +636,7 @@ class ClientBookingController extends Controller
                 ])->delete();
 
                 $total_price = 0;
-                foreach ($updatableData["booking_sub_service_ids"] as $index=>$sub_service_id) {
+                foreach ($request_data["booking_sub_service_ids"] as $index=>$sub_service_id) {
                     $garage_sub_service =  GarageSubService::leftJoin('garage_services', 'garage_sub_services.garage_service_id', '=', 'garage_services.id')
                         ->where([
                             "garage_services.garage_id" => $garage->id,
@@ -657,7 +657,7 @@ class ClientBookingController extends Controller
                      ];
                         throw new Exception(json_encode($error),422);
                     }
-                    $price = $this->getPrice($sub_service_id,$garage_sub_service->id, $updatableData["automobile_make_id"]);
+                    $price = $this->getPrice($sub_service_id,$garage_sub_service->id, $request_data["automobile_make_id"]);
 
 
                     $total_price += $price;
@@ -669,7 +669,7 @@ class ClientBookingController extends Controller
                     ]);
                 }
 
-                foreach ($updatableData["booking_garage_package_ids"] as $index=>$garage_package_id) {
+                foreach ($request_data["booking_garage_package_ids"] as $index=>$garage_package_id) {
                     $garage_package =  GaragePackage::where([
                             "garage_id" => $garage->id,
                              "id" => $garage_package_id

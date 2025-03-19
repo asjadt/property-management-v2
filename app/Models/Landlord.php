@@ -22,12 +22,22 @@ class Landlord extends Model
         "lat",
         "long",
         'email',
+        'files',
         "created_by",
-         'is_active'
+        'is_active'
+    ];
+    protected $casts = [
+        'files' => 'array',
     ];
 
 
+
+
+
     public function properties() {
-        return $this->hasMany(Property::class,'landlord_id','id');
+        return $this->belongsToMany(Property::class, 'property_landlords', 'landlord_id', 'property_id');
     }
+
+
+
 }

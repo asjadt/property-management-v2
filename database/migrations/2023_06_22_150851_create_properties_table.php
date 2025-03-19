@@ -30,8 +30,8 @@ class CreatePropertiesTable extends Migration
             $table->string("postcode");
             $table->string("town")->nullable();
 
-            $table->string("lat")->nullable();
-            $table->string("long")->nullable();
+            $table->double("lat")->nullable();
+            $table->double("long")->nullable();
 
 
             $table->string('type');
@@ -57,21 +57,23 @@ class CreatePropertiesTable extends Migration
             $table->date('date_of_instruction')->nullable();
             $table->string('howDetached')->nullable();  // Title is displayed
             $table->string('propertyFloor')->nullable();  // Title is displayed
-            $table->string('category');
+
+            $table->enum('category', ['let_property', 'manage_property', 'sale_property'])->nullable();
+
             $table->string('no_of_beds');
             $table->string('no_of_baths');
             $table->boolean('is_garden');
 
+            $table->double('price')->nullable();
 
 
 
-            $table->double('min_price')->nullable();
-            $table->double('max_price')->nullable();
             $table->string('purpose')->nullable();
             $table->string('property_door_no')->nullable();
             $table->string('property_road')->nullable();
             $table->string('county')->nullable();
 
+            $table->boolean('is_dss')->nullable()->default(0);
 
             $table->softDeletes();
             $table->timestamps();

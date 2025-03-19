@@ -48,6 +48,11 @@ return [
                 "document_type_view",
                 "document_type_delete",
 
+                "reminder_create",
+                "reminder_update",
+                "reminder_view",
+                "reminder_delete",
+
             ],
         ],
 
@@ -72,6 +77,12 @@ return [
        "document_type_view",
        "document_type_delete",
 
+
+       "reminder_create",
+       "reminder_update",
+       "reminder_view",
+       "reminder_delete",
+
        "repair_category_create",
        "repair_category_update",
        "repair_category_view",
@@ -81,8 +92,6 @@ return [
        "bill_item_update",
        "bill_item_view",
        "bill_item_delete",
-
-
        "template_update",
        "template_view"
 
@@ -97,6 +106,12 @@ return [
     "repair_image" => "repair_image",
     "repair_receipt_file" => "repair_receipt_file",
     "invoice_image" => "invoice_image",
-    "repair_category_image" => "repair_category_image"
+    "repair_category_image" => "repair_category_image",
+    "temporary_files_location" => "temporary_files",
+
+
+
+
+
 
 ];

@@ -264,10 +264,10 @@ public function updateRepairCategory(RepairCategoryUpdateRequest $request)
                     "message" => "You can not perform this action"
                 ], 401);
             }
-            $updatableData = $request->validated();
+            $request_data = $request->validated();
 
             // $affiliationPrev = RepairCategory::where([
-            //     "id" => $updatableData["id"]
+            //     "id" => $request_data["id"]
             //    ]);
 
             //    if(!$request->user()->hasRole('superadmin')) {
@@ -285,8 +285,8 @@ public function updateRepairCategory(RepairCategoryUpdateRequest $request)
 
 
 
-            $repair_category  =  tap(RepairCategory::where(["id" => $updatableData["id"], "created_by" => $request->user()->id]))->update(
-                collect($updatableData)->only([
+            $repair_category  =  tap(RepairCategory::where(["id" => $request_data["id"], "created_by" => $request->user()->id]))->update(
+                collect($request_data)->only([
     'name',
     'icon',
 
@@ -729,6 +729,7 @@ public function deleteRepairCategoryById($id, Request $request)
         //          "message" => "invalid pin"
         //         ],401);
         //  }
+
         $repair_category = RepairCategory::where([
             "id" => $id,
             "created_by" => $request->user()->id
@@ -737,7 +738,7 @@ public function deleteRepairCategoryById($id, Request $request)
 
         if(!$repair_category) {
      return response()->json([
-"message" => "no repair category found"
+ "message" => "no repair category found"
 ],404);
         }
         $repair_category->delete();

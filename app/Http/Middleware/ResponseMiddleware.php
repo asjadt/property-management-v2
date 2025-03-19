@@ -33,10 +33,7 @@ class ResponseMiddleware
             $response->setContent($convertedContent);
 
 
-
-
-
-            if (($response->getStatusCode() >= 500 && $response->getStatusCode() < 600)) {
+            if ((($response->getStatusCode() >= 500 && $response->getStatusCode() < 600))) {
                 $errorLog = [
                     "api_url" => $request->fullUrl(),
                     "fields" => json_encode(request()->all()),
@@ -52,7 +49,8 @@ class ResponseMiddleware
                 ];
 
                   $error =   ErrorLog::create($errorLog);
-                    $errorMessage = "Error ID: ".$error->id." - Status: ".$error->status_code." - Operation Failed, something is wrong! - Please call to the customer care.";
+                    // $errorMessage = "Error ID: ".$error->id." - Status: ".$error->status_code." - Operation Failed, something is wrong! - Please call to the customer care.";
+                    $errorMessage = "We encountered an issue while processing your request and apologize for any inconvenience this may have caused. Please contact customer support and provide the Error ID: " . $error->id . " for assistance.";
                     $response->setContent(json_encode(['message' => $errorMessage]));
 
             }

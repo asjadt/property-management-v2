@@ -28,7 +28,6 @@ class CreateLandlordsTable extends Migration
             $table->string("postcode")->nullable();
             $table->string("lat")->nullable();
             $table->string("long")->nullable();
-
             $table->string('is_active')->default(false);
 
             $table->unsignedBigInteger("created_by");
@@ -36,7 +35,7 @@ class CreateLandlordsTable extends Migration
 
 
 
-
+            $table->json('files')->nullable();
 
             $table->softDeletes();
             $table->timestamps();

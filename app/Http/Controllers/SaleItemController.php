@@ -173,10 +173,10 @@ public function updateSaleItem(SaleItemUpdateRequest $request)
         $this->storeActivity($request,"");
         return  DB::transaction(function () use ($request) {
 
-            $updatableData = $request->validated();
+            $request_data = $request->validated();
 
             // $affiliationPrev = SaleItem::where([
-            //     "id" => $updatableData["id"]
+            //     "id" => $request_data["id"]
             //    ]);
 
             //    if(!$request->user()->hasRole('superadmin')) {
@@ -195,10 +195,10 @@ public function updateSaleItem(SaleItemUpdateRequest $request)
 
 
             $sale_item  =  tap(SaleItem::where([
-                "id" => $updatableData["id"],
+                "id" => $request_data["id"],
                 "created_by" => $request->user()->id
                 ]))->update(
-                collect($updatableData)->only([
+                collect($request_data)->only([
                     'name',
     'description',
     'price',

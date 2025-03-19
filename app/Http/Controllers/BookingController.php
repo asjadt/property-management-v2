@@ -124,8 +124,8 @@ class BookingController extends Controller
            "message" => "You can not perform this action"
         ],401);
    }
-    $updatableData = $request->validated();
-    if (!$this->garageOwnerCheck($updatableData["garage_id"])) {
+    $request_data = $request->validated();
+    if (!$this->garageOwnerCheck($request_data["garage_id"])) {
         return response()->json([
             "message" => "you are not the owner of the garage or the requested garage does not exist."
         ], 401);
@@ -133,9 +133,9 @@ class BookingController extends Controller
 
 
         $booking  =  tap(Booking::where([
-            "id" => $updatableData["id"],
-            "garage_id" =>  $updatableData["garage_id"]
-            ]))->update(collect($updatableData)->only([
+            "id" => $request_data["id"],
+            "garage_id" =>  $request_data["garage_id"]
+            ]))->update(collect($request_data)->only([
             "automobile_make_id",
             "automobile_model_id",
             "car_registration_no",
@@ -159,8 +159,8 @@ class BookingController extends Controller
             }
 
             $garage_make = GarageAutomobileMake::where([
-                "automobile_make_id" => $updatableData["automobile_make_id"],
-                "garage_id"=>$updatableData["garage_id"]
+                "automobile_make_id" => $request_data["automobile_make_id"],
+                "garage_id"=>$request_data["garage_id"]
             ])
                 ->first();
             if (!$garage_make) {
@@ -172,7 +172,7 @@ class BookingController extends Controller
 
             }
             $garage_model = GarageAutomobileModel::where([
-                "automobile_model_id" => $updatableData["automobile_model_id"],
+                "automobile_model_id" => $request_data["automobile_model_id"],
                 "garage_automobile_make_id" => $garage_make->id
             ])
                 ->first();
@@ -194,7 +194,7 @@ class BookingController extends Controller
              ])->delete();
 
             $total_price = 0;
-            foreach($updatableData["booking_sub_service_ids"] as $index=>$sub_service_id) {
+            foreach($request_data["booking_sub_service_ids"] as $index=>$sub_service_id) {
                 $garage_sub_service =  GarageSubService::leftJoin('garage_services', 'garage_sub_services.garage_service_id', '=', 'garage_services.id')
                     ->where([
                         "garage_services.garage_id" => $booking->garage_id,
@@ -215,7 +215,7 @@ class BookingController extends Controller
                         throw new Exception(json_encode($error),422);
                     }
 
-                    $price = $this->getPrice($sub_service_id,$garage_sub_service->id, $updatableData["automobile_make_id"]);
+                    $price = $this->getPrice($sub_service_id,$garage_sub_service->id, $request_data["automobile_make_id"]);
 
 
                     $total_price += $price;
@@ -225,7 +225,7 @@ class BookingController extends Controller
                     ]);
 
                 }
-                foreach($updatableData["booking_garage_package_ids"] as $index=>$garage_package_id) {
+                foreach($request_data["booking_garage_package_ids"] as $index=>$garage_package_id) {
                     $garage_package =  GaragePackage::where([
                         "garage_id" => $booking->garage_id,
                          "id" => $garage_package_id
@@ -253,13 +253,13 @@ class BookingController extends Controller
 
                     }
 
-                $booking->price = (!empty($updatableData["price"]?$updatableData["price"]:$total_price));
+                $booking->price = (!empty($request_data["price"]?$request_data["price"]:$total_price));
 
 
-                if(!empty($updatableData["coupon_code"])){
+                if(!empty($request_data["coupon_code"])){
                     $coupon_discount = $this->getDiscount(
-                        $updatableData["garage_id"],
-                        $updatableData["coupon_code"],
+                        $request_data["garage_id"],
+                        $request_data["coupon_code"],
                         $booking->price
                     );
 
@@ -369,8 +369,8 @@ class BookingController extends Controller
            "message" => "You can not perform this action"
         ],401);
    }
-   $updatableData = $request->validated();
-   if (!$this->garageOwnerCheck($updatableData["garage_id"])) {
+   $request_data = $request->validated();
+   if (!$this->garageOwnerCheck($request_data["garage_id"])) {
     return response()->json([
         "message" => "you are not the owner of the garage or the requested garage does not exist."
     ], 401);
@@ -378,9 +378,9 @@ class BookingController extends Controller
 
 
         $booking  =  tap(Booking::where([
-            "id" => $updatableData["id"],
-            "garage_id" =>  $updatableData["garage_id"]
-        ]))->update(collect($updatableData)->only([
+            "id" => $request_data["id"],
+            "garage_id" =>  $request_data["garage_id"]
+        ]))->update(collect($request_data)->only([
             "status",
         ])->toArray()
         )
@@ -502,18 +502,18 @@ class BookingController extends Controller
            "message" => "You can not perform this action"
         ],401);
    }
-   $updatableData = $request->validated();
-   if (!$this->garageOwnerCheck($updatableData["garage_id"])) {
+   $request_data = $request->validated();
+   if (!$this->garageOwnerCheck($request_data["garage_id"])) {
     return response()->json([
         "message" => "you are not the owner of the garage or the requested garage does not exist."
     ], 401);
 }
 
-    $updatableData["status"] = "confirmed";
+    $request_data["status"] = "confirmed";
         $booking  =  tap(Booking::where([
-            "id" => $updatableData["id"],
-            "garage_id" =>  $updatableData["garage_id"]
-        ]))->update(collect($updatableData)->only([
+            "id" => $request_data["id"],
+            "garage_id" =>  $request_data["garage_id"]
+        ]))->update(collect($request_data)->only([
             "job_start_date",
             "job_start_time",
             "job_end_time",
@@ -524,7 +524,7 @@ class BookingController extends Controller
             // ->with("somthing")
 
             ->first();
-            $booking->price  = $updatableData["price"];
+            $booking->price  = $request_data["price"];
             if(!$booking){
                 return response()->json([
             "message" => "booking not found"

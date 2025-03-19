@@ -40,6 +40,7 @@ class CreateBusinessesTable extends Migration
             $table->string("account_number")->nullable();
             $table->string("sort_code")->nullable();
 
+            $table->boolean("send_email_alert")->nullable()->default(1);
 
 
 

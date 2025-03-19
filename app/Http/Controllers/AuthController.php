@@ -163,9 +163,9 @@ class AuthController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *            required={"email","password"},
-     *            @OA\Property(property="email", type="string", format="string",example="admin@gmail.com"),
+     *            @OA\Property(property="email", type="string", format="string",example="asjadtariq@gmail.com"),
 
-     * *  @OA\Property(property="password", type="string", format="string",example="12345678"),
+     * *  @OA\Property(property="password", type="string", format="string",example="12345678@We"),
      *
      *         ),
      *      ),
@@ -1271,19 +1271,20 @@ try{
 
         try{
             $this->storeActivity($request,"");
-            $updatableData = $request->validated();
+            $request_data = $request->validated();
 
 
-            if(!empty($updatableData['password'])) {
-                $updatableData['password'] = Hash::make($updatableData['password']);
+            if(!empty($request_data['password'])) {
+                $request_data['password'] = Hash::make($request_data['password']);
             } else {
-                unset($updatableData['password']);
+                unset($request_data['password']);
             }
-            // $updatableData['is_active'] = true;
-            $updatableData['remember_token'] = Str::random(10);
-            $user  =  tap(User::where(["id" => $request->user()->id]))->update(collect($updatableData)->only([
+            // $request_data['is_active'] = true;
+            $request_data['remember_token'] = Str::random(10);
+            $user  =  tap(User::where(["id" => $request->user()->id]))->update(collect($request_data)->only([
                 'first_Name' ,
                 'last_Name',
+                'email',
                 'password',
                 'phone',
                 'address_line_1',

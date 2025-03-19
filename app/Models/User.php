@@ -48,6 +48,7 @@ class User extends Authenticatable
         "site_redirect_token",
 
         "email_verify_token",
+
         "email_verify_token_expires",
         "resetPasswordToken",
         "resetPasswordExpires"
@@ -58,7 +59,9 @@ class User extends Authenticatable
         return $this->hasMany(Business::class,'owner_id', 'id');
     }
 
-
+    public function my_business(){
+        return $this->hasOne(Business::class,'owner_id', 'id');
+    }
 
     /**
      * The attributes that should be cast.

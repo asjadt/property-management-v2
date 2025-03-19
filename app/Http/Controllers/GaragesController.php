@@ -463,10 +463,10 @@ class GaragesController extends Controller
         ], 401);
     }
 
-       $updatableData = $request->validated();
+       $request_data = $request->validated();
     //    user email check
        $userPrev = User::where([
-        "id" => $updatableData["user"]["id"]
+        "id" => $request_data["user"]["id"]
        ]);
        if(!$request->user()->hasRole('superadmin')) {
         $userPrev =  $garageQuery = $userPrev->where(function ($query) {
@@ -482,8 +482,8 @@ class GaragesController extends Controller
      }
 
 
-   if($userPrev->email !== $updatableData['user']['email']) {
-        if(User::where(["email" => $updatableData['user']['email']])->exists()) {
+   if($userPrev->email !== $request_data['user']['email']) {
+        if(User::where(["email" => $request_data['user']['email']])->exists()) {
               return response()->json([
                  "message" => "The given data was invalid.",
                  "errors" => ["user.password"=>["email already taken"]]
@@ -493,7 +493,7 @@ class GaragesController extends Controller
     // user email check
      // garage email check + authorization check
      $garagePrev = Garage::where([
-        "id" => $updatableData["garage"]["id"]
+        "id" => $request_data["garage"]["id"]
      ]);
 
     $garagePrev = $garagePrev->first();
@@ -503,8 +503,8 @@ class GaragesController extends Controller
         ],404);
       }
 
-   if($garagePrev->email !== $updatableData['garage']['email']) {
-        if(Garage::where(["email" => $updatableData['garage']['email']])->exists()) {
+   if($garagePrev->email !== $request_data['garage']['email']) {
+        if(Garage::where(["email" => $request_data['garage']['email']])->exists()) {
               return response()->json([
                  "message" => "The given data was invalid.",
                  "errors" => ["garage.password"=>["email already taken"]]
@@ -515,16 +515,16 @@ class GaragesController extends Controller
 
 
 
-        if(!empty($updatableData['user']['password'])) {
-            $updatableData['user']['password'] = Hash::make($updatableData['user']['password']);
+        if(!empty($request_data['user']['password'])) {
+            $request_data['user']['password'] = Hash::make($request_data['user']['password']);
         } else {
-            unset($updatableData['user']['password']);
+            unset($request_data['user']['password']);
         }
-        $updatableData['user']['is_active'] = true;
-        $updatableData['user']['remember_token'] = Str::random(10);
+        $request_data['user']['is_active'] = true;
+        $request_data['user']['remember_token'] = Str::random(10);
         $user  =  tap(User::where([
-            "id" => $updatableData['user']["id"]
-            ]))->update(collect($updatableData['user'])->only([
+            "id" => $request_data['user']["id"]
+            ]))->update(collect($request_data['user'])->only([
             'first_Name',
             'last_Name',
             'phone',
@@ -549,11 +549,11 @@ class GaragesController extends Controller
 
 
   //  garage info ##############
-        // $updatableData['garage']['status'] = "pending";
+        // $request_data['garage']['status'] = "pending";
 
         $garage  =  tap(Garage::where([
-            "id" => $updatableData['garage']["id"]
-            ]))->update(collect($updatableData['garage'])->only([
+            "id" => $request_data['garage']["id"]
+            ]))->update(collect($request_data['garage'])->only([
                 "name",
                 "about",
                 "web_page",
@@ -586,8 +586,8 @@ class GaragesController extends Controller
                 ],404);
 
             }
-            if(!empty($updatableData["images"])) {
-                foreach($updatableData["images"] as $garage_images){
+            if(!empty($request_data["images"])) {
+                foreach($request_data["images"] as $garage_images){
                     GarageGallery::create([
                         "image" => $garage_images,
                         "garage_id" =>$garage->id,
@@ -608,7 +608,7 @@ class GaragesController extends Controller
     ->delete();
 
   // create services
-  $this->createGarageServices($updatableData['service'],$garage->id);
+  $this->createGarageServices($request_data['service'],$garage->id);
 
 
         return response([

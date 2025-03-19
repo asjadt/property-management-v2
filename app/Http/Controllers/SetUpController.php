@@ -62,6 +62,11 @@ return "swagger generated";
         // @@@@@@@@@@@@@@@@@@@
         // clear everything
         // @@@@@@@@@@@@@@@@@@@
+        Artisan::call('migrate:fresh', [
+            '--path' => 'database/activity_migrations',
+            '--database' => 'logs'
+        ]);
+
         Artisan::call('optimize:clear');
         Artisan::call('migrate:fresh');
         Artisan::call('migrate', ['--path' => 'vendor/laravel/passport/database/migrations']);
@@ -83,7 +88,7 @@ return "swagger generated";
         'city'=> "Dhaka",
         'postcode'=> "1207",
         'email'=> "asjadtariq@gmail.com",
-        'password'=>Hash::make("12345678We"),
+        'password'=>Hash::make("12345678@We"),
         "email_verified_at"=>now(),
         'is_active' => 1
         ]);

@@ -162,8 +162,8 @@ class RolesController extends Controller
               "message" => "You can not perform this action"
            ],401);
       }
-        $updatableData = $request->validated();
-        $role = Role::where(["id" => $updatableData["id"]])->first();
+        $request_data = $request->validated();
+        $role = Role::where(["id" => $request_data["id"]])->first();
         if($role->name == "superadmin" )
         {
 
@@ -172,7 +172,7 @@ class RolesController extends Controller
            ],401);
       }
 
-        $role->syncPermissions($updatableData["permissions"]);
+        $role->syncPermissions($request_data["permissions"]);
 
 
         return response()->json([

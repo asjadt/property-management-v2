@@ -324,6 +324,9 @@ public function createRepairReceiptFile(FileUploadRequest $request)
  *  *             @OA\Property(property="property_id", type="number", format="number",example="1"),
   *             @OA\Property(property="repair_category_id", type="string", format="string",example="1"),
  *            @OA\Property(property="item_description", type="string", format="string",example="item_description"),
+ *
+ *  *            @OA\Property(property="status", type="string", format="string",example="status"),
+ *
 
  *  * *  @OA\Property(property="price", type="string", format="string",example="10"),
  *  * *  @OA\Property(property="create_date", type="string", format="string",example="2019-06-29"),
@@ -377,7 +380,7 @@ public function createRepair(RepairCreateRequest $request)
 
 
             $request_data = $request->validated();
-            $updatableData["receipt"]   = json_encode($request_data["receipt"] );
+            $request_data["receipt"]   = json_encode($request_data["receipt"] );
             $request_data["created_by"] = $request->user()->id;
             $repair =  Repair::create($request_data);
 
@@ -438,6 +441,8 @@ public function createRepair(RepairCreateRequest $request)
  *  *             @OA\Property(property="property_id", type="number", format="number",example="1"),
   *             @OA\Property(property="repair_category_id", type="string", format="string",example="1"),
  *            @OA\Property(property="item_description", type="string", format="string",example="item_description"),
+ *  *            @OA\Property(property="status", type="string", format="string",example="status"),
+ *
 
  *  * *  @OA\Property(property="price", type="string", format="string",example="10"),
  *  * *  @OA\Property(property="create_date", type="string", format="string",example="2019-06-29"),
@@ -489,17 +494,18 @@ public function updateRepair(RepairUpdateRequest $request)
         return  DB::transaction(function () use ($request) {
 
 
-            $updatableData = $request->validated();
-            $updatableData["receipt"]   = json_encode($updatableData["receipt"] );
+            $request_data = $request->validated();
+            $request_data["receipt"]   = json_encode($request_data["receipt"] );
 
 
 
 
-            $repair  =  tap(Repair::where(["id" => $updatableData["id"],"created_by" => $request->user()->id]))->update(
-                collect($updatableData)->only([
+            $repair  =  tap(Repair::where(["id" => $request_data["id"],"created_by" => $request->user()->id]))->update(
+                collect($request_data)->only([
                     'property_id',
                     'repair_category_id',
                     'item_description',
+                    'status',
                     'receipt',
                     'price',
                     'create_date',
@@ -514,9 +520,9 @@ public function updateRepair(RepairUpdateRequest $request)
                 }
 
                 $repair->repair_images()->delete();
-                if(!empty($updatableData["images"])) {
+                if(!empty($request_data["images"])) {
                     $repair->repair_images()->createMany(
-                        collect($updatableData["images"])->map(function ($image) {
+                        collect($request_data["images"])->map(function ($image) {
                             return [
                                 'image' => $image,
                             ];
@@ -683,6 +689,12 @@ public function getRepairs($perPage, Request $request)
         if (!empty($request->repair_category)) {
             $repairQuery = $repairQuery->where('repair_categories.name', $request->repair_category);
         }
+
+        if (!empty($request->status)) {
+            $repairQuery = $repairQuery->where('repairs.status', $request->status);
+        }
+
+
 
         if (!empty($request->start_date)) {
             $repairQuery = $repairQuery->where('repairs.created_at', ">=", $request->start_date);

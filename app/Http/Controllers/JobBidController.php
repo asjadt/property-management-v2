@@ -684,9 +684,9 @@ class JobBidController extends Controller
                         "message" => "You can not perform this action"
                     ], 401);
                 }
-                $updatableData = $request->validated();
+                $request_data = $request->validated();
 
-                if (!$this->garageOwnerCheck($updatableData["garage_id"])) {
+                if (!$this->garageOwnerCheck($request_data["garage_id"])) {
                     return response()->json([
                         "message" => "you are not the owner of the garage or the requested garage does not exist."
                     ], 401);
@@ -694,7 +694,7 @@ class JobBidController extends Controller
 
                 $garage_sub_service_ids = GarageSubService::leftJoin('garage_services', 'garage_sub_services.garage_service_id', '=', 'garage_services.id')
                     ->where([
-                        "garage_services.garage_id" => $updatableData["garage_id"]
+                        "garage_services.garage_id" => $request_data["garage_id"]
                     ])
                     ->pluck("garage_sub_services.sub_service_id");
 
@@ -702,7 +702,7 @@ class JobBidController extends Controller
                     ->leftJoin('pre_booking_sub_services', 'pre_bookings.id', '=', 'pre_booking_sub_services.pre_booking_id')
                     ->whereIn("pre_booking_sub_services.sub_service_id", $garage_sub_service_ids)
                     ->where([
-                        "pre_bookings.id" => $updatableData["pre_booking_id"]
+                        "pre_bookings.id" => $request_data["pre_booking_id"]
                     ])
                     ->first();
 
@@ -719,13 +719,13 @@ class JobBidController extends Controller
                     $pre_booking_service_id =  $pre_booking_sub_service->sub_service->service_id;
 
                     $garage_service =   GarageService::where([
-                        "garage_id" => $updatableData["garage_id"],
+                        "garage_id" => $request_data["garage_id"],
                         "service_id" => $pre_booking_service_id
                     ])
                         ->first();
                     if (!$garage_service) {
                         $garage_service =  GarageService::create([
-                            "garage_id" => $updatableData["garage_id"],
+                            "garage_id" => $request_data["garage_id"],
                             "service_id" => $pre_booking_service_id
                         ]);
                     }
@@ -745,13 +745,13 @@ class JobBidController extends Controller
 
 
                 $garage_automobile_make =   GarageAutomobileMake::where([
-                    "garage_id" => $updatableData["garage_id"],
+                    "garage_id" => $request_data["garage_id"],
                     "automobile_make_id" => $pre_booking->automobile_make_id
                 ])
                     ->first();
                 if (!$garage_automobile_make) {
                     $garage_automobile_make =  GarageAutomobileMake::create([
-                        "garage_id" => $updatableData["garage_id"],
+                        "garage_id" => $request_data["garage_id"],
                         "automobile_make_id" => $pre_booking->automobile_make_id
                     ]);
                 }
@@ -771,8 +771,8 @@ class JobBidController extends Controller
 
 
 
-                $job_bid  =  tap(JobBid::where(["id" => $updatableData["id"]]))->update(
-                    collect($updatableData)->only([
+                $job_bid  =  tap(JobBid::where(["id" => $request_data["id"]]))->update(
+                    collect($request_data)->only([
                         "garage_id",
                         "pre_booking_id",
                         "price",

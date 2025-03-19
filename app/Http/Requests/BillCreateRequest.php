@@ -28,7 +28,9 @@ class BillCreateRequest extends FormRequest
             "payment_date"=>"required|date",
 
             "property_id"=>"required|numeric|exists:properties,id",
-            "landlord_id"=>"nullable|numeric|exists:landlords,id",
+
+            'landlord_ids' => 'present|array',
+            'landlord_ids.*' => 'numeric|exists:landlords,id',
 
             "payment_mode"=>"required|string",
             "payabble_amount"=>"required|numeric",

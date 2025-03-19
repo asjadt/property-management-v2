@@ -40,6 +40,23 @@ $rules = [
         'required',
         'string'
     ],
+    'email' => [
+        'required',
+        'string',
+        'email'
+    ],
+    'country' => [
+        'required',
+        'string'
+    ],
+    'city' => [
+        'required',
+        'string'
+    ],
+        'postcode' => [
+        'required',
+        'string'
+    ],
 
         'min_price' => [
         'required',

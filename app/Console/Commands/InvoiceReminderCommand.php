@@ -55,11 +55,20 @@ class InvoiceReminderCommand extends Command
         foreach($invoice_reminders as $invoice_reminder) {
             if($invoice_reminder->send_reminder == 1) {
                 $recipients = [];
-                if($invoice_reminder->invoice->tenant) {
-                    array_push($recipients, $invoice_reminder->invoice->tenant->email);
+                $tenants =  $invoice_reminder->invoice->tenants;
+                if(!empty($tenants)) {
+            foreach($tenants as $tenant){
+                array_push($recipients, $tenant->email);
+            }
+
                 }
-                if($invoice_reminder->invoice->landlord) {
-                    array_push($recipients, $invoice_reminder->invoice->landlord->email);
+
+        $landlords = $invoice_reminder->invoice->landlords;
+                if(!empty($landlords)) {
+                    foreach($landlords as $landlord){
+                        array_push($recipients, $landlord->email);
+                    }
+
                 }
 
                 Mail::to($recipients)
@@ -71,8 +80,6 @@ class InvoiceReminderCommand extends Command
 
 
         }
-
-
 
 
         Invoice::whereNotIn("status",[
