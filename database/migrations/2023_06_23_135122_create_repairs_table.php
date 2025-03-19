@@ -28,6 +28,7 @@ class CreateRepairsTable extends Migration
             $table->double('price')->default(0);;
             $table->date('create_date');
 
+            $table->string('status');
 
 
 

@@ -34,6 +34,7 @@ class Business extends Model
        "receipt_footer",
        "account_name" ,
        "account_number",
+       "send_email_alert",
        "sort_code",
        "pin" ,
        "type" ,
@@ -41,6 +42,10 @@ class Business extends Model
 
     public function owner(){
         return $this->belongsTo(User::class,'owner_id', 'id');
+    }
+
+    public function reminder(){
+        return $this->hasMany(Reminder::class,'created_by', 'owner_id');
     }
 
 }

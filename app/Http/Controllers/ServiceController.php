@@ -164,11 +164,11 @@ class ServiceController extends Controller
                    "message" => "You can not perform this action"
                 ],401);
            }
-            $updatableData = $request->validated();
+            $request_data = $request->validated();
 
 
 
-                $service  =  tap(Service::where(["id" => $updatableData["id"]]))->update(collect($updatableData)->only([
+                $service  =  tap(Service::where(["id" => $request_data["id"]]))->update(collect($request_data)->only([
                     'name',
                     'image',
                     'icon',
@@ -974,11 +974,11 @@ class ServiceController extends Controller
                    "message" => "You can not perform this action"
                 ],401);
            }
-            $updatableData = $request->validated();
+            $request_data = $request->validated();
 
 
 
-                $service  =  tap(SubService::where(["id" => $updatableData["id"]]))->update(collect($updatableData)->only([
+                $service  =  tap(SubService::where(["id" => $request_data["id"]]))->update(collect($request_data)->only([
                     'name',
                     "description",
                     "service_id",

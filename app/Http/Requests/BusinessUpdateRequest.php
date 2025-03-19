@@ -35,7 +35,9 @@ class BusinessUpdateRequest extends FormRequest
             'user.image' => 'nullable',
 
             'business.id' => 'required|numeric|required|exists:businesses,id',
-            'business.name' => 'nullable|string|max:255',
+
+            'business.name' => 'required|string|unique:businesses,name,' . $this->business["id"] . ',id',
+
             'business.about' => 'nullable|string',
             'business.web_page' => 'nullable|string',
             'business.phone' => 'nullable|string',
@@ -63,6 +65,8 @@ class BusinessUpdateRequest extends FormRequest
 
             "business.account_name" => "nullable|string",
             "business.account_number" => "nullable|string",
+            "business.send_email_alert" => "nullable|boolean",
+
             "business.sort_code" => "nullable|string",
             "business.pin" => "required|string",
             "business.type" => "required|string|in:other,property_dealer",

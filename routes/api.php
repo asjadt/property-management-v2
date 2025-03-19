@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccreditationController;
 use App\Http\Controllers\AffiliationController;
 use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\AuthController;
@@ -17,8 +18,10 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\DashboardManagementController;
 use App\Http\Controllers\DocumentTypeController;
+use App\Http\Controllers\DocVoletController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\EmailTemplateWrapperController;
+use App\Http\Controllers\FileManagementController;
 use App\Http\Controllers\FuelStationController;
 use App\Http\Controllers\FuelStationGalleryController;
 use App\Http\Controllers\FuelStationServiceController;
@@ -31,21 +34,28 @@ use App\Http\Controllers\GaragesController;
 use App\Http\Controllers\GarageServiceController;
 use App\Http\Controllers\GarageServicePriceController;
 use App\Http\Controllers\GarageTimesController;
+use App\Http\Controllers\HolderEntityController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\InvoicePaymentController;
 use App\Http\Controllers\InvoiceReminderController;
 use App\Http\Controllers\JobBidController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\LandlordController;
+use App\Http\Controllers\MaintenanceItemTypeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\NotificationTemplateController;
 use App\Http\Controllers\PaymentTypeController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\property_management\BasicController;
+use App\Http\Controllers\PropertyAgreementController;
 use App\Http\Controllers\PropertyBasicController;
 use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\PropertyInventoryController;
+use App\Http\Controllers\PropertyNoteController;
 use App\Http\Controllers\ReceiptController;
+use App\Http\Controllers\ReminderController;
+use App\Http\Controllers\RentController;
 use App\Http\Controllers\RepairCategoryController;
 use App\Http\Controllers\RepairController;
 use App\Http\Controllers\ReviewController;
@@ -54,7 +64,9 @@ use App\Http\Controllers\SaleItemController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ShopGalleryController;
 use App\Http\Controllers\ShopsController;
+use App\Http\Controllers\TenancyAgreementController;
 use App\Http\Controllers\TenantController;
+use App\Http\Controllers\TenantInspectionController;
 use App\Http\Controllers\UserManagementController;
 use App\Models\GaragePackage;
 use App\Models\JobBid;
@@ -96,6 +108,9 @@ Route::patch('/health', function () {
 
 
 
+Route::post('/v1.0/files/single-file-upload', [FileManagementController::class, "createFileSingle"]);
+
+Route::post('/v1.0/files/multiple-file-upload', [FileManagementController::class, "createFileMultiple"]);
 
 
 Route::get('/v1.0/invoices/get/pdf/test', [InvoiceController::class, "getInvoicesPdfTest"]);
@@ -110,6 +125,10 @@ Route::get('/v1.0/bills/get/all/pdf/test', [BillController::class, "getAllBillsP
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+
+
+
 Route::get('/v1.0/receipts/get/single/{id}', [ReceiptController::class, "getReceiptById"]);
 Route::get('/v1.0/invoices/get/single/{id}', [InvoiceController::class, "getInvoiceById"]);
 Route::post('/v1.0/register', [AuthController::class, "register"]);
@@ -137,7 +156,6 @@ Route::get('/v2.0/automobile-makes-all/{categoryId}', [AutomobilesController::cl
 Route::get('/v1.0/automobile-models-all', [AutomobilesController::class, "getAutomobileModelsAll"]);
 
 
-
 Route::get('/v1.0/services-all/{categoryId}', [ServiceController::class, "getAllServicesByCategoryId"]);
 Route::get('/v2.0/services-all/{categoryId}', [ServiceController::class, "getAllServicesByCategoryIdV2"]);
 Route::get('/v1.0/sub-services-all', [ServiceController::class, "getSubServicesAll"]);
@@ -155,9 +173,6 @@ Route::get('/v1.0/available-cities/for-shop/{country_code}', [ShopsController::c
 
 
 
-
-
-
 Route::post('/v1.0/user-image', [UserManagementController::class, "createUserImage"]);
 
 Route::post('/v1.0/business-image', [UserManagementController::class, "createBusinessImage"]);
@@ -170,13 +185,19 @@ Route::post('/v1.0/shop-image-multiple', [ShopsController::class, "createShopIma
 // Protected Routes
 // !!!!!!!@@@@@@@@@@@@$$$$$$$$$$$$%%%%%%%%%%%%%%%%^^^^^^^^^^
 Route::middleware(['auth:api'])->group(function () {
+
     Route::get('/v1.0/user', [AuthController::class, "getUser"]);
+
     Route::get('/v1.0/user-with-business', [AuthController::class, "getUserWithBusiness"]);
+
     Route::patch('/auth/changepassword', [AuthController::class, "changePassword"]);
 
     Route::put('/v1.0/update-user-info', [AuthController::class, "updateUserInfo"]);
 
     Route::get('/v1.0/dashboard', [PropertyBasicController::class, "getDashboardData"]);
+
+    Route::get('/v1.0/inspection-reports', [PropertyBasicController::class, "getInspectionReportData"]);
+
 
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // payment type management section
@@ -245,10 +266,12 @@ Route::get('/v1.0/landlords/optimized/{perPage}', [LandlordController::class, "g
 
 
 Route::get('/v1.0/landlords/get/all', [LandlordController::class, "getAllLandlords"]);
+
 Route::get('/v1.0/landlords/get/all/optimized', [LandlordController::class, "getAllLandlordsOptimized"]);
 
 Route::get('/v1.0/landlords/get/single/{id}', [LandlordController::class, "getLandlordById"]);
 Route::delete('/v1.0/landlords/{id}', [LandlordController::class, "deleteLandlordById"]);
+
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // Landlord management section
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -294,8 +317,10 @@ Route::delete('/v1.0/clients/{id}', [ClientController::class, "deleteClientById"
 
 Route::post('/v1.0/applicants', [ApplicantController::class, "createApplicant"]);
 Route::put('/v1.0/applicants', [ApplicantController::class, "updateApplicant"]);
+Route::put('/v1.0/applicants/convert-to-tenant', [ApplicantController::class, "convertApplicantToTenant"]);
 Route::put('/v1.0/applicants/toggle-active', [ApplicantController::class, "toggleActiveApplicant"]);
 Route::get('/v1.0/applicants', [ApplicantController::class, "getApplicants"]);
+Route::get('/v1.0/matching-applicants', [ApplicantController::class, "getMatchingApplicants"]);
 Route::delete('/v1.0/applicants/{ids}', [ApplicantController::class, "deleteApplicantsByIds"]);
 
 
@@ -323,38 +348,147 @@ Route::post('/v1.0/properties/documents', [PropertyController::class, "addDocume
 Route::put('/v1.0/properties/documents', [PropertyController::class, "updateDocumentInProperty"]);
 
 
-
+// test comment update
 Route::delete('/v1.0/properties/{property_id}/documents/{document_id}', [PropertyController::class, "deleteDocumentFromProperty"]);
 
 
-Route::post('/v1.0/property-agreement', [PropertyController::class, "createPropertyAgreement"]);
 
-Route::put('/v1.0/property-agreement', [PropertyController::class, "updatePropertyAgreement"]);
 
-Route::get('/v1.0/property-agreements', [PropertyController::class, "getPropertyAgreements"]);
 
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// accreditations management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Route::post('/v1.0/accreditations', [AccreditationController::class, "createAccreditation"]);
+
+Route::put('/v1.0/accreditations', [AccreditationController::class, "updateAccreditation"]);
+
+Route::put('/v1.0/accreditations/toggle-active', [AccreditationController::class, "toggleActiveAccreditation"]);
+
+Route::get('/v1.0/accreditations', [AccreditationController::class, "getAccreditations"]);
+Route::delete('/v1.0/accreditations/{ids}', [AccreditationController::class, "deleteAccreditationsByIds"]);
+
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// end accreditations management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// property inventories management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Route::post('/v1.0/property-inventories', [PropertyInventoryController::class, "createPropertyInventory"]);
+Route::put('/v1.0/property-inventories', [PropertyInventoryController::class, "updatePropertyInventory"]);
+
+Route::get('/v1.0/property-inventories', [PropertyInventoryController::class, "getPropertyInventories"]);
+Route::delete('/v1.0/property-inventories/{ids}', [PropertyInventoryController::class, "deletePropertyInventoriesByIds"]);
+
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// end property inventories management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+
+
+
+Route::post('/v1.0/property-agreement', [PropertyAgreementController::class, "createPropertyAgreement"]);
+Route::put('/v1.0/property-agreement', [PropertyAgreementController::class, "updatePropertyAgreement"]);
+Route::get('/v1.0/property-agreements', [PropertyAgreementController::class, "getPropertyAgreements"]);
+Route::delete('/v1.0/property-agreements/{agreement_id}', [PropertyAgreementController::class, "deletePropertyAgreement"]);
+
+
+
+Route::post('/v1.0/tenancy-agreement', [TenancyAgreementController::class, "createTenancyAgreement"]);
+
+Route::put('/v1.0/tenancy-agreement', [TenancyAgreementController::class, "updateTenancyAgreement"]);
+
+Route::get('/v1.0/tenancy-agreements', [TenancyAgreementController::class, "getTenancyAgreements"]);
+
+Route::get('/v2.0/tenancy-agreements', [TenancyAgreementController::class, "getTenancyAgreementsV2"]);
+
+Route::get('/v1.0/tenancy-agreements-with-rent', [TenancyAgreementController::class, "getTenancyAgreementsWithRent"]);
+
+Route::delete('/v1.0/tenancy-agreements/{agreement_id}', [TenancyAgreementController::class, "deleteTenancyAgreement"]);
+
+
+
+Route::post('/v1.0/tenant-inspections', [TenantInspectionController::class, "createTenantInspection"]);
+Route::put('/v1.0/tenant-inspections', [TenantInspectionController::class, "updateTenantInspection"]);
+Route::get('/v1.0/tenant-inspections', [TenantInspectionController::class, "getTenantInspections"]);
+Route::delete('/v1.0/tenant-inspections/{id}', [TenantInspectionController::class, "deleteTenantInspection"]);
+
+
+
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// holder entities management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Route::post('/v1.0/holder-entities', [HolderEntityController::class, "createHolderEntity"]);
+Route::put('/v1.0/holder-entities', [HolderEntityController::class, "updateHolderEntity"]);
+Route::put('/v1.0/holder-entities/toggle-active', [HolderEntityController::class, "toggleActiveHolderEntity"]);
+Route::get('/v1.0/holder-entities', [HolderEntityController::class, "getHolderEntities"]);
+Route::delete('/v1.0/holder-entities/{ids}', [HolderEntityController::class, "deleteHolderEntitiesByIds"]);
+
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// end holder entities management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// maintenance item types management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Route::post('/v1.0/maintenance-item-types', [MaintenanceItemTypeController::class, "createMaintenanceItemType"]);
+Route::put('/v1.0/maintenance-item-types', [MaintenanceItemTypeController::class, "updateMaintenanceItemType"]);
+
+Route::put('/v1.0/maintenance-item-types/toggle-active', [MaintenanceItemTypeController::class, "toggleActiveMaintenanceItemType"]);
+
+Route::get('/v1.0/maintenance-item-types', [MaintenanceItemTypeController::class, "getMaintenanceItemTypes"]);
+
+Route::delete('/v1.0/maintenance-item-types/{ids}', [MaintenanceItemTypeController::class, "deleteMaintenanceItemTypesByIds"]);
+
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// end maintenance item types management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 
 Route::put('/v1.0/properties', [PropertyController::class, "updateProperty"]);
 
 Route::put('/v2.0/properties-update', [PropertyController::class, "updatePropertyV2"]);
 
+Route::put('/v1.0/properties-update-landlord', [PropertyController::class, "updatePropertyLandlord"]);
+
+Route::put('/v1.0/properties-update-tenant', [PropertyController::class, "updatePropertyTenant"]);
 
 Route::get('/v1.0/properties/{perPage}', [PropertyController::class, "getProperties"]);
-// Add more images
+
 Route::post('/v1.0/properties/{id}/add-more-images', [PropertyController::class, 'addMoreImages']);
 
-// Delete specific images
 Route::delete('/v1.0/properties/{id}/delete-images', [PropertyController::class, 'deleteImages']);
-
-
 Route::get('/v1.0/properties/get/all/optimized', [PropertyController::class, "getAllProperties"]);
-
 Route::get('/v1.0/properties/get/all', [PropertyController::class, "getAllProperties"]);
+
 Route::get('/v1.0/properties/get/single/{id}', [PropertyController::class, "getPropertyById"]);
+
 Route::delete('/v1.0/properties/{id}', [PropertyController::class, "deletePropertyById"]);
 
 Route::get('/v1.0/properties/generate/property-reference_no', [PropertyController::class, "generatePropertyReferenceNumber"]);
+
 Route::get('/v1.0/properties/validate/property-reference_no/{reference_no}', [PropertyController::class, "validatePropertyReferenceNumber"]);
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -382,6 +516,8 @@ Route::delete('/v1.0/repair-categories/{id}', [RepairCategoryController::class, 
 
 
 Route::get('/v1.0/activities/{perPage}', [PropertyBasicController::class, "showActivity"]);
+Route::get('/v2.0/activities/{perPage}', [PropertyBasicController::class, "showActivityV2"]);
+
 Route::get('/v1.0/property-report', [PropertyBasicController::class, "propertyReport"]);
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -529,8 +665,8 @@ Route::delete('/v1.0/invoice-reminders/without-pin/{id}', [InvoiceReminderContro
 Route::post('/v1.0/receipts', [ReceiptController::class, "createReceipt"]);
 Route::put('/v1.0/receipts', [ReceiptController::class, "updateReceipt"]);
 Route::get('/v1.0/receipts/{perPage}', [ReceiptController::class, "getReceipts"]);
-
 Route::delete('/v1.0/receipts/{id}', [ReceiptController::class, "deleteReceiptById"]);
+
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // receipt management section
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -550,6 +686,7 @@ Route::delete('/v1.0/receipts/{id}', [ReceiptController::class, "deleteReceiptBy
     Route::put('/v1.0/notifications/change-status', [NotificationController::class, "updateNotificationStatus"]);
 
     Route::delete('/v1.0/notifications/{id}', [NotificationController::class, "deleteNotificationById"]);
+
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // notification management section
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -559,24 +696,95 @@ Route::delete('/v1.0/receipts/{id}', [ReceiptController::class, "deleteReceiptBy
 // user management section
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-// ********************************************
-// user management section --user
-// ********************************************
 
 
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// doc volets management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Route::post('/v1.0/doc-volets', [DocVoletController::class, "createDocVolet"]);
+Route::put('/v1.0/doc-volets', [DocVoletController::class, "updateDocVolet"]);
+Route::get('/v1.0/doc-volets', [DocVoletController::class, "getDocVolets"]);
+Route::delete('/v1.0/doc-volets/{ids}', [DocVoletController::class, "deleteDocVoletsByIds"]);
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// end doc volets management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// property notes management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+Route::post('/v1.0/property-notes', [PropertyNoteController::class, "createPropertyNote"]);
+Route::put('/v1.0/property-notes', [PropertyNoteController::class, "updatePropertyNote"]);
+
+Route::get('/v1.0/property-notes', [PropertyNoteController::class, "getPropertyNotes"]);
+Route::delete('/v1.0/property-notes/{ids}', [PropertyNoteController::class, "deletePropertyNotesByIds"]);
+
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// end property notes management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// rents management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+Route::post('/v1.0/rents', [RentController::class, "createRent"]);
+Route::put('/v1.0/rents', [RentController::class, "updateRent"]);
+Route::get('/v1.0/rents', [RentController::class, "getRents"]);
+Route::get('/v2.0/rents', [RentController::class, "getRentsV2"]);
+Route::delete('/v1.0/rents/{ids}', [RentController::class, "deleteRentsByIds"]);
+Route::get('/v1.0/rents/generate/rent-reference', [RentController::class, "generateRentReference"]);
+Route::get('/v1.0/rents/validate/rent-reference/{rent_reference}', [RentController::class, "validateRentReference"]);
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// end rents management section
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // reminders  management section
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+    Route::post('/v1.0/reminders', [ReminderController::class, "createReminder"]);
+    Route::put('/v1.0/reminders', [ReminderController::class, "updateReminder"]);
+    Route::get('/v1.0/reminders', [ReminderController::class, "getReminders"]);
+    Route::get('/v1.0/reminders/{id}', [ReminderController::class, "getReminderById"]);
+    Route::delete('/v1.0/reminders/{ids}', [ReminderController::class, "deleteRemindersByIds"]);
+
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // end reminders management section
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+
+
+// ********************************************
+// user management section
+// ********************************************
 
 Route::post('/v1.0/auth/register-with-business', [UserManagementController::class, "registerUserWithBusiness"]);
 Route::put('/v1.0/auth/update-user-with-business', [UserManagementController::class, "updateBusiness"]);
 Route::put('/v1.0/auth/update-business-defaults', [UserManagementController::class, "updateBusinessDefaults"]);
 
+
 Route::post('/v1.0/users', [UserManagementController::class, "createUser"]);
 Route::put('/v1.0/users', [UserManagementController::class, "updateUser"]);
-
 Route::put('/v1.0/users/toggle-active', [UserManagementController::class, "toggleActive"]);
-
 Route::get('/v1.0/users/{perPage}', [UserManagementController::class, "getUsers"]);
 Route::get('/v1.0/users/get-by-id/{id}', [UserManagementController::class, "getUserById"]);
-
 Route::delete('/v1.0/users/{id}', [UserManagementController::class, "deleteUserById"]);
 
 
@@ -594,11 +802,11 @@ Route::delete('/v1.0/roles/{id}', [RolesController::class, "deleteRoleById"]);
 // end user management section
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // garage management section
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-
 
 Route::post('/v1.0/auth/register-with-garage', [GaragesController::class, "registerUserWithGarage"]);
 
@@ -611,7 +819,6 @@ Route::get('/v1.0/garages/by-garage-owner/all', [GaragesController::class, "getA
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // end garage management section
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 
 
@@ -1086,12 +1293,9 @@ Route::post('/v1.0/garage-sub-service-prices', [GarageServicePriceController::cl
 
 Route::put('/v1.0/garage-service-prices', [GarageServicePriceController::class, "updateGarageSubServicePrice"]);
 
-
-
 Route::delete('/v1.0/garage-service-prices/{id}', [GarageServicePriceController::class, "deleteGarageSubServicePriceById"]);
 
 Route::delete('/v1.0/garage-service-prices/by-garage-sub-service/{id}', [GarageServicePriceController::class, "deleteGarageSubServicePriceByGarageSubServiceId"]);
-
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // price management section
@@ -1303,6 +1507,8 @@ Route::delete('/v1.0/products/{id}', [ProductController::class, "deleteProductBy
 // !!!!!!!@@@@@@@@@@@@$$$$$$$$$$$$%%%%%%%%%%%%%%%%^^^^^^^^^^
 // client routes
 // !!!!!!!@@@@@@@@@@@@$$$$$$$$$$$$%%%%%%%%%%%%%%%%^^^^^^^^^^
+
+Route::get('/v1.0/client/properties/{perPage}', [PropertyController::class, "getPropertiesClient"]);
 
 Route::get('/v1.0/client/fuel-station/{perPage}', [FuelStationController::class, "getFuelStationsClient"]);
 Route::get('/v1.0/client/fuel-station/get/single/{id}', [FuelStationController::class, "getFuelStationByIdClient"]);

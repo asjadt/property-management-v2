@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\DocumentTypeCreateRequest;
 use App\Http\Requests\DocumentTypeUpdateRequest;
+use App\Http\Utils\BasicUtil;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Business;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 
 class DocumentTypeController extends Controller
 {
-    use ErrorUtil, UserActivityUtil;
+    use ErrorUtil, UserActivityUtil, BasicUtil;
 
     /**
      *
@@ -156,12 +157,12 @@ class DocumentTypeController extends Controller
             $this->storeActivity($request, "");
             return  DB::transaction(function () use ($request) {
 
-                $updatableData = $request->validated();
+                $request_data = $request->validated();
 
 
 
-                $fuel_station  =  tap(DocumentType::where(["id" => $updatableData["id"]]))->update(
-                    collect($updatableData)->only([
+                $fuel_station  =  tap(DocumentType::where(["id" => $request_data["id"]]))->update(
+                    collect($request_data)->only([
                         "name",
                         "icon",
                         "description",
@@ -374,7 +375,7 @@ class DocumentTypeController extends Controller
     {
         try {
             $this->storeActivity($request, "");
-          
+
 
             $documentTypeQuery =  DocumentType::where([
                 "created_by" => auth()->user()->id
@@ -393,21 +394,11 @@ class DocumentTypeController extends Controller
             if (!empty($request->end_date)) {
                 $documentTypeQuery = $documentTypeQuery->where('created_at', "<=", $request->end_date);
             }
-            $document_types = $documentTypeQuery->orderBy("name", "ASC")
+            $document_types =   $this->retrieveData($documentTypeQuery, "id", "document_types");
 
-           ->when($request->filled("id"), function ($query) use ($request) {
-                return $query
-                    ->where("id", $request->input("id"))
-                    ->first();
-            }, function ($query) {
-                return $query->when(!empty(request()->per_page), function ($query) {
-                    return $query->paginate(request()->per_page);
-                }, function ($query) {
-                    return $query->get();
-                });
-            });
 
-            ;
+
+
             return response()->json($document_types, 200);
         } catch (Exception $e) {
 
@@ -494,7 +485,6 @@ class DocumentTypeController extends Controller
 
             }
 
-
             DocumentType::where([
                 "id" => $id
             ])
@@ -502,6 +492,7 @@ class DocumentTypeController extends Controller
                 "created_by" => auth()->user()->id
             ])
                 ->delete();
+            
 
             return response()->json(["ok" => true], 200);
         } catch (Exception $e) {

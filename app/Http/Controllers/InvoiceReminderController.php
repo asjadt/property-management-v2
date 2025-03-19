@@ -217,6 +217,7 @@ public function createInvoiceReminder(InvoiceReminderCreateRequest $request)
 
             ])
             ->first();
+
             if(!$invoice) {
                 throw new Exception("something went wrong");
             }
@@ -307,14 +308,14 @@ public function updateInvoiceReminder(InvoiceReminderUpdateForm $request)
         $this->storeActivity($request,"");
         return  DB::transaction(function () use ($request) {
 
-            $updatableData = $request->validated();
-            $updatableData["reminder_status"] = "not_sent";
+            $request_data = $request->validated();
+            $request_data["reminder_status"] = "not_sent";
 
 
 
             $invoice_reminder  = InvoiceReminder::leftJoin('invoices', 'invoice_reminders.invoice_id', '=', 'invoices.id')
             ->where([
-                "invoice_reminders.id" => $updatableData["id"],
+                "invoice_reminders.id" => $request_data["id"],
                 "invoices.created_by" => $request->user()->id
             ])
             ->select("invoice_reminders.*")
@@ -323,26 +324,26 @@ public function updateInvoiceReminder(InvoiceReminderUpdateForm $request)
 
 
             // $invoice_reminder_date = new DateTime($invoice_reminder->reminder_date);
-            // $updatableData_date = new DateTime($updatableData["reminder_date"]);
+            // $request_data_date = new DateTime($request_data["reminder_date"]);
 
             // // Extract day components from the dates.
             // $invoice_reminder_day = (int)$invoice_reminder_date->format('d');
-            // $updatableData_day = (int)$updatableData_date->format('d');
+            // $request_data_day = (int)$request_data_date->format('d');
 
             // // Compare the day components.
-            // if ($invoice_reminder_day !== $updatableData_day) {
+            // if ($invoice_reminder_day !== $request_data_day) {
 
             //     $invoice_reminder->reminder_date_amount = NULL;
             // }
 
             $startDate = Carbon::parse($invoice_reminder->invoice->due_date);
-$endDate = Carbon::parse($updatableData["reminder_date"]);
+$endDate = Carbon::parse($request_data["reminder_date"]);
 
 $invoice_reminder->reminder_date_amount = $endDate->diffInDays($startDate);
 
 
-            $invoice_reminder->send_reminder = $updatableData["send_reminder"];
-            $invoice_reminder->reminder_date = $updatableData["reminder_date"];
+            $invoice_reminder->send_reminder = $request_data["send_reminder"];
+            $invoice_reminder->reminder_date = $request_data["reminder_date"];
 
             $invoice_reminder->save();
 
@@ -372,16 +373,16 @@ $invoice_reminder->reminder_date_amount = $endDate->diffInDays($startDate);
  *  example="6"
  *      ),
  *  * *  @OA\Parameter(
-* name="tenant_id",
+* name="tenant_ids",
 * in="query",
-* description="tenant_id",
+* description="tenant_ids",
 * required=true,
 * example="1"
 * ),
  * *  @OA\Parameter(
-* name="landlord_id",
+* name="landlord_ids",
 * in="query",
-* description="landlord_id",
+* description="landlord_ids",
 * required=true,
 * example="1"
 * ),
@@ -478,11 +479,20 @@ public function getInvoiceReminders($perPage, Request $request)
             $invoice_reminderQuery = $invoice_reminderQuery->where('invoice_reminders.created_at', "<=", $request->end_date);
         }
 
-        if (!empty($request->landlord_id)) {
-            $invoice_reminderQuery =   $invoice_reminderQuery->where("invoices.landlord_id", $request->landlord_id);
+        if (!empty($request->landlord_ids) || !empty($request->landlord_id)) {
+            $invoice_reminderQuery =  $invoice_reminderQuery->whereHas("invoice.landlords", function ($query) {
+                $landlord_ids = request()->filled("landlord_ids")?explode(',', request()->input("landlord_ids")):explode(',', request()->input("landlord_id"));
+                $query
+                    ->whereIn("landlords.id", $landlord_ids);
+            });
         }
-        if (!empty($request->tenant_id)) {
-            $invoice_reminderQuery =   $invoice_reminderQuery->where("invoices.tenant_id", $request->tenant_id);
+
+        if (!empty($request->tenant_ids) || !empty($request->tenant_id)) {
+            $invoice_reminderQuery =  $invoice_reminderQuery->whereHas("invoice.tenants", function ($query) {
+                $tenant_ids = request()->filled("tenant_ids")?explode(',', request()->input("tenant_ids")):explode(',', request()->input("tenant_id"));
+                $query
+                    ->whereIn("tenants.id", $tenant_ids);
+            });
         }
 
 

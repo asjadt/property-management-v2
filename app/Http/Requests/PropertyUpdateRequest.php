@@ -32,13 +32,18 @@ class PropertyUpdateRequest extends FormRequest
             'city'=>"required|string",
             'postcode'=>"required|string",
             'town' => "nullable|string",
-            'lat' => 'nullable|string',
-            'long' => 'nullable|string',
+            'lat' => 'nullable|numeric',
+            'long' => 'nullable|numeric',
             'type'=>"required|string",
             'reference_no' => 'required|string|max:255',
-            'landlord_id' => "nullable|numeric|exists:landlords,id",
+
+
+
             'tenant_ids' => 'nullable|array',
             'tenant_ids.*' => 'nullable|exists:tenants,id',
+
+            'landlord_ids' => 'present|array',
+            'landlord_ids.*' => 'numeric|exists:landlords,id',
         ];
     }
 }

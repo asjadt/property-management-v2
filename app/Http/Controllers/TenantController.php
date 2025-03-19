@@ -120,7 +120,7 @@ public function createTenantImage(ImageUploadRequest $request)
  *  @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
- *            required={"name","description","logo"},
+ *            required={"name"},
  *  *             @OA\Property(property="image", type="string", format="string",example="image.jpg"),
   *             @OA\Property(property="first_Name", type="string", format="string",example="Rifat"),
  *            @OA\Property(property="last_Name", type="string", format="string",example="Al"),
@@ -176,32 +176,11 @@ public function createTenant(TenantCreateRequest $request)
         $this->storeActivity($request,"");
         return DB::transaction(function () use ($request) {
 
-
-
             $request_data = $request->validated();
             $request_data["created_by"] = $request->user()->id;
             $tenant =  Tenant::create($request_data);
 
-            // for($i=0;$i<500;$i++) {
-            //     $tenant =  Tenant::create([
-            //         'first_Name'=> $request_data["first_Name"] . Str::random(4),
-            //         'last_Name'=> $request_data["last_Name"] . Str::random(4),
-            //         'phone'=> $request_data["phone"] . Str::random(4),
-            //         'image',
-            //         'address_line_1'=>$request_data["address_line_1"] . Str::random(4),
-            //         'address_line_2',
-            //         'country'=>$request_data["country"] . Str::random(4),
-            //         'city'=>$request_data["city"] . Str::random(4),
-            //         'postcode'=>$request_data["postcode"] . Str::random(4),
-            //         "lat"=>$request_data["lat"] . Str::random(4),
-            //         "long"=>$request_data["long"] . Str::random(4),
-            //         'email'=>$request_data["email"] . Str::random(4),
-            //         "created_by"=>$request->user()->id,
-            //          'is_active'=>1
-            //     ]);
-            //     $tenant->generated_id = Str::random(4) . $tenant->id . Str::random(4);
-            //     $tenant->save();
-            // }
+
 
             if(!$tenant) {
                 throw new Exception("something went wrong");
@@ -299,10 +278,10 @@ public function updateTenant(TenantUpdateRequest $request)
         $this->storeActivity($request,"");
         return  DB::transaction(function () use ($request) {
 
-            $updatableData = $request->validated();
+            $request_data = $request->validated();
 
             // $affiliationPrev = Tenants::where([
-            //     "id" => $updatableData["id"]
+            //     "id" => $request_data["id"]
             //    ]);
 
             //    if(!$request->user()->hasRole('superadmin')) {
@@ -320,8 +299,8 @@ public function updateTenant(TenantUpdateRequest $request)
 
 
 
-            $tenant  =  tap(Tenant::where(["id" => $updatableData["id"], "created_by" => $request->user()->id]))->update(
-                collect($updatableData)->only([
+            $tenant  =  tap(Tenant::where(["id" => $request_data["id"], "created_by" => $request->user()->id]))->update(
+                collect($request_data)->only([
                     'first_Name',
         'last_Name',
         'phone',
@@ -334,6 +313,7 @@ public function updateTenant(TenantUpdateRequest $request)
         "lat",
         "long",
         'email',
+        "files"
                 ])->toArray()
             )
                 // ->with("somthing")
@@ -410,6 +390,13 @@ public function updateTenant(TenantUpdateRequest $request)
 *      required=true,
 *      example="1,2"
 * ),
+ * *  @OA\Parameter(
+* name="ids",
+* in="query",
+* description="ids",
+* required=false,
+* example=""
+* ),
  *      summary="This method is to get tenants ",
  *      description="This method is to get tenants",
  *
@@ -451,6 +438,7 @@ public function updateTenant(TenantUpdateRequest $request)
 public function getTenants($perPage, Request $request)
 {
     try {
+
         $this->storeActivity($request,"");
         $currentDate = Carbon::now();
         $endDate = $currentDate->copy()->addDays(15);
@@ -480,10 +468,6 @@ public function getTenants($perPage, Request $request)
                 // $query->orWhere("tenants.postcode", "like", "%" . $term . "%");
 
 
-
-
-
-
             });
         }
         if(!empty($request->property_id)){
@@ -495,7 +479,11 @@ public function getTenants($perPage, Request $request)
             if(count($property_ids)) {
                 $tenantQuery =   $tenantQuery->whereIn("properties.id",$property_ids);
             }
+        }
 
+        if (!empty($request->ids)) {
+            $ids = explode(',', request()->input("ids"));
+            $tenantQuery =  $tenantQuery->whereIn("tenants.id", $ids);
         }
 
         if (!empty($request->start_date)) {
@@ -523,45 +511,61 @@ public function getTenants($perPage, Request $request)
          DB::raw(
 
             '
-         COALESCE(
-             (SELECT SUM(invoices.total_amount) FROM invoices WHERE invoices.tenant_id = tenants.id),
-             0
-         ) AS total_amount
+        COALESCE(
+    (SELECT SUM(invoices.total_amount)
+     FROM invoices
+     INNER JOIN invoice_tenants ON invoice_tenants.invoice_id = invoices.id
+     WHERE invoice_tenants.tenant_id = tenants.id),
+    0
+) AS total_amount
+
          '
 
          ),
          DB::raw('
-         COALESCE(
-             (SELECT COUNT(invoices.id) FROM invoices WHERE invoices.tenant_id = tenants.id),
-             0
-         ) AS total_invoices
+      COALESCE(
+    (SELECT COUNT(invoices.id)
+     FROM invoices
+     INNER JOIN invoice_tenants ON invoice_tenants.invoice_id = invoices.id
+     WHERE invoice_tenants.tenant_id = tenants.id),
+    0
+) AS total_invoices
+
          '),
          DB::raw(
             '
          COALESCE(
-             (SELECT SUM(invoice_payments.amount) FROM invoices
-             LEFT JOIN
-                invoice_payments ON invoices.id = invoice_payments.invoice_id
-             WHERE invoices.tenant_id = tenants.id),
-             0
-         ) AS total_paid
+    (SELECT SUM(invoice_payments.amount)
+     FROM invoices
+     LEFT JOIN invoice_payments ON invoices.id = invoice_payments.invoice_id
+     INNER JOIN invoice_tenants ON invoice_tenants.invoice_id = invoices.id
+     WHERE invoice_tenants.tenant_id = tenants.id),
+    0
+) AS total_paid
+
          '
          ),
          DB::raw(
             '
             COALESCE(
-            COALESCE(
-                (SELECT SUM(invoices.total_amount) FROM invoices WHERE invoices.tenant_id = tenants.id),
-                0
-            )
+           COALESCE(
+    (SELECT SUM(invoices.total_amount)
+     FROM invoices
+     INNER JOIN invoice_tenants ON invoice_tenants.invoice_id = invoices.id
+     WHERE invoice_tenants.tenant_id = tenants.id),
+    0
+)
+
             -
-            COALESCE(
-                (SELECT SUM(invoice_payments.amount) FROM invoices
-                LEFT JOIN
-                   invoice_payments ON invoices.id = invoice_payments.invoice_id
-                WHERE invoices.tenant_id = tenants.id),
-                0
-            )
+           COALESCE(
+    (SELECT SUM(invoice_payments.amount)
+     FROM invoices
+     LEFT JOIN invoice_payments ON invoices.id = invoice_payments.invoice_id
+     INNER JOIN invoice_tenants ON invoice_tenants.invoice_id = invoices.id
+     WHERE invoice_tenants.tenant_id = tenants.id),
+    0
+)
+
          )
          as total_due
 
@@ -571,27 +575,28 @@ public function getTenants($perPage, Request $request)
             DB::raw(
                 '
                 COALESCE(
-                COALESCE(
-                    (SELECT SUM(invoices.total_amount) FROM invoices
-                    WHERE  invoices.tenant_id = tenants.id
-                    AND invoices.due_date >= "' . $currentDate . '"
-                    AND invoices.due_date <= "' . $endDate . '"
+              COALESCE(
+    (SELECT SUM(invoices.total_amount)
+     FROM invoices
+     INNER JOIN invoice_tenants ON invoice_tenants.invoice_id = invoices.id
+     WHERE invoice_tenants.tenant_id = tenants.id
+     AND invoices.due_date >= "' . $currentDate . '"
+     AND invoices.due_date <= "' . $endDate . '"),
+    0
+)
 
-                ),
-                    0
-                )
                 -
-                COALESCE(
-                    (SELECT SUM(invoice_payments.amount) FROM invoices
-                    LEFT JOIN
-                       invoice_payments ON invoices.id = invoice_payments.invoice_id
-                    WHERE invoices.tenant_id = tenants.id
-                    AND invoices.due_date >= "' . $currentDate . '"
-                    AND invoices.due_date <= "' . $endDate . '"
+               COALESCE(
+    (SELECT SUM(invoice_payments.amount)
+     FROM invoices
+     LEFT JOIN invoice_payments ON invoices.id = invoice_payments.invoice_id
+     INNER JOIN invoice_tenants ON invoice_tenants.invoice_id = invoices.id
+     WHERE invoice_tenants.tenant_id = tenants.id
+     AND invoices.due_date >= "' . $currentDate . '"
+     AND invoices.due_date <= "' . $endDate . '"),
+    0
+)
 
-                ),
-                    0
-                )
              )
              as total_due_next_15_days
 
@@ -600,27 +605,26 @@ public function getTenants($perPage, Request $request)
             DB::raw(
                 '
                 COALESCE(
-                COALESCE(
-                    (SELECT SUM(invoices.total_amount) FROM invoices
-                    WHERE  invoices.tenant_id = tenants.id
-                    AND invoices.due_date < "' . today() . '"
+               COALESCE(
+    (SELECT SUM(invoices.total_amount)
+     FROM invoices
+     INNER JOIN invoice_tenants ON invoice_tenants.invoice_id = invoices.id
+     WHERE invoice_tenants.tenant_id = tenants.id
+     AND invoices.due_date < "' . today() . '"),
+    0
+)
 
-
-                ),
-                    0
-                )
                 -
-                COALESCE(
-                    (SELECT SUM(invoice_payments.amount) FROM invoices
-                    LEFT JOIN
-                       invoice_payments ON invoices.id = invoice_payments.invoice_id
-                    WHERE invoices.tenant_id = tenants.id
-                    AND invoices.due_date < "' . today() . '"
+              COALESCE(
+    (SELECT SUM(invoice_payments.amount)
+     FROM invoices
+     LEFT JOIN invoice_payments ON invoices.id = invoice_payments.invoice_id
+     INNER JOIN invoice_tenants ON invoice_tenants.invoice_id = invoices.id
+     WHERE invoice_tenants.tenant_id = tenants.id
+     AND invoices.due_date < "' . today() . '" ),
+    0
+)
 
-
-                ),
-                    0
-                )
              )
              as total_over_due
 

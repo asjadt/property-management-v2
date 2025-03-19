@@ -268,11 +268,11 @@ class ClientPreBookingController extends Controller
             return  DB::transaction(function () use ($request) {
                 $this->storeActivity($request,"");
 
-                $updatableData = $request->validated();
+                $request_data = $request->validated();
 
 
                 $automobile_make = AutomobileMake::where([
-                    "id" =>  $updatableData["automobile_make_id"]
+                    "id" =>  $request_data["automobile_make_id"]
                 ])
                     ->first();
                 if (!$automobile_make) {
@@ -283,7 +283,7 @@ class ClientPreBookingController extends Controller
                     throw new Exception(json_encode($error),422);
                 }
                 $automobile_model = AutomobileModel::where([
-                    "id" => $updatableData["automobile_model_id"],
+                    "id" => $request_data["automobile_model_id"],
                     "automobile_make_id" => $automobile_make->id
                 ])
                     ->first();
@@ -300,8 +300,8 @@ class ClientPreBookingController extends Controller
 
 
 
-                $pre_booking  =  tap(PreBooking::where(["id" => $updatableData["id"]]))->update(
-                    collect($updatableData)->only([
+                $pre_booking  =  tap(PreBooking::where(["id" => $request_data["id"]]))->update(
+                    collect($request_data)->only([
 
                         "automobile_make_id",
                         "automobile_model_id",
@@ -337,7 +337,7 @@ class ClientPreBookingController extends Controller
 
 
 
-                foreach ($updatableData["pre_booking_sub_service_ids"] as $index=>$sub_service_id) {
+                foreach ($request_data["pre_booking_sub_service_ids"] as $index=>$sub_service_id) {
                     $sub_service =  SubService::where([
                             "id" => $sub_service_id,
 

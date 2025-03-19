@@ -163,11 +163,11 @@ class ProductCategoryController extends Controller
                 "message" => "You can not perform this action"
              ],401);
         }
-         $updatableData = $request->validated();
+         $request_data = $request->validated();
 
 
 
-             $product_category  =  tap(ProductCategory::where(["id" => $updatableData["id"]]))->update(collect($updatableData)->only([
+             $product_category  =  tap(ProductCategory::where(["id" => $request_data["id"]]))->update(collect($request_data)->only([
                  'name',
                  'image',
                  'icon',

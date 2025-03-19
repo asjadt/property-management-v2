@@ -241,10 +241,10 @@ class GaragePackageController extends Controller
                 }
 
 
-                $updatableData = $request->validated();
+                $request_data = $request->validated();
 
 
-            if (!$this->garageOwnerCheck($updatableData["garage_id"])) {
+            if (!$this->garageOwnerCheck($request_data["garage_id"])) {
                         return response()->json([
                             "message" => "you are not the owner of the garage or the requested garage does not exist."
                         ], 401);
@@ -255,8 +255,8 @@ class GaragePackageController extends Controller
 
 
 
-                $garage_package  =  tap(GaragePackage::where(["id" => $updatableData["id"]]))->update(
-                    collect($updatableData)->only([
+                $garage_package  =  tap(GaragePackage::where(["id" => $request_data["id"]]))->update(
+                    collect($request_data)->only([
                         "name",
                         "description",
                         "price",
@@ -279,7 +279,7 @@ class GaragePackageController extends Controller
                 ->delete();
 
 
-                foreach ($updatableData["sub_service_ids"] as $sub_service_id) {
+                foreach ($request_data["sub_service_ids"] as $sub_service_id) {
                     $garage_sub_service =  GarageSubService::where([
                             "garage_sub_services.sub_service_id" => $sub_service_id
                         ])
