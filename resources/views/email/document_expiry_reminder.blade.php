@@ -11,7 +11,7 @@
 
     <p>{{ $message_desc }}</p>
 
- 
+
 
     <h3>📄 Document Details:</h3>
     <ul>
@@ -26,7 +26,7 @@
         <li><strong>Property Name:</strong> {{ $property->name }}</li>
         <li><strong>Address:</strong> {{ $property->address }}, {{ $property->city }}, {{ $property->country }}</li>
         <li><strong>Reference No:</strong> {{ $property->reference_no }}</li>
-        <li><strong>Price:</strong> ${{ number_format($property->price, 2) }}</li>
+        <li><strong>Price:</strong>  £{{ number_format($property->price, 2) }}</li>
     </ul>
 
     <p>You can review and update the document by clicking the link below:</p>
