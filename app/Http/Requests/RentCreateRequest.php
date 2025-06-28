@@ -44,24 +44,17 @@ class RentCreateRequest extends FormRequest
                 'date',
 
             ],
-
-          
             "payment_method" => "required|string",
-
-
 
             'rent_amount' => [
                 'required',
                 'numeric',
 
             ],
-
             'paid_amount' => [
                 'required',
                 'numeric',
             ],
-
-
 
             'month' => [
                 'required',
