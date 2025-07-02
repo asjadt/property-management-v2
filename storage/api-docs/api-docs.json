@@ -14,11 +14,528 @@
     },
     "servers": [
         {
-            "url": "http://127.0.0.1:8000/api",
+            "url": "http://property-management-v2.test/api",
             "description": "Demo API Server"
         }
     ],
     "paths": {
+        "/v1.0/accreditations": {
+            "get": {
+                "tags": [
+                    "accreditations"
+                ],
+                "summary": "This method is to get accreditations ",
+                "description": "This method is to get accreditations ",
+                "operationId": "getAccreditations",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "name",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "description",
+                        "in": "query",
+                        "description": "description",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "start_accreditation_start_date",
+                        "in": "query",
+                        "description": "start_accreditation_start_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "end_accreditation_start_date",
+                        "in": "query",
+                        "description": "end_accreditation_start_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "start_accreditation_expiry_date",
+                        "in": "query",
+                        "description": "start_accreditation_expiry_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "end_accreditation_expiry_date",
+                        "in": "query",
+                        "description": "end_accreditation_expiry_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "logo",
+                        "in": "query",
+                        "description": "logo",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "per_page",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "is_active",
+                        "in": "query",
+                        "description": "is_active",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "start_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "end_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "search_key",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "description": "order_by",
+                        "required": false,
+                        "example": "ASC"
+                    },
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "description": "id",
+                        "required": false,
+                        "example": ""
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "accreditations"
+                ],
+                "summary": "This method is to update accreditations ",
+                "description": "This method is to update accreditations ",
+                "operationId": "updateAccreditation",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "1"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "name"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "description"
+                                    },
+                                    "accreditation_start_date": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "accreditation_start_date"
+                                    },
+                                    "accreditation_expiry_date": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "accreditation_expiry_date"
+                                    },
+                                    "logo": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "logo"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "accreditations"
+                ],
+                "summary": "This method is to store accreditations",
+                "description": "This method is to store accreditations",
+                "operationId": "createAccreditation",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "name"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "description"
+                                    },
+                                    "accreditation_start_date": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "accreditation_start_date"
+                                    },
+                                    "accreditation_expiry_date": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "accreditation_expiry_date"
+                                    },
+                                    "logo": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "logo"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/accreditations/toggle-active": {
+            "put": {
+                "tags": [
+                    "accreditations"
+                ],
+                "summary": "This method is to toggle accreditations",
+                "description": "This method is to toggle accreditations",
+                "operationId": "toggleActiveAccreditation",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/accreditations/{ids}": {
+            "delete": {
+                "tags": [
+                    "accreditations"
+                ],
+                "summary": "This method is to delete accreditation by id",
+                "description": "This method is to delete accreditation by id",
+                "operationId": "deleteAccreditationsByIds",
+                "parameters": [
+                    {
+                        "name": "ids",
+                        "in": "path",
+                        "description": "ids",
+                        "required": true,
+                        "example": "1,2,3"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/v1.0/affiliations-logo": {
             "post": {
                 "tags": [
@@ -5178,10 +5695,14 @@
                                         "format": "number",
                                         "example": "1"
                                     },
-                                    "landlord_id": {
-                                        "type": "number",
-                                        "format": "number",
-                                        "example": "1"
+                                    "landlord_ids": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            1,
+                                            2,
+                                            3
+                                        ]
                                     },
                                     "payment_mode": {
                                         "type": "string",
@@ -5557,16 +6078,16 @@
                         "example": "1374"
                     },
                     {
-                        "name": "landlord_id",
+                        "name": "landlord_ids",
                         "in": "query",
-                        "description": "landlord_id",
+                        "description": "landlord_ids",
                         "required": true,
                         "example": "1"
                     },
                     {
-                        "name": "tenant_id",
+                        "name": "tenant_ids",
                         "in": "query",
-                        "description": "tenant_id",
+                        "description": "tenant_ids",
                         "required": true,
                         "example": "1"
                     },
@@ -5715,9 +6236,9 @@
                         "example": "1374"
                     },
                     {
-                        "name": "landlord_id",
+                        "name": "landlord_ids",
                         "in": "query",
-                        "description": "landlord_id",
+                        "description": "landlord_ids",
                         "required": true,
                         "example": "1"
                     },
@@ -5736,9 +6257,9 @@
                         "example": "1"
                     },
                     {
-                        "name": "tenant_id",
+                        "name": "tenant_ids",
                         "in": "query",
-                        "description": "tenant_id",
+                        "description": "tenant_ids",
                         "required": true,
                         "example": "1"
                     },
@@ -9051,6 +9572,446 @@
                 ]
             }
         },
+        "/v1.0/doc-volets": {
+            "get": {
+                "tags": [
+                    "doc_volets"
+                ],
+                "summary": "This method is to get doc volets ",
+                "description": "This method is to get doc volets ",
+                "operationId": "getDocVolets",
+                "parameters": [
+                    {
+                        "name": "property_ids",
+                        "in": "query",
+                        "description": "property_ids",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "title",
+                        "in": "query",
+                        "description": "title",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "description",
+                        "in": "query",
+                        "description": "description",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "description": "date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "note",
+                        "in": "query",
+                        "description": "note",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "per_page",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "is_active",
+                        "in": "query",
+                        "description": "is_active",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "start_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "end_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "search_key",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "description": "order_by",
+                        "required": false,
+                        "example": "ASC"
+                    },
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "description": "id",
+                        "required": false,
+                        "example": ""
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "doc_volets"
+                ],
+                "summary": "This method is to update doc volets ",
+                "description": "This method is to update doc volets ",
+                "operationId": "updateDocVolet",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "1"
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "title"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "description"
+                                    },
+                                    "date": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "date"
+                                    },
+                                    "note": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "note"
+                                    },
+                                    "files": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "files"
+                                    },
+                                    "property_id": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "property_id"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "doc_volets"
+                ],
+                "summary": "This method is to store doc volets",
+                "description": "This method is to store doc volets",
+                "operationId": "createDocVolet",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "title"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "description"
+                                    },
+                                    "date": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "date"
+                                    },
+                                    "note": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "note"
+                                    },
+                                    "files": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "files"
+                                    },
+                                    "property_id": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "property_id"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/doc-volets/{ids}": {
+            "delete": {
+                "tags": [
+                    "doc_volets"
+                ],
+                "summary": "This method is to delete doc volet by id",
+                "description": "This method is to delete doc volet by id",
+                "operationId": "deleteDocVoletsByIds",
+                "parameters": [
+                    {
+                        "name": "ids",
+                        "in": "path",
+                        "description": "ids",
+                        "required": true,
+                        "example": "1,2,3"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/v1.0/document-types": {
             "put": {
                 "tags": [
@@ -9529,7 +10490,7 @@
                 "description": "This method is to update email template",
                 "operationId": "updateEmailTemplate",
                 "requestBody": {
-                    "description": "use [FirstName],[LastName],[FullName],[AccountVerificationLink],[ForgotPasswordLink]\n     * [customer_FirstName],[customer_LastName],[customer_FullName],[garage_owner_FirstName],[garage_owner_LastName],[garage_owner_FullName],[automobile_make],[automobile_model],[car_registration_no],[car_registration_year],[status],[payment_status],[additional_information],[discount_type],[discount_amount],[price],[job_start_date],[job_start_time],[job_end_time],[coupon_code],[fuel],[transmission]\n     *  in the template",
+                    "description": "use [FirstName],[LastName],[FullName],[AccountVerificationLink],[ForgotPasswordLink]\r\n     * [customer_FirstName],[customer_LastName],[customer_FullName],[garage_owner_FirstName],[garage_owner_LastName],[garage_owner_FullName],[automobile_make],[automobile_model],[car_registration_no],[car_registration_year],[status],[payment_status],[additional_information],[discount_type],[discount_amount],[price],[job_start_date],[job_start_time],[job_end_time],[coupon_code],[fuel],[transmission]\r\n     *  in the template",
                     "required": true,
                     "content": {
                         "application/json": {
@@ -15579,6 +16540,467 @@
                 ]
             }
         },
+        "/v1.0/holder-entities": {
+            "get": {
+                "tags": [
+                    "holder_entities"
+                ],
+                "summary": "This method is to get holder entities ",
+                "description": "This method is to get holder entities ",
+                "operationId": "getHolderEntities",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "name",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "description",
+                        "in": "query",
+                        "description": "description",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "per_page",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "is_active",
+                        "in": "query",
+                        "description": "is_active",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "start_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "end_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "search_key",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "description": "order_by",
+                        "required": false,
+                        "example": "ASC"
+                    },
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "description": "id",
+                        "required": false,
+                        "example": ""
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "holder_entities"
+                ],
+                "summary": "This method is to update holder entities ",
+                "description": "This method is to update holder entities ",
+                "operationId": "updateHolderEntity",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "1"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "name"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "description"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "holder_entities"
+                ],
+                "summary": "This method is to store holder entities",
+                "description": "This method is to store holder entities",
+                "operationId": "createHolderEntity",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "name"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "description"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/holder-entities/toggle-active": {
+            "put": {
+                "tags": [
+                    "holder_entities"
+                ],
+                "summary": "This method is to toggle holder entities",
+                "description": "This method is to toggle holder entities",
+                "operationId": "toggleActiveHolderEntity",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "format": "number",
+                                        "example": "1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/holder-entities/{ids}": {
+            "delete": {
+                "tags": [
+                    "holder_entities"
+                ],
+                "summary": "This method is to delete holder entity by id",
+                "description": "This method is to delete holder entity by id",
+                "operationId": "deleteHolderEntitiesByIds",
+                "parameters": [
+                    {
+                        "name": "ids",
+                        "in": "path",
+                        "description": "ids",
+                        "required": true,
+                        "example": "1,2,3"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/v1.0/invoice-image": {
             "post": {
                 "tags": [
@@ -15797,15 +17219,23 @@
                                         "format": "number",
                                         "example": "1"
                                     },
-                                    "landlord_id": {
-                                        "type": "number",
-                                        "format": "number",
-                                        "example": "1"
+                                    "landlord_ids": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            1,
+                                            2,
+                                            3
+                                        ]
                                     },
-                                    "tenant_id": {
-                                        "type": "number",
-                                        "format": "number",
-                                        "example": "1"
+                                    "tenant_ids": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            1,
+                                            2,
+                                            3
+                                        ]
                                     },
                                     "client_id": {
                                         "type": "number",
@@ -16038,20 +17468,28 @@
                                         "format": "string",
                                         "example": "note"
                                     },
-                                    "landlord_id": {
-                                        "type": "number",
-                                        "format": "number",
-                                        "example": "1"
+                                    "landlord_ids": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            1,
+                                            2,
+                                            3
+                                        ]
                                     },
                                     "property_id": {
                                         "type": "number",
                                         "format": "number",
                                         "example": "1"
                                     },
-                                    "tenant_id": {
-                                        "type": "number",
-                                        "format": "number",
-                                        "example": "1"
+                                    "tenant_ids": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            1,
+                                            2,
+                                            3
+                                        ]
                                     },
                                     "client_id": {
                                         "type": "number",
@@ -16529,16 +17967,16 @@
                         "example": "1374"
                     },
                     {
-                        "name": "landlord_id",
+                        "name": "landlord_ids",
                         "in": "query",
-                        "description": "landlord_id",
+                        "description": "landlord_ids",
                         "required": true,
                         "example": "1"
                     },
                     {
-                        "name": "tenant_id",
+                        "name": "tenant_ids",
                         "in": "query",
-                        "description": "tenant_id",
+                        "description": "tenant_ids",
                         "required": true,
                         "example": "1"
                     },
@@ -16694,16 +18132,16 @@
                         "example": "1374"
                     },
                     {
-                        "name": "landlord_id",
+                        "name": "landlord_ids",
                         "in": "query",
-                        "description": "landlord_id",
+                        "description": "landlord_ids",
                         "required": true,
                         "example": "1"
                     },
                     {
-                        "name": "tenant_id",
+                        "name": "tenant_ids",
                         "in": "query",
-                        "description": "tenant_id",
+                        "description": "tenant_ids",
                         "required": true,
                         "example": "1"
                     },
@@ -16852,16 +18290,16 @@
                         "example": "1374"
                     },
                     {
-                        "name": "landlord_id",
+                        "name": "landlord_ids",
                         "in": "query",
-                        "description": "landlord_id",
+                        "description": "landlord_ids",
                         "required": true,
                         "example": "1"
                     },
                     {
-                        "name": "tenant_id",
+                        "name": "tenant_ids",
                         "in": "query",
-                        "description": "tenant_id",
+                        "description": "tenant_ids",
                         "required": true,
                         "example": "1"
                     },
@@ -18697,16 +20135,16 @@
                         "example": "6"
                     },
                     {
-                        "name": "tenant_id",
+                        "name": "tenant_ids",
                         "in": "query",
-                        "description": "tenant_id",
+                        "description": "tenant_ids",
                         "required": true,
                         "example": "1"
                     },
                     {
-                        "name": "landlord_id",
+                        "name": "landlord_ids",
                         "in": "query",
-                        "description": "landlord_id",
+                        "description": "landlord_ids",
                         "required": true,
                         "example": "1"
                     },
@@ -22490,7 +23928,7 @@
                 "description": "This method is to update notification template",
                 "operationId": "updateNotificationTemplate",
                 "requestBody": {
-                    "description": "use [customer_name],[garage_owner_name],[garage_name],\n     *  in the template and use [customer_id], [pre_booking_id],[booking_id],[job_id],[garage_id],[bid_id] in link",
+                    "description": "use [customer_name],[garage_owner_name],[garage_name],\r\n     *  in the template and use [customer_id], [pre_booking_id],[booking_id],[job_id],[garage_id],[bid_id] in link",
                     "required": true,
                     "content": {
                         "application/json": {
@@ -25357,16 +26795,139 @@
                         "example": "1,2"
                     },
                     {
-                        "name": "tenant_id",
+                        "name": "tenant_ids",
                         "in": "query",
-                        "description": "tenant_id",
+                        "description": "tenant_ids",
                         "required": true,
-                        "example": "tenant_id"
+                        "example": "tenant_ids"
                     },
                     {
-                        "name": "landlord_id",
+                        "name": "landlord_ids",
                         "in": "query",
-                        "description": "landlord_id",
+                        "description": "landlord_ids",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "client_id",
+                        "in": "query",
+                        "description": "client_id",
+                        "required": true,
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v2.0/activities/{perPage}": {
+            "get": {
+                "tags": [
+                    "property_management.basics"
+                ],
+                "summary": "This method is to get activities ",
+                "description": "This method is to get activities",
+                "operationId": "showActivityV2",
+                "parameters": [
+                    {
+                        "name": "perPage",
+                        "in": "path",
+                        "description": "perPage",
+                        "required": true,
+                        "example": "6"
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "start_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "end_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "search_key",
+                        "required": true,
+                        "example": "search_key"
+                    },
+                    {
+                        "name": "property_ids",
+                        "in": "query",
+                        "description": "property_ids",
+                        "required": true,
+                        "example": "1,2"
+                    },
+                    {
+                        "name": "tenant_ids",
+                        "in": "query",
+                        "description": "tenant_ids",
+                        "required": true,
+                        "example": "tenant_ids"
+                    },
+                    {
+                        "name": "landlord_ids",
+                        "in": "query",
+                        "description": "landlord_ids",
                         "required": true,
                         "example": "1"
                     },
@@ -26706,6 +28267,103 @@
                 ]
             }
         },
+        "/v1.0/properties-update-tenant": {
+            "put": {
+                "tags": [
+                    "property_management.property_management"
+                ],
+                "summary": "This method is to update property",
+                "description": "This method is to update property",
+                "operationId": "updatePropertyTenant",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id",
+                                    "name",
+                                    "description",
+                                    "logo"
+                                ],
+                                "properties": {
+                                    "id": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "1"
+                                    },
+                                    "tenant_ids": {
+                                        "type": "string",
+                                        "format": "array",
+                                        "example": [
+                                            1,
+                                            2,
+                                            3
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/v1.0/properties-update-landlord": {
             "put": {
                 "tags": [
@@ -26803,14 +28461,14 @@
                 ]
             }
         },
-        "/v1.0/properties/{perPage}": {
+        "/v1.0/client/properties/{perPage}": {
             "get": {
                 "tags": [
                     "property_management.property_management"
                 ],
                 "summary": "This method is to get properties ",
                 "description": "This method is to get properties",
-                "operationId": "getProperties",
+                "operationId": "getPropertiesClient",
                 "parameters": [
                     {
                         "name": "perPage",
@@ -26888,6 +28546,13 @@
                         "description": "Filter properties by the instruction end date",
                         "required": false,
                         "example": "2023-12-31"
+                    },
+                    {
+                        "name": "no_of_beds",
+                        "in": "query",
+                        "description": "Filter properties by the minimum number of beds",
+                        "required": false,
+                        "example": "2"
                     },
                     {
                         "name": "start_no_of_beds",
@@ -27035,6 +28700,367 @@
                         "description": "Filter follow-ups by end date",
                         "required": false,
                         "example": "2023-12-31"
+                    },
+                    {
+                        "name": "end_tenancy_agreement_date",
+                        "in": "query",
+                        "description": "end_tenancy_agreement_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "start_tenancy_agreement_date",
+                        "in": "query",
+                        "description": "start_tenancy_agreement_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "start_document_end_date",
+                        "in": "query",
+                        "description": "start_document_end_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "end_document_end_date",
+                        "in": "query",
+                        "description": "end_document_end_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "description": "Order the results by a specific column (e.g., 'address')",
+                        "required": false,
+                        "example": "address"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/properties/{perPage}": {
+            "get": {
+                "tags": [
+                    "property_management.property_management"
+                ],
+                "summary": "This method is to get properties ",
+                "description": "This method is to get properties",
+                "operationId": "getProperties",
+                "parameters": [
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "description": "Number of results per page",
+                        "required": false,
+                        "example": "15"
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "Search term to filter properties by reference number, address, or type",
+                        "required": false,
+                        "example": "keyword"
+                    },
+                    {
+                        "name": "landlord_ids",
+                        "in": "query",
+                        "description": "Filter properties by landlord ID",
+                        "required": false,
+                        "example": "1"
+                    },
+                    {
+                        "name": "tenant_ids",
+                        "in": "query",
+                        "description": "Filter properties by tenant ID",
+                        "required": false,
+                        "example": "1"
+                    },
+                    {
+                        "name": "category",
+                        "in": "query",
+                        "description": "Filter properties by category",
+                        "required": false,
+                        "example": "residential"
+                    },
+                    {
+                        "name": "address",
+                        "in": "query",
+                        "description": "Search properties by address",
+                        "required": false,
+                        "example": "123 Main St"
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "Filter properties by the creation start date",
+                        "required": false,
+                        "example": "2023-01-01"
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "Filter properties by the creation end date",
+                        "required": false,
+                        "example": "2023-12-31"
+                    },
+                    {
+                        "name": "reference_no",
+                        "in": "query",
+                        "description": "Filter properties by reference number",
+                        "required": false,
+                        "example": "ABC123"
+                    },
+                    {
+                        "name": "start_date_of_instruction",
+                        "in": "query",
+                        "description": "Filter properties by the instruction start date",
+                        "required": false,
+                        "example": "2023-01-01"
+                    },
+                    {
+                        "name": "end_date_of_instruction",
+                        "in": "query",
+                        "description": "Filter properties by the instruction end date",
+                        "required": false,
+                        "example": "2023-12-31"
+                    },
+                    {
+                        "name": "no_of_beds",
+                        "in": "query",
+                        "description": "Filter properties by the minimum number of beds",
+                        "required": false,
+                        "example": "2"
+                    },
+                    {
+                        "name": "start_no_of_beds",
+                        "in": "query",
+                        "description": "Filter properties by the minimum number of beds",
+                        "required": false,
+                        "example": "2"
+                    },
+                    {
+                        "name": "end_no_of_beds",
+                        "in": "query",
+                        "description": "Filter properties by the maximum number of beds",
+                        "required": false,
+                        "example": "4"
+                    },
+                    {
+                        "name": "is_garden",
+                        "in": "query",
+                        "description": "Filter properties that have a garden",
+                        "required": false,
+                        "example": "true"
+                    },
+                    {
+                        "name": "is_dss",
+                        "in": "query",
+                        "description": "Filter properties that are DSS (Department of Social Services) approved",
+                        "required": false,
+                        "example": "true"
+                    },
+                    {
+                        "name": "document_type_id",
+                        "in": "query",
+                        "description": "Filter properties by document type ID",
+                        "required": false,
+                        "example": "1"
+                    },
+                    {
+                        "name": "is_document_expired",
+                        "in": "query",
+                        "description": "Filter properties by document type ID",
+                        "required": false,
+                        "example": "1"
+                    },
+                    {
+                        "name": "document_expired_in",
+                        "in": "query",
+                        "description": "Filter properties by document type ID",
+                        "required": false,
+                        "example": "1"
+                    },
+                    {
+                        "name": "maintenance_item_type_id",
+                        "in": "query",
+                        "description": "maintenance_item_type_id",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "is_next_follow_up_date_passed",
+                        "in": "query",
+                        "description": "Filter properties by document type ID",
+                        "required": false,
+                        "example": "1"
+                    },
+                    {
+                        "name": "next_follow_up_date_in",
+                        "in": "query",
+                        "description": "Filter properties by document type ID",
+                        "required": false,
+                        "example": "1"
+                    },
+                    {
+                        "name": "next_inspection_date_passed",
+                        "in": "query",
+                        "description": "Filter properties by document type ID",
+                        "required": false,
+                        "example": "1"
+                    },
+                    {
+                        "name": "next_inspection_date_in",
+                        "in": "query",
+                        "description": "Filter properties by document type ID",
+                        "required": false,
+                        "example": "1"
+                    },
+                    {
+                        "name": "start_inspection_date",
+                        "in": "query",
+                        "description": "Filter inspections by start date",
+                        "required": false,
+                        "example": "2023-01-01"
+                    },
+                    {
+                        "name": "end_inspection_date",
+                        "in": "query",
+                        "description": "Filter inspections by end date",
+                        "required": false,
+                        "example": "2023-12-31"
+                    },
+                    {
+                        "name": "start_next_inspection_date",
+                        "in": "query",
+                        "description": "Filter next inspections by start date",
+                        "required": false,
+                        "example": "2023-01-01"
+                    },
+                    {
+                        "name": "end_next_inspection_date",
+                        "in": "query",
+                        "description": "Filter next inspections by end date",
+                        "required": false,
+                        "example": "2023-12-31"
+                    },
+                    {
+                        "name": "inspection_duration",
+                        "in": "query",
+                        "description": "Filter inspections by the inspector's name or ID",
+                        "required": false,
+                        "example": "inspection duration"
+                    },
+                    {
+                        "name": "inspected_by",
+                        "in": "query",
+                        "description": "Filter inspections by the inspector's name or ID",
+                        "required": false,
+                        "example": "John Doe"
+                    },
+                    {
+                        "name": "maintenance_item_type_id",
+                        "in": "query",
+                        "description": "Filter inspections by maintenance item type ID",
+                        "required": false,
+                        "example": "1"
+                    },
+                    {
+                        "name": "start_next_follow_up_date",
+                        "in": "query",
+                        "description": "Filter follow-ups by start date",
+                        "required": false,
+                        "example": "2023-01-01"
+                    },
+                    {
+                        "name": "end_next_follow_up_date",
+                        "in": "query",
+                        "description": "Filter follow-ups by end date",
+                        "required": false,
+                        "example": "2023-12-31"
+                    },
+                    {
+                        "name": "end_tenancy_agreement_date",
+                        "in": "query",
+                        "description": "end_tenancy_agreement_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "start_tenancy_agreement_date",
+                        "in": "query",
+                        "description": "start_tenancy_agreement_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "start_document_end_date",
+                        "in": "query",
+                        "description": "start_document_end_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "end_document_end_date",
+                        "in": "query",
+                        "description": "end_document_end_date",
+                        "required": false,
+                        "example": ""
                     },
                     {
                         "name": "order_by",
@@ -28178,6 +30204,402 @@
                 ]
             }
         },
+        "/v1.0/property-notes": {
+            "get": {
+                "tags": [
+                    "property_notes"
+                ],
+                "summary": "This method is to get property notes ",
+                "description": "This method is to get property notes ",
+                "operationId": "getPropertyNotes",
+                "parameters": [
+                    {
+                        "name": "title",
+                        "in": "query",
+                        "description": "title",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "description",
+                        "in": "query",
+                        "description": "description",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "property_ids",
+                        "in": "query",
+                        "description": "property_id",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "per_page",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "is_active",
+                        "in": "query",
+                        "description": "is_active",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "start_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "end_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "search_key",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "description": "order_by",
+                        "required": false,
+                        "example": "ASC"
+                    },
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "description": "id",
+                        "required": false,
+                        "example": ""
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "property_notes"
+                ],
+                "summary": "This method is to update property notes ",
+                "description": "This method is to update property notes ",
+                "operationId": "updatePropertyNote",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "1"
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "title"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "description"
+                                    },
+                                    "property_id": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "property_id"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "property_notes"
+                ],
+                "summary": "This method is to store property notes",
+                "description": "This method is to store property notes",
+                "operationId": "createPropertyNote",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "title"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "description"
+                                    },
+                                    "property_id": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "property_id"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/property-notes/{ids}": {
+            "delete": {
+                "tags": [
+                    "property_notes"
+                ],
+                "summary": "This method is to delete property note by id",
+                "description": "This method is to delete property note by id",
+                "operationId": "deletePropertyNotesByIds",
+                "parameters": [
+                    {
+                        "name": "ids",
+                        "in": "path",
+                        "description": "ids",
+                        "required": true,
+                        "example": "1,2,3"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/v1.0/receipts": {
             "put": {
                 "tags": [
@@ -28732,6 +31154,509 @@
                     },
                     {
                         "pin": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/reminders": {
+            "get": {
+                "tags": [
+                    "reminders"
+                ],
+                "summary": "This method is to get reminders  ",
+                "description": "This method is to get reminders ",
+                "operationId": "getReminders",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "per_page",
+                        "required": true,
+                        "example": "6"
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "start_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "end_date",
+                        "required": true,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "search_key",
+                        "required": true,
+                        "example": "search_key"
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "description": "order_by",
+                        "required": true,
+                        "example": "ASC"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "reminders"
+                ],
+                "summary": "This method is to update reminder ",
+                "description": "This method is to update reminder",
+                "operationId": "updateReminder",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "Updated Christmas"
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "Your Title"
+                                    },
+                                    "entity_name": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "Your Entity Name"
+                                    },
+                                    "duration": {
+                                        "type": "integer",
+                                        "format": "int",
+                                        "example": 10
+                                    },
+                                    "duration_unit": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "enum": [
+                                            "days",
+                                            "weeks",
+                                            "months"
+                                        ],
+                                        "example": "days"
+                                    },
+                                    "send_time": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "enum": [
+                                            "before_expiry",
+                                            "after_expiry"
+                                        ],
+                                        "example": "before_expiry"
+                                    },
+                                    "frequency_after_first_reminder": {
+                                        "type": "integer",
+                                        "format": "int",
+                                        "example": 2
+                                    },
+                                    "reminder_limit": {
+                                        "type": "integer",
+                                        "format": "int",
+                                        "example": 2
+                                    },
+                                    "keep_sending_until_update": {
+                                        "type": "boolean",
+                                        "format": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "reminders"
+                ],
+                "summary": "This method is to store reminder",
+                "description": "This method is to store reminder",
+                "operationId": "createReminder",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "Your Title"
+                                    },
+                                    "entity_name": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "Your Entity Name"
+                                    },
+                                    "duration": {
+                                        "type": "integer",
+                                        "format": "int",
+                                        "example": 10
+                                    },
+                                    "duration_unit": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "enum": [
+                                            "days",
+                                            "weeks",
+                                            "months"
+                                        ],
+                                        "example": "days"
+                                    },
+                                    "send_time": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "enum": [
+                                            "before_expiry",
+                                            "after_expiry"
+                                        ],
+                                        "example": "before_expiry"
+                                    },
+                                    "frequency_after_first_reminder": {
+                                        "type": "integer",
+                                        "format": "int",
+                                        "example": 2
+                                    },
+                                    "reminder_limit": {
+                                        "type": "integer",
+                                        "format": "int",
+                                        "example": 2
+                                    },
+                                    "keep_sending_until_update": {
+                                        "type": "boolean",
+                                        "format": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/reminders/{id}": {
+            "get": {
+                "tags": [
+                    "reminders"
+                ],
+                "summary": "This method is to get reminder by id",
+                "description": "This method is to get reminder by id",
+                "operationId": "getReminderById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "id",
+                        "required": true,
+                        "example": "6"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/reminders/{ids}": {
+            "delete": {
+                "tags": [
+                    "reminders"
+                ],
+                "summary": "This method is to delete reminder by id",
+                "description": "This method is to delete reminder by id",
+                "operationId": "deleteRemindersByIds",
+                "parameters": [
+                    {
+                        "name": "ids",
+                        "in": "path",
+                        "description": "ids",
+                        "required": true,
+                        "example": "1,2,3"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
                     }
                 ]
             }
@@ -36077,6 +39002,16 @@
                                         "format": "date",
                                         "example": "2024-11-01"
                                     },
+                                    "holder_reference_number": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "holder_reference_number"
+                                    },
+                                    "holder_entity_id": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "1"
+                                    },
                                     "let_only_agreement_expired_date": {
                                         "type": "string",
                                         "format": "date",
@@ -36262,6 +39197,16 @@
                                         "type": "string",
                                         "format": "date",
                                         "example": "2024-11-01"
+                                    },
+                                    "holder_reference_number": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "holder_reference_number"
+                                    },
+                                    "holder_entity_id": {
+                                        "type": "number",
+                                        "format": "number",
+                                        "example": "1"
                                     },
                                     "let_only_agreement_expired_date": {
                                         "type": "string",
@@ -40175,7 +43120,7 @@
                     "client.booking"
                 ],
                 "summary": "This method is to change booking status",
-                "description": "This method is to change booking status.\n     * if status is accepted. the booking will be converted to a job.  and the status of the job will be pending ",
+                "description": "This method is to change booking status.\r\n     * if status is accepted. the booking will be converted to a job.  and the status of the job will be pending ",
                 "operationId": "changeBookingStatusClient",
                 "requestBody": {
                     "required": true,
