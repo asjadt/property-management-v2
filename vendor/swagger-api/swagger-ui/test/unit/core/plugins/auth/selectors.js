@@ -1,6 +1,6 @@
 
 import { fromJS } from "immutable"
-import { definitionsToAuthorize, definitionsForRequirements } from "corePlugins/auth/selectors"
+import { definitionsToAuthorize, definitionsForRequirements } from "core/plugins/auth/selectors"
 
 describe("auth plugin - selectors", () => {
   describe("definitionsToAuthorize", () => {
@@ -112,8 +112,6 @@ describe("auth plugin - selectors", () => {
     })
 
     it("should fail gracefully with bad data", () => {
-      const securityDefinitions = null
-
       const system = {
         authSelectors: {
           definitionsToAuthorize() {

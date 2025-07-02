@@ -1113,6 +1113,44 @@ class PropertyBasicController extends Controller
 
 
 
+    public function rent_report() {
+      $now = Carbon::now();
+        $start_of_month = $now->copy()->startOfMonth()->toDateString();
+        $end_of_month = $now->copy()->endOfMonth()->toDateString();
+
+        $next_month_start = $now->copy()->addMonth()->startOfMonth()->toDateString();
+        $next_month_end = $now->copy()->addMonth()->endOfMonth()->toDateString();
+
+        $base_query = Rent::join('tenancy_agreements', 'tenancy_agreements.id', '=', 'rents.tenancy_agreement_id')
+            ->where('rents.created_by', auth()->user()->id);
+
+        // 1. Total collected rent (all time)
+        $total_collected = (clone $base_query)->sum('rents.paid_amount');
+
+        // 2. Total due this month
+        $total_due_this_month = (clone $base_query)
+            ->whereBetween('rents.payment_date', [$start_of_month, $end_of_month])
+            ->sum(DB::raw('tenancy_agreements.total_agreed_rent - rents.paid_amount'));
+
+        // 3. Total collected this month
+        $total_collected_this_month = (clone $base_query)
+            ->whereBetween('rents.payment_date', [$start_of_month, $end_of_month])
+            ->sum('rents.paid_amount');
+
+        // 4. Total upcoming rent for next month
+        $total_upcoming_rent_next_month = (clone $base_query)
+            ->whereBetween('rents.payment_date', [$next_month_start, $next_month_end])
+            ->sum('tenancy_agreements.total_agreed_rent');
+
+        return [
+            'total_collected' => $total_collected,
+            'total_due_this_month' => $total_due_this_month,
+            'total_collected_this_month' => $total_collected_this_month,
+            'total_upcoming_rent_next_month' => $total_upcoming_rent_next_month,
+        ];
+
+
+    }
 
 
     /**
@@ -1314,6 +1352,8 @@ COALESCE(
             $data["overall_maintainance_report"] = $this->getOverallMaintainanceReport();
 
             $now = Carbon::now();
+
+
             $data["this_month_paid_rent"] = Rent::where('month', $now->month)
                 ->where('year', $now->year)
                 ->where('payment_status', 'fully_paid')
@@ -1322,6 +1362,10 @@ COALESCE(
                 ->where('year', $now->year)
                 ->where('payment_status', 'partially_paid')
                 ->sum('arrear');
+
+
+
+                $data["rent_report"] = $this->rent_report();
 
             return response()->json($data, 200);
         } catch (Exception $e) {

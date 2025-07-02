@@ -1,11 +1,11 @@
 import React, { PureComponent } from "react"
 import PropTypes from "prop-types"
-import { getList } from "core/utils"
-import { getExtensions, sanitizeUrl, escapeDeepLinkPath } from "core/utils"
-import { safeBuildUrl } from "core/utils/url"
+import { getExtensions, escapeDeepLinkPath, getList } from "core/utils"
+import { safeBuildUrl, sanitizeUrl } from "core/utils/url"
 import { Iterable, List } from "immutable"
 import ImPropTypes from "react-immutable-proptypes"
 
+import RollingLoadSVG from "core/assets/rolling-load.svg"
 
 export default class Operation extends PureComponent {
   static propTypes = {
@@ -122,7 +122,7 @@ export default class Operation extends PureComponent {
           <Collapse isOpened={isShown}>
             <div className="opblock-body">
               { (operation && operation.size) || operation === null ? null :
-                <img height={"32px"} width={"32px"} src={require("core/../img/rolling-load.svg")} className="opblock-loading-animation" />
+                <RollingLoadSVG height="32px" width="32px" className="opblock-loading-animation" />
               }
               { deprecated && <h4 className="opblock-title_normal"> Warning: Deprecated</h4>}
               { description &&
@@ -140,7 +140,7 @@ export default class Operation extends PureComponent {
                     {externalDocs.description &&
                       <span className="opblock-external-docs__description">
                         <Markdown source={ externalDocs.description } />
-                      </span> 
+                      </span>
                     }
                     <Link target="_blank" className="opblock-external-docs__link" href={sanitizeUrl(externalDocsUrl)}>{externalDocsUrl}</Link>
                   </div>

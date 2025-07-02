@@ -1,22 +1,59 @@
+/**
+ * @prettier
+ */
 import React from "react"
 import { List, fromJS } from "immutable"
 import { render } from "enzyme"
-import ParameterRow from "components/parameter-row"
+
+import ParameterRow from "core/components/parameter-row"
+import {
+  memoizedSampleFromSchema,
+  memoizedCreateXMLExample,
+  mergeJsonSchema,
+} from "core/plugins/json-schema-5-samples/fn/index"
+import makeGetSampleSchema from "core/plugins/json-schema-5-samples/fn/get-sample-schema"
+import makeGetJsonSampleSchema from "core/plugins/json-schema-5-samples/fn/get-json-sample-schema"
+import makeGetYamlSampleSchema from "core/plugins/json-schema-5-samples/fn/get-yaml-sample-schema"
+import makeGetXmlSampleSchema from "core/plugins/json-schema-5-samples/fn/get-xml-sample-schema"
+import { foldType } from "core/plugins/json-schema-2020-12-samples/fn/index"
+import {
+  makeGetType,
+  isBooleanJSONSchema,
+} from "core/plugins/json-schema-2020-12/fn.js"
 
 describe("<ParameterRow/>", () => {
-  const createProps = ({ param, isOAS3 }) => ({
-    getComponent: () => "div",
-    specSelectors: {
-      parameterWithMetaByIdentity: () => param,
-      isOAS3: () => isOAS3,
-      isSwagger2: () => !isOAS3
-    },
-    oas3Selectors: { activeExamplesMember: () => {} },
-    param,
-    rawParam: param,
-    pathMethod: [],
-    getConfigs: () => ({})
-  })
+  const createProps = ({ param, isOAS3 }) => {
+    const getSystem = () => ({
+      getComponent: () => "div",
+      specSelectors: {
+        parameterWithMetaByIdentity: () => param,
+        isOAS3: () => isOAS3,
+        isSwagger2: () => !isOAS3,
+      },
+      fn: {
+        memoizedSampleFromSchema,
+        memoizedCreateXMLExample,
+        getJsonSampleSchema: makeGetJsonSampleSchema(getSystem),
+        getYamlSampleSchema: makeGetYamlSampleSchema(getSystem),
+        getXmlSampleSchema: makeGetXmlSampleSchema(getSystem),
+        getSampleSchema: makeGetSampleSchema(getSystem),
+        mergeJsonSchema,
+        jsonSchema202012: {
+          foldType,
+          getType: makeGetType(() => ({ isBooleanJSONSchema })),
+        },
+      },
+      oas3Selectors: { activeExamplesMember: () => {} },
+      getConfigs: () => ({}),
+    })
+
+    return {
+      ...getSystem(),
+      param,
+      rawParam: param,
+      pathMethod: [],
+    }
+  }
 
   it("Can render Swagger 2 parameter type with format", () => {
     const param = fromJS({
@@ -24,11 +61,11 @@ describe("<ParameterRow/>", () => {
       in: "path",
       description: "UUID that identifies a pet",
       type: "string",
-      format: "uuid"
+      format: "uuid",
     })
 
     const props = createProps({ param, isOAS3: false })
-    const wrapper = render(<ParameterRow {...props}/>)
+    const wrapper = render(<ParameterRow {...props} />)
 
     expect(wrapper.find(".parameter__type").length).toEqual(1)
     expect(wrapper.find(".parameter__type").text()).toEqual("string($uuid)")
@@ -39,11 +76,11 @@ describe("<ParameterRow/>", () => {
       name: "petId",
       in: "path",
       description: "ID that identifies a pet",
-      type: "string"
+      type: "string",
     })
 
     const props = createProps({ param, isOAS3: false })
-    const wrapper = render(<ParameterRow {...props}/>)
+    const wrapper = render(<ParameterRow {...props} />)
 
     expect(wrapper.find(".parameter__type").length).toEqual(1)
     expect(wrapper.find(".parameter__type").text()).toEqual("string")
@@ -54,11 +91,11 @@ describe("<ParameterRow/>", () => {
       name: "hasId",
       in: "path",
       description: "boolean value to indicate if the pet has an id",
-      type: "boolean"
+      type: "boolean",
     })
 
     const props = createProps({ param, isOAS3: false })
-    const wrapper = render(<ParameterRow {...props}/>)
+    const wrapper = render(<ParameterRow {...props} />)
 
     expect(wrapper.find(".parameter__type").length).toEqual(1)
     expect(wrapper.find(".parameter__type").text()).toEqual("boolean")
@@ -71,12 +108,12 @@ describe("<ParameterRow/>", () => {
       description: "UUID that identifies a pet",
       schema: {
         type: "string",
-        format: "uuid"
-      }
+        format: "uuid",
+      },
     })
 
     const props = createProps({ param, isOAS3: true })
-    const wrapper = render(<ParameterRow {...props}/>)
+    const wrapper = render(<ParameterRow {...props} />)
 
     expect(wrapper.find(".parameter__type").length).toEqual(1)
     expect(wrapper.find(".parameter__type").text()).toEqual("string($uuid)")
@@ -88,12 +125,12 @@ describe("<ParameterRow/>", () => {
       in: "path",
       description: "ID that identifies a pet",
       schema: {
-        type: "string"
-      }
+        type: "string",
+      },
     })
 
     const props = createProps({ param, isOAS3: true })
-    const wrapper = render(<ParameterRow {...props}/>)
+    const wrapper = render(<ParameterRow {...props} />)
 
     expect(wrapper.find(".parameter__type").length).toEqual(1)
     expect(wrapper.find(".parameter__type").text()).toEqual("string")
@@ -105,12 +142,12 @@ describe("<ParameterRow/>", () => {
       in: "path",
       description: "boolean value to indicate if the pet has an id",
       schema: {
-        type: "boolean"
-      }
+        type: "boolean",
+      },
     })
 
     const props = createProps({ param, isOAS3: true })
-    const wrapper = render(<ParameterRow {...props}/>)
+    const wrapper = render(<ParameterRow {...props} />)
 
     expect(wrapper.find(".parameter__type").length).toEqual(1)
     expect(wrapper.find(".parameter__type").text()).toEqual("boolean")
@@ -122,26 +159,46 @@ describe("bug #5573: zero default and example values", function () {
     const paramValue = fromJS({
       description: "a pet",
       type: "integer",
-      default: 0
+      default: 0,
     })
-
-    let props = {
+    const getSystem = () => ({
       getComponent: () => "div",
       specSelectors: {
-        security() { },
-        parameterWithMetaByIdentity() { return paramValue },
-        isOAS3() { return false },
-        isSwagger2() { return true }
+        security() {},
+        parameterWithMetaByIdentity() {
+          return paramValue
+        },
+        isOAS3() {
+          return false
+        },
+        isSwagger2() {
+          return true
+        },
       },
-      fn: {},
-      operation: { get: () => { } },
+      fn: {
+        memoizedSampleFromSchema,
+        memoizedCreateXMLExample,
+        getJsonSampleSchema: makeGetJsonSampleSchema(getSystem),
+        getYamlSampleSchema: makeGetYamlSampleSchema(getSystem),
+        getXmlSampleSchema: makeGetXmlSampleSchema(getSystem),
+        getSampleSchema: makeGetSampleSchema(getSystem),
+        jsonSchema202012: {
+          foldType,
+          getType: makeGetType(() => ({ isBooleanJSONSchema })),
+        },
+      },
+      getConfigs: () => {
+        return {}
+      },
+    })
+    const props = {
+      ...getSystem(),
       onChange: jest.fn(),
       param: paramValue,
       rawParam: paramValue,
-      onChangeConsumes: () => { },
+      onChangeConsumes: () => {},
       pathMethod: [],
-      getConfigs: () => { return {} },
-      specPath: List([])
+      specPath: List([]),
     }
 
     render(<ParameterRow {...props} />)
@@ -154,27 +211,48 @@ describe("bug #5573: zero default and example values", function () {
       description: "a pet",
       type: "integer",
       schema: {
-        example: 0
-      }
+        example: 0,
+      },
     })
-
-    let props = {
+    const getSystem = () => ({
       getComponent: () => "div",
       specSelectors: {
-        security() { },
-        parameterWithMetaByIdentity() { return paramValue },
-        isOAS3() { return false },
-        isSwagger2() { return true }
+        security() {},
+        parameterWithMetaByIdentity() {
+          return paramValue
+        },
+        isOAS3() {
+          return false
+        },
+        isSwagger2() {
+          return true
+        },
       },
-      fn: {},
-      operation: { get: () => { } },
+      getConfigs: () => {
+        return {}
+      },
+      fn: {
+        memoizedSampleFromSchema,
+        memoizedCreateXMLExample,
+        getJsonSampleSchema: makeGetJsonSampleSchema(getSystem),
+        getYamlSampleSchema: makeGetYamlSampleSchema(getSystem),
+        getXmlSampleSchema: makeGetXmlSampleSchema(getSystem),
+        getSampleSchema: makeGetSampleSchema(getSystem),
+        jsonSchema202012: {
+          foldType,
+          getType: makeGetType(() => ({ isBooleanJSONSchema })),
+        },
+      },
+    })
+    const props = {
+      ...getSystem(),
+      operation: { get: () => {} },
       onChange: jest.fn(),
       param: paramValue,
       rawParam: paramValue,
-      onChangeConsumes: () => { },
+      onChangeConsumes: () => {},
       pathMethod: [],
-      getConfigs: () => { return {} },
-      specPath: List([])
+      specPath: List([]),
     }
 
     render(<ParameterRow {...props} />)
@@ -187,30 +265,52 @@ describe("bug #5573: zero default and example values", function () {
       description: "a pet",
       schema: {
         type: "integer",
-        default: 0
-      }
+        default: 0,
+      },
     })
-
-    let props = {
+    const getSystem = () => ({
       getComponent: () => "div",
       specSelectors: {
-        security() { },
-        parameterWithMetaByIdentity() { return paramValue },
-        isOAS3() { return true },
-        isSwagger2() { return false }
+        security() {},
+        parameterWithMetaByIdentity() {
+          return paramValue
+        },
+        isOAS3() {
+          return true
+        },
+        isSwagger2() {
+          return false
+        },
       },
       oas3Selectors: {
-        activeExamplesMember: () => null
+        activeExamplesMember: () => null,
       },
-      fn: {},
-      operation: { get: () => { } },
+      getConfigs: () => {
+        return {}
+      },
+      fn: {
+        memoizedSampleFromSchema,
+        memoizedCreateXMLExample,
+        getJsonSampleSchema: makeGetJsonSampleSchema(getSystem),
+        getYamlSampleSchema: makeGetYamlSampleSchema(getSystem),
+        getXmlSampleSchema: makeGetXmlSampleSchema(getSystem),
+        getSampleSchema: makeGetSampleSchema(getSystem),
+        mergeJsonSchema,
+        jsonSchema202012: {
+          foldType,
+          getType: makeGetType(() => ({ isBooleanJSONSchema })),
+        },
+      },
+    })
+    const props = {
+      ...getSystem(),
+      operation: { get: () => {} },
       onChange: jest.fn(),
       param: paramValue,
       rawParam: paramValue,
-      onChangeConsumes: () => { },
+      onChangeConsumes: () => {},
       pathMethod: [],
-      getConfigs: () => { return {} },
-      specPath: List([])
+      specPath: List([]),
     }
 
     render(<ParameterRow {...props} />)
@@ -223,30 +323,52 @@ describe("bug #5573: zero default and example values", function () {
       description: "a pet",
       schema: {
         type: "integer",
-        example: 0
-      }
+        example: 0,
+      },
     })
-
-    let props = {
+    const getSystem = () => ({
       getComponent: () => "div",
       specSelectors: {
-        security() { },
-        parameterWithMetaByIdentity() { return paramValue },
-        isOAS3() { return true },
-        isSwagger2() { return false }
+        security() {},
+        parameterWithMetaByIdentity() {
+          return paramValue
+        },
+        isOAS3() {
+          return true
+        },
+        isSwagger2() {
+          return false
+        },
       },
       oas3Selectors: {
-        activeExamplesMember: () => null
+        activeExamplesMember: () => null,
       },
-      fn: {},
-      operation: { get: () => { } },
+      getConfigs: () => {
+        return {}
+      },
+      fn: {
+        memoizedSampleFromSchema,
+        memoizedCreateXMLExample,
+        getJsonSampleSchema: makeGetJsonSampleSchema(getSystem),
+        getYamlSampleSchema: makeGetYamlSampleSchema(getSystem),
+        getXmlSampleSchema: makeGetXmlSampleSchema(getSystem),
+        getSampleSchema: makeGetSampleSchema(getSystem),
+        mergeJsonSchema,
+        jsonSchema202012: {
+          foldType,
+          getType: makeGetType(() => ({ isBooleanJSONSchema })),
+        },
+      },
+    })
+    const props = {
+      ...getSystem(),
+      operation: { get: () => {} },
       onChange: jest.fn(),
       param: paramValue,
       rawParam: paramValue,
-      onChangeConsumes: () => { },
+      onChangeConsumes: () => {},
       pathMethod: [],
-      getConfigs: () => { return {} },
-      specPath: List([])
+      specPath: List([]),
     }
 
     render(<ParameterRow {...props} />)

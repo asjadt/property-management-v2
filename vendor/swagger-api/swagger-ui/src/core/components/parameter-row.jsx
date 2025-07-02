@@ -1,10 +1,10 @@
 import React, { Component } from "react"
-import { Map, List } from "immutable"
+import { Map, List, fromJS } from "immutable"
 import PropTypes from "prop-types"
 import ImPropTypes from "react-immutable-proptypes"
 import win from "core/window"
-import { getSampleSchema, getExtensions, getCommonExtensions, numberToString, stringify, isEmptyValue } from "core/utils"
-import getParameterSchema from "../../helpers/get-parameter-schema.js"
+import { getExtensions, getCommonExtensions, numberToString, stringify, isEmptyValue, immutableToJS } from "core/utils"
+import getParameterSchema from "core/utils/get-parameter-schema.js"
 
 export default class ParameterRow extends Component {
   static propTypes = {
@@ -94,17 +94,17 @@ export default class ParameterRow extends Component {
   }
 
   setDefaultValue = () => {
-    let { specSelectors, pathMethod, rawParam, oas3Selectors } = this.props
+    let { specSelectors, pathMethod, rawParam, oas3Selectors, fn } = this.props
 
     const paramWithMeta = specSelectors.parameterWithMetaByIdentity(pathMethod, rawParam) || Map()
-    const { schema } = getParameterSchema(paramWithMeta, { isOAS3: specSelectors.isOAS3() })
+    let { schema } = getParameterSchema(paramWithMeta, { isOAS3: specSelectors.isOAS3() })
     const parameterMediaType = paramWithMeta
       .get("content", Map())
       .keySeq()
       .first()
 
     // getSampleSchema could return null
-    const generatedSampleValue = schema ? getSampleSchema(schema.toJS(), parameterMediaType, {
+    const generatedSampleValue = schema ? fn.getSampleSchema(schema.toJS(), parameterMediaType, {
 
       includeWriteOnly: true
     }) : null
@@ -126,6 +126,8 @@ export default class ParameterRow extends Component {
           ? paramWithMeta.getIn(["schema", "example"])
           : (schema && schema.getIn(["default"]))
       } else if (specSelectors.isOAS3()) {
+        schema = this.composeJsonSchema(schema)
+
         const currentExampleKey = oas3Selectors.activeExamplesMember(...pathMethod, "parameters", this.getParamKey())
         initialValue =
           paramWithMeta.getIn(["examples", currentExampleKey, "value"]) !== undefined
@@ -150,10 +152,13 @@ export default class ParameterRow extends Component {
 
       //// Dispatch the initial value
 
+      const type = fn.jsonSchema202012.foldType(immutableToJS(schema?.get("type")))
+      const itemType = fn.jsonSchema202012.foldType(immutableToJS(schema?.getIn(["items", "type"])))
+
       if(initialValue !== undefined) {
         this.onChangeWrapper(initialValue)
       } else if(
-        schema && schema.get("type") === "object"
+        type === "object"
         && generatedSampleValue
         && !paramWithMeta.get("examples")
       ) {
@@ -169,6 +174,20 @@ export default class ParameterRow extends Component {
             stringify(generatedSampleValue)
           )
         )
+      } 
+      else if (
+        type === "array"
+        && itemType === "object"
+        && generatedSampleValue
+        && !paramWithMeta.get("examples")
+      ) {
+        this.onChangeWrapper(
+          List.isList(generatedSampleValue) ? (
+            generatedSampleValue
+          ) : (
+            List(JSON.parse(generatedSampleValue))
+          )
+        )
       }
     }
   }
@@ -179,6 +198,13 @@ export default class ParameterRow extends Component {
     if(!param) return null
 
     return `${param.get("name")}-${param.get("in")}`
+  }
+
+  composeJsonSchema(schema) {
+    const { fn } = this.props
+    const oneOf = schema.get("oneOf")?.get(0)?.toJS()
+    const anyOf = schema.get("anyOf")?.get(0)?.toJS()
+    return fromJS(fn.mergeJsonSchema(schema.toJS(), oneOf ?? anyOf ?? {}))
   }
 
   render() {
@@ -222,12 +248,20 @@ export default class ParameterRow extends Component {
     let { schema } = getParameterSchema(param, { isOAS3 })
     let paramWithMeta = specSelectors.parameterWithMetaByIdentity(pathMethod, rawParam) || Map()
 
+    if (isOAS3) {
+      schema = this.composeJsonSchema(schema)
+    }
+    
     let format = schema ? schema.get("format") : null
-    let type = schema ? schema.get("type") : null
-    let itemType = schema ? schema.getIn(["items", "type"]) : null
     let isFormData = inType === "formData"
     let isFormDataSupported = "FormData" in win
     let required = param.get("required")
+
+    const typeLabel = fn.jsonSchema202012.getType(immutableToJS(schema))
+    const type = fn.jsonSchema202012.foldType(immutableToJS(schema?.get("type"))) 
+    const itemType = fn.jsonSchema202012.foldType(immutableToJS(schema?.getIn(["items", "type"]))) 
+    const isObject = !bodyParam && type === "object"
+    const isArrayOfObjects = !bodyParam && itemType === "object"
 
     let value = paramWithMeta ? paramWithMeta.get("value") : ""
     let commonExt = showCommonExtensions ? getCommonExtensions(schema) : null
@@ -268,6 +302,18 @@ export default class ParameterRow extends Component {
       }
     }
 
+    const jsonSchemaForm = bodyParam ? null
+      : <JsonSchemaForm fn={fn}
+        getComponent={getComponent}
+        value={ value }
+        required={ required }
+        disabled={!isExecute}
+        description={param.get("name")}
+        onChange={ this.onChangeWrapper }
+        errors={ paramWithMeta.get("errors") }
+        schema={ schema }
+      />
+
     return (
       <tr data-param-name={param.get("name")} data-param-in={param.get("in")}>
         <td className="parameters-col_name">
@@ -276,16 +322,13 @@ export default class ParameterRow extends Component {
             { !required ? null : <span>&nbsp;*</span> }
           </div>
           <div className="parameter__type">
-            { type }
-            { itemType && `[${itemType}]` }
+            { typeLabel }
             { format && <span className="prop-format">(${format})</span>}
           </div>
           <div className="parameter__deprecated">
             { isOAS3 && param.get("deprecated") ? "deprecated": null }
           </div>
           <div className="parameter__in">({ param.get("in") })</div>
-          { !showCommonExtensions || !commonExt.size ? null : commonExt.entrySeq().map(([key, v]) => <ParameterExt key={`${key}-${v}`} xKey={key} xVal={v} /> )}
-          { !showExtensions || !extensions.size ? null : extensions.entrySeq().map(([key, v]) => <ParameterExt key={`${key}-${v}`} xKey={key} xVal={v} /> )}
         </td>
 
         <td className="parameters-col_description">
@@ -295,7 +338,7 @@ export default class ParameterRow extends Component {
             <Markdown className="parameter__enum" source={
                 "<i>Available values</i> : " + paramEnum.map(function(item) {
                     return item
-                  }).toArray().join(", ")}/>
+                  }).toArray().map(String).join(", ")}/>
             : null
           }
 
@@ -327,18 +370,18 @@ export default class ParameterRow extends Component {
             ) : null
           }
 
-          { bodyParam ? null
-            : <JsonSchemaForm fn={fn}
-                              getComponent={getComponent}
-                              value={ value }
-                              required={ required }
-                              disabled={!isExecute}
-                              description={param.get("name")}
-                              onChange={ this.onChangeWrapper }
-                              errors={ paramWithMeta.get("errors") }
-                              schema={ schema }/>
+          { (isObject || isArrayOfObjects) ? (
+            <ModelExample 
+              getComponent={getComponent}
+              specPath={specPath.push("schema")}
+              getConfigs={getConfigs}
+              isExecute={isExecute}
+              specSelectors={specSelectors}
+              schema={schema}
+              example={jsonSchemaForm}
+            />
+            ) : jsonSchemaForm 
           }
-
 
           {
             bodyParam && schema ? <ModelExample getComponent={ getComponent }
@@ -373,6 +416,9 @@ export default class ParameterRow extends Component {
               />
             ) : null
           }
+
+          { !showCommonExtensions || !commonExt.size ? null : commonExt.entrySeq().map(([key, v]) => <ParameterExt key={`${key}-${v}`} xKey={key} xVal={v} /> )}
+          { !showExtensions || !extensions.size ? null : extensions.entrySeq().map(([key, v]) => <ParameterExt key={`${key}-${v}`} xKey={key} xVal={v} /> )}
 
         </td>
 

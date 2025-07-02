@@ -1,13 +1,14 @@
 import React from "react"
 import { render } from "enzyme"
 import { fromJS } from "immutable"
-import DeepLink from "components/deep-link"
-import Operations from "components/operations"
-import {Collapse} from "components/layout-utils"
+import DeepLink from "core/components/deep-link"
+import Operations from "core/components/operations"
+import {Collapse} from "core/components/layout-utils"
 
 const components = {
   Collapse,
   DeepLink,
+  // eslint-disable-next-line react/prop-types
   OperationContainer: ({ path, method }) => <span className="mocked-op" id={`${path}-${method}`} />,
   OperationTag: "div",
 }
@@ -28,6 +29,7 @@ describe("<Operations/>", function(){
       specSelectors: {
         isOAS3() { return false },
         url() { return "https://petstore.swagger.io/v2/swagger.json" },
+        validOperationMethods() { return ["get", "put", "post", "delete", "options", "head", "patch"] },
         taggedOperations() {
           return fromJS({
           "default": {
@@ -83,6 +85,7 @@ describe("<Operations/>", function(){
       specSelectors: {
         isOAS3() { return true },
         url() { return "https://petstore.swagger.io/v2/swagger.json" },
+        validOperationMethods() { return ["get", "put", "post", "delete", "options", "head", "patch", "trace"] },
         taggedOperations() {
           return fromJS({
           "default": {

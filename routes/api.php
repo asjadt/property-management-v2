@@ -47,7 +47,6 @@ use App\Http\Controllers\NotificationTemplateController;
 use App\Http\Controllers\PaymentTypeController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
-use App\Http\Controllers\property_management\BasicController;
 use App\Http\Controllers\PropertyAgreementController;
 use App\Http\Controllers\PropertyBasicController;
 use App\Http\Controllers\PropertyController;

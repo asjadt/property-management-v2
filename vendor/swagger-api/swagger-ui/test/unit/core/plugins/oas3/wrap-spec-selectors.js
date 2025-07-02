@@ -1,8 +1,5 @@
-
 import { fromJS } from "immutable"
-import {
-  definitions
-} from "corePlugins/oas3/spec-extensions/wrap-selectors"
+import { definitions } from "core/plugins/oas3/spec-extensions/wrap-selectors"
 
 describe("oas3 plugin - spec extensions - wrapSelectors", function(){
 
@@ -11,7 +8,7 @@ describe("oas3 plugin - spec extensions - wrapSelectors", function(){
 
       // Given
       const spec = fromJS({
-        openapi: "3.0.0",
+        openapi: "3.0.4",
         components: {
           schemas: {
             a: {
@@ -28,6 +25,7 @@ describe("oas3 plugin - spec extensions - wrapSelectors", function(){
         getSystem: () => system,
         specSelectors: {
           specJson: () => spec,
+          isOAS3: () => true,
         }
       }
 
@@ -50,13 +48,14 @@ describe("oas3 plugin - spec extensions - wrapSelectors", function(){
 
       // Given
       const spec = fromJS({
-        openapi: "3.0.0"
+        openapi: "3.0.4"
       })
 
       const system = {
         getSystem: () => system,
         specSelectors: {
           specJson: () => spec,
+          isOAS3: () => true,
         }
       }
 
@@ -72,7 +71,7 @@ describe("oas3 plugin - spec extensions - wrapSelectors", function(){
 
       // Given
       const spec = fromJS({
-        openapi: "3.0.0",
+        openapi: "3.0.4",
         components: {
           schemas: "..."
         }
@@ -82,7 +81,8 @@ describe("oas3 plugin - spec extensions - wrapSelectors", function(){
         getSystem: () => system,
         specSelectors: {
           specJson: () => spec,
-        }
+          isOAS3: () => true,
+        },
       }
 
       // When

@@ -62,8 +62,9 @@ class Integer extends Base
      * Default constructor
      *
      * @param int $instanceID
+     * @param BigInteger $num
      */
-    public function __construct($instanceID, BigInteger $num = null)
+    public function __construct($instanceID, $num = null)
     {
         $this->instanceID = $instanceID;
         if (!isset($num)) {
@@ -263,13 +264,13 @@ class Integer extends Base
         $r = $this->value->powMod($temp, static::$modulo[$this->instanceID]);
 
         while (!$t->equals($one)) {
-            $i = clone $one;
-
-            while (!$t->powMod($two->pow($i), static::$modulo[$this->instanceID])->equals($one)) {
-                $i = $i->add($one);
+            for ($i = clone $one; $i->compare($m) < 0; $i = $i->add($one)) {
+                if ($t->powMod($two->pow($i), static::$modulo[$this->instanceID])->equals($one)) {
+                    break;
+                }
             }
 
-            if ($i->compare($m) >= 0) {
+            if ($i->compare($m) == 0) {
                 return false;
             }
             $b = $c->powMod($two->pow($m->subtract($i)->subtract($one)), static::$modulo[$this->instanceID]);
@@ -312,8 +313,11 @@ class Integer extends Base
      */
     public function toBytes()
     {
-        $length = static::$modulo[$this->instanceID]->getLengthInBytes();
-        return str_pad($this->value->toBytes(), $length, "\0", STR_PAD_LEFT);
+        if (isset(static::$modulo[$this->instanceID])) {
+            $length = static::$modulo[$this->instanceID]->getLengthInBytes();
+            return str_pad($this->value->toBytes(), $length, "\0", STR_PAD_LEFT);
+        }
+        return $this->value->toBytes();
     }
 
     /**

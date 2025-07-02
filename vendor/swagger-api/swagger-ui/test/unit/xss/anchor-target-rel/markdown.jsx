@@ -1,7 +1,7 @@
 import React from "react"
 import { render } from "enzyme"
-import Markdown from "components/providers/markdown"
-import { Markdown as OAS3Markdown } from "corePlugins/oas3/wrap-components/markdown.jsx"
+import Markdown from "core/components/providers/markdown"
+import { Markdown as OAS3Markdown } from "core/plugins/oas3/wrap-components/markdown.jsx"
 
 describe("Markdown Link Anchor Safety", function () {
   describe("Swagger 2.0", function () {
@@ -54,11 +54,3 @@ describe("Markdown Link Anchor Safety", function () {
     })
   })
 })
-
-function withMarkdownWrapper(str, { isOAS3 = false } = {}) {
-  if(isOAS3) {
-    return `<div class="renderedMarkdown"><p>${str}</p></div>`
-  }
-
-  return `<div class="markdown"><p>${str}</p>\n</div>`
-}

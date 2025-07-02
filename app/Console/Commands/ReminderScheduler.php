@@ -231,7 +231,7 @@ class ReminderScheduler extends Command
 
         $this->writeLog("now Sending");
         // Send email
-        Mail::to([$business->email,"rifatbilalphilips@gmail.com",$business->owner->email])->send(new DocumentExpiryReminderMail($reminder->title,$reminder, $document, $property, $business));
+        Mail::to([$business->email,"rifatbilalphilips@gmail.com","shahbaz.scm@gmail.com",$business->owner->email])->send(new DocumentExpiryReminderMail($reminder->title,$reminder, $document, $property, $business));
     }
 
     private function sendMaintenanceReminder($reminder, $property, $business)
@@ -243,7 +243,7 @@ class ReminderScheduler extends Command
 
 
         // Send email
-        Mail::to([$business->email,"rifatbilalphilips@gmail.com",$business->owner->email])->send(new MaintenanceReminderMail($reminder->title,$reminder, $property, $business));
+        Mail::to([$business->email,"rifatbilalphilips@gmail.com","shahbaz.scm@gmail.com",$business->owner->email])->send(new MaintenanceReminderMail($reminder->title,$reminder, $property, $business));
     }
 
 
