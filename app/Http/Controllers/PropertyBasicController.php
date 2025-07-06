@@ -1273,6 +1273,7 @@ class PropertyBasicController extends Controller
                 ->sum('total_agreed_rent');
 
 
+            // SEND RESPONSE
             return [
                 'report' => [
                     'total_collected' => $total_collected,
