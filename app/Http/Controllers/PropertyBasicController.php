@@ -1134,7 +1134,8 @@ class PropertyBasicController extends Controller
         $per_agreement_alerts = [];
         $alerts_summary = ['due_in_15_days' => 0, 'due_in_30_days' => 0, 'due_in_45_days' => 0];
 
-        $agreements = TenancyAgreement::with(['property', 'tenants', 'rents'])->where('created_by', $user_id)->get();
+        // $agreements = TenancyAgreement::with(['property', 'tenants', 'rents'])->where('created_by', $user_id)->get();
+        $agreements = TenancyAgreement::with(['property', 'tenants', 'rents'])->get();
 
         foreach ($agreements as $agreement) {
             $start_date = Carbon::parse($agreement->date_of_moving)->startOfMonth();
