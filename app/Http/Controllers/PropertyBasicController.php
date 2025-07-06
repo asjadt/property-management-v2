@@ -1116,6 +1116,7 @@ class PropertyBasicController extends Controller
 
     public function rent_report()
     {
+        // ✅ Global rents report
         $user_id = auth()->user()->id;
         $now = Carbon::now();
         $today = $now->copy()->startOfDay();
