@@ -1282,6 +1282,7 @@ class PropertyBasicController extends Controller
                 'per_agreement_alerts' => $per_agreement_alerts
             ];
         }
+    }
 
     /**
      *
