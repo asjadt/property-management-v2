@@ -1228,7 +1228,6 @@ class PropertyBasicController extends Controller
         ];
     }
 
-
     /**
      *
      * @OA\Get(
