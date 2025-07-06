@@ -18,6 +18,7 @@ use App\Models\Receipt;
 use App\Models\Rent;
 use App\Models\Repair;
 use App\Models\RepairCategory;
+use App\Models\TenancyAgreement;
 use App\Models\Tenant;
 
 use Carbon\Carbon;
@@ -1113,9 +1114,9 @@ class PropertyBasicController extends Controller
 
 
 
-   public function rent_report()
-{
-    $user_id = auth()->user()->id;
+    public function rent_report()
+    {
+        $user_id = auth()->user()->id;
         $now = Carbon::now();
         $today = $now->copy()->startOfDay();
 
@@ -1136,7 +1137,7 @@ class PropertyBasicController extends Controller
         // ✅ Agreements
         $agreements = TenancyAgreement::with(['property', 'tenants', 'rents' => function ($q) use ($start_of_month, $end_of_month) {
             $q->select('tenancy_agreement_id', 'paid_amount', 'payment_date')
-              ->whereBetween('payment_date', [$start_of_month->copy()->subYear(), $end_of_month->copy()->addYear()]);
+                ->whereBetween('payment_date', [$start_of_month->copy()->subYear(), $end_of_month->copy()->addYear()]);
         }])->where('created_by', $user_id)->get();
 
         $total_due_this_month = 0;
@@ -1232,8 +1233,7 @@ class PropertyBasicController extends Controller
             'alerts_summary' => $alerts_summary,
             'per_agreement_alerts' => $per_agreement_alerts
         ];
-
-}
+    }
 
     /**
      *
@@ -1447,7 +1447,7 @@ COALESCE(
 
 
 
-                $data["rent_report"] = $this->rent_report();
+            $data["rent_report"] = $this->rent_report();
 
             return response()->json($data, 200);
         } catch (Exception $e) {
