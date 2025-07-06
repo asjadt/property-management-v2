@@ -1209,7 +1209,8 @@ class PropertyBasicController extends Controller
         }
 
         // 4. Upcoming rent (next month agreements only)
-        $total_upcoming_rent_next_month = TenancyAgreement::where('created_by', $user_id)
+        // $total_upcoming_rent_next_month = TenancyAgreement::where('created_by', $user_id)
+        $total_upcoming_rent_next_month = TenancyAgreement::all()
             ->where(function ($q) use ($next_month_start) {
                 $q->whereNull('tenant_contact_expired_date')
                     ->orWhereDate('tenant_contact_expired_date', '>=', $next_month_start);
