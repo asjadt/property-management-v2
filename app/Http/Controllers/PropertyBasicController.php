@@ -1138,7 +1138,8 @@ class PropertyBasicController extends Controller
         $agreements = TenancyAgreement::with(['property', 'tenants', 'rents' => function ($q) use ($start_of_month, $end_of_month) {
             $q->select('tenancy_agreement_id', 'paid_amount', 'payment_date')
                 ->whereBetween('payment_date', [$start_of_month->copy()->subYear(), $end_of_month->copy()->addYear()]);
-        }])->where('created_by', $user_id)->get();
+        }]);
+        // ->where('created_by', $user_id)->get();
 
         $total_due_this_month = 0;
         $total_upcoming_rent_next_month = 0;
