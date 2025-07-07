@@ -1464,17 +1464,8 @@ COALESCE(
             $now = Carbon::now();
 
 
-            // $data["this_month_paid_rent"] = Rent::where('month', $now->month)
-            //     ->where('year', $now->year)
-            //     ->where('payment_status', 'fully_paid')
-            //     ->sum('paid_amount');
-            // $data["this_month_due_rent"] = Rent::where('month', $now->month)
-            //     ->where('year', $now->year)
-            //     ->where('payment_status', 'partially_paid')
-            //     ->sum('arrear');
 
-
-
+            // GET RENT REPORT
             $data["rent_report"] = $this->rent_report();
 
             return response()->json($data, 200);
