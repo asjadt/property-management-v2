@@ -1137,7 +1137,10 @@ class PropertyBasicController extends Controller
             'rents' => function ($q) {
                 $q->select('tenancy_agreement_id', 'month', 'year', 'paid_amount');
             }
-        ])->get();
+        ])->whereHas('property', function ($q) {
+            // Ensure the property is created by the authenticated user
+            $q->where('properties.created_by', auth()->user()->id);
+        })->get();
         // ->where('created_by', $user_id)->get();
 
         $total_due_this_month = 0;
