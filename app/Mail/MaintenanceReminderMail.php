@@ -28,20 +28,17 @@ class MaintenanceReminderMail extends Mailable
     public function build()
     {
         $days_difference = now()->diffInDays($this->inspection->next_inspection_date);
-
-    $message_desc = $this->reminder->send_time === 'after_expiry'
-        ? "The inspection for your property was due {$days_difference} days ago. Please schedule it now."
-        : "The next inspection for your property is in {$days_difference} days. Please prepare in advance.";
-
-    return $this->subject('Property Address Alert')
-                ->view('email.maintenance_reminder')
-                ->with([
-                    'title' => $this->title,
-                    'message_desc' => $message_desc,
-                    'property' => $this->property,
-                    'business' => $this->business,
-                    'inspection' => $this->inspection,
-                ]);
+        return $this->subject("Property Address Alert")
+            ->view('email.maintenance_reminder')
+            ->with([
+                'title' => $this->title,
+                'message_desc' => ($this->reminder->send_time == "after_expiry")
+                    ? ("The inspection for your property was due " . $days_difference . " days ago. Please schedule it now.")
+                    : ("The next inspection for your property is in " . $days_difference . " days. Please prepare in advance."),
+                'property' => $this->property,
+                'business' => $this->business,
+                'inspection' => $this->inspection
+            ]);
     }
 
 
