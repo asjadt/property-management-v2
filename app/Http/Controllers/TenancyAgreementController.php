@@ -122,10 +122,10 @@ class TenancyAgreementController extends Controller
                 $request_data = $request->validated();
 
 
-    $start_date = Carbon::parse($request_data["date_of_moving"]);
-     $end_date = Carbon::parse($request_data["tenant_contact_expired_date"]);
-     $months_difference = $start_date->diffInMonths($end_date);
-     $request_data["total_agreed_rent"] = $request_data["agreed_rent"] * $months_difference;
+                $start_date = Carbon::parse($request_data["date_of_moving"]);
+                $end_date = Carbon::parse($request_data["tenant_contact_expired_date"]);
+                $months_difference = $start_date->diffInMonths($end_date);
+                $request_data["total_agreed_rent"] = $request_data["agreed_rent"] * $months_difference;
 
                 $agreement = TenancyAgreement::create($request_data);
                 $agreement->tenants()->sync($request_data["tenant_ids"]);
@@ -161,7 +161,7 @@ class TenancyAgreementController extends Controller
      *         @OA\Property(property="tenant_contact_duration", type="string", example="12 months"),
      *         @OA\Property(property="date_of_moving", type="string", format="date", example="2024-11-01"),
      *         @OA\Property(property="holder_reference_number", type="string", format="string", example="holder_reference_number"),
-    *         @OA\Property(property="holder_entity_id", type="number", format="number", example="1"),
+     *         @OA\Property(property="holder_entity_id", type="number", format="number", example="1"),
      *
      *
      *         @OA\Property(property="let_only_agreement_expired_date", type="string", format="date", example="2025-11-01", nullable=true),
@@ -219,9 +219,9 @@ class TenancyAgreementController extends Controller
 
                 // Find the agreement, including soft-deleted records
                 $agreement = TenancyAgreement::whereHas('property', function ($q) {
-                        // Ensure the property is created by the authenticated user
-                        $q->where('properties.created_by', auth()->user()->id);
-                    })
+                    // Ensure the property is created by the authenticated user
+                    $q->where('properties.created_by', auth()->user()->id);
+                })
                     ->where('id', $request_data['id'])
                     ->first();  // Returns null if not found
 
@@ -456,7 +456,6 @@ class TenancyAgreementController extends Controller
                     );
                 }
             ])
-
                 ->whereHas('property', function ($q) {
                     // Ensure the property is created by the authenticated user
                     $q->where('properties.created_by', auth()->user()->id);
@@ -504,39 +503,37 @@ class TenancyAgreementController extends Controller
 
             // Calculate rent highlights (total rent, total paid, total arrears, highest rent)
 
-          // Calculate total rent (sum of total_agreed_rent across all selected agreements)
-$totalRent = TenancyAgreement::whereIn('tenancy_agreements.id', $agreementIds)
-->sum('total_agreed_rent');
+            // Calculate total rent (sum of total_agreed_rent across all selected agreements)
+            $totalRent = TenancyAgreement::whereIn('tenancy_agreements.id', $agreementIds)
+                ->sum('total_agreed_rent');
 
-// Calculate total paid amount from the rents table
-$rentHighlights = Rent::whereIn('tenancy_agreement_id', $agreementIds)
-->selectRaw('SUM(COALESCE(paid_amount, 0)) as total_paid')
-->first();
+            // Calculate total paid amount from the rents table
+            $rentHighlights = Rent::whereIn('tenancy_agreement_id', $agreementIds)
+                ->selectRaw('SUM(COALESCE(paid_amount, 0)) as total_paid')
+                ->first();
 
-// Get the highest rent from the tenancy agreements
-$highestRent = TenancyAgreement::whereIn('tenancy_agreements.id', $agreementIds)
-->max('total_agreed_rent');
+            // Get the highest rent from the tenancy agreements
+            $highestRent = TenancyAgreement::whereIn('tenancy_agreements.id', $agreementIds)
+                ->max('total_agreed_rent');
 
-// Calculate total arrears (total rent - total paid)
-$totalArrears = $totalRent - $rentHighlights->total_paid;
+            // Calculate total arrears (total rent - total paid)
+            $totalArrears = $totalRent - $rentHighlights->total_paid;
 
-// Combine everything into one array
-$rentHighlightsData = [
-'total_rent' => $totalRent,
-'total_paid' => $rentHighlights->total_paid,
-'total_arrears' => $totalArrears,
-'highest_rent' => $highestRent
-];
+            // Combine everything into one array
+            $rentHighlightsData = [
+                'total_rent' => $totalRent,
+                'total_paid' => $rentHighlights->total_paid,
+                'total_arrears' => $totalArrears,
+                'highest_rent' => $highestRent
+            ];
 
-// Return or use $rentHighlightsData as needed
+            // Return or use $rentHighlightsData as needed
 
 
             return response()->json([
                 'data' => $agreements,
                 'rent_highlights' => $rentHighlightsData,
             ], 200);
-
-
         } catch (Exception $e) {
             return $this->sendError($e, 500, $request);
         }
@@ -649,20 +646,18 @@ $rentHighlightsData = [
                         $subQuery->where('tenancy_agreements.date_of_moving', '<=', $endDate)
                             ->where('tenancy_agreements.tenant_contact_expired_date', '>=', $startDate);
                     })
-                    ->where(function($query) use ($year, $month) {
-                        $query->whereDoesntHave("rents", function ($subQuery) use ($year, $month) {
-                            $subQuery ->where(function ($query) use ($year, $month) {
-                                $query->where('year', '>', $year)
-                                    ->orWhere(function ($query) use ($year, $month)  {
-                                        $query->where('year', $year)
-                                            ->where('month', '>=', $month);
-                                    });
-                            })
-                            ->where('payment_status', "paid");
-                        })
-                        ;
-                    });
-
+                        ->where(function ($query) use ($year, $month) {
+                            $query->whereDoesntHave("rents", function ($subQuery) use ($year, $month) {
+                                $subQuery->where(function ($query) use ($year, $month) {
+                                    $query->where('year', '>', $year)
+                                        ->orWhere(function ($query) use ($year, $month) {
+                                            $query->where('year', $year)
+                                                ->where('month', '>=', $month);
+                                        });
+                                })
+                                    ->where('payment_status', "paid");
+                            });
+                        });
                 })
 
                 ->whereHas('property', function ($q) {
@@ -713,19 +708,13 @@ $rentHighlightsData = [
                 })->toArray();
 
 
-                $tenancy_agreement["total_rent"] =   $this->processArrears($tenancy_agreement,$agreement_rents,false);
+                $tenancy_agreement["total_rent"] =   $this->processArrears($tenancy_agreement, $agreement_rents, false);
 
-                if(!empty($this_month_rents)) {
+                if (!empty($this_month_rents)) {
                     $tenancy_agreement["arrear"] = $tenancy_agreement["total_rent"];
-
                 } else {
                     $tenancy_agreement["arrear"] =   $tenancy_agreement["total_rent"] - $tenancy_agreement["agreed_rent"];
                 }
-
-
-
-
-
             }
 
 
@@ -808,9 +797,9 @@ $rentHighlightsData = [
 
             // Find the property
             $property_agreement = TenancyAgreement::whereHas('property', function ($q) {
-                    // Ensure the property is created by the authenticated user
-                    $q->where('properties.created_by', auth()->user()->id);
-                })
+                // Ensure the property is created by the authenticated user
+                $q->where('properties.created_by', auth()->user()->id);
+            })
                 ->where([
                     "id" => $agreement_id
                 ])
