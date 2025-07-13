@@ -1116,34 +1116,45 @@ class PropertyBasicController extends Controller
 
     public function rent_report()
     {
-        $user_id = auth()->user()->id;
+        $user_id = auth()->id();
         $now = Carbon::now();
         $today = $now->copy()->startOfDay();
 
+        // Date markers
         $start_of_month = $now->copy()->startOfMonth();
+        $end_of_month = $now->copy()->endOfMonth();
         $next_month_start = $now->copy()->addMonth()->startOfMonth();
 
-        // Global rents collection
+        // Get all rents created by this user
         $rents_query = Rent::where('created_by', $user_id);
+
+        // Total rent collected
         $total_collected = (clone $rents_query)->sum('paid_amount');
+
+        // Total rent collected this month
         $total_collected_this_month = (clone $rents_query)
-            ->whereBetween('payment_date', [$start_of_month, $start_of_month->copy()->endOfMonth()])
+            ->where('year', $now->year)
+            ->where('month', $now->month)
             ->sum('paid_amount');
 
-        // Fetch agreements with all related rents
+        // Total due this month (arrear + rent - paid)
+        $total_due_this_month = (clone $rents_query)
+            ->where('year', $now->year)
+            ->where('month', $now->month)
+            ->selectRaw('SUM(arrear + rent_amount - paid_amount) as total_due')
+            ->value('total_due') ?? 0;
+
+        // Get tenancy agreements and related data
         $agreements = TenancyAgreement::with([
             'property',
             'tenants',
             'rents' => function ($q) {
                 $q->select('tenancy_agreement_id', 'month', 'year', 'paid_amount');
             }
-        ])->whereHas('property', function ($q) {
-            // Ensure the property is created by the authenticated user
-            $q->where('properties.created_by', auth()->user()->id);
+        ])->whereHas('property', function ($q) use ($user_id) {
+            $q->where('created_by', $user_id);
         })->get();
-        // ->where('created_by', $user_id)->get();
 
-        $total_due_this_month = 0;
         $total_upcoming_rent_next_month = 0;
 
         $alerts_summary = [
@@ -1152,118 +1163,76 @@ class PropertyBasicController extends Controller
             'due_in_45_days' => 0,
         ];
 
-
-
-        $per_agreement_alerts = [];
-
         foreach ($agreements as $agreement) {
-            $start_date = Carbon::parse($agreement->date_of_moving)->startOfMonth();
-            $end_date = Carbon::parse($agreement->tenant_contact_expired_date)->endOfMonth();
+            $rent_due_day = $agreement->rent_due_day;
+
+            // Skip if rent_due_day or expired contract not set
+            if (!$rent_due_day || !$agreement->tenant_contact_expired_date) {
+                continue;
+            }
+
+            // Contract expiration check
+            $expiredDate = Carbon::parse($agreement->tenant_contact_expired_date)->endOfMonth();
+            if ($expiredDate->lt($today)) {
+                continue;
+            }
+
             $rent_amount = $agreement->agreed_rent;
 
+            // Build a map of paid rents by month-year
             $rent_map = collect($agreement->rents)->mapToGroups(function ($item) {
                 return [Carbon::createFromDate($item->year, $item->month, 1)->format('Y-m') => $item->paid_amount];
             });
 
-            $current = $start_date->copy();
-            $paid_until_current = 0;
-            $paid_until_next = 0;
-            $expected_until_current = 0;
-            $expected_until_next = 0;
+            $currentMonthKey = $start_of_month->format('Y-m');
+            $nextMonthKey = $next_month_start->format('Y-m');
 
-            $alert_flags = [
-                'due_in_15_days' => false,
-                'due_in_30_days' => false,
-                'due_in_45_days' => false,
-            ];
+            $dueDateCurrentMonth = Carbon::create($now->year, $now->month, $rent_due_day);
+            $dueDateNextMonth = Carbon::create($now->copy()->addMonth()->year, $now->copy()->addMonth()->month, $rent_due_day);
 
-            while ($current->lte($end_date)) {
-                $yearMonthKey = $current->format('Y-m');
+            $isPaidCurrent = $rent_map->has($currentMonthKey);
+            $isPaidNext = $rent_map->has($nextMonthKey);
 
-                // Expected rent (always added)
-                if ($current <= $start_of_month) {
-                    $expected_until_current += $rent_amount;
-                }
-                if ($current <= $next_month_start) {
-                    $expected_until_next += $rent_amount;
-                }
-
-                // Paid rent (only if rent record exists)
-                $monthly_paid = $rent_map->get($yearMonthKey)?->sum() ?? 0;
-
-                if ($current <= $start_of_month) {
-                    $paid_until_current += $monthly_paid;
-                }
-                if ($current <= $next_month_start) {
-                    $paid_until_next += $monthly_paid;
-                }
-
-                // Alert logic
-                $diff_days = $today->diffInDays($current, false);
-                // if ($diff_days >= 0 && $diff_days <= 15 && !$alert_flags['due_in_15_days']) {
-                //     $alerts_summary['due_in_15_days']++;
-                //     $alert_flags['due_in_15_days'] = true;
-                // }
-                // if ($diff_days >= 0 && $diff_days <= 30 && !$alert_flags['due_in_30_days']) {
-                //     $alerts_summary['due_in_30_days']++;
-                //     $alert_flags['due_in_30_days'] = true;
-                // }
-                // if ($diff_days >= 0 && $diff_days <= 45 && !$alert_flags['due_in_45_days']) {
-                //     $alerts_summary['due_in_45_days']++;
-                //     $alert_flags['due_in_45_days'] = true;
-                // }
-                $is_paid = $rent_map->has($yearMonthKey);
-                $is_due = !$is_paid;
-
-                if ($is_due) {
-                    if ($diff_days >= 0 && $diff_days <= 15) {
-                        $alerts_summary['due_in_15_days'] += $rent_amount;
-                    }
-                    if ($diff_days >= 0 && $diff_days <= 30) {
-                        $alerts_summary['due_in_30_days'] += $rent_amount;
-                    }
-                    if ($diff_days >= 0 && $diff_days <= 45) {
-                        $alerts_summary['due_in_45_days'] += $rent_amount;
-                    }
-                }
-
-
-                $current->addMonth();
+            // Check if rent due for current month is passed and unpaid
+            if ($dueDateCurrentMonth->lte($today) && !$isPaidCurrent && $dueDateCurrentMonth->lte($expiredDate)) {
+                $total_due_this_month += $rent_amount;
             }
 
-            $due_this_month = max($expected_until_current - $paid_until_current, 0);
-            $due_next_month = max($expected_until_next - $paid_until_next, 0);
+            // Check if next month's due is coming and unpaid
+            if (!$isPaidNext && $dueDateNextMonth->lte($expiredDate)) {
+                $total_upcoming_rent_next_month += $rent_amount;
+            }
 
-            $total_due_this_month += $due_this_month;
-            $total_upcoming_rent_next_month += $due_next_month;
-
-            $per_agreement_alerts[] = [
-                'agreement_id' => $agreement->id,
-                'property_name' => optional($agreement->property)->name,
-                'tenant_names' => $agreement->tenants->pluck('name')->toArray(),
-                'due_in_15_days' => $alert_flags['due_in_15_days'],
-                'due_in_30_days' => $alert_flags['due_in_30_days'],
-                'due_in_45_days' => $alert_flags['due_in_45_days'],
-                'total_expected_rent_until_current' => $expected_until_current,
-                'total_expected_rent_until_next' => $expected_until_next,
-                'total_paid_until_current' => $paid_until_current,
-                'total_paid_until_next' => $paid_until_next,
-                'total_due_this_month' => $due_this_month,
-                'next_month_due' => $due_next_month,
+            // Alerts for 15, 30, 45 days from today
+            $alert_ranges = [
+                'due_in_15_days' => $today->copy()->addDays(15),
+                'due_in_30_days' => $today->copy()->addDays(30),
+                'due_in_45_days' => $today->copy()->addDays(45),
             ];
+
+            foreach ($alert_ranges as $key => $alertDate) {
+                $alertDueDate = Carbon::create($alertDate->year, $alertDate->month, $rent_due_day);
+                $alertMonthKey = $alertDueDate->format('Y-m');
+
+                if ($alertDueDate->lte($expiredDate)) {
+                    $isPaidAlert = $rent_map->has($alertMonthKey);
+                    if (!$isPaidAlert) {
+                        $alerts_summary[$key] += $rent_amount;
+                    }
+                }
+            }
         }
 
         return [
-            'report' => [
-                'total_collected' => $total_collected,
-                'total_collected_this_month' => $total_collected_this_month,
-                'total_due_this_month' => $total_due_this_month,
-                'total_upcoming_rent_next_month' => $total_upcoming_rent_next_month,
-            ],
+            'total_collected' => $total_collected,
+            'total_collected_this_month' => $total_collected_this_month,
+            'total_due_this_month' => $total_due_this_month,
+            'total_upcoming_rent_next_month' => $total_upcoming_rent_next_month,
             'alerts_summary' => $alerts_summary,
-            'per_agreement_alerts' => $per_agreement_alerts
         ];
     }
+
+
 
 
     /**
