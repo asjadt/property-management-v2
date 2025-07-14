@@ -25,6 +25,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PropertyBasicController extends Controller
 {
@@ -1269,7 +1270,8 @@ class PropertyBasicController extends Controller
                 $q->select('tenancy_agreement_id', 'month', 'year', 'paid_amount');
             }
         ])->whereHas('property', function ($q) use ($user_id) {
-            $q->where('created_by', $user_id);
+            $q->where('created_by', $user_id)
+                ->whereNull('deleted_at');
         })->get();
 
         $total_upcoming_rent_next_month = 0;
@@ -1341,7 +1343,7 @@ class PropertyBasicController extends Controller
                         }
                     }
                 } catch (\Exception $e) {
-                    \Log::error("Alert date error: " . $e->getMessage(), [
+                    Log::error("Alert date error: " . $e->getMessage(), [
                         'agreement_id' => $agreement->id,
                         'alert_key' => $key,
                         'rent_due_day' => $rent_due_day,

@@ -49,13 +49,16 @@ class TenancyAgreement extends Model
 
 
     ];
+
+
     protected $casts = [
-
         'files' => 'array',
-        "tenant_sign_images" => "array",
-        "agency_sign_images" => "array"
-
+        'tenant_sign_images' => 'array',
+        'agency_sign_images' => 'array',
+        'rent_due_day' => 'integer',
     ];
+
+
 
     public function property()
     {
@@ -64,12 +67,11 @@ class TenancyAgreement extends Model
 
     public function rents()
     {
-        return $this->hasMany(Rent::class,"tenancy_agreement_id","id");
+        return $this->hasMany(Rent::class, "tenancy_agreement_id", "id");
     }
 
     public function tenants()
     {
         return $this->belongsToMany(Tenant::class, 'agreement_tenants', 'tenancy_agreement_id', 'tenant_id');
     }
-
 }

@@ -44717,8 +44717,348 @@
     },
     "tags": [
         {
-            "name": "Garages",
-            "description": "API Endpoints of Garages"
+            "name": "accreditations",
+            "description": "accreditations"
+        },
+        {
+            "name": "affiliation_management",
+            "description": "affiliation_management"
+        },
+        {
+            "name": "applicants",
+            "description": "applicants"
+        },
+        {
+            "name": "auth",
+            "description": "auth"
+        },
+        {
+            "name": "automobile_management.category",
+            "description": "automobile_management.category"
+        },
+        {
+            "name": "basics",
+            "description": "basics"
+        },
+        {
+            "name": "automobile_management.make",
+            "description": "automobile_management.make"
+        },
+        {
+            "name": "automobile_management.model",
+            "description": "automobile_management.model"
+        },
+        {
+            "name": "automobile_management.model_variant",
+            "description": "automobile_management.model_variant"
+        },
+        {
+            "name": "automobile_management.fuel_type",
+            "description": "automobile_management.fuel_type"
+        },
+        {
+            "name": "property_management.bill_management",
+            "description": "property_management.bill_management"
+        },
+        {
+            "name": "property_management.bill_item_management",
+            "description": "property_management.bill_item_management"
+        },
+        {
+            "name": "booking_management",
+            "description": "booking_management"
+        },
+        {
+            "name": "property_management.client_management",
+            "description": "property_management.client_management"
+        },
+        {
+            "name": "coupon_management",
+            "description": "coupon_management"
+        },
+        {
+            "name": "dashboard_management.garage_owner",
+            "description": "dashboard_management.garage_owner"
+        },
+        {
+            "name": "dashboard_management.superadmin",
+            "description": "dashboard_management.superadmin"
+        },
+        {
+            "name": "doc_volets",
+            "description": "doc_volets"
+        },
+        {
+            "name": "property_management.document_type_management",
+            "description": "property_management.document_type_management"
+        },
+        {
+            "name": "z.unused",
+            "description": "z.unused"
+        },
+        {
+            "name": "template_management.email",
+            "description": "template_management.email"
+        },
+        {
+            "name": "template_management.wrapper.email",
+            "description": "template_management.wrapper.email"
+        },
+        {
+            "name": "files",
+            "description": "files"
+        },
+        {
+            "name": "fuel_station_management",
+            "description": "fuel_station_management"
+        },
+        {
+            "name": "client.fuel_station_management",
+            "description": "client.fuel_station_management"
+        },
+        {
+            "name": "fuel_station_gallery_management",
+            "description": "fuel_station_gallery_management"
+        },
+        {
+            "name": "client.fuel_station_gallery_management",
+            "description": "client.fuel_station_gallery_management"
+        },
+        {
+            "name": "fuel_station_service_management",
+            "description": "fuel_station_service_management"
+        },
+        {
+            "name": "client.fuel_station_service_management",
+            "description": "client.fuel_station_service_management"
+        },
+        {
+            "name": "garage_affiliation_management",
+            "description": "garage_affiliation_management"
+        },
+        {
+            "name": "garage_automobile_management.make",
+            "description": "garage_automobile_management.make"
+        },
+        {
+            "name": "garage_gallery_management",
+            "description": "garage_gallery_management"
+        },
+        {
+            "name": "client.garage_gallery_management",
+            "description": "client.garage_gallery_management"
+        },
+        {
+            "name": "garage_package_management",
+            "description": "garage_package_management"
+        },
+        {
+            "name": "garage_rules_management",
+            "description": "garage_rules_management"
+        },
+        {
+            "name": "garage_service_management",
+            "description": "garage_service_management"
+        },
+        {
+            "name": "garage_sub_service_price_management",
+            "description": "garage_sub_service_price_management"
+        },
+        {
+            "name": "garage_times_management",
+            "description": "garage_times_management"
+        },
+        {
+            "name": "garage_management",
+            "description": "garage_management"
+        },
+        {
+            "name": "holder_entities",
+            "description": "holder_entities"
+        },
+        {
+            "name": "property_management.invoice_management",
+            "description": "property_management.invoice_management"
+        },
+        {
+            "name": "property_management.invoice_payment_management",
+            "description": "property_management.invoice_payment_management"
+        },
+        {
+            "name": "property_management.invoice_payment_receipt_management",
+            "description": "property_management.invoice_payment_receipt_management"
+        },
+        {
+            "name": "property_management.invoice_reminder_management",
+            "description": "property_management.invoice_reminder_management"
+        },
+        {
+            "name": "pre_booking_management",
+            "description": "pre_booking_management"
+        },
+        {
+            "name": "job_bid_management",
+            "description": "job_bid_management"
+        },
+        {
+            "name": "job_management",
+            "description": "job_management"
+        },
+        {
+            "name": "job_management.payment",
+            "description": "job_management.payment"
+        },
+        {
+            "name": "property_management.landlord_management",
+            "description": "property_management.landlord_management"
+        },
+        {
+            "name": "maintenance_item_types",
+            "description": "maintenance_item_types"
+        },
+        {
+            "name": "notification_management",
+            "description": "notification_management"
+        },
+        {
+            "name": "template_management.notification",
+            "description": "template_management.notification"
+        },
+        {
+            "name": "property_management.payment_type_management",
+            "description": "property_management.payment_type_management"
+        },
+        {
+            "name": "shop_section.product_category_management",
+            "description": "shop_section.product_category_management"
+        },
+        {
+            "name": "shop_section.product_management",
+            "description": "shop_section.product_management"
+        },
+        {
+            "name": "property_management.property_agreement",
+            "description": "property_management.property_agreement"
+        },
+        {
+            "name": "property_management.basics",
+            "description": "property_management.basics"
+        },
+        {
+            "name": "property_management.property_management",
+            "description": "property_management.property_management"
+        },
+        {
+            "name": "property_management",
+            "description": "property_management"
+        },
+        {
+            "name": "property_inventories",
+            "description": "property_inventories"
+        },
+        {
+            "name": "property_notes",
+            "description": "property_notes"
+        },
+        {
+            "name": "property_management.receipt_management",
+            "description": "property_management.receipt_management"
+        },
+        {
+            "name": "reminders",
+            "description": "reminders"
+        },
+        {
+            "name": "rents",
+            "description": "rents"
+        },
+        {
+            "name": "property_management.repair_category_management",
+            "description": "property_management.repair_category_management"
+        },
+        {
+            "name": "property_management.repair_management",
+            "description": "property_management.repair_management"
+        },
+        {
+            "name": "review.setting.question",
+            "description": "review.setting.question"
+        },
+        {
+            "name": "review.setting.tag",
+            "description": "review.setting.tag"
+        },
+        {
+            "name": "review.setting.link",
+            "description": "review.setting.link"
+        },
+        {
+            "name": "review",
+            "description": "review"
+        },
+        {
+            "name": "user_management.role",
+            "description": "user_management.role"
+        },
+        {
+            "name": "property_management.sale_item_management",
+            "description": "property_management.sale_item_management"
+        },
+        {
+            "name": "service_management",
+            "description": "service_management"
+        },
+        {
+            "name": "service_management.sub",
+            "description": "service_management.sub"
+        },
+        {
+            "name": "shop_section.shop_gallery_management",
+            "description": "shop_section.shop_gallery_management"
+        },
+        {
+            "name": "shop_section.shop_management",
+            "description": "shop_section.shop_management"
+        },
+        {
+            "name": "shop_management",
+            "description": "shop_management"
+        },
+        {
+            "name": "property_management.tenant_management",
+            "description": "property_management.tenant_management"
+        },
+        {
+            "name": "property_management.tenant_inspections",
+            "description": "property_management.tenant_inspections"
+        },
+        {
+            "name": "user_management",
+            "description": "user_management"
+        },
+        {
+            "name": "client.basics",
+            "description": "client.basics"
+        },
+        {
+            "name": "client.booking",
+            "description": "client.booking"
+        },
+        {
+            "name": "client.coupon",
+            "description": "client.coupon"
+        },
+        {
+            "name": "client.job",
+            "description": "client.job"
+        },
+        {
+            "name": "client.prebooking",
+            "description": "client.prebooking"
+        },
+        {
+            "name": "client.review.setting.question",
+            "description": "client.review.setting.question"
         }
     ]
 }
