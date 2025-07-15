@@ -1234,6 +1234,7 @@ class PropertyBasicController extends Controller
     // }
     public function rent_report()
     {
+        Log::info('------------------------------------------------------');
         $user_id = auth()->id();
         $now = Carbon::now();
         $today = $now->copy()->startOfDay();
@@ -1272,27 +1273,28 @@ class PropertyBasicController extends Controller
         ])->whereHas('property', function ($q) use ($user_id) {
             $q->where('created_by', $user_id)
                 ->whereNull('deleted_at');
-        })->get();
+        })
+            ->whereNotNull('rent_due_day')
+            ->whereNotNull('tenant_contact_expired_date')
+            ->whereDate('tenant_contact_expired_date', '>=', $today)
+            ->get();
 
+        // UPCOMING TOTAL
         $total_upcoming_rent_next_month = 0;
 
+        //  TOTAL SUMMARY
         $alerts_summary = [
             'due_in_15_days' => 0,
             'due_in_30_days' => 0,
             'due_in_45_days' => 0,
+            'due_in_60_days' => 0,
         ];
 
         foreach ($agreements as $agreement) {
             $rent_due_day = (int) $agreement->rent_due_day;
 
-            if (!$rent_due_day || !$agreement->tenant_contact_expired_date) {
-                continue;
-            }
 
             $expiredDate = Carbon::parse($agreement->tenant_contact_expired_date)->endOfMonth();
-            if ($expiredDate->lt($today)) {
-                continue;
-            }
 
             $rent_amount = $agreement->agreed_rent;
 
@@ -1313,9 +1315,6 @@ class PropertyBasicController extends Controller
             $isPaidCurrent = $rent_map->has($currentMonthKey);
             $isPaidNext = $rent_map->has($nextMonthKey);
 
-            // if ($dueDateCurrentMonth->lte($today) && !$isPaidCurrent && $dueDateCurrentMonth->lte($expiredDate)) {
-            //     $total_due_this_month += $rent_amount;
-            // }
 
             if (!$isPaidNext && $dueDateNextMonth->lte($expiredDate)) {
                 $total_upcoming_rent_next_month += $rent_amount;
@@ -1323,32 +1322,63 @@ class PropertyBasicController extends Controller
 
             // Safe alert date checks
             $alert_ranges = [
-                'due_in_15_days' => $today->copy()->addDays(15),
-                'due_in_30_days' => $today->copy()->addDays(30),
-                'due_in_45_days' => $today->copy()->addDays(45),
+                'due_in_15_days' => [$today->copy()->addDays(0), $today->copy()->addDays(15)],
+                'due_in_30_days' => [$today->copy()->addDays(15), $today->copy()->addDays(30)],
+                'due_in_45_days' => [$today->copy()->addDays(30), $today->copy()->addDays(45)],
+                'due_in_60_days' => [$today->copy()->addDays(45), $today->copy()->addDays(60)],
             ];
 
+
+
+            // Log::info("rent_map: " . json_encode($rent_map));
+            // Log::info("alert_ranges: " . json_encode($alert_ranges));
+
+
+            $previous_due_date = null;
+
             foreach ($alert_ranges as $key => $alertDate) {
-                try {
-                    $maxDay = Carbon::create($alertDate->year, $alertDate->month, 1)->daysInMonth;
-                    $safeDay = min($rent_due_day, $maxDay);
+                $rentDueDate = Carbon::create(Carbon::parse($alertDate[0])->year, Carbon::parse($alertDate[0])->month, $rent_due_day);
+                $rentDueDate2 = Carbon::create(Carbon::parse($alertDate[1])->year, Carbon::parse($alertDate[1])->month, $rent_due_day);
+                $maxDate = Carbon::parse($alertDate[1]);
+                $minDate = Carbon::parse($alertDate[0]);
 
-                    $alertDueDate = Carbon::create($alertDate->year, $alertDate->month, $safeDay);
-                    $alertMonthKey = $alertDueDate->format('Y-m');
+                // Check which rent due date is within the min-max range
+                if ($rentDueDate->between($minDate, $maxDate)) {
+                    $dueDate = $rentDueDate;
+                } elseif ($rentDueDate2->between($minDate, $maxDate)) {
+                    $dueDate = $rentDueDate2;
+                } else {
+                    $dueDate = null; // no rent due date falls within range
+                }
+                if (empty($dueDate)) {
+                    $dueDate = $previous_due_date;
+                }
+                // Log::info("rentDueDate: " . json_encode($rentDueDate));
+                // Log::info("rentDueDate2: " . json_encode($rentDueDate2));
+                // Log::info("dueDate: " . json_encode($dueDate));
+                // Log::info("maxDate: " . json_encode($maxDate));
+                // Log::info("minDate: " . json_encode($minDate));
 
-                    if ($alertDueDate->lte($expiredDate)) {
-                        $isPaidAlert = $rent_map->has($alertMonthKey);
-                        if (!$isPaidAlert) {
-                            $alerts_summary[$key] += $rent_amount;
-                        }
-                    }
-                } catch (\Exception $e) {
-                    Log::error("Alert date error: " . $e->getMessage(), [
-                        'agreement_id' => $agreement->id,
-                        'alert_key' => $key,
-                        'rent_due_day' => $rent_due_day,
-                    ]);
-                    continue;
+                $previous_due_date = $dueDate;
+
+                if (!empty($dueDate)) {
+                    $date_of_moving = Carbon::parse($agreement->date_of_moving);
+
+                    $totalMonth   = $date_of_moving->diffInMonths($dueDate);
+                    $totalDue = $totalMonth * $agreement->agreed_rent;
+                    $totalPaid = $agreement->rents->sum('paid_amount');
+
+                    Log::info('8888888888888888888888888888888888888888888888888888');
+
+                    Log::info("date_of_moving: " . json_encode($agreement->date_of_moving));
+                    Log::info("dueDate: " . json_encode($dueDate));
+                    Log::info("totalMonth: " . json_encode($totalMonth));
+                    Log::info("totalDue: " . json_encode($totalDue));
+                    Log::info("rentDueDate2: " . json_encode($rentDueDate2));
+                    Log::info("totalPaid: " . json_encode($totalPaid));
+                    Log::info("key: " . json_encode($key));
+
+                    $alerts_summary[$key] += $totalDue - $totalPaid;
                 }
             }
         }
