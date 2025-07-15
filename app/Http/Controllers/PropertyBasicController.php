@@ -1313,9 +1313,9 @@ class PropertyBasicController extends Controller
             $isPaidCurrent = $rent_map->has($currentMonthKey);
             $isPaidNext = $rent_map->has($nextMonthKey);
 
-            if ($dueDateCurrentMonth->lte($today) && !$isPaidCurrent && $dueDateCurrentMonth->lte($expiredDate)) {
-                $total_due_this_month += $rent_amount;
-            }
+            // if ($dueDateCurrentMonth->lte($today) && !$isPaidCurrent && $dueDateCurrentMonth->lte($expiredDate)) {
+            //     $total_due_this_month += $rent_amount;
+            // }
 
             if (!$isPaidNext && $dueDateNextMonth->lte($expiredDate)) {
                 $total_upcoming_rent_next_month += $rent_amount;

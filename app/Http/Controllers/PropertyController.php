@@ -1182,7 +1182,7 @@ class PropertyController extends Controller
     }
 
 
-  /**
+    /**
      *
      * @OA\Put(
      *      path="/v1.0/properties-update-tenant",
@@ -1334,22 +1334,23 @@ class PropertyController extends Controller
         }
     }
 
-    public function propertyQuery($query) {
+    public function propertyQuery($query)
+    {
 
-      return  $query->when(request()->filled("search_key"), function ($query)  {
+        return  $query->when(request()->filled("search_key"), function ($query) {
             $term = request()->search_key;
             $query->where(function ($query) use ($term) {
                 $query->where("properties.reference_no", "like", "%" . $term . "%")
-                      ->orWhere("properties.address", "like", "%" . $term . "%")
-                      ->orWhere("properties.type", "like", "%" . $term . "%");
+                    ->orWhere("properties.address", "like", "%" . $term . "%")
+                    ->orWhere("properties.type", "like", "%" . $term . "%");
             });
         })
-        ->when(request()->filled("landlord_ids") || !empty($request->landlord_id), function ($query) {
-            $landlord_ids = request()->filled("landlord_ids")?explode(',', request()->input("landlord_ids")):explode(',', request()->input("landlord_id"));
-            $query->whereHas("property_landlords", function ($query) use ($landlord_ids) {
-                $query->whereIn("property_landlords.landlord_id", $landlord_ids);
-            });
-        })
+            ->when(request()->filled("landlord_ids") || !empty($request->landlord_id), function ($query) {
+                $landlord_ids = request()->filled("landlord_ids") ? explode(',', request()->input("landlord_ids")) : explode(',', request()->input("landlord_id"));
+                $query->whereHas("property_landlords", function ($query) use ($landlord_ids) {
+                    $query->whereIn("property_landlords.landlord_id", $landlord_ids);
+                });
+            })
 
             // ->when(request()->filled("document_type_id"), function ($query) {
             //     $query->whereHas("documents", function ($subQuery) {
@@ -1377,10 +1378,10 @@ class PropertyController extends Controller
             ->when(request()->filled("reference_no"), function ($query) {
                 $query->where("properties.reference_no", "like", "%" . request()->reference_no . "%");
             })
-            ->when(request()->filled("start_date_of_instruction"), function ($query)   {
+            ->when(request()->filled("start_date_of_instruction"), function ($query) {
                 $query->whereDate("properties.date_of_instruction", ">=", request()->start_date_of_instruction);
             })
-            ->when(request()->filled("end_date_of_instruction"), function ($query)  {
+            ->when(request()->filled("end_date_of_instruction"), function ($query) {
                 $query->whereDate("properties.date_of_instruction", "<=", request()->end_date_of_instruction);
             })
 
@@ -1406,10 +1407,10 @@ class PropertyController extends Controller
                         $subQuery->whereDate('property_documents.gas_end_date', '<', Carbon::today());
                     }
                     if (request()->filled('start_document_end_date')) {
-                        $subQuery ->whereDate('property_documents.gas_end_date', '>=', request()->input('start_document_end_date'));
+                        $subQuery->whereDate('property_documents.gas_end_date', '>=', request()->input('start_document_end_date'));
                     }
                     if (request()->filled('end_document_end_date')) {
-                        $subQuery ->whereDate('property_documents.gas_end_date', '<=', request()->input('end_document_end_date'));
+                        $subQuery->whereDate('property_documents.gas_end_date', '<=', request()->input('end_document_end_date'));
                     }
 
                     // Check if the "document_expired_in" is set and apply the expiry date range filter
@@ -1437,12 +1438,11 @@ class PropertyController extends Controller
                 $query->whereHas("tenancy_agreements", function ($subQuery) {
 
                     if (request()->filled('start_tenancy_agreement_date')) {
-                        $subQuery ->whereDate('tenancy_agreements.date_of_moving', '>=', request()->input('start_tenancy_agreement_date'));
+                        $subQuery->whereDate('tenancy_agreements.date_of_moving', '>=', request()->input('start_tenancy_agreement_date'));
                     }
                     if (request()->filled('end_tenancy_agreement_date')) {
-                        $subQuery ->whereDate('tenancy_agreements.tenant_contact_expired_date', '<=', request()->input('end_tenancy_agreement_date'));
+                        $subQuery->whereDate('tenancy_agreements.tenant_contact_expired_date', '<=', request()->input('end_tenancy_agreement_date'));
                     }
-
                 });
             })
             ->when(request()->boolean("is_next_follow_up_date_passed"), function ($query) {
@@ -1452,7 +1452,7 @@ class PropertyController extends Controller
                     // Apply this filter only if `maintenance_item_type_id` is provided in the request
                     if (request()->filled('maintenance_item_type_id')) {
                         $subQuery->where('maintenance_items.maintenance_item_type_id', request()->input('maintenance_item_type_id'))
-                        ->where("maintenance_items.status", "work_required");
+                            ->where("maintenance_items.status", "work_required");
                     }
                 });
             })
@@ -1486,10 +1486,7 @@ class PropertyController extends Controller
                 if (is_numeric($expiryDays) && $expiryDays > 0) {
                     $query->whereHas('latest_inspection', function ($subQuery) use ($expiryDays) {
                         $subQuery->whereDate('tenant_inspections.next_inspection_date', '>', Carbon::today())
-                        ->whereDate('tenant_inspections.next_inspection_date', '<=', Carbon::today()->addDays($expiryDays));
-
-
-
+                            ->whereDate('tenant_inspections.next_inspection_date', '<=', Carbon::today()->addDays($expiryDays));
                     });
                 }
             })
@@ -1559,7 +1556,7 @@ class PropertyController extends Controller
     }
 
 
-  /**
+    /**
      *
      * @OA\Get(
      *      path="/v1.0/client/properties/{perPage}",
@@ -1812,7 +1809,7 @@ class PropertyController extends Controller
      *     required=false,
      *     example=""
      * ),
-      *      * @OA\Parameter(
+     *      * @OA\Parameter(
      *     name="start_tenancy_agreement_date",
      *     in="query",
      *     description="start_tenancy_agreement_date",
@@ -1877,67 +1874,68 @@ class PropertyController extends Controller
      *     )
      */
 
-     public function getPropertiesClient($perPage, Request $request)
-     {
-         try {
-             $this->storeActivity($request, "");
+    public function getPropertiesClient($perPage, Request $request)
+    {
+        try {
+            $this->storeActivity($request, "");
 
-             // $automobilesQuery = AutomobileMake::with("makes");
+            // $automobilesQuery = AutomobileMake::with("makes");
 
-             $propertyQuery =  Property::with(
-                 "property_landlords", "property_tenants","latest_inspection"
-             )
-             ;
+            $propertyQuery =  Property::with(
+                "property_landlords",
+                "property_tenants",
+                "latest_inspection"
+            );
 
-             $propertyQuery = $this->propertyQuery($propertyQuery);
+            $propertyQuery = $this->propertyQuery($propertyQuery);
 
 
 
-             $properties = $propertyQuery->orderBy("properties.address", $request->order_by)
-             ->groupBy("properties.id")
-             ->select(
-                 "properties.*",
-                 DB::raw('
+            $properties = $propertyQuery->orderBy("properties.address", $request->order_by)
+                ->groupBy("properties.id")
+                ->select(
+                    "properties.*",
+                    DB::raw('
          COALESCE(
              (SELECT COUNT(invoices.id) FROM invoices WHERE invoices.property_id = properties.id),
              0
          ) AS total_invoice
      '),
-             )
-             ->paginate($perPage);
+                )
+                ->paginate($perPage);
 
 
-             foreach($properties as $property) {
-                 $updatedFiles = []; // Create a new array for modified files
-                 if (!is_array($property->images)) {
-                     $images = json_decode($property->images);
-                 } else {
-                     $images = $property->images;
-                 }
+            foreach ($properties as $property) {
+                $updatedFiles = []; // Create a new array for modified files
+                if (!is_array($property->images)) {
+                    $images = json_decode($property->images);
+                } else {
+                    $images = $property->images;
+                }
 
 
-                 foreach ($images as $image) {
+                foreach ($images as $image) {
 
-                     // Modify the file name
-                     $updatedFiles[] = "/" . str_replace(' ', '_', $property->user->my_business->name) . "/" . base64_encode($property->id) . "/images/" . $image;
-                 }
-
-
-                 // Replace the files property with the updated array if needed
-                 $property->images = $updatedFiles; // Use a new attribute to avoid issues
-
-             }
+                    // Modify the file name
+                    $updatedFiles[] = "/" . str_replace(' ', '_', $property->user->my_business->name) . "/" . base64_encode($property->id) . "/images/" . $image;
+                }
 
 
+                // Replace the files property with the updated array if needed
+                $property->images = $updatedFiles; // Use a new attribute to avoid issues
+
+            }
 
 
 
-             return response()->json($properties, 200);
-         } catch (Exception $e) {
 
-             return $this->sendError($e, 500, $request);
-         }
-     }
+
+            return response()->json($properties, 200);
+        } catch (Exception $e) {
+
+            return $this->sendError($e, 500, $request);
+        }
+    }
 
     /**
      *
@@ -2192,7 +2190,7 @@ class PropertyController extends Controller
      *     required=false,
      *     example=""
      * ),
-      *      * @OA\Parameter(
+     *      * @OA\Parameter(
      *     name="start_tenancy_agreement_date",
      *     in="query",
      *     description="start_tenancy_agreement_date",
@@ -2265,31 +2263,33 @@ class PropertyController extends Controller
             // $automobilesQuery = AutomobileMake::with("makes");
 
             $propertyQuery =  Property::with(
-                "property_landlords", "property_tenants","latest_inspection"
+                "property_landlords",
+                "property_tenants",
+                "latest_inspection"
             )
 
-            ->where(["properties.created_by" => $request->user()->id])
+                ->where(["properties.created_by" => $request->user()->id])
 
-            ->when($request->filled("search_key"), function ($query) use ($request) {
-                $term = $request->search_key;
-                $query->where(function ($query) use ($term) {
-                    $query->where("properties.reference_no", "like", "%" . $term . "%")
-                          ->orWhere("properties.address", "like", "%" . $term . "%")
-                          ->orWhere("properties.type", "like", "%" . $term . "%");
-                });
-            })
-            ->when($request->filled("landlord_ids") || !empty($request->landlord_id), function ($query) {
-                $landlord_ids = request()->filled("landlord_ids")?explode(',', request()->input("landlord_ids")):explode(',', request()->input("landlord_id"));
-                $query->whereHas("property_landlords", function ($query) use ($landlord_ids) {
-                    $query->whereIn("property_landlords.landlord_id", $landlord_ids);
-                });
-            })
-            ->when($request->filled("tenant_ids") || !empty($request->tenant_id), function ($query) {
-                $landlord_ids = request()->filled("tenant_ids")?explode(',', request()->input("tenant_ids")):explode(',', request()->input("tenant_id"));
-                $query->whereHas("property_tenants", function ($query) use ($landlord_ids) {
-                    $query->whereIn("property_tenants.tenant_id", $landlord_ids);
-                });
-            })
+                ->when($request->filled("search_key"), function ($query) use ($request) {
+                    $term = $request->search_key;
+                    $query->where(function ($query) use ($term) {
+                        $query->where("properties.reference_no", "like", "%" . $term . "%")
+                            ->orWhere("properties.address", "like", "%" . $term . "%")
+                            ->orWhere("properties.type", "like", "%" . $term . "%");
+                    });
+                })
+                ->when($request->filled("landlord_ids") || !empty($request->landlord_id), function ($query) {
+                    $landlord_ids = request()->filled("landlord_ids") ? explode(',', request()->input("landlord_ids")) : explode(',', request()->input("landlord_id"));
+                    $query->whereHas("property_landlords", function ($query) use ($landlord_ids) {
+                        $query->whereIn("property_landlords.landlord_id", $landlord_ids);
+                    });
+                })
+                ->when($request->filled("tenant_ids") || !empty($request->tenant_id), function ($query) {
+                    $landlord_ids = request()->filled("tenant_ids") ? explode(',', request()->input("tenant_ids")) : explode(',', request()->input("tenant_id"));
+                    $query->whereHas("property_tenants", function ($query) use ($landlord_ids) {
+                        $query->whereIn("property_tenants.tenant_id", $landlord_ids);
+                    });
+                })
 
 
                 // ->when(request()->filled("document_type_id"), function ($query) {
@@ -2318,10 +2318,10 @@ class PropertyController extends Controller
                 ->when($request->filled("reference_no"), function ($query) {
                     $query->where("properties.reference_no", "like", "%" . request()->reference_no . "%");
                 })
-                ->when($request->filled("start_date_of_instruction"), function ($query)   {
+                ->when($request->filled("start_date_of_instruction"), function ($query) {
                     $query->whereDate("properties.date_of_instruction", ">=", request()->start_date_of_instruction);
                 })
-                ->when($request->filled("end_date_of_instruction"), function ($query)  {
+                ->when($request->filled("end_date_of_instruction"), function ($query) {
                     $query->whereDate("properties.date_of_instruction", "<=", request()->end_date_of_instruction);
                 })
                 ->when(request()->filled("no_of_beds"), function ($query) {
@@ -2347,10 +2347,10 @@ class PropertyController extends Controller
                         }
 
                         if (request()->filled('start_document_end_date')) {
-                            $subQuery ->whereDate('property_documents.gas_end_date', '>=', request()->input('start_document_end_date'));
+                            $subQuery->whereDate('property_documents.gas_end_date', '>=', request()->input('start_document_end_date'));
                         }
                         if (request()->filled('end_document_end_date')) {
-                            $subQuery ->whereDate('property_documents.gas_end_date', '<=', request()->input('end_document_end_date'));
+                            $subQuery->whereDate('property_documents.gas_end_date', '<=', request()->input('end_document_end_date'));
                         }
 
                         // Check if the "document_expired_in" is set and apply the expiry date range filter
@@ -2381,12 +2381,11 @@ class PropertyController extends Controller
                     $query->whereHas("tenancy_agreements", function ($subQuery) {
 
                         if (request()->filled('start_tenancy_agreement_date')) {
-                            $subQuery ->whereDate('tenancy_agreements.date_of_moving', '>=', request()->input('start_tenancy_agreement_date'));
+                            $subQuery->whereDate('tenancy_agreements.date_of_moving', '>=', request()->input('start_tenancy_agreement_date'));
                         }
                         if (request()->filled('end_tenancy_agreement_date')) {
-                            $subQuery ->whereDate('tenancy_agreements.tenant_contact_expired_date', '<=', request()->input('end_tenancy_agreement_date'));
+                            $subQuery->whereDate('tenancy_agreements.tenant_contact_expired_date', '<=', request()->input('end_tenancy_agreement_date'));
                         }
-
                     });
                 })
 
@@ -2397,7 +2396,7 @@ class PropertyController extends Controller
                         // Apply this filter only if `maintenance_item_type_id` is provided in the request
                         if (request()->filled('maintenance_item_type_id')) {
                             $subQuery->where('maintenance_items.maintenance_item_type_id', request()->input('maintenance_item_type_id'))
-                            ->where("maintenance_items.status", "work_required");
+                                ->where("maintenance_items.status", "work_required");
                         }
                     });
                 })
@@ -2431,8 +2430,7 @@ class PropertyController extends Controller
                     if (is_numeric($expiryDays) && $expiryDays > 0) {
                         $query->whereHas('latest_inspection', function ($subQuery) use ($expiryDays) {
                             $subQuery->whereDate('tenant_inspections.next_inspection_date', '>', Carbon::today())
-                            ->whereDate('tenant_inspections.next_inspection_date', '<=', Carbon::today()->addDays($expiryDays));
-
+                                ->whereDate('tenant_inspections.next_inspection_date', '<=', Carbon::today()->addDays($expiryDays));
                         });
                     }
                 })
@@ -2515,25 +2513,25 @@ class PropertyController extends Controller
                 ->paginate($perPage);
 
 
-                foreach($properties as $property) {
-                    $updatedFiles = []; // Create a new array for modified files
-                    if (!is_array($property->images)) {
-                        $images = json_decode($property->images);
-                    } else {
-                        $images = $property->images;
-                    }
-
-
-                    foreach ($images as $image) {
-                        // Modify the file name
-                        $updatedFiles[] = "/" . str_replace(' ', '_', auth()->user()->my_business->name) . "/" . base64_encode($property->id) . "/images/" . $image;
-                    }
-
-
-                    // Replace the files property with the updated array if needed
-                    $property->images = $updatedFiles; // Use a new attribute to avoid issues
-
+            foreach ($properties as $property) {
+                $updatedFiles = []; // Create a new array for modified files
+                if (!is_array($property->images)) {
+                    $images = json_decode($property->images);
+                } else {
+                    $images = $property->images;
                 }
+
+
+                foreach ($images as $image) {
+                    // Modify the file name
+                    $updatedFiles[] = "/" . str_replace(' ', '_', auth()->user()->my_business->name) . "/" . base64_encode($property->id) . "/images/" . $image;
+                }
+
+
+                // Replace the files property with the updated array if needed
+                $property->images = $updatedFiles; // Use a new attribute to avoid issues
+
+            }
 
 
 
@@ -2783,7 +2781,7 @@ class PropertyController extends Controller
 
             if (!empty($request->landlord_ids) || !empty($request->landlord_id)) {
                 $propertyQuery =  $propertyQuery->whereHas("property_landlords", function ($query) {
-                    $landlord_ids = request()->filled("landlord_ids")?explode(',', request()->input("landlord_ids")):explode(',', request()->input("landlord_id"));
+                    $landlord_ids = request()->filled("landlord_ids") ? explode(',', request()->input("landlord_ids")) : explode(',', request()->input("landlord_id"));
                     $query
                         ->whereIn("property_landlords.landlord_id", $landlord_ids);
                 });
@@ -2791,7 +2789,7 @@ class PropertyController extends Controller
 
             if (!empty($request->tenant_ids) || !empty($request->tenant_id)) {
                 $propertyQuery =  $propertyQuery->whereHas("property_tenants", function ($query) {
-                    $tenant_ids = request()->filled("tenant_ids")?explode(',', request()->input("tenant_ids")):explode(',', request()->input("tenant_id"));
+                    $tenant_ids = request()->filled("tenant_ids") ? explode(',', request()->input("tenant_ids")) : explode(',', request()->input("tenant_id"));
                     $query
                         ->whereIn("property_tenants.tenant_id", $tenant_ids);
                 });
@@ -2955,7 +2953,7 @@ class PropertyController extends Controller
 
             if (!empty($request->landlord_ids) || !empty($request->landlord_id)) {
                 $propertyQuery =  $propertyQuery->whereHas("property_landlords", function ($query) {
-                    $landlord_ids = request()->filled("landlord_ids")?explode(',', request()->input("landlord_ids")):explode(',', request()->input("landlord_id"));
+                    $landlord_ids = request()->filled("landlord_ids") ? explode(',', request()->input("landlord_ids")) : explode(',', request()->input("landlord_id"));
                     $query
                         ->whereIn("property_landlords.landlord_id", $landlord_ids);
                 });
@@ -2963,7 +2961,7 @@ class PropertyController extends Controller
 
             if (!empty($request->tenant_ids) || !empty($request->tenant_id)) {
                 $propertyQuery =  $propertyQuery->whereHas("property_tenants", function ($query) {
-                    $tenant_ids = request()->filled("tenant_ids")?explode(',', request()->input("tenant_ids")):explode(',', request()->input("tenant_id"));
+                    $tenant_ids = request()->filled("tenant_ids") ? explode(',', request()->input("tenant_ids")) : explode(',', request()->input("tenant_id"));
                     $query
                         ->whereIn("property_tenants.tenant_id", $tenant_ids);
                 });
@@ -3069,17 +3067,17 @@ class PropertyController extends Controller
             $property = Property::with(
 
                 [
-                "property_tenants",
-                "property_tenants.tenancy_agreements" => function($query) use($id) {
-                    $query->whereHas("property", function($query) use($id) {
-                        $query->where("properties.generated_id",$id);
-                    });
-                },
-                "property_landlords",
-                "repairs.repair_category",
-                "invoices",
-                "documents",
-                "maintenance_item_types",
+                    "property_tenants",
+                    "property_tenants.tenancy_agreements" => function ($query) use ($id) {
+                        $query->whereHas("property", function ($query) use ($id) {
+                            $query->where("properties.generated_id", $id);
+                        });
+                    },
+                    "property_landlords",
+                    "repairs.repair_category",
+                    "invoices",
+                    "documents",
+                    "maintenance_item_types",
                 ]
 
             )
@@ -3247,7 +3245,7 @@ class PropertyController extends Controller
                 }
             }
 
-            $property->delete();
+            $property->forceDelete();
 
             return response()->json(["ok" => true], 200);
         } catch (Exception $e) {
