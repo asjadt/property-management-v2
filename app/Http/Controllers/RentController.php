@@ -15,6 +15,7 @@ use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Rent;
 use App\Models\TenancyAgreement;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -685,15 +686,40 @@ class RentController extends Controller
             $rents = $this->retrieveData($query, "month", "rents");
 
             // Calculate data highlights from full filtered set
-            $data_highlights = $highlightQuery
+
+            $now = Carbon::now();
+
+            $data_highlights = (clone $highlightQuery)
                 ->join('tenancy_agreements', 'tenancy_agreements.id', '=', 'rents.tenancy_agreement_id')
-                ->selectRaw(
-                    'SUM(tenancy_agreements.total_agreed_rent) as total_rent,
+                ->selectRaw('
                     SUM(rents.paid_amount) as total_paid,
-                    SUM(tenancy_agreements.total_agreed_rent - rents.paid_amount) as total_arrears,
-                    MAX(tenancy_agreements.total_agreed_rent) as highest_rent'
-                )
+                    SUM(CASE 
+                        WHEN rents.year = ? AND rents.month = ? 
+                        THEN rents.rent_amount + rents.arrear 
+                        ELSE 0 
+                    END) as this_month_due,
+                    SUM(CASE 
+                        WHEN rents.year = ? AND rents.month = ? 
+                        THEN rents.paid_amount 
+                        ELSE 0 
+                    END) as this_month_paid,
+                    SUM(CASE 
+                        WHEN rents.year = ? AND rents.month = ? 
+                        THEN rents.arrear 
+                        ELSE 0 
+                    END) as total_month_arrears,
+                    MAX(tenancy_agreements.total_agreed_rent) as highest_rent
+                ', [
+                    $now->year,
+                    $now->month, // this_month_due
+                    $now->year,
+                    $now->month, // this_month_paid
+                    $now->year,
+                    $now->month  // total_arrears
+                ])
                 ->first();
+            // SUM(tenancy_agreements.total_agreed_rent) as total_rent,
+
 
 
             // Add data highlights to the response
