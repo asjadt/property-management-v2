@@ -454,7 +454,8 @@ class TenancyAgreementController extends Controller
                         "tenants.first_Name",
                         "tenants.last_Name"
                     );
-                }
+                },
+                "rents"
             ])
                 ->whereHas('property', function ($q) {
                     // Ensure the property is created by the authenticated user
@@ -517,13 +518,44 @@ class TenancyAgreementController extends Controller
                 ->max('total_agreed_rent');
 
             // Calculate total arrears (total rent - total paid)
-            $totalArrears = $totalRent - $rentHighlights->total_paid;
+            // $totalArrears = $totalRent - $rentHighlights->total_paid;
+
+            // CALCULATE TOTAL ARREARS
+            $today = Carbon::today();
+
+            $agreements_for_rents = TenancyAgreement::with(['property', 'rents'])
+                ->where('rent_payment_option', 'per_calendar_month')
+                ->whereHas('property', function ($query) {
+                    $query->whereNull('deleted_at');
+                })
+                ->when(filled($request->property_id), function ($query) use ($request) {
+                    $query->where('property_id', $request->property_id);
+                })
+                ->whereNotNull('rent_due_day')
+                ->whereNotNull('tenant_contact_expired_date')
+                ->whereDate('tenant_contact_expired_date', '>', $today)
+                ->get();
+
+            // Flatten rents from all agreements
+            $agreement_rents = $agreements_for_rents->flatMap(function ($agreement) {
+                return $agreement->rents;
+            });
+
+            // Calculate this month's arrears
+            $total_arrears = $agreement_rents
+                ->where('year', $today->year)
+                ->where('month', $today->month)
+                ->sum(function ($rent) {
+                    return ($rent->arrear + $rent->rent_amount - $rent->paid_amount);
+                });
+
+
 
             // Combine everything into one array
             $rentHighlightsData = [
                 'total_rent' => $totalRent,
                 'total_paid' => $rentHighlights->total_paid,
-                'total_arrears' => $totalArrears,
+                'total_arrears' => $total_arrears,
                 'highest_rent' => $highestRent
             ];
 
