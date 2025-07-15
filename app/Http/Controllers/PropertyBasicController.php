@@ -1279,6 +1279,9 @@ class PropertyBasicController extends Controller
             ->whereDate('tenant_contact_expired_date', '>=', $today)
             ->get();
 
+        // PROPERTY IDS
+        $property_ids = $agreements->pluck('property_id')->unique()->toArray();
+
         // UPCOMING TOTAL
         $total_upcoming_rent_next_month = 0;
 
@@ -1389,6 +1392,7 @@ class PropertyBasicController extends Controller
             'total_due_this_month' => $total_due_this_month,
             'total_upcoming_rent_next_month' => $total_upcoming_rent_next_month,
             'alerts_summary' => $alerts_summary,
+            'property_ids' => $property_ids,
         ];
     }
 
