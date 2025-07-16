@@ -101,21 +101,7 @@ class RentController extends Controller
 
             $request_data = $request->validated();
 
-            // $reference_no_exists =  Rent::where(
-            //     [
-            //         'rent_reference' => $request_data['rent_reference'],
-            //         "created_by" => $request->user()->id
-            //     ]
-            // )->exists();
 
-
-            // if ($reference_no_exists) {
-            //     $error =  [
-            //         "message" => "The given data was invalid.",
-            //         "errors" => ["rent_reference" => ["The rent reference has already been taken."]]
-            //     ];
-            //     throw new Exception(json_encode($error), 422);
-            // }
 
 
             $request_data["rent_reference"] = $this->rentReference();
@@ -128,12 +114,12 @@ class RentController extends Controller
                 'month' => $request_data["month"],
                 'year' => $request_data["year"],
             ])
-                ->exists();
+            ->exists();
 
             if ($rent_exists && $request_data["month"] != now()->month && $request_data["year"] != now()->year) {
                 return response()->json([
                     "message" => "A rent record exists, but not for the current month and year."
-                ], 409);
+                ],409);
             }
 
 
@@ -145,22 +131,22 @@ class RentController extends Controller
 
             $agreement = TenancyAgreement::where([
                 "id" => $request_data["tenancy_agreement_id"]
-            ])
+             ])
 
-                ->first();
-            if (empty($agreement)) {
-                throw new Exception("something went wrong", 500);
-            }
+             ->first();
+             if(empty($agreement)) {
+                throw new Exception("something went wrong",500);
+             }
 
             $all_rents = Rent::where([
                 "tenancy_agreement_id" => $agreement->id
             ])
-                ->orderBy('year')
-                ->orderBy('month')
-                ->orderBy('id')
-                ->get();
+            ->orderBy('year')
+            ->orderBy('month')
+            ->orderBy('id')
+            ->get();
 
-            $this->processArrears($agreement, $all_rents, true);
+            $this->processArrears($agreement,$all_rents,true);
 
 
 
@@ -270,7 +256,7 @@ class RentController extends Controller
                 ]
             )->first();
 
-            if (empty($rent)) {
+            if(empty($rent)){
                 return response()->json([
                     "message" => "something went wrong."
                 ], 500);
@@ -289,24 +275,24 @@ class RentController extends Controller
 
             $agreement = TenancyAgreement::where([
                 "id" => $request_data["tenancy_agreement_id"]
-            ])
+             ])
 
-                ->first();
+             ->first();
 
-            if (empty($agreement)) {
-                throw new Exception("something went wrong", 500);
-            }
+             if(empty($agreement)) {
+                throw new Exception("something went wrong",500);
+             }
 
 
             $all_rents = Rent::where([
                 "tenancy_agreement_id" => $agreement->id
             ])
-                ->orderBy('year')
-                ->orderBy('month')
-                ->orderBy('id')
-                ->get();
+            ->orderBy('year')
+            ->orderBy('month')
+            ->orderBy('id')
+            ->get();
 
-            $this->processArrears($agreement, $all_rents, true);
+            $this->processArrears($agreement,$all_rents,true);
 
 
             DB::commit();
@@ -320,60 +306,7 @@ class RentController extends Controller
 
 
 
-    public function query_filters($query)
-    {
 
-        return $query->where('rents.created_by', auth()->user()->id)
-            ->when(request()->filled("tenant_ids"), function ($query) {
-                return $query->whereHas("tenancy_agreement.tenants", function ($query) {
-                    $tenant_ids = explode(',', request()->input("tenant_ids"));
-                    $query->whereIn("tenants.id", $tenant_ids);
-                });
-            })
-            ->when(request()->filled("property_ids"), function ($query) {
-                return $query->whereHas("tenancy_agreement", function ($query) {
-                    $property_ids = explode(',', request()->input("property_ids"));
-                    $query->whereIn("tenancy_agreements.property_id", $property_ids);
-                });
-            })
-            ->when(request()->filled("rent_reference"), function ($query) {
-                return $query->where('rents.rent_reference', "like", "%" .  request()->input("rent_reference") . "%");
-            })
-
-            ->when(request()->filled("start_payment_date"), function ($query) {
-                return $query->whereDate(
-                    'rents.payment_date',
-                    ">=",
-                    request()->input("start_payment_date")
-                );
-            })
-
-            ->when(request()->filled("end_payment_date"), function ($query) {
-                return $query->whereDate('rents.payment_date', "<=", request()->input("end_payment_date"));
-            })
-            ->when(request()->filled("payment_status"), function ($query) {
-                return $query->where(
-                    'rents.payment_status',
-                    request()->input("payment_status")
-                );
-            })
-            ->when(request()->filled("search_key"), function ($query) {
-                return $query->where(function ($query) {
-                    $term = request()->input("search_key");
-                    $query
-
-                        ->orWhere("rents.payment_status", "like", "%" . $term . "%");
-                });
-            })
-            ->when(request()->filled("start_date"), function ($query) {
-                return $query->whereDate('rents.created_at', ">=", request()->input("start_date"));
-            })
-            ->when(request()->filled("end_date"), function ($query) {
-                return $query->whereDate('rents.created_at', "<=", request()->input("end_date"));
-            })
-            ->orderBy('rents.tenancy_agreement_id')
-            ->orderBy('rents.year');
-    }
 
     /**
      *
@@ -522,8 +455,9 @@ class RentController extends Controller
         try {
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
 
-            $query = Rent::with("tenancy_agreement.property", "tenancy_agreement.tenants");
-            $query = $this->query_filters($query);
+            $query = Rent::with("tenancy_agreement.property", "tenancy_agreement.tenants")
+            ->filters();
+
             $rents = $this->retrieveData($query, "month", "rents");
 
             return response()->json($rents, 200);
@@ -670,55 +604,36 @@ class RentController extends Controller
     {
 
         try {
-            // STORE ACTIVITY
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
-
-            // GET RENTS
-            $query = Rent::with("tenancy_agreement.property", "tenancy_agreement.tenants");
-
-            // FILTER
-            $query = $this->query_filters($query);
-
-            // Clone the filtered query before pagination
-            $highlightQuery = clone $query;
-
-            // GET RENTS BY MONTH AND YEAR (likely paginated)
+            $query = Rent::with("tenancy_agreement.property", "tenancy_agreement.tenants")
+            ->filters();
             $rents = $this->retrieveData($query, "month", "rents");
 
-            // Calculate data highlights from full filtered set
+            $data_highlights = [
+                "total_rent" => 0,
+                "highest_rent" => 0,
+                "total_paid" => 0,
+                "total_arrears" => 0
 
-            $now = Carbon::now();
 
-            $data_highlights = (clone $highlightQuery)
-                ->join('tenancy_agreements', 'tenancy_agreements.id', '=', 'rents.tenancy_agreement_id')
-                ->selectRaw('
-                    SUM(rents.paid_amount) as total_paid,
-                    SUM(CASE 
-                        WHEN rents.year = ? AND rents.month = ? 
-                        THEN rents.rent_amount + rents.arrear 
-                        ELSE 0 
-                    END) as this_month_due,
-                    SUM(CASE 
-                        WHEN rents.year = ? AND rents.month = ? 
-                        THEN rents.paid_amount 
-                        ELSE 0 
-                    END) as this_month_paid,
-                    SUM(CASE 
-                        WHEN rents.year = ? AND rents.month = ? 
-                        THEN rents.arrear 
-                        ELSE 0 
-                    END) as total_month_arrears,
-                    MAX(tenancy_agreements.total_agreed_rent) as highest_rent
-                ', [
-                    $now->year,
-                    $now->month, // this_month_due
-                    $now->year,
-                    $now->month, // this_month_paid
-                    $now->year,
-                    $now->month  // total_arrears
-                ])
-                ->first();
-            // SUM(tenancy_agreements.total_agreed_rent) as total_rent,
+                        ];
+
+$today = Carbon::today();
+
+   $tenancy_agreements = TenancyAgreement::whereHas('rents', function ($q) {
+    $q->filters();
+})->get();
+
+foreach ($tenancy_agreements as $agreement) {
+
+ $pyment_data = $this->calculatePayments($agreement, today(),false);
+    $data_highlights["total_rent"] += $pyment_data["total_rent"];
+    $data_highlights["highest_rent"] += $pyment_data["total_rent"];
+    $data_highlights["total_paid"] += $pyment_data["total_paid"];
+    $data_highlights["total_arrears"] += $pyment_data["total_arrears"];
+
+
+}
 
 
 
@@ -800,38 +715,38 @@ class RentController extends Controller
 
 
 
-            $rent =  Rent::where([
-                "id" => $ids
-            ])
-                ->first();
+          $rent =  Rent::where([
+            "id" => $ids
+          ])
+          ->first();
 
-            if (!$rent) {
-                return response()->json(["message" => "Rent not found"], 404);
-            }
+          if (!$rent) {
+              return response()->json(["message" => "Rent not found"], 404);
+          }
 
             $tenancy_agreement_id = $rent->tenancy_agreement_id;
             $rent->delete();
 
             $agreement = TenancyAgreement::where([
                 "id" => $tenancy_agreement_id
-            ])
+             ])
 
-                ->first();
+             ->first();
 
-            if (empty($agreement)) {
-                throw new Exception("something went wrong", 500);
-            }
+             if(empty($agreement)) {
+                throw new Exception("something went wrong",500);
+             }
 
 
             $all_rents = Rent::where([
                 "tenancy_agreement_id" => $agreement->id
             ])
-                ->orderBy('year')
-                ->orderBy('month')
-                ->orderBy('id')
-                ->get();
+            ->orderBy('year')
+            ->orderBy('month')
+            ->orderBy('id')
+            ->get();
 
-            $this->processArrears($agreement, $all_rents, true);
+            $this->processArrears($agreement,$all_rents,true);
 
             return response()->json(["message" => "data deleted sussfully"], 200);
         } catch (Exception $e) {
@@ -841,8 +756,7 @@ class RentController extends Controller
     }
 
 
-    public function rentReference()
-    {
+    public function rentReference() {
         $current_number = 1; // Start from 0001
 
         do {
@@ -910,7 +824,7 @@ class RentController extends Controller
             $this->storeActivity($request, "");
 
 
-            $rent_reference = $this->rentReference();
+          $rent_reference = $this->rentReference();
 
 
             return response()->json(["rent_reference" => $rent_reference], 200);

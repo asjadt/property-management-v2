@@ -28,7 +28,6 @@ class Rent extends Model
         "created_by"
     ];
 
-    protected $casts = [];
 
 
     // RENT RELATION WITH TENANCY AGREEMENT
@@ -38,6 +37,61 @@ class Rent extends Model
     }
 
     // AUTO GENERATE RENT REFERENCE NO
+
+      public function scopeFilters($query)
+    {
+
+        return $query->where('rents.created_by', auth()->user()->id)
+            ->when(request()->filled("tenant_ids"), function ($query) {
+                return $query->whereHas("tenancy_agreement.tenants", function ($query) {
+                    $tenant_ids = explode(',', request()->input("tenant_ids"));
+                    $query->whereIn("tenants.id", $tenant_ids);
+                });
+            })
+            ->when(request()->filled("property_ids"), function ($query) {
+                return $query->whereHas("tenancy_agreement", function ($query) {
+                    $property_ids = explode(',', request()->input("property_ids"));
+                    $query->whereIn("tenancy_agreements.property_id", $property_ids);
+                });
+            })
+            ->when(request()->filled("rent_reference"), function ($query) {
+                return $query->where('rents.rent_reference', "like", "%" .  request()->input("rent_reference") . "%");
+            })
+
+            ->when(request()->filled("start_payment_date"), function ($query) {
+                return $query->whereDate(
+                    'rents.payment_date',
+                    ">=",
+                    request()->input("start_payment_date")
+                );
+            })
+
+            ->when(request()->filled("end_payment_date"), function ($query) {
+                return $query->whereDate('rents.payment_date', "<=", request()->input("end_payment_date"));
+            })
+            ->when(request()->filled("payment_status"), function ($query) {
+                return $query->where(
+                    'rents.payment_status',
+                    request()->input("payment_status")
+                );
+            })
+            ->when(request()->filled("search_key"), function ($query) {
+                return $query->where(function ($query) {
+                    $term = request()->input("search_key");
+                    $query
+
+                        ->orWhere("rents.payment_status", "like", "%" . $term . "%");
+                });
+            })
+            ->when(request()->filled("start_date"), function ($query) {
+                return $query->whereDate('rents.created_at', ">=", request()->input("start_date"));
+            })
+            ->when(request()->filled("end_date"), function ($query) {
+                return $query->whereDate('rents.created_at', "<=", request()->input("end_date"));
+            })
+            ->orderBy('rents.tenancy_agreement_id')
+            ->orderBy('rents.year');
+    }
 
     protected static function boot()
     {

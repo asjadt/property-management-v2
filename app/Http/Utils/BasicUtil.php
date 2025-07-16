@@ -73,7 +73,55 @@ trait BasicUtil
 
     }
 
+ public function calculatePayments($agreement,$compareDate,$consider_pending_payment = false){
+    $start_date = Carbon::parse($agreement->date_of_moving)->startOfDay();
+    $end_date = Carbon::parse($agreement->tenant_contact_expired_date)->endOfDay();
+    $due_day = (int)$agreement->rent_due_day;
 
+    $compareDate = Carbon::parse($compareDate);
+
+          $due_dates = [];
+    $current_date = $start_date->copy()->startOfMonth();
+
+    // ✅ Step 1: Generate all due dates
+    while ($current_date <= $end_date) {
+        $due_date = $current_date->copy()->day(min($due_day, $current_date->daysInMonth));
+
+        if ($due_date >= $start_date && $due_date <= $end_date) {
+            $due_dates[] = $due_date->copy();
+        }
+
+        $current_date->addMonth();
+    }
+
+
+    $passed_due_count = collect($due_dates)->filter(function ($date) use ($compareDate) {
+        return Carbon::parse($date)->lt($compareDate);
+    })->count();
+
+
+     $total_rent   = $agreement->agreed_rent * $passed_due_count;
+     $total_paid = $agreement->rents()
+     ->when(!$consider_pending_payment, function ($query) {
+         $query->whereNotIn("payment_status", ["pending"]);
+     })
+     ->sum('paid_amount');
+     $total_arrears = $total_rent - $total_paid;
+
+ $last_passed_due_date = collect($due_dates)
+    ->filter(function ($date) use ($compareDate) {
+        return Carbon::parse($date)->lt($compareDate);
+    })
+    ->last();
+     return [
+        'total_rent' => $total_rent,
+        'total_paid' => $total_paid,
+        'total_arrears' => $total_arrears,
+        "last_passed_due_date" => $last_passed_due_date,
+
+     ];
+
+}
 
     public function storeUploadedFiles($filePaths, $fileKey, $targetLocation, $isNestedFiles = false, $propertyId = null)
 {
