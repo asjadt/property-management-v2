@@ -73,7 +73,7 @@ trait BasicUtil
 
     }
 
- public function calculatePayments($agreement,$compareDate,$consider_pending_payment = false){
+ public function calculatePayments($agreement,$compareDate){
     $start_date = Carbon::parse($agreement->date_of_moving)->startOfDay();
     $end_date = Carbon::parse($agreement->tenant_contact_expired_date)->endOfDay();
     $due_day = (int)$agreement->rent_due_day;
@@ -102,9 +102,6 @@ trait BasicUtil
 
      $total_rent   = $agreement->agreed_rent * $passed_due_count;
      $total_paid = $agreement->rents()
-     ->when(!$consider_pending_payment, function ($query) {
-         $query->whereNotIn("payment_status", ["pending"]);
-     })
      ->sum('paid_amount');
      $total_arrears = $total_rent - $total_paid;
 

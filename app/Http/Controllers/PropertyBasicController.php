@@ -1246,8 +1246,7 @@ class PropertyBasicController extends Controller
 
 
         // Rents query
-        $rents_query = Rent::where('created_by', $user_id)
-        ->whereNotIn('payment_status', ['pending']);
+        $rents_query = Rent::where('created_by', $user_id);
 
         // Total collected
         $total_collected = (clone $rents_query)->sum('paid_amount');
@@ -1292,13 +1291,13 @@ class PropertyBasicController extends Controller
  foreach ($agreements as $agreement) {
 
 
-    $total_due_this_month += $this->calculatePayments($agreement, today(),false)['total_arrears'];
+    $total_due_this_month += $this->calculatePayments($agreement, today())['total_arrears'];
 
-      $alerts_summary['due_in_15_days'] += $this->calculatePayments($agreement, today()->addDays(15),true)['total_arrears'];
+      $alerts_summary['due_in_15_days'] += $this->calculatePayments($agreement, today()->addDays(15))['total_arrears'];
 
-      $alerts_summary['due_in_30_days'] += $this->calculatePayments($agreement, today()->addDays(30),true)['total_arrears'];
+      $alerts_summary['due_in_30_days'] += $this->calculatePayments($agreement, today()->addDays(30))['total_arrears'];
 
-      $alerts_summary['due_in_45_days'] += $this->calculatePayments($agreement, today()->addDays(45),true)['total_arrears'];
+      $alerts_summary['due_in_45_days'] += $this->calculatePayments($agreement, today()->addDays(45))['total_arrears'];
 
 
 

@@ -626,7 +626,7 @@ $today = Carbon::today();
 
 foreach ($tenancy_agreements as $agreement) {
 
- $pyment_data = $this->calculatePayments($agreement, today(),false);
+ $pyment_data = $this->calculatePayments($agreement, today());
     $data_highlights["total_rent"] += $pyment_data["total_rent"];
     $data_highlights["highest_rent"] += $pyment_data["total_rent"];
     $data_highlights["total_paid"] += $pyment_data["total_paid"];
