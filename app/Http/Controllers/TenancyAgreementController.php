@@ -735,16 +735,19 @@ class TenancyAgreementController extends Controller
                     ->get();
 
 
-                $this_month_rents = $agreement_rents->filter(function ($rent) use ($year, $month) {
+                $this_month_rents_collection = $agreement_rents->filter(function ($rent) use ($year, $month) {
                     return $rent->year == $year && $rent->month == $month;
-                })->toArray();
+                });
+                $this_month_rents = $this_month_rents_collection->toArray();
 
 
                 $tenancy_agreement["total_rent"] =   $this->processArrears($tenancy_agreement, $agreement_rents, false);
 
                 if (!empty($this_month_rents)) {
+                    $tenancy_agreement["already_paid"] = $this_month_rents_collection->sum("paid_amount");
                     $tenancy_agreement["arrear"] = $tenancy_agreement["total_rent"];
                 } else {
+                    $tenancy_agreement["already_paid"] = 0;
                     $tenancy_agreement["arrear"] =   $tenancy_agreement["total_rent"] - $tenancy_agreement["agreed_rent"];
                 }
             }
