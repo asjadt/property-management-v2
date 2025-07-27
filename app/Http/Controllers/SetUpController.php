@@ -68,10 +68,15 @@ class SetUpController extends Controller
         return view('user-activity-log', compact('activity_logs'));
     }
 
-    public function dbOperation1(Request $request) {
-      $tenancyAgreement =  TenancyAgreement::get();
-      foreach($tenancyAgreement as $agreement) {
-        foreach($agreement->tenants as $tenant) {
+   public function dbOperation1(Request $request) {
+    $tenancyAgreements = TenancyAgreement::with('tenants')->get();
+    echo "tenancy agreement count: " . $tenancyAgreements->count() . "<br>";
+
+    foreach ($tenancyAgreements as $agreement) {
+        echo "agreement id: " . $agreement->id . "<br>";
+        echo "property id: " . $agreement->property_id . "<br>";
+
+        foreach ($agreement->tenants as $tenant) {
             $tenant_id = $tenant->id;
             $propertyTenant = PropertyTenant::where([
                 'property_id' => $agreement->property_id,
@@ -84,10 +89,11 @@ class SetUpController extends Controller
                     'tenant_id' => $tenant_id
                 ]);
             }
-           }
-       
-        return "Database operation 1 executed";
+        }
     }
+
+    return "Database operation 1 executed";
+}
 
     public function automobileRefresh() {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
