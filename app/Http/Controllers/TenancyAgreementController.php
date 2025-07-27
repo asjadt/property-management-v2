@@ -8,6 +8,7 @@ use App\Http\Utils\BasicUtil;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Business;
+use App\Models\PropertyTenant;
 use App\Models\Rent;
 use App\Models\TenancyAgreement;
 use Carbon\Carbon;
@@ -129,6 +130,24 @@ class TenancyAgreementController extends Controller
 
                 $agreement = TenancyAgreement::create($request_data);
                 $agreement->tenants()->sync($request_data["tenant_ids"]);
+
+                foreach($request_data["tenant_ids"] as $tenant_id) {
+                    $propertyTenant = PropertyTenant::where([
+                        'property_id' => $request_data['property_id'],
+                        'tenant_id' => $tenant_id
+                    ])->first();
+
+                    if (!$propertyTenant) {
+                        PropertyTenant::create([
+                            'property_id' => $request_data['property_id'],
+                            'tenant_id' => $tenant_id
+                        ]);
+                    }
+                  
+
+                }
+
+
 
                 return response($agreement, 201);
             });
@@ -321,6 +340,7 @@ class TenancyAgreementController extends Controller
     public function getTenancyAgreements(Request $request)
     {
         try {
+             $this->storeActivity($request, "");
             // Start building the query for history
             $query = TenancyAgreement::with([
                 "tenants" => function ($query) {
@@ -446,6 +466,7 @@ class TenancyAgreementController extends Controller
     public function getTenancyAgreementsV2(Request $request)
     {
         try {
+             $this->storeActivity($request, "");
             // Start building the query for tenancy agreements
             $agreements = TenancyAgreement::with([
                 "tenants" => function ($query) {

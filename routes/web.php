@@ -37,6 +37,9 @@ Route::get('/setup2', [SetUpController::class, "setUp2"])->name("setup2");
 
 
 Route::get('/backup', [SetUpController::class, "backup"])->name("backup");
+
+Route::get('v1/db-operation', [SetUpController::class, "dbOperation1"]);
+
 Route::get('/roleRefresh', [SetUpController::class, "roleRefresh"])->name("roleRefresh");
 Route::get('/swagger-refresh', [SetUpController::class, "swaggerRefresh"]);
 Route::get('/automobile-refresh', [SetUpController::class, "automobileRefresh"]);

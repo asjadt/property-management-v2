@@ -9,8 +9,10 @@ use App\Models\AutomobileMake;
 use App\Models\AutomobileModel;
 use App\Models\AutomobileModelVariant;
 use App\Models\ErrorLog;
+use App\Models\PropertyTenant;
 use App\Models\Service;
 use App\Models\SubService;
+use App\Models\TenancyAgreement;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -26,11 +28,66 @@ class SetUpController extends Controller
         $error_logs = ErrorLog::orderbyDesc("id")->paginate(10);
         return view("error-log",compact("error_logs"));
     }
-    public function getActivityLogs() {
-        $activity_logs = ActivityLog::orderbyDesc("id")->paginate(10);
-        return view("user-activity-log",compact("activity_logs"));
+   public function getActivityLogs(Request $request)
+    {
+        $activity_logs = ActivityLog::when(!empty($request->status_code), function ($query) use ($request) {
+                $query->where('status_code', $request->status_code);
+            })
+            ->when(!empty($request->user_id), function ($query) use ($request) {
+                $query->where('user_id', $request->user_id);
+            })
+            // ->when(!empty($request->business_id), function ($query) use ($request) {
+            //     $query->whereExists(function ($subQuery) use ($request) {
+            //         $subQuery->select(DB::raw(1))
+            //             ->from(DB::connection('mysql')->getDatabaseName() . '.users')
+            //             ->whereColumn('activity_logs.user_id', 'users.id')
+            //             ->where('users.business_id', $request->business_id);
+            //     });
+            // })
+            ->when(!empty($request->api_url), function ($query) use ($request) {
+                $query->where('api_url', $request->api_url);
+            })
+            ->when(!empty($request->ip_address), function ($query) use ($request) {
+                $query->where('ip_address', $request->ip_address);
+            })
+            ->when(!empty($request->request_method), function ($query) use ($request) {
+                $query->where('request_method', $request->request_method);
+            })
+            ->when($request->filled('is_error'), function ($query) use ($request) {
+                $query->where('is_error', $request->boolean('is_error') ? 1 : 0);
+            })
+            ->when(!empty($request->date), function ($query) use ($request) {
+                $query->whereDate('created_at', $request->date);
+            })
+            ->when(!empty($request->id), function ($query) use ($request) {
+                $query->where('id', $request->id);
+            })
+            ->orderbyDesc('id')
+            ->paginate(20);
+
+        return view('user-activity-log', compact('activity_logs'));
     }
 
+    public function dbOperation1(Request $request) {
+      $tenancyAgreement =  TenancyAgreement::get();
+      foreach($tenancyAgreement as $agreement) {
+        foreach($agreement->tenants as $tenant) {
+            $tenant_id = $tenant->id;
+            $propertyTenant = PropertyTenant::where([
+                'property_id' => $agreement->property_id,
+                'tenant_id' => $tenant_id
+            ])->first();
+
+            if (!$propertyTenant) {
+                PropertyTenant::create([
+                    'property_id' => $agreement->property_id,
+                    'tenant_id' => $tenant_id
+                ]);
+            }
+           }
+       
+        return "Database operation 1 executed";
+    }
 
     public function automobileRefresh() {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
