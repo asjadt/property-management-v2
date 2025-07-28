@@ -32,12 +32,12 @@ class TenantInspectionUpdateRequest extends FormRequest
             'next_inspection_date' => 'required|date',
             'inspection_duration' => 'required|string',
 
-        'maintenance_items' => 'present|array',
-        'maintenance_items.*.maintenance_item_type_id' => 'required|numeric|exists:maintenance_item_types,id',
-        'maintenance_items.*.status' => 'required|in:good,average,dirty,na,work_required,resolved',
-        'maintenance_items.*.comment' => 'nullable|string|max:1000',
-        'maintenance_items.*.next_follow_up_date' => 'nullable|date',
-        'comments' => 'nullable|string|max:1000',
+            'maintenance_items' => 'present|array',
+            'maintenance_items.*.maintenance_item_type_id' => 'required|numeric|exists:maintenance_item_types,id',
+            'maintenance_items.*.status' => 'required|in:good,average,dirty,na,work_required,resolved',
+            'maintenance_items.*.comment' => 'nullable|string|max:1000',
+            'maintenance_items.*.next_follow_up_date' => 'nullable|date',
+            'comments' => 'nullable|string|max:1000',
 
             'files' => 'present|array',
             'files.*.file' => 'required|string',

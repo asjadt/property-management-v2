@@ -24,7 +24,7 @@ class TenancyAgreementUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            "id"=> "required|numeric|exists:tenancy_agreements,id",
+            "id" => "required|numeric|exists:tenancy_agreements,id",
             'property_id' => 'required|exists:properties,id',
             'agreed_rent' => 'required|string|max:255',
             'security_deposit_hold' => 'required|string|max:255',
@@ -55,10 +55,10 @@ class TenancyAgreementUpdateRequest extends FormRequest
             'terms_and_conditions' => 'nullable|string',
             'agency_name' => 'required|string|max:255',
             'landlord_name' => 'required|string|max:255',
-            'agency_witness_name' => 'required|string|max:255',
-            'tenant_witness_name' => 'required|string|max:255',
-            'agency_witness_address' => 'required|string|max:255',
-            'tenant_witness_address' => 'required|string|max:255',
+            'agency_witness_name' => 'nullable|string|max:255',
+            'tenant_witness_name' => 'nullable|string|max:255',
+            'agency_witness_address' => 'nullable|string|max:255',
+            'tenant_witness_address' => 'nullable|string|max:255',
             'guarantor_name' => 'nullable|string|max:255',
             'guarantor_address' => 'nullable|string|max:255',
 
