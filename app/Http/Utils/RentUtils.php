@@ -60,7 +60,7 @@ class RentUtils
         foreach ($agreements as $agreement) {
             $rent_due_day = $agreement->rent_due_day;
 
-            // Skip agreements with no rent_due_day or expired contract
+      
             if (!$rent_due_day || !$agreement->tenant_contact_expired_date) {
                 continue;
             }
@@ -79,8 +79,10 @@ class RentUtils
             $currentMonthKey = $start_of_month->format('Y-m');
             $nextMonthKey = $next_month_start->format('Y-m');
 
-            $dueDateCurrentMonth = Carbon::create($now->year, $now->month, $rent_due_day);
-            $dueDateNextMonth = Carbon::create($now->copy()->addMonth()->year, $now->copy()->addMonth()->month, $rent_due_day);
+          $dueDateCurrentMonth = Carbon::create($now->year, $now->month, 1)->day(min($rent_due_day, Carbon::create($now->year, $now->month, 1)->daysInMonth));
+
+          $nextMonth = $now->copy()->addMonth();
+$dueDateNextMonth = Carbon::create($nextMonth->year, $nextMonth->month, 1)->day(min($rent_due_day, $nextMonth->daysInMonth));
 
             $isPaidCurrent = $rent_map->has($currentMonthKey);
             $isPaidNext = $rent_map->has($nextMonthKey);
@@ -124,7 +126,7 @@ class RentUtils
             ];
 
             foreach ($alert_ranges as $key => $alertDate) {
-                $alertDueDate = Carbon::create($alertDate->year, $alertDate->month, $rent_due_day);
+              $alertDueDate = Carbon::create($alertDate->year, $alertDate->month, 1)->day(min($rent_due_day, $alertDate->daysInMonth));
 
                 if ($alertDueDate->lte($expiredDate)) {
                     $alertMonthKey = $alertDueDate->format('Y-m');
