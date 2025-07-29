@@ -25,7 +25,7 @@ class ImageUploadRequest extends FormRequest
     {
 
             return [
-                'image' => 'required|image|max:2048',
+                'image' => 'required|image',
             ];
 
     }

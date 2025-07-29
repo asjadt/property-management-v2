@@ -25,7 +25,7 @@ class MultipleImageUploadRequest extends FormRequest
     {
         return [
             'images' => 'required|array',
-            'images.*' => 'required|file|max:2048',
+            'images.*' => 'required|file',
         ];
     }
 }

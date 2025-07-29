@@ -82,7 +82,7 @@ class RentUtils
           $dueDateCurrentMonth = Carbon::create($now->year, $now->month, 1)->day(min($rent_due_day, Carbon::create($now->year, $now->month, 1)->daysInMonth));
 
           $nextMonth = $now->copy()->addMonth();
-$dueDateNextMonth = Carbon::create($nextMonth->year, $nextMonth->month, 1)->day(min($rent_due_day, $nextMonth->daysInMonth));
+          $dueDateNextMonth = Carbon::create($nextMonth->year, $nextMonth->month, 1)->day(min($rent_due_day, $nextMonth->daysInMonth));
 
             $isPaidCurrent = $rent_map->has($currentMonthKey);
             $isPaidNext = $rent_map->has($nextMonthKey);

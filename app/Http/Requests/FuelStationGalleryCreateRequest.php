@@ -26,7 +26,7 @@ class FuelStationGalleryCreateRequest extends FormRequest
 
         return [
             'images' => 'required|array',
-            'images.*' => 'required|image|max:2048',
+            'images.*' => 'required|image',
         ];
     }
 }
