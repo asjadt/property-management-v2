@@ -716,12 +716,21 @@ class TenancyAgreementController extends Controller
 
 
             foreach ($tenancy_agreements as $tenancy_agreement) {
+
+                 $start_date = Carbon::parse($tenancy_agreement["date_of_moving"]);
+                 $endDate = Carbon::createFromDate($year, $month, 1)
+                ->endOfMonth()->endOfDay();
+             
+                $months_difference = $start_date->diffInMonths($endDate);
+                $tenancy_agreement["current_total_agreed_rent"] = $tenancy_agreement["agreed_rent"] * $months_difference;
+
+
                 // Calculate total arrears
                 $agreement_rents = Rent::where([
                     "tenancy_agreement_id" => $tenancy_agreement->id
                 ])
                     ->where(function ($query) use ($year, $month) {
-                        $query->where('year', '<', ["year"])
+                        $query->where('year', '<', $year)
                             ->orWhere(function ($query) use ($year, $month) {
                                 $query->where('year', $year)
                                     ->where('month', '<=', $month);
@@ -742,13 +751,25 @@ class TenancyAgreementController extends Controller
 
                 $tenancy_agreement["total_rent"] =   $this->processArrears($tenancy_agreement, $agreement_rents, false);
 
+                $tenancy_agreement["all_previous_paid"] = $agreement_rents->sum("paid_amount");
+
                 if (!empty($this_month_rents)) {
                     $tenancy_agreement["already_paid"] = $this_month_rents_collection->sum("paid_amount");
-                    $tenancy_agreement["arrear"] = $tenancy_agreement["total_rent"];
+                    $tenancy_agreement["arrear"] = $tenancy_agreement["current_total_agreed_rent"] - $tenancy_agreement["all_previous_paid"];
+
+                    if($tenancy_agreement["arrear"] < 0){
+                      $tenancy_agreement["arrear"] = $tenancy_agreement["arrear"] - 2 * $tenancy_agreement["arrear"];
+                    }
+
                 } else {
                     $tenancy_agreement["already_paid"] = 0;
-                    $tenancy_agreement["arrear"] =   $tenancy_agreement["total_rent"] - $tenancy_agreement["agreed_rent"];
+
+                    $tenancy_agreement["arrear"] =  $tenancy_agreement["current_total_agreed_rent"] - $tenancy_agreement["all_previous_paid"];
+
                 }
+                 if($tenancy_agreement["arrear"] < 0){
+                      $tenancy_agreement["arrear"] = 0;
+                    }
 
                 $tenancy_agreement["total_paid"] = $tenancy_agreement->rents()->sum("paid_amount");
             }

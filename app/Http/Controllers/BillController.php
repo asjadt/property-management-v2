@@ -152,19 +152,7 @@ class BillController extends Controller
 
               $bill_items = collect($request_data["bill_items"])->map(function ($item)use ($bill) {
 
-                    // $bill_item_exists =    BillBillItem::where([
-                    //         "bill_item_id" => $item["bill_item_id"]
-                    //     ])
-                    //    ->whereNotIn("bill_id",[$bill->id])
-                    //     ->first();
-                    //     if($bill_item_exists) {
-                    //         $error =  [
-                    //             "message" => "The given data was invalid.",
-                    //             "errors" => ["bill_items"=>["invalid item"]]
-                    //      ];
-                    //         throw new Exception(json_encode($error),422);
-                    //     }
-
+                
 
 
 
