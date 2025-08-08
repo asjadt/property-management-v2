@@ -531,52 +531,28 @@ class TenancyAgreementController extends Controller
 
             // Calculate total paid amount from the rents table
             $rentHighlights = Rent::whereIn('tenancy_agreement_id', $agreementIds)
-                ->selectRaw('SUM(COALESCE(paid_amount, 0)) as total_paid')
-                ->first();
+                ->get();
 
             // Get the highest rent from the tenancy agreements
             $highestRent = TenancyAgreement::whereIn('tenancy_agreements.id', $agreementIds)
                 ->max('total_agreed_rent');
 
-            // Calculate total arrears (total rent - total paid)
-            // $totalArrears = $totalRent - $rentHighlights->total_paid;
+          
 
-            // CALCULATE TOTAL ARREARS
-            $today = Carbon::today();
+           
 
-            $agreements_for_rents = TenancyAgreement::with(['property', 'rents'])
-                ->where('rent_payment_option', 'per_calendar_month')
-                ->whereHas('property', function ($query) {
-                    $query->whereNull('deleted_at');
-                })
-                ->when(filled($request->property_id), function ($query) use ($request) {
-                    $query->where('property_id', $request->property_id);
-                })
-                ->whereNotNull('rent_due_day')
-                ->whereNotNull('tenant_contact_expired_date')
-                ->whereDate('tenant_contact_expired_date', '>', $today)
-                ->get();
+                $total_due = 0;
 
-            // Flatten rents from all agreements
-            $agreement_rents = $agreements_for_rents->flatMap(function ($agreement) {
-                return $agreement->rents;
-            });
+                 foreach ($agreements as $agreement) {
+    $total_due += $this->calculatePayments($agreement, today())['total_arrears'];
+}
 
-            // Calculate this month's arrears
-            $total_arrears = $agreement_rents
-                ->where('year', $today->year)
-                ->where('month', $today->month)
-                ->sum(function ($rent) {
-                    return ($rent->arrear + $rent->rent_amount - $rent->paid_amount);
-                });
-
-
-
+           
             // Combine everything into one array
             $rentHighlightsData = [
                 'total_rent' => $totalRent,
-                'total_paid' => $rentHighlights->total_paid,
-                'total_arrears' => $total_arrears,
+                'total_paid' => $rentHighlights->sum('paid_amount'),
+                'total_arrears' => $total_due,
                 'highest_rent' => $highestRent
             ];
 
@@ -696,11 +672,11 @@ class TenancyAgreementController extends Controller
                     $endDate = Carbon::createFromDate($year, $month, 1)->endOfMonth()->endOfDay();
 
                     $query->where(function ($subQuery) use ($startDate, $endDate) {
-                        $subQuery->where('tenancy_agreements.date_of_moving', '<=', $endDate)
-                            ->where('tenancy_agreements.tenant_contact_expired_date', '>=', $startDate);
+                        $subQuery->whereDate('tenancy_agreements.date_of_moving', '<=', $endDate)
+                            ->whereDate('tenancy_agreements.tenant_contact_expired_date', '>=', $startDate);
                     })
-                        ->where(function ($query) use ($year, $month) {
-                            $query->whereDoesntHave("rents", function ($subQuery) use ($year, $month) {
+                      
+                    ->whereDoesntHave("rents", function ($subQuery) use ($year, $month) {
                                 $subQuery->where(function ($query) use ($year, $month) {
                                     $query->where('year', '>', $year)
                                         ->orWhere(function ($query) use ($year, $month) {
@@ -708,9 +684,9 @@ class TenancyAgreementController extends Controller
                                                 ->where('month', '>=', $month);
                                         });
                                 })
-                                    ->where('payment_status', "paid");
+                                    ->where('payment_status', "fully_paid");
                             });
-                        });
+                        ;
                 })
 
                 ->whereHas('property', function ($q) {
@@ -756,6 +732,8 @@ class TenancyAgreementController extends Controller
                     ->get();
 
 
+
+
                 $this_month_rents_collection = $agreement_rents->filter(function ($rent) use ($year, $month) {
                     return $rent->year == $year && $rent->month == $month;
                 });
@@ -771,8 +749,12 @@ class TenancyAgreementController extends Controller
                     $tenancy_agreement["already_paid"] = 0;
                     $tenancy_agreement["arrear"] =   $tenancy_agreement["total_rent"] - $tenancy_agreement["agreed_rent"];
                 }
-            }
 
+                $tenancy_agreement["total_paid"] = $tenancy_agreement->rents()->sum("paid_amount");
+            }
+$tenancy_agreements = $tenancy_agreements->filter(function ($tenancy_agreement) {
+    return $tenancy_agreement["total_paid"] != $tenancy_agreement["total_agreed_rent"];
+})->values();
 
             $responseData = [
                 "selectable_tenancy_agreements" => $tenancy_agreements,

@@ -1079,10 +1079,6 @@ class PropertyBasicController extends Controller
 
       $alerts_summary['due_in_45_days'] += $this->calculatePayments($agreement, today()->addDays(45))['total_arrears'];
 
-
-
-
-
 }
 
         return [
