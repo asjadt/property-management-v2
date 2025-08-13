@@ -26,6 +26,12 @@ return [
                 "repair_category_view",
                 "repair_category_delete",
 
+
+                "expense_category_create",
+                "expense_category_update",
+                "expense_category_view",
+                "expense_category_delete",
+
                 "bill_item_create",
                 "bill_item_update",
                 "bill_item_view",
@@ -40,6 +46,8 @@ return [
             "permissions" => [
                 "payment_type_view",
                 "repair_category_view",
+                "expense_category_view",
+             
                 "bill_item_view",
 
 
@@ -88,6 +96,11 @@ return [
        "repair_category_view",
        "repair_category_delete",
 
+           "expense_category_create",
+                "expense_category_update",
+                "expense_category_view",
+                "expense_category_delete",
+
        "bill_item_create",
        "bill_item_update",
        "bill_item_view",
@@ -107,6 +120,8 @@ return [
     "repair_receipt_file" => "repair_receipt_file",
     "invoice_image" => "invoice_image",
     "repair_category_image" => "repair_category_image",
+ "expense_category_image" => "expense_category_image",
+
     "temporary_files_location" => "temporary_files",
 
 

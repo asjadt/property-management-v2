@@ -22,6 +22,7 @@ use App\Http\Controllers\DocumentTypeController;
 use App\Http\Controllers\DocVoletController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\EmailTemplateWrapperController;
+use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\FileManagementController;
 use App\Http\Controllers\FuelStationController;
 use App\Http\Controllers\FuelStationGalleryController;
@@ -514,6 +515,21 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/v1.0/repair-categories/get/all/optimized', [RepairCategoryController::class, "getAllRepairCategoriesOptimized"]);
     Route::get('/v1.0/repair-categories/get/single/{id}', [RepairCategoryController::class, "getRepairCategoryById"]);
     Route::delete('/v1.0/repair-categories/{id}', [RepairCategoryController::class, "deleteRepairCategoryById"]);
+    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    // repair category management section
+    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // repair category management section
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    Route::post('/v1.0/expense-category-icon', [ExpenseCategoryController::class, "createExpenseCategoryImage"]);
+    Route::post('/v1.0/expense-categories', [ExpenseCategoryController::class, "createExpenseCategory"]);
+    Route::put('/v1.0/expense-categories', [ExpenseCategoryController::class, "updateExpenseCategory"]);
+    Route::get('/v1.0/expense-categories/{perPage}', [ExpenseCategoryController::class, "getExpenseCategories"]);
+    Route::get('/v1.0/expense-categories/get/all/optimized', [ExpenseCategoryController::class, "getAllExpenseCategoriesOptimized"]);
+    Route::get('/v1.0/expense-categories/get/single/{id}', [ExpenseCategoryController::class, "getExpenseCategoryById"]);
+    Route::delete('/v1.0/expense-categories/{id}', [ExpenseCategoryController::class, "deleteRepairCategoryById"]);
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     // repair category management section
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
