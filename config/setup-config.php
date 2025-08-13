@@ -61,6 +61,8 @@ return [
                 "reminder_view",
                 "reminder_delete",
 
+               
+
             ],
         ],
 

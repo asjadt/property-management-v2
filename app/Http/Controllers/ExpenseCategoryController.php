@@ -165,11 +165,7 @@ public function createExpenseCategory(ExpenseCategoryCreateRequest $request)
     try {
         $this->storeActivity($request,"");
         return DB::transaction(function () use ($request) {
-            if (!$request->user()->hasPermissionTo('expense_category_create')) {
-                return response()->json([
-                    "message" => "You can not perform this action"
-                ], 401);
-            }
+           
 
 
             $request_data = $request->validated();
@@ -259,42 +255,25 @@ public function updateExpenseCategory(ExpenseCategoryUpdateRequest $request)
     try {
         $this->storeActivity($request,"");
         return  DB::transaction(function () use ($request) {
-            if (!$request->user()->hasPermissionTo('expense_category_update')) {
-                return response()->json([
-                    "message" => "You can not perform this action"
-                ], 401);
-            }
+          
             $request_data = $request->validated();
 
-            // $affiliationPrev = ExpenseCategory::where([
-            //     "id" => $request_data["id"]
-            //    ]);
+       $expense_category =  ExpenseCategory::where([
+        "id" => $request_data["id"],
+        "created_by" => $request->user()->id
+       ])
+       ->first();
 
-            //    if(!$request->user()->hasRole('superadmin')) {
-            //     $affiliationPrev =    $affiliationPrev->where([
-            //         "created_by" =>$request->user()->id
-            //     ]);
-            // }
-            // $affiliationPrev = $affiliationPrev->first();
-            //  if(!$affiliationPrev) {
-            //         return response()->json([
-            //            "message" => "you did not create this affiliation."
-            //         ],404);
-            //  }
+       if(empty($expense_category)) {
+        return response()->json([
+            "message" => "Expense category not found"
+        ],404);
+       }
 
-
-
-
-            $expense_category  =  tap(ExpenseCategory::where(["id" => $request_data["id"], "created_by" => $request->user()->id]))->update(
-                collect($request_data)->only([
-    'name',
-    'icon',
-
-                ])->toArray()
-            )
-                // ->with("somthing")
-
-                ->first();
+       $expense_category->name = $request_data["name"];
+       $expense_category->icon = $request_data["icon"];
+       $expense_category->save();
+       
 
             return response($expense_category, 200);
         });
@@ -390,15 +369,12 @@ public function getExpenseCategories($perPage, Request $request)
 {
     try {
         $this->storeActivity($request,"");
-        if (!$request->user()->hasPermissionTo('expense_category_view')) {
-            return response()->json([
-                "message" => "You can not perform this action"
-            ], 401);
-        }
+        
 
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $expense_categoryQuery =  new ExpenseCategory();
+        $expense_categoryQuery =   ExpenseCategory::where([
+            "created_by" => $request->user()->id]);
 
         if (!empty($request->search_key)) {
             $expense_categoryQuery = $expense_categoryQuery->where(function ($query) use ($request) {
@@ -505,15 +481,12 @@ public function getExpenseCategories($perPage, Request $request)
  {
      try {
          $this->storeActivity($request,"");
-         if (!$request->user()->hasPermissionTo('expense_category_view')) {
-             return response()->json([
-                 "message" => "You can not perform this action"
-             ], 401);
-         }
+         
 
          // $automobilesQuery = AutomobileMake::with("makes");
 
-         $expense_categoryQuery =  new ExpenseCategory();
+         $expense_categoryQuery =  ExpenseCategory::where([
+            "created_by" => $request->user()->id]);
 
          if (!empty($request->search_key)) {
              $expense_categoryQuery = $expense_categoryQuery->where(function ($query) use ($request) {
@@ -607,16 +580,12 @@ public function getExpenseCategoryById($id, Request $request)
 {
     try {
         $this->storeActivity($request,"");
-        if (!$request->user()->hasPermissionTo('expense_category_view')) {
-            return response()->json([
-                "message" => "You can not perform this action"
-            ], 401);
-        }
+        
 
 
         $expense_category = ExpenseCategory::where([
             "generated_id" => $id,
-            // "created_by" => $request->user()->id
+             "created_by" => $request->user()->id
         ])
         ->first();
 
@@ -703,11 +672,7 @@ public function deleteExpenseCategoryById($id, Request $request)
 
     try {
         $this->storeActivity($request,"");
-        if (!$request->user()->hasPermissionTo('expense_category_delete')) {
-            return response()->json([
-                "message" => "You can not perform this action"
-            ], 401);
-        }
+        
 
         if (!Hash::check($request->header("password"), $request->user()->password)) {
             return response()->json([
