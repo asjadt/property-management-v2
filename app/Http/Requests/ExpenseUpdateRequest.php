@@ -25,6 +25,7 @@ class ExpenseUpdateRequest extends FormRequest
     {
         return [
             'id'=> "required|numeric|exists:expenses,id",
+            "payment_method" => "required|string",
             'property_id'=> "nullable|numeric|exists:properties,id",
             'expense_category_id'=>"required|numeric|exists:expense_categories,id",
             'item_description'=>"nullable|string",

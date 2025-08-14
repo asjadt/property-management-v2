@@ -23,6 +23,8 @@ class CreateExpensesTable extends Migration
             $table->unsignedBigInteger("expense_category_id");
             $table->foreign('expense_category_id')->references('id')->on('expense_categories')->onDelete('restrict');
 
+            $table->string("payment_method");
+
             $table->string('item_description')->nullable();
             $table->text('receipt')->nullable();
             $table->double('price')->default(0);;

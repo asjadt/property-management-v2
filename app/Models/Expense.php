@@ -10,6 +10,7 @@ class Expense extends Model
 {
    use HasFactory,SoftDeletes;
     protected $fillable = [
+        "payment_method",
         'property_id',
         'expense_category_id',
         'item_description',

@@ -219,6 +219,7 @@ public function createExpenseReceiptFile(FileUploadRequest $request)
  *            required={"name","description","logo"},
  *  *             @OA\Property(property="property_id", type="number", format="number",example="1"),
   *             @OA\Property(property="expense_category_id", type="string", format="string",example="1"),
+  *             @OA\Property(property="payment_method", type="string", format="string",example="1"),
  *            @OA\Property(property="item_description", type="string", format="string",example="item_description"),
  *
  *  *            @OA\Property(property="status", type="string", format="string",example="status"),
@@ -327,6 +328,7 @@ public function createExpense(ExpenseCreateRequest $request)
  *     *             @OA\Property(property="id", type="number", format="number",example="1"),
  *  *             @OA\Property(property="property_id", type="number", format="number",example="1"),
   *             @OA\Property(property="expense_category_id", type="string", format="string",example="1"),
+  *             @OA\Property(property="payment_method", type="string", format="string",example="1"),
  *            @OA\Property(property="item_description", type="string", format="string",example="item_description"),
  *  *            @OA\Property(property="status", type="string", format="string",example="status"),
  *
@@ -390,6 +392,7 @@ public function updateExpense(ExpenseUpdateRequest $request)
             $expense  =  tap(Expense::where(["id" => $request_data["id"],"created_by" => $request->user()->id]))->update(
                 collect($request_data)->only([
                     'property_id',
+                    "payment_method",
                     'expense_category_id',
                     'item_description',
                     'status',
@@ -535,7 +538,7 @@ public function getExpenses($perPage, Request $request)
         // ->leftJoin('invoice_items', 'invoice_items.expense_id', '=', 'repairs.id')
         // ->leftJoin('invoices', 'invoices.id', '=', 'invoice_items.invoice_id')
         ->leftJoin('properties', 'properties.id', '=', 'expenses.property_id')
-        ->leftJoin('expense_categories', 'expense_categories.id', '=', 'expensess.expense_category_id')
+        ->leftJoin('expense_categories', 'expense_categories.id', '=', 'expenses.expense_category_id')
         ->where(["expenses.created_by" => $request->user()->id]);
 
         // if (!empty($request->invoice_not_issued)) {

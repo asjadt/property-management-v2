@@ -25,6 +25,7 @@ class ExpenseCreateRequest extends FormRequest
     {
         return [
             'property_id'=> "nullable|numeric|exists:properties,id",
+             "payment_method" => "required|string",
             'expense_category_id'=>"required|numeric|exists:expense_categories,id",
             'item_description'=>"nullable|string",
             'status'=>"required|string",
