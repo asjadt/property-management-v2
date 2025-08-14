@@ -506,6 +506,7 @@ public function getExpenseCategories($perPage, Request $request)
          ->select(
             "expense_categories.id",
             "expense_categories.generated_id",
+            "expense_categories.icon",
             "expense_categories.name",
 
 

@@ -23,6 +23,7 @@ use App\Http\Controllers\DocVoletController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\EmailTemplateWrapperController;
 use App\Http\Controllers\ExpenseCategoryController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\FileManagementController;
 use App\Http\Controllers\FuelStationController;
 use App\Http\Controllers\FuelStationGalleryController;
@@ -546,17 +547,31 @@ Route::middleware(['auth:api'])->group(function () {
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     // Repair management section
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
     Route::post('/v1.0/repair-images/multiple', [RepairController::class, "createRepairImageMultiple"]);
-
     Route::post('/v1.0/repair-receipts-file', [RepairController::class, "createRepairReceiptFile"]);
     Route::post('/v1.0/repair-receipts-file/multiple', [RepairController::class, "createRepairReceiptFileMultiple"]);
-
     Route::post('/v1.0/repairs', [RepairController::class, "createRepair"]);
     Route::put('/v1.0/repairs', [RepairController::class, "updateRepair"]);
     Route::get('/v1.0/repairs/{perPage}', [RepairController::class, "getRepairs"]);
     Route::get('/v1.0/repairs/get/single/{id}', [RepairController::class, "getRepairById"]);
     Route::delete('/v1.0/repairs/{id}', [RepairController::class, "deleteRepairById"]);
+
+    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    // Repair management section
+    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // Repair management section
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ 
+    Route::post('/v1.0/expense-receipts-file', [ExpenseController::class, "createExpenseReceiptFile"]);
+    Route::post('/v1.0/repair-receipts-file/multiple', [ExpenseController::class, "createExpenseReceiptFileMultiple"]);
+    Route::post('/v1.0/expenses', [ExpenseController::class, "createExpense"]);
+    Route::put('/v1.0/expenses', [ExpenseController::class, "updateExpense"]);
+    Route::get('/v1.0/expenses/{perPage}', [ExpenseController::class, "getExpenses"]);
+    Route::get('/v1.0/expenses/get/single/{id}', [ExpenseController::class, "getExpenseById"]);
+    Route::delete('/v1.0/expenses/{id}', [ExpenseController::class, "deleteExpenseById"]);
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     // Repair management section
