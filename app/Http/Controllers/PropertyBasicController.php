@@ -32,7 +32,7 @@ use Illuminate\Support\Facades\Log;
 class PropertyBasicController extends Controller
 {
     use ErrorUtil, UserActivityUtil, BasicUtil;
-     /**
+    /**
      *
      * @OA\Get(
      *      path="/v1.0/property-report",
@@ -123,7 +123,7 @@ class PropertyBasicController extends Controller
             $this->storeActivity($request, "");
 
 
-         
+
 
             if (!empty($request->end_date)) {
                 $request['next_day'] = date('Y-m-d', strtotime($request->end_date) + 86400);
@@ -160,7 +160,7 @@ class PropertyBasicController extends Controller
 
                 $opening_balance =  $opening_balance_data->sum("total_due");
 
-           
+
                 $invoiceQuery = Invoice::where([
                     "invoices.property_id" => $property->id,
                     "invoices.created_by" => $request->user()->id
@@ -345,197 +345,220 @@ class PropertyBasicController extends Controller
      *     )
      */
 
-public function propertyReportV2(Request $request)
-{
-    try {
-        $this->storeActivity($request, "");
+    public function propertyReportV2(Request $request)
+    {
+        try {
+            $this->storeActivity($request, "");
 
-        if (empty($request->property_id)) {
-            throw new Exception(json_encode([
-                "message" => "The given data was invalid.",
-                "errors" => [
-                    "property_id" => ["property must be selected."]
-                ]
-            ]), 422);
-        }
+            if (empty($request->property_id)) {
+                throw new Exception(json_encode([
+                    "message" => "The given data was invalid.",
+                    "errors" => [
+                        "property_id" => ["property must be selected."]
+                    ]
+                ]), 422);
+            }
 
-        $property = Property::where([
-            "id" => $request->property_id,
-            "created_by" => $request->user()->id
-        ])->first();
+            $property = Property::where([
+                "id" => $request->property_id,
+                "created_by" => $request->user()->id
+            ])->first();
 
-        if (!$property) {
+            if (!$property) {
+                return response()->json([
+                    "message" => "no property found"
+                ], 404);
+            }
+
+            $start_date = $request->start_date;
+
+            $total_invoices_before = Invoice::where([
+                "property_id" => $property->id,
+                "created_by" => $request->user()->id
+            ])
+                ->whereNotIn("invoices.status", ['draft'])
+                ->when($start_date, fn($q) => $q->whereDate('invoice_date', "<", $start_date))
+                ->sum('total_amount');
+
+            $total_invoice_payments_before = InvoicePayment::whereHas('invoice', function ($q) use ($property, $request, $start_date) {
+                $q->where("property_id", $property->id)
+                    ->where("created_by", $request->user()->id)
+                    ->whereNotIn("invoices.status", ['draft']);
+                if ($start_date) {
+                    $q->whereDate('payment_date', "<", $start_date);
+                }
+            })
+                ->sum('amount');
+
+            $total_rents_before = Rent::whereHas(
+                "tenancy_agreement.property",
+                fn($q) =>
+                $q->where("properties.id", $property->id)
+            )
+                ->when($start_date, fn($q) => $q->whereDate('payment_date', "<", $start_date))
+                ->sum('paid_amount');
+
+            $total_repairs_before = Repair::where([
+                "property_id" => $property->id,
+                "created_by" => $request->user()->id
+            ])
+                ->when($start_date, fn($q) => $q->whereDate('create_date', "<", $start_date))
+                ->sum('price');
+
+            $total_expenses_before = Expense::where([
+                "property_id" => $property->id,
+                "created_by" => $request->user()->id
+            ])
+                ->when($start_date, fn($q) => $q->whereDate('create_date', "<", $start_date))
+                ->sum('price');
+
+            // Formula: credits - debits
+            $opening_balance =
+                ($total_invoice_payments_before + $total_rents_before) // credits
+                - ($total_invoices_before + $total_repairs_before + $total_expenses_before); // debits
+
+            // -------------------------
+            // Fetch minimal data
+            // -------------------------
+            $invoices = Invoice::where([
+                "property_id" => $property->id,
+                "created_by" => $request->user()->id
+            ])
+                ->whereNotIn("invoices.status", ['draft'])
+                ->when($request->start_date, fn($q) => $q->whereDate('invoice_date', ">=", $request->start_date))
+                ->when($request->end_date, fn($q) => $q->whereDate('invoice_date', "<=", $request->end_date))
+                ->select('id', 'total_amount as amount', 'invoice_date as date')
+                ->get();
+
+            $invoice_payments = InvoicePayment::whereIn("invoice_id", $invoices->pluck("id"))
+                ->select("amount", "payment_date as date")
+                ->get();
+
+            $repairs = Repair::where([
+                "property_id" => $property->id,
+                "created_by" => $request->user()->id
+            ])
+                ->when($request->start_date, fn($q) => $q->where('create_date', ">=", $request->start_date))
+                ->when($request->end_date, fn($q) => $q->whereDate('create_date', "<=", $request->end_date))
+                ->select('price as amount', 'create_date as date')
+                ->get();
+
+            $rents = Rent::whereHas("tenancy_agreement.property", fn($q) => $q->where("properties.id", $property->id))
+                ->when($request->start_date, fn($q) => $q->where('rents.payment_date', ">=", $request->start_date))
+                ->when($request->end_date, fn($q) => $q->whereDate('rents.payment_date', "<=", $request->end_date))
+                ->select('paid_amount as amount', 'payment_date as date')
+                ->get();
+
+            $expenses = Expense::where([
+                "property_id" => $property->id,
+                "created_by" => $request->user()->id
+            ])
+                ->when($request->start_date, fn($q) => $q->where('create_date', ">=", $request->start_date))
+                ->when($request->end_date, fn($q) => $q->whereDate('create_date', "<=", $request->end_date))
+                ->select('price as amount', 'create_date as date')
+                ->get();
+
+            // -------------------------
+            // Build ledger
+            // -------------------------
+            $ledger = collect();
+            $ledger->push([
+                'date' => $request->start_date,
+                'transaction' => 'Opening Balance',
+                'debit' => 0.0,
+                'credit' => 0.0,
+                'cash_balance' => (float)$opening_balance,
+                'notes' => 'Previous due'
+            ]);
+
+            foreach ($invoices as $row) {
+                $ledger->push([
+                    'date' => $row->date,
+                    'transaction' => 'Invoice Issued - Amount: ' . number_format($row->amount, 2),
+                    'debit' => (float)$row->amount,
+                    'credit' => 0.0,
+                    'notes' => 'Invoice issued for property expenses'
+                ]);
+            }
+
+            foreach ($invoice_payments as $row) {
+                $ledger->push([
+                    'date' => $row->date,
+                    'transaction' => 'Invoice Payment Received - Amount: ' . number_format($row->amount, 2),
+                    'debit' => 0.0,
+                    'credit' => (float)$row->amount,
+                    'notes' => 'Payment received from tenant or customer'
+                ]);
+            }
+
+            foreach ($repairs as $row) {
+                $ledger->push([
+                    'date' => $row->date,
+                    'transaction' => 'Repair Work Completed - Cost: ' . number_format($row->amount, 2),
+                    'debit' => (float)$row->amount,
+                    'credit' => 0.0,
+                    'notes' => 'Maintenance or repair expense for the property'
+                ]);
+            }
+
+            foreach ($rents as $row) {
+                $ledger->push([
+                    'date' => $row->date,
+                    'transaction' => 'Rent Payment Received - Amount: ' . number_format($row->amount, 2),
+                    'debit' => 0.0,
+                    'credit' => (float)$row->amount,
+                    'notes' => 'Monthly rent payment from tenant'
+                ]);
+            }
+
+            foreach ($expenses as $row) {
+                $ledger->push([
+                    'date' => $row->date,
+                    'transaction' => 'General Expense - Amount: ' . number_format($row->amount, 2),
+                    'debit' => (float)$row->amount,
+                    'credit' => 0.0,
+                    'notes' => 'Other property-related expense'
+                ]);
+            }
+            // -------------------------
+            // Sort & calculate running cash balance
+            // -------------------------
+            $ledger = $ledger->sortBy(fn($entry) => \Carbon\Carbon::parse($entry['date']))->values();
+            $running_balance = $opening_balance;
+
+            $ledger = $ledger->map(function ($entry) use (&$running_balance) {
+                $debit = (float)$entry['debit'];
+                $credit = (float)$entry['credit'];
+                $running_balance += $credit - $debit;
+                $entry['cash_balance'] = $running_balance;
+                $entry['debit'] = $debit;
+                $entry['credit'] = $credit;
+                return $entry;
+            });
+
+            // -------------------------
+            // Calculate summary
+            // -------------------------
+            $total_debits = $ledger->sum('debit');
+            $total_credits = $ledger->sum('credit');
+            $closing_balance = $running_balance;
+
             return response()->json([
-                "message" => "no property found"
-            ], 404);
+                'property' => $property,
+                'start_date' => $request->start_date,
+                'end_date' => $request->end_date,
+                'summary' => [
+                    'opening_balance' => (float)$opening_balance,
+                    'total_debits' => $total_debits,
+                    'total_credits' => $total_credits,
+                    'closing_balance' => $closing_balance
+                ],
+                'ledger' => $ledger
+            ], 200);
+        } catch (Exception $e) {
+            return $this->sendError($e, 500, $request);
         }
-
-        // -------------------------
-        // Opening balance
-        // -------------------------
-        $opening_balance_data = Invoice::where([
-            "property_id" => $property->id,
-            "created_by" => $request->user()->id
-        ])
-        ->when($request->start_date, fn($q) => $q->whereDate('invoice_date', "<", $request->start_date))
-        ->select(DB::raw('
-            COALESCE(
-                invoices.total_amount - (
-                    SELECT SUM(invoice_payments.amount) 
-                    FROM invoice_payments 
-                    WHERE invoice_payments.invoice_id = invoices.id
-                ),
-                invoices.total_amount
-            ) AS total_due
-        '))
-        ->get();
-
-        $opening_balance = $opening_balance_data->sum("total_due");
-
-        // -------------------------
-        // Fetch minimal data
-        // -------------------------
-        $invoices = Invoice::where([
-            "property_id" => $property->id,
-            "created_by" => $request->user()->id
-        ])
-        ->when($request->start_date, fn($q) => $q->whereDate('invoice_date', ">=", $request->start_date))
-        ->when($request->end_date, fn($q) => $q->whereDate('invoice_date', "<=", $request->end_date))
-        ->select('id', 'total_amount as amount', 'invoice_date as date')
-        ->get();
-
-        $invoice_payments = InvoicePayment::whereIn("invoice_id", $invoices->pluck("id"))
-            ->select("amount", "payment_date as date")
-            ->get();
-
-        $repairs = Repair::where([
-            "property_id" => $property->id,
-            "created_by" => $request->user()->id
-        ])
-        ->when($request->start_date, fn($q) => $q->where('create_date', ">=", $request->start_date))
-        ->when($request->end_date, fn($q) => $q->whereDate('create_date', "<=", $request->end_date))
-        ->select('price as amount', 'create_date as date')
-        ->get();
-
-        $rents = Rent::whereHas("tenancy_agreement.property", fn($q) => $q->where("properties.id", $property->id))
-            ->when($request->start_date, fn($q) => $q->where('rents.payment_date', ">=", $request->start_date))
-            ->when($request->end_date, fn($q) => $q->whereDate('rents.payment_date', "<=", $request->end_date))
-            ->select('paid_amount as amount', 'payment_date as date')
-            ->get();
-
-        $expenses = Expense::where([
-            "property_id" => $property->id,
-            "created_by" => $request->user()->id
-        ])
-        ->when($request->start_date, fn($q) => $q->where('create_date', ">=", $request->start_date))
-        ->when($request->end_date, fn($q) => $q->whereDate('create_date', "<=", $request->end_date))
-        ->select('price as amount', 'create_date as date')
-        ->get();
-
-        // -------------------------
-        // Build ledger
-        // -------------------------
-        $ledger = collect();
-        $ledger->push([
-            'date' => $request->start_date,
-            'transaction' => 'Opening Balance',
-            'debit' => 0.0,
-            'credit' => 0.0,
-            'cash_balance' => (float)$opening_balance,
-            'notes' => 'Previous due'
-        ]);
-
-        // Add transactions
-        foreach ($invoices as $row) {
-            $ledger->push([
-                'date' => $row->date,
-                'transaction' => 'Invoice',
-                'debit' => (float)$row->amount,
-                'credit' => 0.0,
-                'notes' => 'Invoice issued'
-            ]);
-        }
-
-        foreach ($invoice_payments as $row) {
-            $ledger->push([
-                'date' => $row->date,
-                'transaction' => 'Invoice Payment',
-                'debit' => 0.0,
-                'credit' => (float)$row->amount,
-                'notes' => 'Payment received'
-            ]);
-        }
-
-        foreach ($repairs as $row) {
-            $ledger->push([
-                'date' => $row->date,
-                'transaction' => 'Repair',
-                'debit' => (float)$row->amount,
-                'credit' => 0.0,
-                'notes' => 'Repair expense'
-            ]);
-        }
-
-        foreach ($rents as $row) {
-            $ledger->push([
-                'date' => $row->date,
-                'transaction' => 'Rent',
-                'debit' => 0.0,
-                'credit' => (float)$row->amount,
-                'notes' => 'Rent received'
-            ]);
-        }
-
-        foreach ($expenses as $row) {
-            $ledger->push([
-                'date' => $row->date,
-                'transaction' => 'Expense',
-                'debit' => (float)$row->amount,
-                'credit' => 0.0,
-                'notes' => 'Property expense'
-            ]);
-        }
-
-        // -------------------------
-        // Sort & calculate running cash balance
-        // -------------------------
-        $ledger = $ledger->sortBy(fn($entry) => \Carbon\Carbon::parse($entry['date']))->values();
-        $running_balance = $opening_balance;
-
-        $ledger = $ledger->map(function($entry) use (&$running_balance) {
-            $debit = (float)$entry['debit'];
-            $credit = (float)$entry['credit'];
-            $running_balance += $credit - $debit;
-            $entry['cash_balance'] = $running_balance;
-            $entry['debit'] = $debit;
-            $entry['credit'] = $credit;
-            return $entry;
-        });
-
-        // -------------------------
-        // Calculate summary
-        // -------------------------
-        $total_debits = $ledger->sum('debit');
-        $total_credits = $ledger->sum('credit');
-        $closing_balance = $running_balance;
-
-        return response()->json([
-            'property' => $property,
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
-            'summary' => [
-                'opening_balance' => (float)$opening_balance,
-                'total_debits' => $total_debits,
-                'total_credits' => $total_credits,
-                'closing_balance' => $closing_balance
-            ],
-            'ledger' => $ledger
-        ], 200);
-
-    } catch (Exception $e) {
-        return $this->sendError($e, 500, $request);
     }
-}
 
 
     /**
@@ -1318,24 +1341,23 @@ public function propertyReportV2(Request $request)
             'due_in_45_days' => 0
         ];
 
- foreach ($agreements as $agreement) {
+        foreach ($agreements as $agreement) {
 
 
-    $total_due_this_month += $this->calculatePayments($agreement, today())['total_arrears'];
+            $total_due_this_month += $this->calculatePayments($agreement, today())['total_arrears'];
 
-      $alerts_summary['due_in_15_days'] += $this->calculatePayments($agreement, today()->addDays(15))['total_arrears'];
+            $alerts_summary['due_in_15_days'] += $this->calculatePayments($agreement, today()->addDays(15))['total_arrears'];
 
-      $alerts_summary['due_in_30_days'] += $this->calculatePayments($agreement, today()->addDays(30))['total_arrears'];
+            $alerts_summary['due_in_30_days'] += $this->calculatePayments($agreement, today()->addDays(30))['total_arrears'];
 
-      $alerts_summary['due_in_45_days'] += $this->calculatePayments($agreement, today()->addDays(45))['total_arrears'];
-
-}
+            $alerts_summary['due_in_45_days'] += $this->calculatePayments($agreement, today()->addDays(45))['total_arrears'];
+        }
 
         return [
             'total_collected' => $total_collected,
             'total_collected_this_month' => $total_collected_this_month,
             'total_due_this_month' => $total_due_this_month,
-            'total_upcoming_rent_next_month'=> $alerts_summary['due_in_30_days'],
+            'total_upcoming_rent_next_month' => $alerts_summary['due_in_30_days'],
             'alerts_summary' => $alerts_summary,
             'property_ids' => $property_ids,
         ];
