@@ -544,6 +544,8 @@ Route::middleware(['auth:api'])->group(function () {
 
     Route::get('/v1.0/property-report', [PropertyBasicController::class, "propertyReport"]);
 
+     Route::get('/v2.0/property-report', [PropertyBasicController::class, "propertyReportV2"]);
+
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     // Repair management section
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -566,7 +568,7 @@ Route::middleware(['auth:api'])->group(function () {
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
  
     Route::post('/v1.0/expense-receipts-file', [ExpenseController::class, "createExpenseReceiptFile"]);
-    Route::post('/v1.0/repair-receipts-file/multiple', [ExpenseController::class, "createExpenseReceiptFileMultiple"]);
+    Route::post('/v1.0/expense-receipts-file/multiple', [ExpenseController::class, "createExpenseReceiptFileMultiple"]);
     Route::post('/v1.0/expenses', [ExpenseController::class, "createExpense"]);
     Route::put('/v1.0/expenses', [ExpenseController::class, "updateExpense"]);
     Route::get('/v1.0/expenses/{perPage}', [ExpenseController::class, "getExpenses"]);

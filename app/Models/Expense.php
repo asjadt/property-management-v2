@@ -23,7 +23,7 @@ class Expense extends Model
     ];
 
     public function expense_category() {
-        return $this->hasOne(RepairCategory::class,'id','expense_category_id');
+        return $this->hasOne(ExpenseCategory::class,'id','expense_category_id');
     }
 
     public function property() {

@@ -607,7 +607,6 @@ public function getExpenses($perPage, Request $request)
 }
 
 
-
 /**
  *
  * @OA\Get(
