@@ -541,12 +541,7 @@ public function getExpenses($perPage, Request $request)
         ->leftJoin('expense_categories', 'expense_categories.id', '=', 'expenses.expense_category_id')
         ->where(["expenses.created_by" => $request->user()->id]);
 
-        // if (!empty($request->invoice_not_issued)) {
-        //     if($request->invoice_not_issued == 1) {
-        //        $expenseQuery = $expenseQuery->whereNull('invoice_items.expense_id');
-        //     }
-        // }
-
+      
         if (!empty($request->search_key)) {
             $expenseQuery = $expenseQuery->where(function ($query) use ($request) {
                 $term = $request->search_key;

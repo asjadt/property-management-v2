@@ -44,6 +44,7 @@ use App\Http\Controllers\InvoiceReminderController;
 use App\Http\Controllers\JobBidController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\LandlordController;
+use App\Http\Controllers\LandlordRentPayableController;
 use App\Http\Controllers\MaintenanceItemTypeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\NotificationTemplateController;
@@ -541,10 +542,8 @@ Route::middleware(['auth:api'])->group(function () {
 
     Route::get('/v1.0/activities/{perPage}', [PropertyBasicController::class, "showActivity"]);
     Route::get('/v2.0/activities/{perPage}', [PropertyBasicController::class, "showActivityV2"]);
-
     Route::get('/v1.0/property-report', [PropertyBasicController::class, "propertyReport"]);
-
-     Route::get('/v2.0/property-report', [PropertyBasicController::class, "propertyReportV2"]);
+    Route::get('/v2.0/property-report', [PropertyBasicController::class, "propertyReportV2"]);
 
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     // Repair management section
@@ -579,6 +578,24 @@ Route::middleware(['auth:api'])->group(function () {
     // Repair management section
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // Repair management section
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ 
+    Route::post('/v1.0/landlord-rent-payables', [LandlordRentPayableController::class, "createLandlordRentPayable"]);
+    Route::put('/v1.0/landlord-rent-payables', [LandlordRentPayableController::class, "updateLandlordRentPayable"]);
+    Route::get('/v1.0/landlord-rent-payables/{perPage}', [LandlordRentPayableController::class, "getLandlordRentPayables"]);
+    Route::get('/v1.0/landlord-rent-payables/get/single/{id}', [LandlordRentPayableController::class, "getLandlordRentPayableById"]);
+    
+    Route::delete('/v1.0/landlord-rent-payables/{id}', [LandlordRentPayableController::class, "deleteLandlordRentPayableById"]);
+
+    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    // Repair management section
+    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+    
 
 
 
