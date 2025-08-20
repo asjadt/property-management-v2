@@ -9,10 +9,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Expense extends Model
 {
    use HasFactory,SoftDeletes;
+     protected $appends = ['linked_to'];
     protected $fillable = [
         "payment_method",
         'property_id',
         'expense_category_id',
+        "paid_by",
         'item_description',
         'status',
         'receipt',
@@ -22,6 +24,39 @@ class Expense extends Model
 
     ];
 
+   
+
+    public function invoice_items()
+    {
+        return $this->hasMany(InvoiceItem::class, 'expense_id');
+    }
+
+    public function rent_adjustments()
+    {
+        return $this->hasMany(RentAdjustment::class, 'expense_id');
+    }
+
+    public function getLinkedToAttribute()
+{
+    // Check if there is any linked invoice item
+    $invoice_item = $this->invoice_items()->first();
+    if ($invoice_item) {
+        return [
+            'type' => 'invoice',
+            'entity_id' => $invoice_item->invoice_id
+        ];
+    }
+
+    // Check if there is any linked rent adjustment
+    $rent_adjustment = $this->rent_adjustments()->first();
+    if ($rent_adjustment) {
+        return [
+            'type' => 'landlord_payable',
+            'entity_id' => $rent_adjustment->landlord_rent_payable_id
+        ];
+    }
+    return null; // unlinked
+}
     public function expense_category() {
         return $this->hasOne(ExpenseCategory::class,'id','expense_category_id');
     }

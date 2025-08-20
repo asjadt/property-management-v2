@@ -34,6 +34,15 @@ class ExpenseCreateRequest extends FormRequest
             'receipt' => 'nullable|array',
             'receipt.*' => 'nullable|string',
 
+            "paid_by" => "required|string|in:landlord,agent",
+
+
+        ];
+    }
+
+    public function message() {
+        return [
+            "paid_by.in" => "Paid by must be landlord or agent"
         ];
     }
 }

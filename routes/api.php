@@ -425,6 +425,8 @@ Route::middleware(['auth:api'])->group(function () {
 
     Route::get('/v1.0/tenancy-agreements-with-rent', [TenancyAgreementController::class, "getTenancyAgreementsWithRent"]);
 
+    Route::get('/v1.0/tenancy-agreements-with-landlord-payable-rent', [TenancyAgreementController::class, "getTenancyAgreementsWithLandlordPayableRent"]);
+
     Route::delete('/v1.0/tenancy-agreements/{agreement_id}', [TenancyAgreementController::class, "deleteTenancyAgreement"]);
 
 
@@ -587,7 +589,6 @@ Route::middleware(['auth:api'])->group(function () {
     Route::put('/v1.0/landlord-rent-payables', [LandlordRentPayableController::class, "updateLandlordRentPayable"]);
     Route::get('/v1.0/landlord-rent-payables/{perPage}', [LandlordRentPayableController::class, "getLandlordRentPayables"]);
     Route::get('/v1.0/landlord-rent-payables/get/single/{id}', [LandlordRentPayableController::class, "getLandlordRentPayableById"]);
-    
     Route::delete('/v1.0/landlord-rent-payables/{id}', [LandlordRentPayableController::class, "deleteLandlordRentPayableById"]);
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -801,6 +802,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::put('/v1.0/rents', [RentController::class, "updateRent"]);
     Route::get('/v1.0/rents', [RentController::class, "getRents"]);
     Route::get('/v2.0/rents', [RentController::class, "getRentsV2"]);
+      Route::get('/v3.0/rents', [RentController::class, "getRentsV3"]);
     Route::delete('/v1.0/rents/{ids}', [RentController::class, "deleteRentsByIds"]);
     Route::get('/v1.0/rents/generate/rent-reference', [RentController::class, "generateRentReference"]);
     Route::get('/v1.0/rents/validate/rent-reference/{rent_reference}', [RentController::class, "validateRentReference"]);

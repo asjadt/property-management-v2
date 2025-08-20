@@ -30,6 +30,7 @@ class RepairUpdateRequest extends FormRequest
             'item_description'=>"nullable|string",
 
             'status'=>"required|string",
+            "paid_by" => "required|string|in:landlord,agent",
 
 
             'price'=>"required|numeric",
@@ -38,6 +39,11 @@ class RepairUpdateRequest extends FormRequest
             'images.*' => 'nullable|string',
             'receipt' => 'nullable|array',
             'receipt.*' => 'nullable|string',
+        ];
+    }
+    public function message() {
+        return [
+           "paid_by.in" => "Paid by must be landlord or agent"
         ];
     }
 }

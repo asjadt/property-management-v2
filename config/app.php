@@ -139,6 +139,7 @@ return [
         /*
          * Laravel Framework Service Providers...
          */
+         App\Providers\HelperServiceProvider::class,
         Propaganistas\LaravelDisposableEmail\DisposableEmailServiceProvider::class,
         Spatie\Permission\PermissionServiceProvider::class,
         Illuminate\Auth\AuthServiceProvider::class,

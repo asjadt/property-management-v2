@@ -114,12 +114,12 @@ class RentController extends Controller
                 'month' => $request_data["month"],
                 'year' => $request_data["year"],
             ])
-            ->exists();
+                ->exists();
 
             if ($rent_exists && $request_data["month"] != now()->month && $request_data["year"] != now()->year) {
                 return response()->json([
                     "message" => "A rent record exists, but not for the current month and year."
-                ],409);
+                ], 409);
             }
 
 
@@ -131,22 +131,22 @@ class RentController extends Controller
 
             $agreement = TenancyAgreement::where([
                 "id" => $request_data["tenancy_agreement_id"]
-             ])
+            ])
 
-             ->first();
-             if(empty($agreement)) {
-                throw new Exception("something went wrong",500);
-             }
+                ->first();
+            if (empty($agreement)) {
+                throw new Exception("something went wrong", 500);
+            }
 
             $all_rents = Rent::where([
                 "tenancy_agreement_id" => $agreement->id
             ])
-            ->orderBy('year')
-            ->orderBy('month')
-            ->orderBy('id')
-            ->get();
+                ->orderBy('year')
+                ->orderBy('month')
+                ->orderBy('id')
+                ->get();
 
-            $this->processArrears($agreement,$all_rents,true);
+            $this->processArrears($agreement, $all_rents, true);
 
 
 
@@ -256,7 +256,7 @@ class RentController extends Controller
                 ]
             )->first();
 
-            if(empty($rent)){
+            if (empty($rent)) {
                 return response()->json([
                     "message" => "something went wrong."
                 ], 500);
@@ -275,24 +275,24 @@ class RentController extends Controller
 
             $agreement = TenancyAgreement::where([
                 "id" => $request_data["tenancy_agreement_id"]
-             ])
+            ])
 
-             ->first();
+                ->first();
 
-             if(empty($agreement)) {
-                throw new Exception("something went wrong",500);
-             }
+            if (empty($agreement)) {
+                throw new Exception("something went wrong", 500);
+            }
 
 
             $all_rents = Rent::where([
                 "tenancy_agreement_id" => $agreement->id
             ])
-            ->orderBy('year')
-            ->orderBy('month')
-            ->orderBy('id')
-            ->get();
+                ->orderBy('year')
+                ->orderBy('month')
+                ->orderBy('id')
+                ->get();
 
-            $this->processArrears($agreement,$all_rents,true);
+            $this->processArrears($agreement, $all_rents, true);
 
 
             DB::commit();
@@ -302,11 +302,6 @@ class RentController extends Controller
             return $this->sendError($e, 500, $request);
         }
     }
-
-
-
-
-
 
     /**
      *
@@ -456,7 +451,7 @@ class RentController extends Controller
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
 
             $query = Rent::with("tenancy_agreement.property", "tenancy_agreement.tenants")
-            ->filters();
+                ->filters();
 
             $rents = $this->retrieveData($query, "month", "rents");
 
@@ -606,7 +601,7 @@ class RentController extends Controller
         try {
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
             $query = Rent::with("tenancy_agreement.property", "tenancy_agreement.tenants")
-            ->filters();
+                ->filters();
             $rents = $this->retrieveData($query, "month", "rents");
 
             $data_highlights = [
@@ -616,24 +611,22 @@ class RentController extends Controller
                 "total_arrears" => 0
 
 
-                        ];
+            ];
 
-$today = Carbon::today();
+            $today = Carbon::today();
 
-   $tenancy_agreements = TenancyAgreement::whereHas('rents', function ($q) {
-    $q->filters();
-})->get();
+            $tenancy_agreements = TenancyAgreement::whereHas('rents', function ($q) {
+                $q->filters();
+            })->get();
 
-foreach ($tenancy_agreements as $agreement) {
+            foreach ($tenancy_agreements as $agreement) {
 
- $pyment_data = $this->calculatePayments($agreement, today());
-    $data_highlights["total_rent"] += $pyment_data["total_rent"];
-    $data_highlights["highest_rent"] += $pyment_data["total_rent"];
-    $data_highlights["total_paid"] += $pyment_data["total_paid"];
-    $data_highlights["total_arrears"] += $pyment_data["total_arrears"];
-
-
-}
+                $pyment_data = $this->calculatePayments($agreement, today());
+                $data_highlights["total_rent"] += $pyment_data["total_rent"];
+                $data_highlights["highest_rent"] += $pyment_data["total_rent"];
+                $data_highlights["total_paid"] += $pyment_data["total_paid"];
+                $data_highlights["total_arrears"] += $pyment_data["total_arrears"];
+            }
 
 
 
@@ -650,6 +643,170 @@ foreach ($tenancy_agreements as $agreement) {
         }
     }
 
+      /**
+     *
+     * @OA\Get(
+     * path="/v3.0/rents",
+     * operationId="getRentsV3",
+     * tags={"rents"},
+     * security={
+     * {"bearerAuth": {}}
+     * },
+
+     * @OA\Parameter(
+     * name="start_payment_date",
+     * in="query",
+     * description="start_payment_date",
+     * required=false,
+     * example=""
+     * ),
+     * @OA\Parameter(
+     * name="end_payment_date",
+     * in="query",
+     * description="end_payment_date",
+     * required=false,
+     * example=""
+     * ),
+     * @OA\Parameter(
+     * name="payment_status",
+     * in="query",
+     * description="payment_status",
+     * required=false,
+     * example=""
+     * ),
+     * @OA\Parameter(
+     * name="per_page",
+     * in="query",
+     * description="per_page",
+     * required=false,
+     * example=""
+     * ),
+
+     * @OA\Parameter(
+     * name="is_active",
+     * in="query",
+     * description="is_active",
+     * required=false,
+     * example=""
+     * ),
+     * @OA\Parameter(
+     * name="start_date",
+     * in="query",
+     * description="start_date",
+     * required=false,
+     * example=""
+     * ),
+     * * @OA\Parameter(
+     * name="end_date",
+     * in="query",
+     * description="end_date",
+     * required=false,
+     * example=""
+     * ),
+     * * @OA\Parameter(
+     * name="search_key",
+     * in="query",
+     * description="search_key",
+     * required=false,
+     * example=""
+     * ),
+     * * @OA\Parameter(
+     * name="order_by",
+     * in="query",
+     * description="order_by",
+     * required=false,
+     * example="ASC"
+     * ),
+     * * @OA\Parameter(
+     * name="id",
+     * in="query",
+     * description="id",
+     * required=false,
+     * example=""
+     * ),
+     *    * @OA\Parameter(
+     * name="tenant_ids",
+     * in="query",
+     * description="id",
+     * required=false,
+     * example=""
+     * ),
+     * *    * @OA\Parameter(
+     * name="property_ids",
+     * in="query",
+     * description="id",
+     * required=false,
+     * example=""
+     * ),
+     *  * *    * @OA\Parameter(
+     * name="rent_reference",
+     * in="query",
+     * description="rent_reference",
+     * required=false,
+     * example=""
+     * ),
+     *
+     *
+     * summary="This method is to get rents ",
+     * description="This method is to get rents ",
+     *
+     * @OA\Response(
+     * response=200,
+     * description="Successful operation",
+     * @OA\JsonContent(),
+     * ),
+     * @OA\Response(
+     * response=401,
+     * description="Unauthenticated",
+     * @OA\JsonContent(),
+     * ),
+     * @OA\Response(
+     * response=422,
+     * description="Unprocesseble Content",
+     * @OA\JsonContent(),
+     * ),
+     * @OA\Response(
+     * response=403,
+     * description="Forbidden",
+     * @OA\JsonContent()
+     * ),
+     * * @OA\Response(
+     * response=400,
+     * description="Bad Request",
+     * *@OA\JsonContent()
+     * ),
+     * @OA\Response(
+     * response=404,
+     * description="not found",
+     * *@OA\JsonContent()
+     * )
+     * )
+     * )
+     */
+
+    public function getRentsV3(Request $request)
+    {
+
+        try {
+            $this->storeActivity($request, "DUMMY activity", "DUMMY description");
+
+            $query = Rent::with("tenancy_agreement.property", "tenancy_agreement.tenants")
+            ->whereDoesntHave("landlord_payables")
+            ->filters();
+
+            $rents = $this->retrieveData($query, "month", "rents");
+
+                $processed_rents = transform_mixed($rents, function ($rent){
+                $rent["landlords"] = $rent->landlords;
+                return $rent;
+});
+
+            return response()->json($processed_rents, 200);
+        } catch (Exception $e) {
+
+            return $this->sendError($e, 500, $request);
+        }
+    }
 
 
     /**
@@ -715,38 +872,38 @@ foreach ($tenancy_agreements as $agreement) {
 
 
 
-          $rent =  Rent::where([
-            "id" => $ids
-          ])
-          ->first();
+            $rent =  Rent::where([
+                "id" => $ids
+            ])
+                ->first();
 
-          if (!$rent) {
-              return response()->json(["message" => "Rent not found"], 404);
-          }
+            if (!$rent) {
+                return response()->json(["message" => "Rent not found"], 404);
+            }
 
             $tenancy_agreement_id = $rent->tenancy_agreement_id;
             $rent->delete();
 
             $agreement = TenancyAgreement::where([
                 "id" => $tenancy_agreement_id
-             ])
+            ])
 
-             ->first();
+                ->first();
 
-             if(empty($agreement)) {
-                throw new Exception("something went wrong",500);
-             }
+            if (empty($agreement)) {
+                throw new Exception("something went wrong", 500);
+            }
 
 
             $all_rents = Rent::where([
                 "tenancy_agreement_id" => $agreement->id
             ])
-            ->orderBy('year')
-            ->orderBy('month')
-            ->orderBy('id')
-            ->get();
+                ->orderBy('year')
+                ->orderBy('month')
+                ->orderBy('id')
+                ->get();
 
-            $this->processArrears($agreement,$all_rents,true);
+            $this->processArrears($agreement, $all_rents, true);
 
             return response()->json(["message" => "data deleted sussfully"], 200);
         } catch (Exception $e) {
@@ -756,7 +913,8 @@ foreach ($tenancy_agreements as $agreement) {
     }
 
 
-    public function rentReference() {
+    public function rentReference()
+    {
         $current_number = 1; // Start from 0001
 
         do {
@@ -824,7 +982,7 @@ foreach ($tenancy_agreements as $agreement) {
             $this->storeActivity($request, "");
 
 
-          $rent_reference = $this->rentReference();
+            $rent_reference = $this->rentReference();
 
 
             return response()->json(["rent_reference" => $rent_reference], 200);

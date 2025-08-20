@@ -9,7 +9,7 @@ class InvoiceItem extends Model
 {
     use HasFactory;
     protected $hidden = [ "invoice_id",
-    "repair_id"];
+    "repair_id","expense_id"];
     protected $fillable = [
 
         "name",
@@ -19,7 +19,8 @@ class InvoiceItem extends Model
         "tax",
         "amount",
         "invoice_id",
-        "repair_id"
+        "repair_id",
+        "expense_id"
 
     ];
 }

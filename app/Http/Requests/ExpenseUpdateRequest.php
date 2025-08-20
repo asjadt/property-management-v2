@@ -28,6 +28,7 @@ class ExpenseUpdateRequest extends FormRequest
             "payment_method" => "required|string",
             'property_id'=> "nullable|numeric|exists:properties,id",
             'expense_category_id'=>"required|numeric|exists:expense_categories,id",
+            "paid_by" => "required|string|in:landlord,agent",
             'item_description'=>"nullable|string",
             'status'=>"required|string",
             'price'=>"required|numeric",
@@ -36,6 +37,11 @@ class ExpenseUpdateRequest extends FormRequest
             'images.*' => 'nullable|string',
             'receipt' => 'nullable|array',
             'receipt.*' => 'nullable|string',
+        ];
+    }
+     public function message() {
+        return [
+            "paid_by.in" => "Paid by must be landlord or agent"
         ];
     }
 }

@@ -179,6 +179,7 @@ public function createInvoiceImage(ImageUploadRequest $request)
  *{"name":"name","description":"description","quantity":"1","price":"1.1","tax":"20","amount":"300"},
   *{"name":"name","description":"description","quantity":"1","price":"1.1","tax":"20","amount":"300"},
     *{"name":"name","description":"description","quantity":"1","price":"1.1","tax":"20","amount":"300","repair_id":1},
+    *{"name":"name","description":"description","quantity":"1","price":"1.1","tax":"20","amount":"300","expense_id":1},
 
  *
  * }),
@@ -281,8 +282,22 @@ public function createInvoice(InvoiceCreateRequest $request)
                                 "errors" => ["invoice_items"=>["invalid repair item"]]
                          ];
                             throw new Exception(json_encode($error),422);
-                        }
+                }
+            }
 
+              if(!empty($item["expense_id"])) {
+                    $invoice_item_exists =    InvoiceItem::where([
+                            "expense_id" => $item["expense_id"]
+                        ])
+                       ->whereNotIn("invoice_id",[$invoice->id])
+                        ->first();
+                        if($invoice_item_exists) {
+                            $error =  [
+                                "message" => "The given data was invalid.",
+                                "errors" => ["invoice_items"=>["invalid expense item"]]
+                         ];
+                            throw new Exception(json_encode($error),422);
+                }
             }
 
                 return [
@@ -293,6 +308,7 @@ public function createInvoice(InvoiceCreateRequest $request)
                     "tax" => $item["tax"],
                     "amount" => $item["amount"],
                     "repair_id" => !empty($item["repair_id"])?$item["repair_id"]:NULL,
+                    "expense_id" => !empty($item["expense_id"])?$item["expense_id"]:NULL,
                     "sale_id" => !empty($item["sale_id"])?$item["sale_id"]:NULL,
 
                 ];
@@ -602,16 +618,28 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                         ])
                        ->whereNotIn("invoice_id",[$invoice->id])
                         ->first();
-                        if($invoice_item_exists) {
+                          if($invoice_item_exists) {
                             $error =  [
                                 "message" => "The given data was invalid.",
-                                "errors" => ["automobile_make_id"=>["This garage does not support this make"]]
+                                "errors" => ["invoice_items"=>["invalid expense item"]]
                          ];
                             throw new Exception(json_encode($error),422);
                         }
-
                     }
-
+                if(!empty($item["expense_id"])) {
+                    $invoice_item_exists =    InvoiceItem::where([
+                            "expense_id" => $item["expense_id"]
+                        ])
+                       ->whereNotIn("invoice_id",[$invoice->id])
+                        ->first();
+                       if($invoice_item_exists) {
+                            $error =  [
+                                "message" => "The given data was invalid.",
+                                "errors" => ["invoice_items"=>["invalid expense item"]]
+                         ];
+                            throw new Exception(json_encode($error),422);
+                        }
+                    }
                     return [
                         // "id" => $item["id"],
                         "name" => $item["name"],
@@ -622,6 +650,7 @@ public function updateInvoice(InvoiceUpdateRequest $request)
                         "amount" => $item["amount"],
                         "invoice_id" => $invoice->id,
                         "repair_id" => !empty($item["repair_id"])?$item["repair_id"]:NULL,
+                        "expense_id" => !empty($item["expense_id"])?$item["expense_id"]:NULL,
                         "sale_id" => !empty($item["sale_id"])?$item["sale_id"]:NULL,
                     ];
                 });

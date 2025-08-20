@@ -14,6 +14,7 @@ class LandlordRentPayable extends Model
     protected $fillable = [
         'generated_id',
         'payment_method',
+        "landlord_id",
         'item_description',
         'total_amount',
         'create_date',

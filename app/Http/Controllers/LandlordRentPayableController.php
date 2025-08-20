@@ -48,6 +48,8 @@ class LandlordRentPayableController extends Controller
  *             @OA\Property(property="status", type="string", example="pending"),
  *             @OA\Property(property="total_amount", type="number", format="float", example=5000.00),
  *             @OA\Property(property="create_date", type="string", format="date", example="2025-08-16"),
+ *  *             @OA\Property(property="landlord_id", type="string", format="date", example="1"),
+ * 
  *             @OA\Property(property="is_active", type="boolean", example=true),
 
  *             @OA\Property(
@@ -139,6 +141,36 @@ public function createLandlordRentPayable(LandlordRentPayableCreateRequest $requ
             // Create related rent adjustments
             if (!empty($data['rent_adjustments'])) {
                 foreach ($data['rent_adjustments'] as $adjData) {
+                         if(!empty($adjData["repair_id"])) {
+                    $rent_adjustment_exists =    RentAdjustment::where([
+                            "repair_id" => $adjData["repair_id"]
+                        ])
+                       ->whereNotIn("landlord_rent_payable_id",[$rentPayable->id])
+                        ->first();
+                        if($rent_adjustment_exists) {
+                            $error =  [
+                                "message" => "The given data was invalid.",
+                                "errors" => ["rent_adjustments"=>["invalid repair item"]]
+                         ];
+                            throw new Exception(json_encode($error),422);
+                }
+            }
+
+              if(!empty($adjData["expense_id"])) {
+                    $rent_adjustment_exists =    RentAdjustment::where([
+                            "expense_id" => $adjData["expense_id"]
+                        ])
+                       ->whereNotIn("landlord_rent_payable_id",[$rentPayable->id])
+                        ->first();
+                        if($rent_adjustment_exists) {
+                            $error =  [
+                                "message" => "The given data was invalid.",
+                                "errors" => ["rent_adjustments"=>["invalid expense item"]]
+                         ];
+                            throw new Exception(json_encode($error),422);
+                }
+            }
+
                     RentAdjustment::create([
                         'landlord_rent_payable_id' => $rentPayable->id,
                         'amount' => $adjData['amount'],
@@ -187,7 +219,10 @@ public function createLandlordRentPayable(LandlordRentPayableCreateRequest $requ
  *             @OA\Property(property="status", type="string", example="pending"),
  *             @OA\Property(property="total_amount", type="number", format="float", example=5000.00),
  *             @OA\Property(property="create_date", type="string", format="date", example="2025-08-16"),
+ *             @OA\Property(property="landlord_id", type="string", format="date", example="1"),
+ * 
  *             @OA\Property(property="is_active", type="boolean", example=true),
+ * 
 
  *             @OA\Property(
  *                 property="payable_rents",
@@ -456,6 +491,10 @@ public function getLandlordRentPayables($perPage, Request $request)
         if (!empty($request->status)) {
             $query->where('status', $request->status);
         }
+           if (!empty($request->landlord_id)) {
+            $query->where('landlord_id', $request->landlord_id);
+        }
+        
 
         // Filter by date range
         if (!empty($request->start_date)) {
@@ -578,7 +617,7 @@ public function getLandlordRentPayableById($id, Request $request)
  *     @OA\Delete(
  *      path="/v1.0/landlord-rent-payables/{id}",
  *      operationId="deleteLandlordRentPayableById",
- *      tags={"property_management.expense_management"},
+ *      tags={"property_management.landlord_rent_payable"},
  *       security={
  *           {"bearerAuth": {}},
  *            {"pin": {}}

@@ -28,14 +28,19 @@ class Rent extends Model
         "created_by"
     ];
 
-
-
     // RENT RELATION WITH TENANCY AGREEMENT
     public function tenancy_agreement()
     {
         return $this->belongsTo(TenancyAgreement::class, 'tenancy_agreement_id', 'id');
     }
 
+    public function landlord_payables() {
+        return $this->hasMany(LandlordPayableRent::class, 'rent_id', 'id');
+    }
+
+      public function getLandlordsAttribute() {
+        return $this->tenancy_agreement->property->property_landlords ?? collect();
+    }
     // AUTO GENERATE RENT REFERENCE NO
 
       public function scopeFilters($query)

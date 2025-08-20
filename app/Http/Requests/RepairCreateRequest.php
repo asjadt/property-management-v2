@@ -28,6 +28,8 @@ class RepairCreateRequest extends FormRequest
             'repair_category_id'=>"required|numeric|exists:repair_categories,id",
             'item_description'=>"nullable|string",
 
+            "paid_by" => "required|string|in:landlord,agent",
+
             'status'=>"required|string",
 
             'price'=>"required|numeric",
@@ -38,6 +40,11 @@ class RepairCreateRequest extends FormRequest
             'receipt' => 'nullable|array',
             'receipt.*' => 'nullable|string',
 
+        ];
+    }
+    public function message() {
+        return [
+           "paid_by.in" => "Paid by must be landlord or agent"
         ];
     }
 }

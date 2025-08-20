@@ -539,19 +539,22 @@ public function getExpenses($perPage, Request $request)
         // ->leftJoin('invoices', 'invoices.id', '=', 'invoice_items.invoice_id')
         ->leftJoin('properties', 'properties.id', '=', 'expenses.property_id')
         ->leftJoin('expense_categories', 'expense_categories.id', '=', 'expenses.expense_category_id')
-        ->where(["expenses.created_by" => $request->user()->id]);
+        ->where(["expenses.created_by" => $request->user()->id])
+        ->when(request()->filled("invoice_not_issued"), function ($query) {
+            return $query->whereDoesntHave('invoice_items')
+            ->whereDoesntHave('rent_adjustments')
+            ->where([
+                "paid_by" => "landlord"
+            ]);
+        });
 
-      
         if (!empty($request->search_key)) {
             $expenseQuery = $expenseQuery->where(function ($query) use ($request) {
                 $term = $request->search_key;
-
-
                 $query->orWhere("expenses.item_description", "like", "%" . $term . "%");
-               
-
             });
         }
+
         if (!empty($request->expense_category)) {
             $expenseQuery = $expenseQuery->where('expense_categories.name', $request->expense_category);
         }
@@ -560,11 +563,10 @@ public function getExpenses($perPage, Request $request)
             $expenseQuery = $expenseQuery->where('expenses.status', $request->status);
         }
 
-
-
         if (!empty($request->start_date)) {
             $expenseQuery = $expenseQuery->where('expenses.created_at', ">=", $request->start_date);
         }
+        
         if (!empty($request->end_date)) {
             $expenseQuery = $expenseQuery->where('expenses.created_at', "<=", $request->end_date);
         }

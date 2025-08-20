@@ -20,6 +20,8 @@ class CreateLandlordRentPayablesTable extends Migration
             $table->string('item_description')->nullable();
             $table->decimal('total_amount', 10, 2)->default(0.00);
 
+            $table->foreignId('landlord_id')->constrained("landlords")->onDelete('cascade');
+
             $table->date('create_date');
             $table->string('status');
             $table->string('is_active')->default(false);

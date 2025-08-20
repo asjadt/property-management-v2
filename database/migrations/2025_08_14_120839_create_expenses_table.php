@@ -25,6 +25,8 @@ class CreateExpensesTable extends Migration
 
             $table->string("payment_method");
 
+            $table->enum("paid_by",["landlord","agent"])->default("agent");
+
             $table->string('item_description')->nullable();
             $table->text('receipt')->nullable();
             $table->double('price')->default(0);;

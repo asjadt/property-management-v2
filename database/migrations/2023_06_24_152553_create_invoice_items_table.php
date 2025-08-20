@@ -32,6 +32,8 @@ class CreateInvoiceItemsTable extends Migration
             $table->unsignedBigInteger("sale_id")->nullable();
             $table->foreign('sale_id')->references('id')->on('sale_items')->onDelete('set null');
 
+        
+
             $table->timestamps();
 
         });

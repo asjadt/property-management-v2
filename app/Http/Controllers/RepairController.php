@@ -323,6 +323,7 @@ public function createRepairReceiptFile(FileUploadRequest $request)
  *            required={"name","description","logo"},
  *  *             @OA\Property(property="property_id", type="number", format="number",example="1"),
   *             @OA\Property(property="repair_category_id", type="string", format="string",example="1"),
+  *             @OA\Property(property="paid_by", type="string", format="string",example="1"),
  *            @OA\Property(property="item_description", type="string", format="string",example="item_description"),
  *
  *  *            @OA\Property(property="status", type="string", format="string",example="status"),
@@ -440,6 +441,7 @@ public function createRepair(RepairCreateRequest $request)
  *     *             @OA\Property(property="id", type="number", format="number",example="1"),
  *  *             @OA\Property(property="property_id", type="number", format="number",example="1"),
   *             @OA\Property(property="repair_category_id", type="string", format="string",example="1"),
+  *             @OA\Property(property="paid_by", type="string", format="string",example="1"),
  *            @OA\Property(property="item_description", type="string", format="string",example="item_description"),
  *  *            @OA\Property(property="status", type="string", format="string",example="status"),
  *
@@ -504,6 +506,7 @@ public function updateRepair(RepairUpdateRequest $request)
                 collect($request_data)->only([
                     'property_id',
                     'repair_category_id',
+                    "paid_by",
                     'item_description',
                     'status',
                     'receipt',
@@ -663,15 +666,16 @@ public function getRepairs($perPage, Request $request)
         ->leftJoin('properties', 'properties.id', '=', 'repairs.property_id')
         ->leftJoin('repair_categories', 'repair_categories.id', '=', 'repairs.repair_category_id')
         ->where(["repairs.created_by" => $request->user()->id])
+         ->when(request()->boolean("invoice_not_issued"), function ($query) {
+            return $query->whereDoesntHave('invoice_items')
+            ->whereDoesntHave('rent_adjustments')
+            ->where([
+                "paid_by" => "agent"
+            ]);
+        });
 
-        ;
+       
 
-        if (!empty($request->invoice_not_issued)) {
-            if($request->invoice_not_issued == 1) {
-               $repairQuery = $repairQuery->whereNull('invoice_items.repair_id');
-            }
-
-        }
         if (!empty($request->search_key)) {
             $repairQuery = $repairQuery->where(function ($query) use ($request) {
                 $term = $request->search_key;

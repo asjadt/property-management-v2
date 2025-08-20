@@ -27,11 +27,15 @@ class LandlordRentPayableUpdateRequest extends FormRequest
             'payable_rents.*.id' => 'nullable|numeric|exists:landlord_payable_rents,id',
             'payable_rents.*.rent_id' => 'required|numeric|exists:rents,id',
 
+            'landlord_id' => 'required|numeric|exists:landlords,id',
+
             // Related RentAdjustments
             'rent_adjustments' => 'present|array',
             'rent_adjustments.*.id' => 'nullable|numeric|exists:rent_adjustments,id',
             'rent_adjustments.*.amount' => 'required|numeric',
             'rent_adjustments.*.description' => 'nullable|string',
+             "rent_adjustments.*.repair_id" => "nullable|numeric|exists:repairs,id",
+            "rent_adjustments.*.expense_id" => "nullable|numeric|exists:expenses,id",
         ];
     }
 
