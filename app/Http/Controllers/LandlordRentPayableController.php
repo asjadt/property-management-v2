@@ -67,9 +67,9 @@ class LandlordRentPayableController extends Controller
      *                     type="object",
      *                     @OA\Property(property="id", type="number", format="int64", example=1),
      *                     @OA\Property(property="amount", type="number", format="float", example=100.00),
-     *                     @OA\Property(property="description", type="string", example="Late payment adjustment")
-     *                     @OA\Property(property="repair_id", type="number", example="repair id")
-     *                     @OA\Property(property="expense_id", type="number", example="expense id")
+     *                     @OA\Property(property="description", type="string", example="Late payment adjustment"),
+     *                     @OA\Property(property="repair_id", type="number", example="repair id"),
+     *                     @OA\Property(property="expense_id", type="number", example="expense id"),
      *                 )
      *             )
      *         )
