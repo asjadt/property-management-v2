@@ -584,6 +584,8 @@ Route::middleware(['auth:api'])->group(function () {
      // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     // Repair management section
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+       Route::post('/v1.0/landlord-rent-payables-file', [LandlordRentPayableController::class, "createLandlordRentPayableFile"]);
+    Route::post('/v1.0/landlord-rent-payables-file/multiple', [LandlordRentPayableController::class, "createLandlordRentPayableFileMultiple"]);
  
     Route::post('/v1.0/landlord-rent-payables', [LandlordRentPayableController::class, "createLandlordRentPayable"]);
     Route::put('/v1.0/landlord-rent-payables', [LandlordRentPayableController::class, "updateLandlordRentPayable"]);

@@ -29,6 +29,7 @@ class CreateRentAdjustmentsTable extends Migration
           $table->unsignedBigInteger("repair_id")->nullable();
             $table->foreign('repair_id')->references('id')->on('repairs')->onDelete('set null');
             
+            $table->json('files')->nullable();
 
             $table->timestamps();
         });

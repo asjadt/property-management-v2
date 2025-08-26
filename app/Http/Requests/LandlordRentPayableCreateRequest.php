@@ -32,6 +32,8 @@ class LandlordRentPayableCreateRequest extends FormRequest
             'rent_adjustments.*.description' => 'nullable|string',
             "rent_adjustments.*.repair_id" => "nullable|numeric|exists:repairs,id",
             "rent_adjustments.*.expense_id" => "nullable|numeric|exists:expenses,id",
+            "rent_adjustments.*.files" => "present|array",
+            "rent_adjustments.*.files.*" => "string", //
 
         ];
     }

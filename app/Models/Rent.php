@@ -53,6 +53,12 @@ class Rent extends Model
                     $query->whereIn("tenants.id", $tenant_ids);
                 });
             })
+            ->when(request()->filled("landlord_ids"), function ($query) {
+    return $query->whereHas("tenancy_agreement.property.property_landlords", function ($query) {
+        $landlord_ids = explode(',', request()->input("landlord_ids"));
+        $query->whereIn("landlords.id", $landlord_ids);
+    });
+})
             ->when(request()->filled("property_ids"), function ($query) {
                 return $query->whereHas("tenancy_agreement", function ($query) {
                     $property_ids = explode(',', request()->input("property_ids"));

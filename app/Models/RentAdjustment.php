@@ -13,6 +13,13 @@ class RentAdjustment extends Model
         'landlord_rent_payable_id',
         'amount',
         'description',
+        "files",
+        'expense_id',
+        'repair_id'
+
+    ];
+    protected $casts = [
+        'files' => 'array',
     ];
 
     // Relationships

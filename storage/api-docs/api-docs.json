@@ -18842,6 +18842,15 @@
                                                 "tax": "20",
                                                 "amount": "300",
                                                 "repair_id": 1
+                                            },
+                                            {
+                                                "name": "name",
+                                                "description": "description",
+                                                "quantity": "1",
+                                                "price": "1.1",
+                                                "tax": "20",
+                                                "amount": "300",
+                                                "expense_id": 1
                                             }
                                         ]
                                     },
@@ -24472,6 +24481,177 @@
                 ]
             }
         },
+        "/v1.0/landlord-rent-payables-file": {
+            "post": {
+                "tags": [
+                    "property_management.expense_management"
+                ],
+                "summary": "This method is to store reciept file",
+                "description": "This method is to store reciept file",
+                "operationId": "createLandlordRentPayableFile",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "file"
+                                ],
+                                "properties": {
+                                    "file": {
+                                        "description": "file to upload",
+                                        "type": "file",
+                                        "collectionFormat": "multi"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/landlord-rent-payables-file/multiple": {
+            "post": {
+                "tags": [
+                    "property_management.expense_management"
+                ],
+                "summary": "This method is to store multiple expense file",
+                "description": "This method is to store multiple expense file",
+                "operationId": "createLandlordRentPayableFileMultiple",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "files[]"
+                                ],
+                                "properties": {
+                                    "files[]": {
+                                        "description": "array of files to upload",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "file"
+                                        },
+                                        "collectionFormat": "multi"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/v1.0/landlord-rent-payables": {
             "put": {
                 "tags": [
@@ -24520,6 +24700,11 @@
                                         "format": "date",
                                         "example": "2025-08-16"
                                     },
+                                    "landlord_id": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "1"
+                                    },
                                     "is_active": {
                                         "type": "boolean",
                                         "example": true
@@ -24559,6 +24744,21 @@
                                                 "description": {
                                                     "type": "string",
                                                     "example": "Late payment adjustment"
+                                                },
+                                                "repair_id": {
+                                                    "type": "number",
+                                                    "format": "int64",
+                                                    "example": 1
+                                                },
+                                                "expense_id": {
+                                                    "type": "number",
+                                                    "format": "int64",
+                                                    "example": 1
+                                                },
+                                                "files": {
+                                                    "type": "string",
+                                                    "format": "string",
+                                                    "example": 1
                                                 }
                                             },
                                             "type": "object"
@@ -24668,6 +24868,11 @@
                                         "format": "date",
                                         "example": "2025-08-16"
                                     },
+                                    "landlord_id": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "1"
+                                    },
                                     "is_active": {
                                         "type": "boolean",
                                         "example": true
@@ -24707,6 +24912,21 @@
                                                 "description": {
                                                     "type": "string",
                                                     "example": "Late payment adjustment"
+                                                },
+                                                "repair_id": {
+                                                    "type": "number",
+                                                    "format": "int64",
+                                                    "example": 1
+                                                },
+                                                "expense_id": {
+                                                    "type": "number",
+                                                    "format": "int64",
+                                                    "example": 1
+                                                },
+                                                "files": {
+                                                    "type": "string",
+                                                    "format": "string",
+                                                    "example": 1
                                                 }
                                             },
                                             "type": "object"
@@ -24975,7 +25195,7 @@
         "/v1.0/landlord-rent-payables/{id}": {
             "delete": {
                 "tags": [
-                    "property_management.expense_management"
+                    "property_management.landlord_rent_payable"
                 ],
                 "summary": "This method is to delete expense by id",
                 "description": "This method is to delete expense by id",
@@ -34232,6 +34452,164 @@
                 ]
             }
         },
+        "/v3.0/rents": {
+            "get": {
+                "tags": [
+                    "rents"
+                ],
+                "summary": "This method is to get rents ",
+                "description": "This method is to get rents ",
+                "operationId": "getRentsV3",
+                "parameters": [
+                    {
+                        "name": "start_payment_date",
+                        "in": "query",
+                        "description": "start_payment_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "end_payment_date",
+                        "in": "query",
+                        "description": "end_payment_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "payment_status",
+                        "in": "query",
+                        "description": "payment_status",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "per_page",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "is_active",
+                        "in": "query",
+                        "description": "is_active",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "start_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "end_date",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "search_key",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "description": "order_by",
+                        "required": false,
+                        "example": "ASC"
+                    },
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "description": "id",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "tenant_ids",
+                        "in": "query",
+                        "description": "id",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "property_ids",
+                        "in": "query",
+                        "description": "id",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "rent_reference",
+                        "in": "query",
+                        "description": "rent_reference",
+                        "required": false,
+                        "example": ""
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocesseble Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/v1.0/rents/{ids}": {
             "delete": {
                 "tags": [
@@ -35355,6 +35733,11 @@
                                         "format": "string",
                                         "example": "1"
                                     },
+                                    "paid_by": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "1"
+                                    },
                                     "item_description": {
                                         "type": "string",
                                         "format": "string",
@@ -35479,6 +35862,11 @@
                                         "example": "1"
                                     },
                                     "repair_category_id": {
+                                        "type": "string",
+                                        "format": "string",
+                                        "example": "1"
+                                    },
+                                    "paid_by": {
                                         "type": "string",
                                         "format": "string",
                                         "example": "1"
@@ -41585,6 +41973,109 @@
                 "summary": "Get property agreements",
                 "description": "This method retrieves the history of property agreements for a given property and landlord, including soft-deleted agreements.",
                 "operationId": "getTenancyAgreementsWithRent",
+                "parameters": [
+                    {
+                        "name": "year",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "month",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "tenant_ids",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "property_ids",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1.0/tenancy-agreements-with-landlord-payable-rent": {
+            "get": {
+                "tags": [
+                    "property_management.property_agreement"
+                ],
+                "summary": "Get property agreements",
+                "description": "This method retrieves the history of property agreements for a given property and landlord, including soft-deleted agreements.",
+                "operationId": "getTenancyAgreementsWithLandlordPayableRent",
                 "parameters": [
                     {
                         "name": "year",

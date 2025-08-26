@@ -25,6 +25,187 @@ class LandlordRentPayableController extends Controller
 {
     use ErrorUtil, UserActivityUtil;
 
+    /**
+    *
+ * @OA\Post(
+ *      path="/v1.0/landlord-rent-payables-file",
+ *      operationId="createLandlordRentPayableFile",
+ *      tags={"property_management.expense_management"},
+ *       security={
+ *           {"bearerAuth": {}}
+ *       },
+ *      summary="This method is to store reciept file",
+ *      description="This method is to store reciept file",
+ *
+*  @OA\RequestBody(
+    *   * @OA\MediaType(
+*     mediaType="multipart/form-data",
+*     @OA\Schema(
+*         required={"file"},
+*         @OA\Property(
+*             description="file to upload",
+*             property="file",
+*             type="file",
+*             collectionFormat="multi",
+*         )
+*     )
+* )
+
+
+
+ *      ),
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *       @OA\JsonContent(),
+ *       ),
+ *      @OA\Response(
+ *          response=401,
+ *          description="Unauthenticated",
+ * @OA\JsonContent(),
+ *      ),
+ *        @OA\Response(
+ *          response=422,
+ *          description="Unprocesseble Content",
+ *    @OA\JsonContent(),
+ *      ),
+ *      @OA\Response(
+ *          response=403,
+ *          description="Forbidden",
+ *   @OA\JsonContent()
+ * ),
+ *  * @OA\Response(
+ *      response=400,
+ *      description="Bad Request",
+ *   *@OA\JsonContent()
+ *   ),
+ * @OA\Response(
+ *      response=404,
+ *      description="not found",
+ *   *@OA\JsonContent()
+ *   )
+ *      )
+ *     )
+ */
+
+public function createLandlordRentPayableFile(FileUploadRequest $request)
+{
+    try{
+        $this->storeActivity($request,"");
+
+        $request_data = $request->validated();
+
+        $location =  config("setup-config.rent_payable_file");
+
+        $new_file_name = time() . '_' . str_replace(' ', '_', $request_data["file"]->getClientOriginalName());
+
+
+        $request_data["file"]->move(public_path($location), $new_file_name);
+
+
+        return response()->json(["file" => $new_file_name,"location" => $location,"full_location"=>("/".$location."/".$new_file_name)], 200);
+
+
+    } catch(Exception $e){
+
+        return $this->sendError($e,500,$request);
+    }
+}
+ /**
+        *
+     * @OA\Post(
+     *      path="/v1.0/landlord-rent-payables-file/multiple",
+     *      operationId="createLandlordRentPayableFileMultiple",
+     *      tags={"property_management.expense_management"},
+     *       security={
+     *           {"bearerAuth": {}}
+     *       },
+
+     *      summary="This method is to store multiple expense file",
+     *      description="This method is to store multiple expense file",
+     *
+   *  @OA\RequestBody(
+        *   * @OA\MediaType(
+*     mediaType="multipart/form-data",
+*     @OA\Schema(
+*         required={"files[]"},
+*         @OA\Property(
+*             description="array of files to upload",
+*             property="files[]",
+*             type="array",
+*             @OA\Items(
+*                 type="file"
+*             ),
+*             collectionFormat="multi",
+*         )
+*     )
+* )
+
+
+
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       @OA\JsonContent(),
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     * @OA\JsonContent(),
+     *      ),
+     *        @OA\Response(
+     *          response=422,
+     *          description="Unprocesseble Content",
+     *    @OA\JsonContent(),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *   @OA\JsonContent()
+     * ),
+     *  * @OA\Response(
+     *      response=400,
+     *      description="Bad Request",
+     *   *@OA\JsonContent()
+     *   ),
+     * @OA\Response(
+     *      response=404,
+     *      description="not found",
+     *   *@OA\JsonContent()
+     *   )
+     *      )
+     *     )
+     */
+
+     public function createLandlordRentPayableFileMultiple(MultipleFileUploadRequest $request)
+     {
+         try{
+             $this->storeActivity($request,"");
+
+             $request_data = $request->validated();
+
+             $location =  config("setup-config.rent_payable_file");
+
+             $files = [];
+             if(!empty($request_data["files"])) {
+                 foreach($request_data["files"] as $file){
+                     $new_file_name = time() . '_' . $file->getClientOriginalName();
+                     $new_file_name = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+                     $file->move(public_path($location), $new_file_name);
+
+                     array_push($files,("/".$location."/".$new_file_name));
+                 }
+             }
+
+             return response()->json(["files" => $files], 201);
+
+
+         } catch(Exception $e){
+             error_log($e->getMessage());
+         return $this->sendError($e,500,$request);
+         }
+     }
 
 /**
  *
@@ -68,7 +249,13 @@ class LandlordRentPayableController extends Controller
  *                     type="object",
  *                     @OA\Property(property="id", type="number", format="int64", example=1),
  *                     @OA\Property(property="amount", type="number", format="float", example=100.00),
- *                     @OA\Property(property="description", type="string", example="Late payment adjustment")
+ *                     @OA\Property(property="description", type="string", example="Late payment adjustment"),
+ * 
+ *                    @OA\Property(property="repair_id", type="number", format="int64", example=1),
+ *                    @OA\Property(property="expense_id", type="number", format="int64", example=1),
+ *  *                    @OA\Property(property="files", type="string", format="string", example=1),
+ * 
+ * 
  *                 )
  *             )
  *         )
@@ -167,14 +354,17 @@ public function createLandlordRentPayable(LandlordRentPayableCreateRequest $requ
                                 "message" => "The given data was invalid.",
                                 "errors" => ["rent_adjustments"=>["invalid expense item"]]
                          ];
-                            throw new Exception(json_encode($error),422);
+                    throw new Exception(json_encode($error),422);
                 }
             }
 
                     RentAdjustment::create([
                         'landlord_rent_payable_id' => $rentPayable->id,
                         'amount' => $adjData['amount'],
-                        'description' => $adjData['description'] ?? null
+                        'description' => $adjData['description'] ?? null,
+                        "files" => $adjData["files"] ?? [],
+                        'expense_id' => $adjData['expense_id'] ?? null,
+                        'repair_id' => $adjData['repair_id'] ?? null,
                     ]);
                 }
             }
@@ -240,7 +430,10 @@ public function createLandlordRentPayable(LandlordRentPayableCreateRequest $requ
  *                     type="object",
  *                     @OA\Property(property="id", type="number", format="int64", example=1),
  *                     @OA\Property(property="amount", type="number", format="float", example=100.00),
- *                     @OA\Property(property="description", type="string", example="Late payment adjustment")
+ *                     @OA\Property(property="description", type="string", example="Late payment adjustment"),
+ *  *                    @OA\Property(property="repair_id", type="number", format="int64", example=1),
+ *                    @OA\Property(property="expense_id", type="number", format="int64", example=1),
+ *  *                    @OA\Property(property="files", type="string", format="string", example=1),
  *                 )
  *             )
  *         )
@@ -330,7 +523,10 @@ public function updateLandlordRentPayable(LandlordRentPayableUpdateRequest $requ
                         ],
                         [
                             'amount' => $adjData['amount'],
-                            'description' => $adjData['description'] ?? null
+                            'description' => $adjData['description'] ?? null,
+                            "files" => $adjData["files"] ?? [],
+                            'expense_id' => $adjData['expense_id'] ?? null,
+                            'repair_id' => $adjData['repair_id'] ?? null,
                         ]
                     );
                 }
