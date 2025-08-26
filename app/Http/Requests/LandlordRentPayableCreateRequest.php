@@ -23,7 +23,7 @@ class LandlordRentPayableCreateRequest extends FormRequest
             // Related LandlordPayableRents
             'payable_rents' => 'required|array',
             'payable_rents.*.rent_id' => 'required|numeric|exists:rents,id',
-            
+
             'landlord_id' => 'required|numeric|exists:landlords,id',
 
             // Related RentAdjustments

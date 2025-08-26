@@ -20,7 +20,7 @@ class LandlordRentPayableUpdateRequest extends FormRequest
             'status' => 'required|string',
             'create_date' => 'required|date',
             'is_active' => 'nullable|boolean',
-   
+
 
             // Related LandlordPayableRents
             'payable_rents' => 'required|array',
@@ -34,7 +34,7 @@ class LandlordRentPayableUpdateRequest extends FormRequest
             'rent_adjustments.*.id' => 'nullable|numeric|exists:rent_adjustments,id',
             'rent_adjustments.*.amount' => 'required|numeric',
             'rent_adjustments.*.description' => 'nullable|string',
-             "rent_adjustments.*.repair_id" => "nullable|numeric|exists:repairs,id",
+            "rent_adjustments.*.repair_id" => "nullable|numeric|exists:repairs,id",
             "rent_adjustments.*.expense_id" => "nullable|numeric|exists:expenses,id",
             "rent_adjustments.*.files" => "present|array",
             "rent_adjustments.*.files.*" => "string", //
