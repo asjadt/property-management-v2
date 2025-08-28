@@ -12,6 +12,7 @@ use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\InvoicePayment;
 use App\Models\Landlord;
+use App\Models\LandlordRentPayable;
 use App\Models\MaintenanceItem;
 use App\Models\MaintenanceItemType;
 use App\Models\Property;
@@ -345,6 +346,8 @@ class PropertyBasicController extends Controller
      *     )
      */
 
+
+
     public function propertyReportV2(Request $request)
     {
         try {
@@ -380,14 +383,12 @@ class PropertyBasicController extends Controller
                 ->when($start_date, fn($q) => $q->whereDate('invoice_date', "<", $start_date))
                 ->sum('total_amount');
 
-            $total_invoice_payments_before = InvoicePayment::whereHas('invoice', function ($q) use ($property, $request, $start_date) {
+            $total_invoice_payments_before = InvoicePayment::whereHas('invoice', function ($q) use ($property, $request) {
                 $q->where("property_id", $property->id)
                     ->where("created_by", $request->user()->id)
                     ->whereNotIn("invoices.status", ['draft']);
-                if ($start_date) {
-                    $q->whereDate('payment_date', "<", $start_date);
-                }
             })
+             ->when($start_date, fn($q) => $q->whereDate('invoice_payments.payment_date', "<", $start_date))
                 ->sum('amount');
 
             $total_rents_before = Rent::whereHas(
@@ -412,9 +413,19 @@ class PropertyBasicController extends Controller
                 ->when($start_date, fn($q) => $q->whereDate('create_date', "<", $start_date))
                 ->sum('price');
 
+            $total_landlord_rent_payables_before = LandlordRentPayable::where([
+                "created_by" => $request->user()->id,
+                "is_active" => 1
+            ])
+                ->whereHas("payable_rents.rent.tenancy_agreement", function ($q) use ($property) {
+                    $q->where("property_id", $property->id);
+                })
+                ->when($start_date, fn($q) => $q->whereDate('create_date', "<", $start_date))
+                ->sum('total_amount');
+
             // Formula: credits - debits
             $opening_balance =
-                ($total_invoice_payments_before + $total_rents_before) // credits
+                ($total_invoice_payments_before + $total_rents_before + $total_landlord_rent_payables_before) // credits
                 - ($total_invoices_before + $total_repairs_before + $total_expenses_before); // debits
 
             // -------------------------
@@ -456,6 +467,18 @@ class PropertyBasicController extends Controller
                 ->when($request->start_date, fn($q) => $q->where('create_date', ">=", $request->start_date))
                 ->when($request->end_date, fn($q) => $q->whereDate('create_date', "<=", $request->end_date))
                 ->select('price as amount', 'create_date as date')
+                ->get();
+
+            $landlord_rent_payables = LandlordRentPayable::where([
+                "created_by" => $request->user()->id,
+                "is_active" => 1
+            ])
+                ->whereHas("payable_rents.rent.tenancy_agreement", function ($q) use ($property) {
+                    $q->where("property_id", $property->id);
+                })
+                ->when($request->start_date, fn($q) => $q->whereDate('create_date', ">=", $request->start_date))
+                ->when($request->end_date, fn($q) => $q->whereDate('create_date', "<=", $request->end_date))
+                ->select('total_amount as amount', 'create_date as date', 'item_description')
                 ->get();
 
             // -------------------------
@@ -520,10 +543,21 @@ class PropertyBasicController extends Controller
                     'notes' => 'Other property-related expense'
                 ]);
             }
+
+            foreach ($landlord_rent_payables as $row) {
+                $ledger->push([
+                    'date' => $row->date,
+                    'transaction' => 'Landlord Rent Payable - Amount: ' . number_format($row->amount, 2),
+                    'debit' => 0.0,
+                    'credit' => (float)$row->amount,
+                    'notes' => $row->item_description ?? 'Payable to landlord'
+                ]);
+            }
+
             // -------------------------
             // Sort & calculate running cash balance
             // -------------------------
-            $ledger = $ledger->sortBy(fn($entry) => \Carbon\Carbon::parse($entry['date']))->values();
+            $ledger = $ledger->sortBy(fn($entry) => Carbon::parse($entry['date']))->values();
             $running_balance = $opening_balance;
 
             $ledger = $ledger->map(function ($entry) use (&$running_balance) {
@@ -561,6 +595,259 @@ class PropertyBasicController extends Controller
     }
 
 
+
+/**
+     *
+     * @OA\Get(
+     *      path="/v1.0/landlord-report",
+     *      operationId="landlordReport",
+     *      tags={"property_management.basics"},
+     *       security={
+     *           {"bearerAuth": {}}
+     *       },
+
+
+     *      * *  @OA\Parameter(
+     * name="start_date",
+     * in="query",
+     * description="start_date",
+     * required=true,
+     * example="2019-06-29"
+     * ),
+     * *  @OA\Parameter(
+     * name="end_date",
+     * in="query",
+     * description="end_date",
+     * required=true,
+     * example="2019-06-29"
+     * ),
+     * *  @OA\Parameter(
+     * name="search_key",
+     * in="query",
+     * description="search_key",
+     * required=true,
+     * example="search_key"
+     * ),
+     *  @OA\Parameter(
+     *      name="landlord_id",
+     *      in="query",
+     *      description="landlord_id",
+     *      required=true,
+     *      example="1"
+     * ),
+     *   *  @OA\Parameter(
+     *      name="property_id",
+     *      in="query",
+     *      description="property_id",
+     *      required=true,
+     *      example="1"
+     * ),
+     *      summary="This method is to get property report ",
+     *      description="This method is to get property report",
+     *
+
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       @OA\JsonContent(),
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     * @OA\JsonContent(),
+     *      ),
+     *        @OA\Response(
+     *          response=422,
+     *          description="Unprocesseble Content",
+     *    @OA\JsonContent(),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *   @OA\JsonContent()
+     * ),
+     *  * @OA\Response(
+     *      response=400,
+     *      description="Bad Request",
+     *   *@OA\JsonContent()
+     *   ),
+     * @OA\Response(
+     *      response=404,
+     *      description="not found",
+     *   *@OA\JsonContent()
+     *   )
+     *      )
+     *     )
+     */
+
+
+public function landlordReport(Request $request)
+{
+    try {
+        $this->storeActivity($request, "");
+
+        if (empty($request->landlord_id)) {
+            throw new Exception(json_encode([
+                "message" => "The given data was invalid.",
+                "errors" => [
+                    "landlord_id" => ["landlord must be selected."]
+                ]
+            ]), 422);
+        }
+
+        $landlord_id = $request->landlord_id;
+        $start_date = $request->start_date;
+
+        // -------------------------
+        // Opening Balance
+        // -------------------------
+        $total_invoices_before = Invoice::where("created_by", $request->user()->id)
+            ->whereNotIn("invoices.status", ['draft'])
+            ->when(request()->filled("property_id"), function ($query) {
+                 $query->where("invoices.property_id", request()->input("property_id"));
+            })
+            ->whereHas("landlords", fn($q) => $q->where("landlords.id", $landlord_id))
+            ->when($start_date, fn($q) => $q->whereDate("invoice_date", "<", $start_date))
+            ->sum("total_amount");
+
+        $total_invoice_payments_before = InvoicePayment::
+            whereHas("invoice", function($query) use ($landlord_id) {
+
+            $query->
+            where("created_by", auth()->user()->id)
+            ->when(request()->filled("property_id"), function ($query) {
+                 $query->where("invoices.property_id", request()->input("property_id"));
+            })
+            ->whereNotIn("invoices.status", ['draft'])
+            ->whereHas("landlords", fn($q) => $q->where("landlords.id", $landlord_id));
+            }
+            )
+            ->when($start_date, fn($q) => $q->whereDate("invoice_paymentspayment_date", "<", $start_date))
+            
+            ->sum("amount");
+
+        $total_landlord_rent_payables_before = LandlordRentPayable::where([
+                "landlord_id" => $landlord_id,
+                "created_by" => $request->user()->id,
+                "is_active" => 1
+            ])
+            ->when($start_date, fn($q) => $q->whereDate("create_date", "<", $start_date))
+            ->sum("total_amount");
+
+        $opening_balance =
+            ($total_invoice_payments_before + $total_landlord_rent_payables_before) // credits
+            - ($total_invoices_before); // debits
+
+        // -------------------------
+        // Current Period Transactions
+        // -------------------------
+        $invoices = Invoice::where("created_by", $request->user()->id)
+            ->whereNotIn("invoices.status", ['draft'])
+            ->when(request()->filled("property_id"), function ($query) {
+                 $query->where("invoices.property_id", request()->input("property_id"));
+            })
+            ->whereHas("landlords", fn($q) => $q->where("landlords.id", $landlord_id))
+            ->when($request->start_date, fn($q) => $q->whereDate("invoice_date", ">=", $request->start_date))
+            ->when($request->end_date, fn($q) => $q->whereDate("invoice_date", "<=", $request->end_date))
+            ->select("id", "total_amount as amount", "invoice_date as date")
+            ->get();
+
+        $invoice_payments = InvoicePayment::whereIn("invoice_id", $invoices->pluck("id"))
+            ->select("amount", "payment_date as date")
+            ->get();
+
+        $landlord_rent_payables = LandlordRentPayable::where([
+                "landlord_id" => $landlord_id,
+                "created_by" => $request->user()->id,
+                "is_active" => 1
+            ])
+            ->when($request->start_date, fn($q) => $q->whereDate("create_date", ">=", $request->start_date))
+            ->when($request->end_date, fn($q) => $q->whereDate("create_date", "<=", $request->end_date))
+            ->select("total_amount as amount", "create_date as date", "item_description")
+            ->get();
+
+        // -------------------------
+        // Build Ledger
+        // -------------------------
+        $ledger = collect();
+        $ledger->push([
+            "date" => $request->start_date,
+            "transaction" => "Opening Balance",
+            "debit" => 0.0,
+            "credit" => 0.0,
+            "cash_balance" => (float) $opening_balance,
+            "notes" => "Previous due"
+        ]);
+
+        foreach ($invoices as $row) {
+            $ledger->push([
+                "date" => $row->date,
+                "transaction" => "Invoice Issued - Amount: " . number_format($row->amount, 2),
+                "debit" => (float) $row->amount,
+                "credit" => 0.0,
+                "notes" => "Invoice issued"
+            ]);
+        }
+
+        foreach ($invoice_payments as $row) {
+            $ledger->push([
+                "date" => $row->date,
+                "transaction" => "Invoice Payment Received - Amount: " . number_format($row->amount, 2),
+                "debit" => 0.0,
+                "credit" => (float) $row->amount,
+                "notes" => "Payment received"
+            ]);
+        }
+
+        foreach ($landlord_rent_payables as $row) {
+            $ledger->push([
+                "date" => $row->date,
+                "transaction" => "Landlord Rent Payable - Amount: " . number_format($row->amount, 2),
+                "debit" => 0.0,
+                "credit" => (float) $row->amount,
+                "notes" => $row->item_description ?? "Payable to landlord"
+            ]);
+        }
+
+        // -------------------------
+        // Sort & Running Balance
+        // -------------------------
+        $ledger = $ledger->sortBy(fn($entry) => Carbon::parse($entry["date"]))->values();
+        $running_balance = $opening_balance;
+
+        $ledger = $ledger->map(function ($entry) use (&$running_balance) {
+            $debit = (float) $entry["debit"];
+            $credit = (float) $entry["credit"];
+            $running_balance += $credit - $debit;
+            $entry["cash_balance"] = $running_balance;
+            $entry["debit"] = $debit;
+            $entry["credit"] = $credit;
+            return $entry;
+        });
+
+        // -------------------------
+        // Summary
+        // -------------------------
+        $total_debits = $ledger->sum("debit");
+        $total_credits = $ledger->sum("credit");
+        $closing_balance = $running_balance;
+
+        return response()->json([
+            "landlord_id" => $landlord_id,
+            "start_date" => $request->start_date,
+            "end_date" => $request->end_date,
+            "summary" => [
+                "opening_balance" => (float) $opening_balance,
+                "total_debits" => $total_debits,
+                "total_credits" => $total_credits,
+                "closing_balance" => $closing_balance
+            ],
+            "ledger" => $ledger
+        ], 200);
+    } catch (Exception $e) {
+        return $this->sendError($e, 500, $request);
+    }
+}
     /**
      *
      * @OA\Get(
@@ -2001,7 +2288,6 @@ COALESCE(
 
             ];
         }
-
 
         return $maintainance_report;
     }

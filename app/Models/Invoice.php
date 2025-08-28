@@ -55,7 +55,6 @@ class Invoice extends Model
         return $this->belongsToMany(Landlord::class, 'invoice_landlords', 'invoice_id', 'landlord_id');
     }
 
-
     public function client(){
         return $this->belongsTo(Client::class,'client_id', 'id');
     }

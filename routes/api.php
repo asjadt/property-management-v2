@@ -546,6 +546,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/v2.0/activities/{perPage}', [PropertyBasicController::class, "showActivityV2"]);
     Route::get('/v1.0/property-report', [PropertyBasicController::class, "propertyReport"]);
     Route::get('/v2.0/property-report', [PropertyBasicController::class, "propertyReportV2"]);
+    Route::get('/v1.0/landlord-report', [PropertyBasicController::class, "landlordReport"]);
 
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     // Repair management section
