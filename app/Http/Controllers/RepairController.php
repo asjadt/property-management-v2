@@ -670,7 +670,7 @@ public function getRepairs($perPage, Request $request)
             return $query->whereDoesntHave('invoice_items')
             ->whereDoesntHave('rent_adjustments')
             ->where([
-                "paid_by" => "agent"
+                "paid_by" => "landlord"
             ]);
         });
 

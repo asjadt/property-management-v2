@@ -722,7 +722,7 @@ public function landlordReport(Request $request)
             ->whereHas("landlords", fn($q) => $q->where("landlords.id", $landlord_id));
             }
             )
-            ->when($start_date, fn($q) => $q->whereDate("invoice_paymentspayment_date", "<", $start_date))
+            ->when($start_date, fn($q) => $q->whereDate("invoice_payments.payment_date", "<", $start_date))
             
             ->sum("amount");
 
