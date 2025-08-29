@@ -317,35 +317,7 @@ public function createInvoice(InvoiceCreateRequest $request)
             $invoice->invoice_items()->createMany($invoiceItems->all());
             $invoice->landlords()->sync($request_data['landlord_ids']);
             $invoice->tenants()->sync($request_data['tenant_ids']);
-            // $invoicePayments = collect($request_data["invoice_payments"])->map(function ($item) {
-            //     return [
-            //         "amount" => $item["amount"],
-            //         "payment_method" => $item["payment_method"],
-            //         "payment_date" => $item["payment_date"],
-            //     ];
-            // });
-            // $sum_payment_amounts = $invoicePayments->sum('amount');
-
-            // if($sum_payment_amounts > $invoice->total_amount) {
-            //     $error =  [
-            //         "message" => "The given data was invalid.",
-            //         "errors" => ["invoice_payments"=>["payment is more than total amount"]]
-            //  ];
-            //     throw new Exception(json_encode($error),422);
-            // }
-
-
-
-            // $invoice->invoice_payments()->createMany($invoicePayments->all());
-
-            // if($sum_payment_amounts == $invoice->total_amount) {
-            //     $invoice->status = "paid";
-            //     $invoice->invoice_reminder()->delete();
-            //     $invoice->save();
-            //  }
-            //  else {
-
-            //  }
+     
 
 
 
