@@ -791,7 +791,6 @@ class RentController extends Controller
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
 
             $query = Rent::with("tenancy_agreement.property", "tenancy_agreement.tenants")
-            ->whereDoesntHave("landlord_payables")
             ->filters();
 
             $rents = $this->retrieveData($query, "month", "rents");

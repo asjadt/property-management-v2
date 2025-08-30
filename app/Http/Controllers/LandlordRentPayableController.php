@@ -16,6 +16,7 @@ use App\Models\LandlordPayableRent;
 use App\Models\LandlordRentPayable;
 use App\Models\Rent;
 use App\Models\RentAdjustment;
+use App\Models\Repair;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -323,35 +324,49 @@ class LandlordRentPayableController extends Controller
                 // Create related rent adjustments
                 if (!empty($data['rent_adjustments'])) {
                     foreach ($data['rent_adjustments'] as $adjData) {
+
                         if (!empty($adjData["repair_id"])) {
-                            $rent_adjustment_exists =    RentAdjustment::where([
-                                "repair_id" => $adjData["repair_id"]
+                            $valid_repair =  Repair::where([
+                                "id" => $adjData["repair_id"]
                             ])
-                                ->whereNotIn("landlord_rent_payable_id", [$rentPayable->id])
+                                ->whereDoesntHave('invoice_items')
+                                ->whereDoesntHave('rent_adjustments', function ($query) use ($rentPayable) {
+                                    $query->whereNotIn("landlord_rent_payable_id", [$rentPayable->id]);
+                                })
+                                ->where([
+                                    "paid_by" => "landlord"
+                                ])
                                 ->first();
-                            if (!$rent_adjustment_exists) {
+                            if (!$valid_repair) {
                                 $error =  [
                                     "message" => "The given data was invalid.",
-                                    "errors" => ["rent_adjustments" => ["invalid repair item"]]
+                                    "errors" => ["invoice_items" => ["invalid repair item"]]
+                                ];
+                                throw new Exception(json_encode($error), 422);
+                            }
+                        }
+                        if (!empty($adjData["expense_id"])) {
+                            $valid_expense =  Expense::where([
+                                "id" => $adjData["expense_id"]
+                            ])
+                                ->whereDoesntHave('invoice_items')
+                                ->whereDoesntHave('rent_adjustments', function ($query) use ($rentPayable) {
+                                    $query->whereNotIn("landlord_rent_payable_id", [$rentPayable->id]);
+                                })
+                                ->where([
+                                    "paid_by" => "landlord"
+                                ])
+                                ->first();
+                            if (!$valid_expense) {
+                                $error =  [
+                                    "message" => "The given data was invalid.",
+                                    "errors" => ["invoice_items" => ["invalid expense item"]]
                                 ];
                                 throw new Exception(json_encode($error), 422);
                             }
                         }
 
-                        if (!empty($adjData["expense_id"])) {
-                            $rent_adjustment_exists =    RentAdjustment::where([
-                                "expense_id" => $adjData["expense_id"]
-                            ])
-                                ->whereNotIn("landlord_rent_payable_id", [$rentPayable->id])
-                                ->first();
-                            if (!$rent_adjustment_exists) {
-                                $error =  [
-                                    "message" => "The given data was invalid.",
-                                    "errors" => ["rent_adjustments" => ["invalid expense item"]]
-                                ];
-                                throw new Exception(json_encode($error), 422);
-                            }
-                        }
+
 
                         RentAdjustment::create([
                             'landlord_rent_payable_id' => $rentPayable->id,
@@ -490,8 +505,8 @@ class LandlordRentPayableController extends Controller
                 $rentPayable->fill(array_diff_key($validated, ['total_amount' => '']));
                 $rentPayable->save();
 
-               // Create related rents
-               LandlordPayableRent::where('landlord_rent_payable_id', $rentPayable->id)->delete();
+                // Create related rents
+                LandlordPayableRent::where('landlord_rent_payable_id', $rentPayable->id)->delete();
                 $payableRentIds = [];
                 if (!empty($validated['payable_rents'])) {
                     foreach ($validated['payable_rents'] as $rentData) {
@@ -507,35 +522,48 @@ class LandlordRentPayableController extends Controller
                 // Create related rent adjustments
                 if (!empty($validated['rent_adjustments'])) {
                     foreach ($validated['rent_adjustments'] as $adjData) {
+
                         if (!empty($adjData["repair_id"])) {
-                            $rent_adjustment_exists =    RentAdjustment::where([
-                                "repair_id" => $adjData["repair_id"]
+                            $valid_repair =  Repair::where([
+                                "id" => $adjData["repair_id"]
                             ])
-                                ->whereNotIn("landlord_rent_payable_id", [$rentPayable->id])
+                                ->whereDoesntHave('invoice_items')
+                                ->whereDoesntHave('rent_adjustments', function ($query) use ($rentPayable) {
+                                    $query->whereNotIn("landlord_rent_payable_id", [$rentPayable->id]);
+                                })
+                                ->where([
+                                    "paid_by" => "landlord"
+                                ])
                                 ->first();
-                            if (!$rent_adjustment_exists) {
+                            if (!$valid_repair) {
                                 $error =  [
                                     "message" => "The given data was invalid.",
-                                    "errors" => ["rent_adjustments" => ["invalid repair item"]]
+                                    "errors" => ["invoice_items" => ["invalid repair item"]]
+                                ];
+                                throw new Exception(json_encode($error), 422);
+                            }
+                        }
+                        if (!empty($adjData["expense_id"])) {
+                            $valid_expense =  Expense::where([
+                                "id" => $adjData["expense_id"]
+                            ])
+                                ->whereDoesntHave('invoice_items')
+                                ->whereDoesntHave('rent_adjustments', function ($query) use ($rentPayable) {
+                                    $query->whereNotIn("landlord_rent_payable_id", [$rentPayable->id]);
+                                })
+                                ->where([
+                                    "paid_by" => "landlord"
+                                ])
+                                ->first();
+                            if (!$valid_expense) {
+                                $error =  [
+                                    "message" => "The given data was invalid.",
+                                    "errors" => ["invoice_items" => ["invalid expense item"]]
                                 ];
                                 throw new Exception(json_encode($error), 422);
                             }
                         }
 
-                        if (!empty($adjData["expense_id"])) {
-                            $rent_adjustment_exists =    RentAdjustment::where([
-                                "expense_id" => $adjData["expense_id"]
-                            ])
-                                ->whereNotIn("landlord_rent_payable_id", [$rentPayable->id])
-                                ->first();
-                            if (!$rent_adjustment_exists) {
-                                $error =  [
-                                    "message" => "The given data was invalid.",
-                                    "errors" => ["rent_adjustments" => ["invalid expense item"]]
-                                ];
-                                throw new Exception(json_encode($error), 422);
-                            }
-                        }
 
                         RentAdjustment::create([
                             'landlord_rent_payable_id' => $rentPayable->id,

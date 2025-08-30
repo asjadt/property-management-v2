@@ -65,6 +65,9 @@ class Rent extends Model
                     $query->whereIn("tenancy_agreements.property_id", $property_ids);
                 });
             })
+            ->when(request()->filled("invoice_not_issued"), function ($query) {
+                $query->whereDoesntHave("landlord_payables");
+            })
             ->when(request()->filled("rent_reference"), function ($query) {
                 return $query->where('rents.rent_reference', "like", "%" .  request()->input("rent_reference") . "%");
             })
