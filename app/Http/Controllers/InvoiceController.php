@@ -282,7 +282,7 @@ class InvoiceController extends Controller
                             })
                             ->whereDoesntHave('rent_adjustments')
                             ->where([
-                                "paid_by" => "landlord"
+                                "paid_by" => "agent"
                             ])
                             ->first();
                         if (!$valid_repair) {
@@ -292,6 +292,8 @@ class InvoiceController extends Controller
                             ];
                             throw new Exception(json_encode($error), 422);
                         }
+                        $valid_repair->paid_by = "landlord";
+                        $valid_repair->save();
                     }
                     if (!empty($item["expense_id"])) {
                         $valid_expense =  Expense::where([
@@ -302,7 +304,7 @@ class InvoiceController extends Controller
                             })
                             ->whereDoesntHave('rent_adjustments')
                             ->where([
-                                "paid_by" => "landlord"
+                                "paid_by" => "agent"
                             ])
                             ->first();
                         if (!$valid_expense) {
@@ -312,6 +314,8 @@ class InvoiceController extends Controller
                             ];
                             throw new Exception(json_encode($error), 422);
                         }
+                        $valid_expense->paid_by = "landlord";
+                        $valid_expense->save();
                     }
 
 
@@ -596,7 +600,7 @@ class InvoiceController extends Controller
                             })
                             ->whereDoesntHave('rent_adjustments')
                             ->where([
-                                "paid_by" => "landlord"
+                                "paid_by" => "agent"
                             ])
                             ->first();
                         if (!$valid_repair) {
@@ -606,6 +610,8 @@ class InvoiceController extends Controller
                             ];
                             throw new Exception(json_encode($error), 422);
                         }
+                        $valid_repair->paid_by = "landlord";
+                        $valid_repair->save();
                     }
                     if (!empty($item["expense_id"])) {
                         $valid_expense =  Expense::where([
@@ -616,7 +622,7 @@ class InvoiceController extends Controller
                             })
                             ->whereDoesntHave('rent_adjustments')
                             ->where([
-                                "paid_by" => "landlord"
+                                "paid_by" => "agent"
                             ])
                             ->first();
                         if (!$valid_expense) {
@@ -626,6 +632,8 @@ class InvoiceController extends Controller
                             ];
                             throw new Exception(json_encode($error), 422);
                         }
+                        $valid_expense->paid_by = "landlord";
+                        $valid_expense->save();
                     }
                     return [
                         // "id" => $item["id"],

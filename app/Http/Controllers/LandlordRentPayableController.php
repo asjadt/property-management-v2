@@ -334,7 +334,7 @@ class LandlordRentPayableController extends Controller
                                     $query->whereNotIn("landlord_rent_payable_id", [$rentPayable->id]);
                                 })
                                 ->where([
-                                    "paid_by" => "landlord"
+                                    "paid_by" => "agent"
                                 ])
                                 ->first();
                             if (!$valid_repair) {
@@ -344,6 +344,9 @@ class LandlordRentPayableController extends Controller
                                 ];
                                 throw new Exception(json_encode($error), 422);
                             }
+
+                        $valid_repair->paid_by = "landlord";
+                        $valid_repair->save();
                         }
                         if (!empty($adjData["expense_id"])) {
                             $valid_expense =  Expense::where([
@@ -354,7 +357,7 @@ class LandlordRentPayableController extends Controller
                                     $query->whereNotIn("landlord_rent_payable_id", [$rentPayable->id]);
                                 })
                                 ->where([
-                                    "paid_by" => "landlord"
+                                    "paid_by" => "agent"
                                 ])
                                 ->first();
                             if (!$valid_expense) {
@@ -364,6 +367,8 @@ class LandlordRentPayableController extends Controller
                                 ];
                                 throw new Exception(json_encode($error), 422);
                             }
+                        $valid_expense->paid_by = "landlord";
+                        $valid_expense->save();
                         }
 
 
@@ -532,7 +537,7 @@ class LandlordRentPayableController extends Controller
                                     $query->whereNotIn("landlord_rent_payable_id", [$rentPayable->id]);
                                 })
                                 ->where([
-                                    "paid_by" => "landlord"
+                                    "paid_by" => "agent"
                                 ])
                                 ->first();
                             if (!$valid_repair) {
@@ -542,6 +547,8 @@ class LandlordRentPayableController extends Controller
                                 ];
                                 throw new Exception(json_encode($error), 422);
                             }
+                            $valid_repair->paid_by = "landlord";
+                        $valid_repair->save();
                         }
                         if (!empty($adjData["expense_id"])) {
                             $valid_expense =  Expense::where([
@@ -552,7 +559,7 @@ class LandlordRentPayableController extends Controller
                                     $query->whereNotIn("landlord_rent_payable_id", [$rentPayable->id]);
                                 })
                                 ->where([
-                                    "paid_by" => "landlord"
+                                    "paid_by" => "agent"
                                 ])
                                 ->first();
                             if (!$valid_expense) {
@@ -562,6 +569,8 @@ class LandlordRentPayableController extends Controller
                                 ];
                                 throw new Exception(json_encode($error), 422);
                             }
+                            $valid_expense->paid_by = "landlord";
+                        $valid_expense->save();
                         }
 
 

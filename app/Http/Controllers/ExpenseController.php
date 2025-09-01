@@ -544,7 +544,7 @@ public function getExpenses($perPage, Request $request)
             return $query->whereDoesntHave('invoice_items')
             ->whereDoesntHave('rent_adjustments')
             ->where([
-                "paid_by" => "landlord"
+                "paid_by" => "agent"
             ]);
         });
 
