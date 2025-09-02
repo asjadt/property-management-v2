@@ -272,6 +272,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::put('/v1.0/landlords', [LandlordController::class, "updateLandlord"]);
 
     Route::get('/v1.0/landlords/{perPage}', [LandlordController::class, "getLandlords"]);
+    Route::get('/v2.0/landlords', [LandlordController::class, "getLandlordsV2"]);
     Route::get('/v1.0/landlords/optimized/{perPage}', [LandlordController::class, "getLandlordsOptimized"]);
 
 
@@ -565,10 +566,10 @@ Route::middleware(['auth:api'])->group(function () {
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     // Repair management section
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
- 
+
     Route::post('/v1.0/expense-receipts-file', [ExpenseController::class, "createExpenseReceiptFile"]);
     Route::post('/v1.0/expense-receipts-file/multiple', [ExpenseController::class, "createExpenseReceiptFileMultiple"]);
     Route::post('/v1.0/expenses', [ExpenseController::class, "createExpense"]);
@@ -582,12 +583,12 @@ Route::middleware(['auth:api'])->group(function () {
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     // Repair management section
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-       Route::post('/v1.0/landlord-rent-payables-file', [LandlordRentPayableController::class, "createLandlordRentPayableFile"]);
+    Route::post('/v1.0/landlord-rent-payables-file', [LandlordRentPayableController::class, "createLandlordRentPayableFile"]);
     Route::post('/v1.0/landlord-rent-payables-file/multiple', [LandlordRentPayableController::class, "createLandlordRentPayableFileMultiple"]);
- 
+
     Route::post('/v1.0/landlord-rent-payables', [LandlordRentPayableController::class, "createLandlordRentPayable"]);
     Route::put('/v1.0/landlord-rent-payables', [LandlordRentPayableController::class, "updateLandlordRentPayable"]);
     Route::get('/v1.0/landlord-rent-payables/{perPage}', [LandlordRentPayableController::class, "getLandlordRentPayables"]);
@@ -599,7 +600,7 @@ Route::middleware(['auth:api'])->group(function () {
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-    
+
 
 
 
@@ -805,7 +806,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::put('/v1.0/rents', [RentController::class, "updateRent"]);
     Route::get('/v1.0/rents', [RentController::class, "getRents"]);
     Route::get('/v2.0/rents', [RentController::class, "getRentsV2"]);
-      Route::get('/v3.0/rents', [RentController::class, "getRentsV3"]);
+    Route::get('/v3.0/rents', [RentController::class, "getRentsV3"]);
     Route::delete('/v1.0/rents/{ids}', [RentController::class, "deleteRentsByIds"]);
     Route::get('/v1.0/rents/generate/rent-reference', [RentController::class, "generateRentReference"]);
     Route::get('/v1.0/rents/validate/rent-reference/{rent_reference}', [RentController::class, "validateRentReference"]);

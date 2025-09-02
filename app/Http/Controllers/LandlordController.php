@@ -18,8 +18,8 @@ use Illuminate\Support\Str;
 class LandlordController extends Controller
 {
     use ErrorUtil, UserActivityUtil;
-        /**
-        *
+    /**
+     *
      * @OA\Post(
      *      path="/v1.0/landlord-image",
      *      operationId="createLandlordImage",
@@ -30,19 +30,19 @@ class LandlordController extends Controller
      *      summary="This method is to store landlord logo",
      *      description="This method is to store landlord logo",
      *
-   *  @OA\RequestBody(
-        *   * @OA\MediaType(
-*     mediaType="multipart/form-data",
-*     @OA\Schema(
-*         required={"image"},
-*         @OA\Property(
-*             description="image to upload",
-*             property="image",
-*             type="file",
-*             collectionFormat="multi",
-*         )
-*     )
-* )
+     *  @OA\RequestBody(
+     *   * @OA\MediaType(
+     *     mediaType="multipart/form-data",
+     *     @OA\Schema(
+     *         required={"image"},
+     *         @OA\Property(
+     *             description="image to upload",
+     *             property="image",
+     *             type="file",
+     *             collectionFormat="multi",
+     *         )
+     *     )
+     * )
 
 
 
@@ -83,8 +83,8 @@ class LandlordController extends Controller
 
     public function createLandlordImage(ImageUploadRequest $request)
     {
-        try{
-            $this->storeActivity($request,"");
+        try {
+            $this->storeActivity($request, "");
 
             $request_data = $request->validated();
 
@@ -95,12 +95,10 @@ class LandlordController extends Controller
             $request_data["image"]->move(public_path($location), $new_file_name);
 
 
-            return response()->json(["image" => $new_file_name,"location" => $location,"full_location"=>("/".$location."/".$new_file_name)], 200);
+            return response()->json(["image" => $new_file_name, "location" => $location, "full_location" => ("/" . $location . "/" . $new_file_name)], 200);
+        } catch (Exception $e) {
 
-
-        } catch(Exception $e){
-
-            return $this->sendError($e,500,$request);
+            return $this->sendError($e, 500, $request);
         }
     }
 
@@ -122,7 +120,7 @@ class LandlordController extends Controller
      *         @OA\JsonContent(
      *            required={"name","description","logo"},
      *  *             @OA\Property(property="image", type="string", format="string",example="image.jpg"),
-      *             @OA\Property(property="first_Name", type="string", format="string",example="Rifat"),
+     *             @OA\Property(property="first_Name", type="string", format="string",example="Rifat"),
      *            @OA\Property(property="last_Name", type="string", format="string",example="Al"),
      *            @OA\Property(property="email", type="string", format="string",example="rifatalashwad0@gmail.com"),
      *  * *  @OA\Property(property="phone", type="string", format="boolean",example="01771034383"),
@@ -173,7 +171,7 @@ class LandlordController extends Controller
     public function createLandlord(LandlordCreateRequest $request)
     {
         try {
-            $this->storeActivity($request,"");
+            $this->storeActivity($request, "");
             return DB::transaction(function () use ($request) {
 
 
@@ -208,23 +206,14 @@ class LandlordController extends Controller
 
 
                 return response($landlord, 201);
-
-
-
-
-
             });
-
-
-
-
         } catch (Exception $e) {
 
-            return $this->sendError($e, 500,$request);
+            return $this->sendError($e, 500, $request);
         }
     }
 
-   /**
+    /**
      *
      * @OA\Put(
      *      path="/v1.0/landlords",
@@ -293,7 +282,7 @@ class LandlordController extends Controller
     public function updateLandlord(LandlordUpdateRequest $request)
     {
         try {
-            $this->storeActivity($request,"");
+            $this->storeActivity($request, "");
             return  DB::transaction(function () use ($request) {
 
                 $request_data = $request->validated();
@@ -320,21 +309,21 @@ class LandlordController extends Controller
                 $landlord  =  tap(Landlord::where([
                     "id" => $request_data["id"],
                     "created_by" => $request->user()->id
-                    ]))->update(
+                ]))->update(
                     collect($request_data)->only([
                         'first_Name',
-        'last_Name',
-        'phone',
-        'image',
-        'address_line_1',
-        'address_line_2',
-        'country',
-        'city',
-        'postcode',
-        "lat",
-        "long",
-        'email',
-        "files"
+                        'last_Name',
+                        'phone',
+                        'image',
+                        'address_line_1',
+                        'address_line_2',
+                        'country',
+                        'city',
+                        'postcode',
+                        "lat",
+                        "long",
+                        'email',
+                        "files"
                     ])->toArray()
                 )
                     // ->with("somthing")
@@ -345,15 +334,16 @@ class LandlordController extends Controller
             });
         } catch (Exception $e) {
             error_log($e->getMessage());
-            return $this->sendError($e, 500,$request);
+            return $this->sendError($e, 500, $request);
         }
     }
- /**
+
+    /**
      *
      * @OA\Get(
-     *      path="/v1.0/landlords/{perPage}",
-     *      operationId="getLandlords",
-     *      tags={"property_management.landlord_management"},
+     * path="/v1.0/landlords/{perPage}",
+     * operationId="getLandlords",
+     * tags={"property_management.landlord_management"},
      *       security={
      *           {"bearerAuth": {}}
      *       },
@@ -366,76 +356,76 @@ class LandlordController extends Controller
      *  example="6"
      *      ),
      *      * *  @OA\Parameter(
-* name="start_date",
-* in="query",
-* description="start_date",
-* required=true,
-* example="2019-06-29"
-* ),
+     * name="start_date",
+     * in="query",
+     * description="start_date",
+     * required=true,
+     * example="2019-06-29"
+     * ),
      * *  @OA\Parameter(
-* name="end_date",
-* in="query",
-* description="end_date",
-* required=true,
-* example="2019-06-29"
-* ),
- * *  @OA\Parameter(
-* name="order_by",
-* in="query",
-* description="order_by",
-* required=true,
-* example="ASC"
-* ),
+     * name="end_date",
+     * in="query",
+     * description="end_date",
+     * required=true,
+     * example="2019-06-29"
+     * ),
      * *  @OA\Parameter(
-* name="search_key",
-* in="query",
-* description="search_key",
-* required=true,
-* example="search_key"
-* ),
- * *  @OA\Parameter(
-* name="property_id",
-* in="query",
-* description="property_id",
-* required=true,
-* example="1"
-* ),
-*  @OA\Parameter(
-*      name="property_ids[]",
-*      in="query",
-*      description="property_ids",
-*      required=true,
-*      example="1,2"
-* ),
- *
- * *  @OA\Parameter(
-* name="min_total_due",
-* in="query",
-* description="min_total_due",
-* required=true,
-* example="1"
-* ),
- * *  @OA\Parameter(
-* name="max_total_due",
-* in="query",
-* description="max_total_due",
-* required=true,
-* example="1"
-* ),
- * *  @OA\Parameter(
-* name="min_total_over_due",
-* in="query",
-* description="min_total_over_due",
-* required=true,
-* example="1"
-* ),
- * *  @OA\Parameter(
-* name="max_total_over_due",
-* in="query",
-* description="max_total_over_due",
-* required=true,
-* example="1"
-* ),
+     * name="order_by",
+     * in="query",
+     * description="order_by",
+     * required=true,
+     * example="ASC"
+     * ),
+     * *  @OA\Parameter(
+     * name="search_key",
+     * in="query",
+     * description="search_key",
+     * required=true,
+     * example="search_key"
+     * ),
+     * *  @OA\Parameter(
+     * name="property_id",
+     * in="query",
+     * description="property_id",
+     * required=true,
+     * example="1"
+     * ),
+     *  @OA\Parameter(
+     *      name="property_ids[]",
+     *      in="query",
+     *      description="property_ids",
+     *      required=true,
+     *      example="1,2"
+     * ),
+     *
+     * *  @OA\Parameter(
+     * name="min_total_due",
+     * in="query",
+     * description="min_total_due",
+     * required=true,
+     * example="1"
+     * ),
+     * *  @OA\Parameter(
+     * name="max_total_due",
+     * in="query",
+     * description="max_total_due",
+     * required=true,
+     * example="1"
+     * ),
+     * *  @OA\Parameter(
+     * name="min_total_over_due",
+     * in="query",
+     * description="min_total_over_due",
+     * required=true,
+     * example="1"
+     * ),
+     * *  @OA\Parameter(
+     * name="max_total_over_due",
+     * in="query",
+     * description="max_total_over_due",
+     * required=true,
+     * example="1"
+     * ),
 
      *      summary="This method is to get landlords ",
      *      description="This method is to get landlords",
@@ -478,25 +468,25 @@ class LandlordController extends Controller
     public function getLandlords($perPage, Request $request)
     {
         try {
-            $this->storeActivity($request,"");
+            $this->storeActivity($request, "");
             $currentDate = Carbon::now();
             $endDate = $currentDate->copy()->addDays(15);
 
 
-            $landlordQuery =  Landlord::with('properties',"properties.property_tenants")
-            ->where(["landlords.created_by" => $request->user()->id]);
+            $landlordQuery =  Landlord::with('properties', "properties.property_tenants")
+                ->where(["landlords.created_by" => $request->user()->id]);
 
             if (!empty($request->search_key)) {
                 $landlordQuery = $landlordQuery->where(function ($query) use ($request) {
                     $term = $request->search_key;
                     $terms = preg_split('/\s+/', $term); // Split search term by any whitespace
 
-    foreach ($terms as $individualTerm) {
-        $query->orWhere(function ($innerQuery) use ($individualTerm) {
-            $innerQuery->where("landlords.first_Name", "like", "%" . $individualTerm . "%");
-            $innerQuery->orWhere("landlords.last_Name", "like", "%" . $individualTerm . "%");
-        });
-    }
+                    foreach ($terms as $individualTerm) {
+                        $query->orWhere(function ($innerQuery) use ($individualTerm) {
+                            $innerQuery->where("landlords.first_Name", "like", "%" . $individualTerm . "%");
+                            $innerQuery->orWhere("landlords.last_Name", "like", "%" . $individualTerm . "%");
+                        });
+                    }
 
 
 
@@ -507,26 +497,23 @@ class LandlordController extends Controller
                     $query->orWhere("landlords.city", "like", "%" . $term . "%");
                     $query->orWhere("landlords.postcode", "like", "%" . $term . "%");
                     $query->orWhere("landlords.email", "like", "%" . $term . "%");
-
-
                 });
             }
 
-            if(!empty($request->property_id)){
-                $landlordQuery = $landlordQuery->whereHas('properties',function($query) {
-                 $query->whereIn("properties.id",[request()->input("property_id")]);
+            if (!empty($request->property_id)) {
+                $landlordQuery = $landlordQuery->whereHas('properties', function ($query) {
+                    $query->whereIn("properties.id", [request()->input("property_id")]);
                 });
             }
 
-            if(!empty($request->property_ids)) {
+            if (!empty($request->property_ids)) {
                 $null_filter = collect(array_filter($request->property_ids))->values();
-            $property_ids =  $null_filter->all();
-                if(count($property_ids)) {
-                    $landlordQuery = $landlordQuery->whereHas('properties',function($query) use($property_ids){
-                        $query->whereIn("properties.id",$property_ids);
-                       });
+                $property_ids =  $null_filter->all();
+                if (count($property_ids)) {
+                    $landlordQuery = $landlordQuery->whereHas('properties', function ($query) use ($property_ids) {
+                        $query->whereIn("properties.id", $property_ids);
+                    });
                 }
-
             }
 
             if (!empty($request->start_date)) {
@@ -538,18 +525,18 @@ class LandlordController extends Controller
 
             $landlordQuery = $landlordQuery
 
-            ->select(
-                "landlords.*",
-                DB::raw('
+                ->select(
+                    "landlords.*",
+                    DB::raw('
              COALESCE(
                  (SELECT COUNT(property_landlords.id) FROM property_landlords WHERE property_landlords.landlord_id = landlords.id),
                  0
              ) AS total_properties
              '),
 
-             DB::raw(
+                    DB::raw(
 
-                '
+                        '
       COALESCE(
     (
         SELECT SUM(invoices.total_amount)
@@ -562,8 +549,8 @@ class LandlordController extends Controller
 
              '
 
-             ),
-             DB::raw('
+                    ),
+                    DB::raw('
            COALESCE(
     (
         SELECT COUNT(invoices.id)
@@ -574,8 +561,8 @@ class LandlordController extends Controller
     0
 ) AS total_invoices
              '),
-             DB::raw(
-                '
+                    DB::raw(
+                        '
       COALESCE(
     (
         SELECT SUM(invoice_payments.amount)
@@ -588,9 +575,9 @@ class LandlordController extends Controller
 ) AS total_paid
 
              '
-             ),
-             DB::raw(
-                '
+                    ),
+                    DB::raw(
+                        '
                 COALESCE(
               COALESCE(
     (
@@ -618,10 +605,10 @@ class LandlordController extends Controller
              as total_due
 
              '
-                ),
+                    ),
 
-                DB::raw(
-                    '
+                    DB::raw(
+                        '
                     COALESCE(
                    COALESCE(
     (
@@ -653,9 +640,9 @@ class LandlordController extends Controller
                  as total_due_next_15_days
 
                  '
-                ),
-                DB::raw(
-                    '
+                    ),
+                    DB::raw(
+                        '
                     COALESCE(
                    COALESCE(
     (
@@ -685,35 +672,380 @@ class LandlordController extends Controller
                  as total_over_due
 
                  '
-                ),
+                    ),
 
 
-            );
+                );
 
-            if(!empty($request->min_total_due)) {
-                $landlordQuery = $landlordQuery->havingRaw("total_due >= " .$request->min_total_due . "");
+            if (!empty($request->min_total_due)) {
+                $landlordQuery = $landlordQuery->havingRaw("total_due >= " . $request->min_total_due . "");
             }
-            if(!empty($request->max_total_due)) {
-                $landlordQuery = $landlordQuery->havingRaw("total_due <= " .$request->max_total_due . "");
-            }
-
-            if(!empty($request->min_total_over_due)) {
-                $landlordQuery = $landlordQuery->havingRaw("total_over_due >= " .$request->min_total_over_due . "");
-            }
-            if(!empty($request->max_total_over_due)) {
-                $landlordQuery = $landlordQuery->havingRaw("total_over_due <= " .$request->max_total_over_due . "");
+            if (!empty($request->max_total_due)) {
+                $landlordQuery = $landlordQuery->havingRaw("total_due <= " . $request->max_total_due . "");
             }
 
-          $landlords =  $landlordQuery
-          ->groupBy("landlords.id")
-          ->orderBy("landlords.first_Name",$request->order_by)->paginate($perPage);
+            if (!empty($request->min_total_over_due)) {
+                $landlordQuery = $landlordQuery->havingRaw("total_over_due >= " . $request->min_total_over_due . "");
+            }
+            if (!empty($request->max_total_over_due)) {
+                $landlordQuery = $landlordQuery->havingRaw("total_over_due <= " . $request->max_total_over_due . "");
+            }
+
+            $landlords =  $landlordQuery
+                ->groupBy("landlords.id")
+                ->orderBy("landlords.first_Name", $request->order_by)->paginate($perPage);
 
             return response()->json($landlords, 200);
         } catch (Exception $e) {
 
-            return $this->sendError($e, 500,$request);
+            return $this->sendError($e, 500, $request);
         }
     }
+    /**
+     *
+     * @OA\Get(
+     * path="/v2.0/landlords",
+     * operationId="getLandlordsV2",
+     * tags={"property_management.landlord_management"},
+     * security={
+     * {"bearerAuth": {}}},
+
+     * * @OA\Parameter(
+     *  name="perPage",
+     *  in="query",
+     *  description="perPage",
+     *  required=false,
+     *  example="6"
+     *  ),
+     * * @OA\Parameter(
+     *  name="landlord_ids ",
+     *  in="query",
+     *  description="landlord_ids ",
+     *  required=false,
+     *  example="1,2"
+     *  ),
+     * *  @OA\Parameter(
+     * name="start_date",
+     * in="query",
+     * description="start_date",
+     * required=false,
+     * example="2019-06-29"
+     * ),
+     * *  @OA\Parameter(
+     * name="end_date",
+     * in="query",
+     * description="end_date",
+     * required=false,
+     * example="2019-06-29"
+     * ),
+     * *  @OA\Parameter(
+     * name="order_by",
+     * in="query",
+     * description="order_by",
+     * required=false,
+     * example="ASC"
+     * ),
+     * *  @OA\Parameter(
+     * name="search_key",
+     * in="query",
+     * description="search_key",
+     * required=false,
+     * example="search_key"
+     * ),
+     * *  @OA\Parameter(
+     * name="property_id",
+     * in="query",
+     * description="property_id",
+     * required=false,
+     * example="1"
+     * ),
+     *  @OA\Parameter(
+     *      name="property_ids[]",
+     *      in="query",
+     *      description="property_ids",
+     *      required=false,
+     *      example="1,2"
+     * ),
+     *
+     * *  @OA\Parameter(
+     * name="min_total_due",
+     * in="query",
+     * description="min_total_due",
+     * required=false,
+     * example="1"
+     * ),
+     * *  @OA\Parameter(
+     * name="max_total_due",
+     * in="query",
+     * description="max_total_due",
+     * required=false,
+     * example="1"
+     * ),
+     * *  @OA\Parameter(
+     * name="min_total_over_due",
+     * in="query",
+     * description="min_total_over_due",
+     * required=false,
+     * example="1"
+     * ),
+     * *  @OA\Parameter(
+     * name="max_total_over_due",
+     * in="query",
+     * description="max_total_over_due",
+     * required=false,
+     * example="1"
+     * ),
+
+     *      summary="This method is to get landlords ",
+     *      description="This method is to get landlords",
+     *
+
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       @OA\JsonContent(),
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     * @OA\JsonContent(),
+     *      ),
+     *        @OA\Response(
+     *          response=422,
+     *          description="Unprocessable Content",
+     *    @OA\JsonContent(),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *   @OA\JsonContent()
+     * ),
+     *  * @OA\Response(
+     *      response=400,
+     *      description="Bad Request",
+     *   *@OA\JsonContent()
+     *   ),
+     * @OA\Response(
+     *      response=404,
+     *      description="not found",
+     *   *@OA\JsonContent()
+     *   )
+     *      )
+     *     )
+     */
+
+    public function getLandlordsV2(Request $request)
+    {
+        try {
+            $this->storeActivity($request, "getLandlordsV2");
+
+            $currentDate = Carbon::now();
+            $endDate = $currentDate->copy()->addDays(15);
+
+            $landlordQuery = Landlord::with(['properties', 'properties.property_tenants'])
+                ->where('landlords.created_by', $request->user()->id);
+
+            /** -------------------------
+             * Search Filter
+             * ------------------------- */
+            if ($request->filled('search_key')) {
+                $searchTerm = $request->search_key;
+                $terms = preg_split('/\s+/', $searchTerm);
+
+                $landlordQuery->where(function ($query) use ($terms, $searchTerm) {
+                    foreach ($terms as $term) {
+                        $query->orWhere(function ($inner) use ($term) {
+                            $inner->where('landlords.first_name', 'like', "%{$term}%")
+                                ->orWhere('landlords.last_name', 'like', "%{$term}%");
+                        });
+                    }
+
+                    $searchFields = [
+                        'phone',
+                        'address_line_1',
+                        'address_line_2',
+                        'country',
+                        'city',
+                        'postcode',
+                        'email'
+                    ];
+
+                    foreach ($searchFields as $field) {
+                        $query->orWhere("landlords.{$field}", 'like', "%{$searchTerm}%");
+                    }
+                });
+            }
+
+            /** -------------------------
+             * Property Filters
+             * ------------------------- */
+            if ($request->filled('property_id')) {
+                $landlordQuery->whereHas('properties', function ($query) use ($request) {
+                    $query->where('properties.id', $request->property_id);
+                });
+            }
+
+            if ($request->filled('property_ids')) {
+                $propertyIds = collect($request->property_ids)->filter()->values()->all();
+                if (!empty($propertyIds)) {
+                    $landlordQuery->whereHas('properties', function ($query) use ($propertyIds) {
+                        $query->whereIn('properties.id', $propertyIds);
+                    });
+                }
+            }
+
+            /** -------------------------
+             * Date Filters
+             * ------------------------- */
+            if ($request->filled('start_date')) {
+                $landlordQuery->where('landlords.created_at', '>=', $request->start_date);
+            }
+            if ($request->filled('end_date')) {
+                $landlordQuery->where('landlords.created_at', '<=', $request->end_date);
+            }
+
+            /** -------------------------
+             * Landlord IDs Filter
+             * ------------------------- */
+            if ($request->filled('landlord_ids')) {
+                $ids = array_map('intval', explode(',', $request->landlord_ids));
+                $landlordQuery->whereIn('landlords.id', $ids);
+            }
+
+            /** -------------------------
+             * Select with Calculations
+             * ------------------------- */
+            $landlordQuery->select([
+                'landlords.*',
+                DB::raw("
+                COALESCE(
+                    (SELECT COUNT(property_landlords.id)
+                     FROM property_landlords
+                     WHERE property_landlords.landlord_id = landlords.id), 0
+                ) AS total_properties
+            "),
+                DB::raw("
+                COALESCE(
+                    (SELECT SUM(invoices.total_amount)
+                     FROM invoices
+                     JOIN invoice_landlords ON invoice_landlords.invoice_id = invoices.id
+                     WHERE invoice_landlords.landlord_id = landlords.id), 0
+                ) AS total_amount
+            "),
+                DB::raw("
+                COALESCE(
+                    (SELECT COUNT(invoices.id)
+                     FROM invoices
+                     JOIN invoice_landlords ON invoice_landlords.invoice_id = invoices.id
+                     WHERE invoice_landlords.landlord_id = landlords.id), 0
+                ) AS total_invoices
+            "),
+                DB::raw("
+                COALESCE(
+                    (SELECT SUM(invoice_payments.amount)
+                     FROM invoices
+                     LEFT JOIN invoice_payments ON invoices.id = invoice_payments.invoice_id
+                     JOIN invoice_landlords ON invoice_landlords.invoice_id = invoices.id
+                     WHERE invoice_landlords.landlord_id = landlords.id), 0
+                ) AS total_paid
+            "),
+                DB::raw("
+                COALESCE(
+                    COALESCE(
+                        (SELECT SUM(invoices.total_amount)
+                         FROM invoices
+                         JOIN invoice_landlords ON invoice_landlords.invoice_id = invoices.id
+                         WHERE invoice_landlords.landlord_id = landlords.id), 0
+                    )
+                    -
+                    COALESCE(
+                        (SELECT SUM(invoice_payments.amount)
+                         FROM invoices
+                         LEFT JOIN invoice_payments ON invoices.id = invoice_payments.invoice_id
+                         JOIN invoice_landlords ON invoice_landlords.invoice_id = invoices.id
+                         WHERE invoice_landlords.landlord_id = landlords.id), 0
+                    )
+                ) AS total_due
+            "),
+                DB::raw("
+                COALESCE(
+                    COALESCE(
+                        (SELECT SUM(invoices.total_amount)
+                         FROM invoices
+                         JOIN invoice_landlords ON invoice_landlords.invoice_id = invoices.id
+                         WHERE invoice_landlords.landlord_id = landlords.id
+                           AND invoices.due_date BETWEEN ? AND ?), 0
+                    )
+                    -
+                    COALESCE(
+                        (SELECT SUM(invoice_payments.amount)
+                         FROM invoices
+                         LEFT JOIN invoice_payments ON invoices.id = invoice_payments.invoice_id
+                         JOIN invoice_landlords ON invoice_landlords.invoice_id = invoices.id
+                         WHERE invoice_landlords.landlord_id = landlords.id
+                           AND invoices.due_date BETWEEN ? AND ?), 0
+                    )
+                ) AS total_due_next_15_days
+            "),
+                DB::raw("
+                COALESCE(
+                    COALESCE(
+                        (SELECT SUM(invoices.total_amount)
+                         FROM invoices
+                         JOIN invoice_landlords ON invoice_landlords.invoice_id = invoices.id
+                         WHERE invoice_landlords.landlord_id = landlords.id
+                           AND invoices.due_date < ?), 0
+                    )
+                    -
+                    COALESCE(
+                        (SELECT SUM(invoice_payments.amount)
+                         FROM invoices
+                         LEFT JOIN invoice_payments ON invoices.id = invoice_payments.invoice_id
+                         JOIN invoice_landlords ON invoice_landlords.invoice_id = invoices.id
+                         WHERE invoice_landlords.landlord_id = landlords.id
+                           AND invoices.due_date < ?), 0
+                    )
+                ) AS total_over_due
+            "),
+            ])->addBinding([
+                $currentDate,
+                $endDate,
+                $currentDate,
+                $endDate,
+                today(),
+                today()
+            ], 'select');
+
+            /** -------------------------
+             * Having Filters
+             * ------------------------- */
+            if ($request->filled('min_total_due')) {
+                $landlordQuery->havingRaw("total_due >= ?", [$request->min_total_due]);
+            }
+            if ($request->filled('max_total_due')) {
+                $landlordQuery->havingRaw("total_due <= ?", [$request->max_total_due]);
+            }
+            if ($request->filled('min_total_over_due')) {
+                $landlordQuery->havingRaw("total_over_due >= ?", [$request->min_total_over_due]);
+            }
+            if ($request->filled('max_total_over_due')) {
+                $landlordQuery->havingRaw("total_over_due <= ?", [$request->max_total_over_due]);
+            }
+
+            /** -------------------------
+             * Execute Query
+             * ------------------------- */
+            $landlords = $landlordQuery
+                ->groupBy('landlords.id')
+                ->orderBy('landlords.first_name', $request->order_by ?? 'asc')
+                ->paginate($perPage);
+
+            return response()->json($landlords, 200);
+        } catch (Exception $e) {
+            return $this->sendError($e, 500, $request);
+        }
+    }
+
 
     /**
      *
@@ -733,83 +1065,83 @@ class LandlordController extends Controller
      *  example="6"
      *      ),
      *      * *  @OA\Parameter(
-* name="start_date",
-* in="query",
-* description="start_date",
-* required=true,
-* example="2019-06-29"
-* ),
+     * name="start_date",
+     * in="query",
+     * description="start_date",
+     * required=true,
+     * example="2019-06-29"
+     * ),
      * *  @OA\Parameter(
-* name="end_date",
-* in="query",
-* description="end_date",
-* required=true,
-* example="2019-06-29"
-* ),
- * *  @OA\Parameter(
-* name="order_by",
-* in="query",
-* description="order_by",
-* required=true,
-* example="ASC"
-* ),
+     * name="end_date",
+     * in="query",
+     * description="end_date",
+     * required=true,
+     * example="2019-06-29"
+     * ),
      * *  @OA\Parameter(
-* name="search_key",
-* in="query",
-* description="search_key",
-* required=true,
-* example="search_key"
-* ),
- * *  @OA\Parameter(
-* name="property_id",
-* in="query",
-* description="property_id",
-* required=true,
-* example="1"
-* ),
-*  @OA\Parameter(
-*      name="property_ids[]",
-*      in="query",
-*      description="property_ids",
-*      required=true,
-*      example="1,2"
-* ),
- *
- * *  @OA\Parameter(
-* name="min_total_due",
-* in="query",
-* description="min_total_due",
-* required=true,
-* example="1"
-* ),
- * *  @OA\Parameter(
-* name="max_total_due",
-* in="query",
-* description="max_total_due",
-* required=true,
-* example="1"
-* ),
- * *  @OA\Parameter(
-* name="min_total_over_due",
-* in="query",
-* description="min_total_over_due",
-* required=true,
-* example="1"
-* ),
- * *  @OA\Parameter(
-* name="max_total_over_due",
-* in="query",
-* description="max_total_over_due",
-* required=true,
-* example="1"
-* ),
- * *  @OA\Parameter(
-* name="ids",
-* in="query",
-* description="ids",
-* required=false,
-* example=""
-* ),
+     * name="order_by",
+     * in="query",
+     * description="order_by",
+     * required=true,
+     * example="ASC"
+     * ),
+     * *  @OA\Parameter(
+     * name="search_key",
+     * in="query",
+     * description="search_key",
+     * required=true,
+     * example="search_key"
+     * ),
+     * *  @OA\Parameter(
+     * name="property_id",
+     * in="query",
+     * description="property_id",
+     * required=true,
+     * example="1"
+     * ),
+     *  @OA\Parameter(
+     *      name="property_ids[]",
+     *      in="query",
+     *      description="property_ids",
+     *      required=true,
+     *      example="1,2"
+     * ),
+     *
+     * *  @OA\Parameter(
+     * name="min_total_due",
+     * in="query",
+     * description="min_total_due",
+     * required=true,
+     * example="1"
+     * ),
+     * *  @OA\Parameter(
+     * name="max_total_due",
+     * in="query",
+     * description="max_total_due",
+     * required=true,
+     * example="1"
+     * ),
+     * *  @OA\Parameter(
+     * name="min_total_over_due",
+     * in="query",
+     * description="min_total_over_due",
+     * required=true,
+     * example="1"
+     * ),
+     * *  @OA\Parameter(
+     * name="max_total_over_due",
+     * in="query",
+     * description="max_total_over_due",
+     * required=true,
+     * example="1"
+     * ),
+     * *  @OA\Parameter(
+     * name="ids",
+     * in="query",
+     * description="ids",
+     * required=false,
+     * example=""
+     * ),
 
 
      *      summary="This method is to get landlords ",
@@ -850,78 +1182,77 @@ class LandlordController extends Controller
      *     )
      */
 
-     public function getLandlordsOptimized($perPage, Request $request)
-     {
-         try {
-             $this->storeActivity($request,"");
-             $currentDate = Carbon::now();
-             $endDate = $currentDate->copy()->addDays(15);
+    public function getLandlordsOptimized($perPage, Request $request)
+    {
+        try {
+            $this->storeActivity($request, "");
+            $currentDate = Carbon::now();
+            $endDate = $currentDate->copy()->addDays(15);
 
 
-             $landlordQuery =  Landlord::where(["landlords.created_by" => $request->user()->id]);
+            $landlordQuery =  Landlord::where(["landlords.created_by" => $request->user()->id]);
 
-             if (!empty($request->search_key)) {
-                 $landlordQuery = $landlordQuery->where(function ($query) use ($request) {
-                     $term = $request->search_key;
-                     $terms = preg_split('/\s+/', $term); // Split search term by any whitespace
+            if (!empty($request->search_key)) {
+                $landlordQuery = $landlordQuery->where(function ($query) use ($request) {
+                    $term = $request->search_key;
+                    $terms = preg_split('/\s+/', $term); // Split search term by any whitespace
 
-     foreach ($terms as $individualTerm) {
-         $query->orWhere(function ($innerQuery) use ($individualTerm) {
-             $innerQuery->where("landlords.first_Name", "like", "%" . $individualTerm . "%");
-             $innerQuery->orWhere("landlords.last_Name", "like", "%" . $individualTerm . "%");
-         });
-     }
+                    foreach ($terms as $individualTerm) {
+                        $query->orWhere(function ($innerQuery) use ($individualTerm) {
+                            $innerQuery->where("landlords.first_Name", "like", "%" . $individualTerm . "%");
+                            $innerQuery->orWhere("landlords.last_Name", "like", "%" . $individualTerm . "%");
+                        });
+                    }
 
-                     $query->orWhere("landlords.phone", "like", "%" . $term . "%");
-                     $query->orWhere("landlords.address_line_1", "like", "%" . $term . "%");
-                     $query->orWhere("landlords.address_line_2", "like", "%" . $term . "%");
-                     $query->orWhere("landlords.country", "like", "%" . $term . "%");
-                     $query->orWhere("landlords.city", "like", "%" . $term . "%");
-                     $query->orWhere("landlords.postcode", "like", "%" . $term . "%");
-                     $query->orWhere("landlords.email", "like", "%" . $term . "%");
-
-                 });
-             }
-             if (!empty($request->ids)) {
+                    $query->orWhere("landlords.phone", "like", "%" . $term . "%");
+                    $query->orWhere("landlords.address_line_1", "like", "%" . $term . "%");
+                    $query->orWhere("landlords.address_line_2", "like", "%" . $term . "%");
+                    $query->orWhere("landlords.country", "like", "%" . $term . "%");
+                    $query->orWhere("landlords.city", "like", "%" . $term . "%");
+                    $query->orWhere("landlords.postcode", "like", "%" . $term . "%");
+                    $query->orWhere("landlords.email", "like", "%" . $term . "%");
+                });
+            }
+            if (!empty($request->ids)) {
                 $ids = explode(',', request()->input("ids"));
                 $landlordQuery =  $landlordQuery->whereIn("landlords.id", $ids);
             }
 
-            if(!empty($request->property_id)){
-                $landlordQuery = $landlordQuery->whereHas('properties',function($query) {
-                 $query->whereIn("properties.id",[request()->input("property_id")]);
+            if (!empty($request->property_id)) {
+                $landlordQuery = $landlordQuery->whereHas('properties', function ($query) {
+                    $query->whereIn("properties.id", [request()->input("property_id")]);
                 });
             }
 
-            if(!empty($request->property_ids)) {
+            if (!empty($request->property_ids)) {
                 $null_filter = collect(array_filter($request->property_ids))->values();
                 $property_ids = $null_filter->all();
-                if(count($property_ids)) {
-                    $landlordQuery = $landlordQuery->whereHas('properties',function($query) use($property_ids){
-                        $query->whereIn("properties.id",$property_ids);
-                       });
+                if (count($property_ids)) {
+                    $landlordQuery = $landlordQuery->whereHas('properties', function ($query) use ($property_ids) {
+                        $query->whereIn("properties.id", $property_ids);
+                    });
                 }
             }
 
 
-             if (!empty($request->start_date)) {
-                 $landlordQuery = $landlordQuery->where('landlords.created_at', ">=", $request->start_date);
-             }
-             if (!empty($request->end_date)) {
-                 $landlordQuery = $landlordQuery->where('landlords.created_at', "<=", $request->end_date);
-             }
+            if (!empty($request->start_date)) {
+                $landlordQuery = $landlordQuery->where('landlords.created_at', ">=", $request->start_date);
+            }
+            if (!empty($request->end_date)) {
+                $landlordQuery = $landlordQuery->where('landlords.created_at', "<=", $request->end_date);
+            }
 
-             $landlordQuery = $landlordQuery
+            $landlordQuery = $landlordQuery
 
-             ->select(
-                 "landlords.id",
-                 "landlords.generated_id",
-                 "landlords.first_Name",
-                 "landlords.last_Name",
-                 "landlords.phone",
+                ->select(
+                    "landlords.id",
+                    "landlords.generated_id",
+                    "landlords.first_Name",
+                    "landlords.last_Name",
+                    "landlords.phone",
 
 
-              DB::raw('
+                    DB::raw('
             COALESCE(
     (
         SELECT COUNT(invoices.id)
@@ -934,8 +1265,8 @@ class LandlordController extends Controller
 
               '),
 
-              DB::raw(
-                 '
+                    DB::raw(
+                        '
                  COALESCE(
                 COALESCE(
     (
@@ -963,11 +1294,11 @@ class LandlordController extends Controller
               as total_due
 
               '
-                 ),
+                    ),
 
 
-                 DB::raw(
-                     '
+                    DB::raw(
+                        '
                      COALESCE(
                     COALESCE(
     (
@@ -997,36 +1328,36 @@ class LandlordController extends Controller
                   as total_over_due
 
                   '
-                 ),
+                    ),
 
 
-             );
+                );
 
-             if(!empty($request->min_total_due)) {
-                 $landlordQuery = $landlordQuery->havingRaw("total_due >= " .$request->min_total_due . "");
-             }
-             if(!empty($request->max_total_due)) {
-                 $landlordQuery = $landlordQuery->havingRaw("total_due <= " .$request->max_total_due . "");
-             }
+            if (!empty($request->min_total_due)) {
+                $landlordQuery = $landlordQuery->havingRaw("total_due >= " . $request->min_total_due . "");
+            }
+            if (!empty($request->max_total_due)) {
+                $landlordQuery = $landlordQuery->havingRaw("total_due <= " . $request->max_total_due . "");
+            }
 
-             if(!empty($request->min_total_over_due)) {
-                 $landlordQuery = $landlordQuery->havingRaw("total_over_due >= " .$request->min_total_over_due . "");
-             }
-             if(!empty($request->max_total_over_due)) {
-                 $landlordQuery = $landlordQuery->havingRaw("total_over_due <= " .$request->max_total_over_due . "");
-             }
+            if (!empty($request->min_total_over_due)) {
+                $landlordQuery = $landlordQuery->havingRaw("total_over_due >= " . $request->min_total_over_due . "");
+            }
+            if (!empty($request->max_total_over_due)) {
+                $landlordQuery = $landlordQuery->havingRaw("total_over_due <= " . $request->max_total_over_due . "");
+            }
 
-           $landlords =  $landlordQuery
-           ->groupBy("landlords.id")
-           ->orderBy("landlords.first_Name",$request->order_by)->paginate($perPage);
+            $landlords =  $landlordQuery
+                ->groupBy("landlords.id")
+                ->orderBy("landlords.first_Name", $request->order_by)->paginate($perPage);
 
-             return response()->json($landlords, 200);
-         } catch (Exception $e) {
+            return response()->json($landlords, 200);
+        } catch (Exception $e) {
 
-             return $this->sendError($e, 500,$request);
-         }
-     }
-/**
+            return $this->sendError($e, 500, $request);
+        }
+    }
+    /**
      *
      * @OA\Get(
      *      path="/v1.0/landlords/get/all",
@@ -1038,61 +1369,61 @@ class LandlordController extends Controller
 
 
      *      * *  @OA\Parameter(
-* name="start_date",
-* in="query",
-* description="start_date",
-* required=true,
-* example="2019-06-29"
-* ),
+     * name="start_date",
+     * in="query",
+     * description="start_date",
+     * required=true,
+     * example="2019-06-29"
+     * ),
      * *  @OA\Parameter(
-* name="end_date",
-* in="query",
-* description="end_date",
-* required=true,
-* example="2019-06-29"
-* ),
- * *  @OA\Parameter(
-* name="order_by",
-* in="query",
-* description="order_by",
-* required=true,
-* example="ASC"
-* ),
+     * name="end_date",
+     * in="query",
+     * description="end_date",
+     * required=true,
+     * example="2019-06-29"
+     * ),
      * *  @OA\Parameter(
-* name="search_key",
-* in="query",
-* description="search_key",
-* required=true,
-* example="search_key"
-* ),
- * *  @OA\Parameter(
-* name="min_total_due",
-* in="query",
-* description="min_total_due",
-* required=true,
-* example="1"
-* ),
- * *  @OA\Parameter(
-* name="max_total_due",
-* in="query",
-* description="max_total_due",
-* required=true,
-* example="1"
-* ),
- * *  @OA\Parameter(
-* name="min_total_over_due",
-* in="query",
-* description="min_total_over_due",
-* required=true,
-* example="1"
-* ),
- * *  @OA\Parameter(
-* name="max_total_over_due",
-* in="query",
-* description="max_total_over_due",
-* required=true,
-* example="1"
-* ),
+     * name="order_by",
+     * in="query",
+     * description="order_by",
+     * required=true,
+     * example="ASC"
+     * ),
+     * *  @OA\Parameter(
+     * name="search_key",
+     * in="query",
+     * description="search_key",
+     * required=true,
+     * example="search_key"
+     * ),
+     * *  @OA\Parameter(
+     * name="min_total_due",
+     * in="query",
+     * description="min_total_due",
+     * required=true,
+     * example="1"
+     * ),
+     * *  @OA\Parameter(
+     * name="max_total_due",
+     * in="query",
+     * description="max_total_due",
+     * required=true,
+     * example="1"
+     * ),
+     * *  @OA\Parameter(
+     * name="min_total_over_due",
+     * in="query",
+     * description="min_total_over_due",
+     * required=true,
+     * example="1"
+     * ),
+     * *  @OA\Parameter(
+     * name="max_total_over_due",
+     * in="query",
+     * description="max_total_over_due",
+     * required=true,
+     * example="1"
+     * ),
      *      summary="This method is to get all landlords ",
      *      description="This method is to get all landlords",
      *
@@ -1131,31 +1462,31 @@ class LandlordController extends Controller
      *     )
      */
 
-     public function getAllLandlords(Request $request)
-     {
-         try {
-             $this->storeActivity($request,"");
+    public function getAllLandlords(Request $request)
+    {
+        try {
+            $this->storeActivity($request, "");
 
-             // $automobilesQuery = AutomobileMake::with("makes");
+            // $automobilesQuery = AutomobileMake::with("makes");
 
-             $landlordQuery =  Landlord::with('properties',"properties.property_tenants")
+            $landlordQuery =  Landlord::with('properties', "properties.property_tenants")
 
-             ->where(["landlords.created_by" => $request->user()->id]);
+                ->where(["landlords.created_by" => $request->user()->id]);
 
-             if (!empty($request->search_key)) {
-                 $landlordQuery = $landlordQuery->where(function ($query) use ($request) {
-                     $term = $request->search_key;
-                     $terms = preg_split('/\s+/', $term); // Split search term by any whitespace
+            if (!empty($request->search_key)) {
+                $landlordQuery = $landlordQuery->where(function ($query) use ($request) {
+                    $term = $request->search_key;
+                    $terms = preg_split('/\s+/', $term); // Split search term by any whitespace
 
-                     foreach ($terms as $individualTerm) {
-                         $query->orWhere(function ($innerQuery) use ($individualTerm) {
-                             $innerQuery->where("landlords.first_Name", "like", "%" . $individualTerm . "%");
-                             $innerQuery->orWhere("landlords.last_Name", "like", "%" . $individualTerm . "%");
-                         });
-                     }
+                    foreach ($terms as $individualTerm) {
+                        $query->orWhere(function ($innerQuery) use ($individualTerm) {
+                            $innerQuery->where("landlords.first_Name", "like", "%" . $individualTerm . "%");
+                            $innerQuery->orWhere("landlords.last_Name", "like", "%" . $individualTerm . "%");
+                        });
+                    }
 
 
-                     $query->orWhere("landlords.phone", "like", "%" . $term . "%");
+                    $query->orWhere("landlords.phone", "like", "%" . $term . "%");
 
 
                     //  $query->orWhere("landlords.address_line_1", "like", "%" . $term . "%");
@@ -1164,29 +1495,29 @@ class LandlordController extends Controller
                     //  $query->orWhere("landlords.city", "like", "%" . $term . "%");
                     //  $query->orWhere("landlords.postcode", "like", "%" . $term . "%");
                     //  $query->orWhere("landlords.email", "like", "%" . $term . "%");
-                 });
-             }
-
-             if (!empty($request->start_date)) {
-                 $landlordQuery = $landlordQuery->where('landlords.created_at', ">=", $request->start_date);
-             }
-             if (!empty($request->end_date)) {
-                 $landlordQuery = $landlordQuery->where('landlords.created_at', "<=", $request->end_date);
-             }
-
-             if(!empty($request->property_id)){
-                $landlordQuery = $landlordQuery->whereHas('properties',function($query) {
-                 $query->whereIn("properties.id",[request()->input("property_id")]);
                 });
             }
 
-            if(!empty($request->property_ids)) {
+            if (!empty($request->start_date)) {
+                $landlordQuery = $landlordQuery->where('landlords.created_at', ">=", $request->start_date);
+            }
+            if (!empty($request->end_date)) {
+                $landlordQuery = $landlordQuery->where('landlords.created_at', "<=", $request->end_date);
+            }
+
+            if (!empty($request->property_id)) {
+                $landlordQuery = $landlordQuery->whereHas('properties', function ($query) {
+                    $query->whereIn("properties.id", [request()->input("property_id")]);
+                });
+            }
+
+            if (!empty($request->property_ids)) {
                 $null_filter = collect(array_filter($request->property_ids))->values();
-            $property_ids =  $null_filter->all();
-                if(count($property_ids)) {
-                    $landlordQuery = $landlordQuery->whereHas('properties',function($query) use($property_ids){
-                        $query->whereIn("properties.id",$property_ids);
-                       });
+                $property_ids =  $null_filter->all();
+                if (count($property_ids)) {
+                    $landlordQuery = $landlordQuery->whereHas('properties', function ($query) use ($property_ids) {
+                        $query->whereIn("properties.id", $property_ids);
+                    });
                 }
             }
 
@@ -1196,19 +1527,19 @@ class LandlordController extends Controller
             }
 
 
-             $currentDate = Carbon::now();
-             $endDate = $currentDate->copy()->addDays(15);
-             $landlordQuery = $landlordQuery
+            $currentDate = Carbon::now();
+            $endDate = $currentDate->copy()->addDays(15);
+            $landlordQuery = $landlordQuery
 
-             ->select(
-                 "landlords.*",
-                 DB::raw('
+                ->select(
+                    "landlords.*",
+                    DB::raw('
              COALESCE(
                  (SELECT COUNT(property_landlords.id) FROM property_landlords WHERE property_landlords.landlord_id = landlords.id),
                  0
              ) AS total_properties
              '),
-              DB::raw('
+                    DB::raw('
              COALESCE(
     (
         SELECT COUNT(invoices.id)
@@ -1221,9 +1552,9 @@ class LandlordController extends Controller
 
               '),
 
-              DB::raw(
+                    DB::raw(
 
-                 '
+                        '
             COALESCE(
     (
         SELECT SUM(invoices.total_amount)
@@ -1236,9 +1567,9 @@ class LandlordController extends Controller
 
               '
 
-              ),
-              DB::raw(
-                 '
+                    ),
+                    DB::raw(
+                        '
              COALESCE(
     (
         SELECT SUM(invoice_payments.amount)
@@ -1251,9 +1582,9 @@ class LandlordController extends Controller
 ) AS total_paid
 
               '
-              ),
-              DB::raw(
-                 '
+                    ),
+                    DB::raw(
+                        '
                  COALESCE(
                 COALESCE(
     (
@@ -1281,10 +1612,10 @@ class LandlordController extends Controller
               as total_due
 
               '
-                 ),
+                    ),
 
-                 DB::raw(
-                     '
+                    DB::raw(
+                        '
                      COALESCE(
                    COALESCE(
     (
@@ -1316,9 +1647,9 @@ class LandlordController extends Controller
                   as total_due_next_15_days
 
                   '
-                 ),
-                 DB::raw(
-                     '
+                    ),
+                    DB::raw(
+                        '
                      COALESCE(
                     COALESCE(
     (
@@ -1348,36 +1679,36 @@ class LandlordController extends Controller
                   as total_over_due
 
                   '
-                 ),
+                    ),
 
 
-             );
+                );
 
-             if(!empty($request->min_total_due)) {
-                $landlordQuery = $landlordQuery->havingRaw("total_due >= " .$request->min_total_due . "");
+            if (!empty($request->min_total_due)) {
+                $landlordQuery = $landlordQuery->havingRaw("total_due >= " . $request->min_total_due . "");
             }
-            if(!empty($request->max_total_due)) {
-                $landlordQuery = $landlordQuery->havingRaw("total_due <= " .$request->max_total_due . "");
+            if (!empty($request->max_total_due)) {
+                $landlordQuery = $landlordQuery->havingRaw("total_due <= " . $request->max_total_due . "");
             }
-            if(!empty($request->min_total_over_due)) {
-                $landlordQuery = $landlordQuery->havingRaw("total_over_due >= " .$request->min_total_over_due . "");
+            if (!empty($request->min_total_over_due)) {
+                $landlordQuery = $landlordQuery->havingRaw("total_over_due >= " . $request->min_total_over_due . "");
             }
-            if(!empty($request->max_total_over_due)) {
-                $landlordQuery = $landlordQuery->havingRaw("total_over_due <= " .$request->max_total_over_due . "");
+            if (!empty($request->max_total_over_due)) {
+                $landlordQuery = $landlordQuery->havingRaw("total_over_due <= " . $request->max_total_over_due . "");
             }
 
-           $landlords =  $landlordQuery
-           ->groupBy("landlords.id")
-           ->orderBy("landlords.first_Name",$request->order_by)->get();
+            $landlords =  $landlordQuery
+                ->groupBy("landlords.id")
+                ->orderBy("landlords.first_Name", $request->order_by)->get();
 
-             return response()->json($landlords, 200);
-         } catch (Exception $e) {
+            return response()->json($landlords, 200);
+        } catch (Exception $e) {
 
-             return $this->sendError($e, 500,$request);
-         }
-     }
+            return $this->sendError($e, 500, $request);
+        }
+    }
 
-     /**
+    /**
      *
      * @OA\Get(
      *      path="/v1.0/landlords/get/all/optimized",
@@ -1389,61 +1720,61 @@ class LandlordController extends Controller
 
 
      *      * *  @OA\Parameter(
-* name="start_date",
-* in="query",
-* description="start_date",
-* required=true,
-* example="2019-06-29"
-* ),
+     * name="start_date",
+     * in="query",
+     * description="start_date",
+     * required=true,
+     * example="2019-06-29"
+     * ),
      * *  @OA\Parameter(
-* name="end_date",
-* in="query",
-* description="end_date",
-* required=true,
-* example="2019-06-29"
-* ),
- * *  @OA\Parameter(
-* name="order_by",
-* in="query",
-* description="order_by",
-* required=true,
-* example="ASC"
-* ),
+     * name="end_date",
+     * in="query",
+     * description="end_date",
+     * required=true,
+     * example="2019-06-29"
+     * ),
      * *  @OA\Parameter(
-* name="search_key",
-* in="query",
-* description="search_key",
-* required=true,
-* example="search_key"
-* ),
- * *  @OA\Parameter(
-* name="min_total_due",
-* in="query",
-* description="min_total_due",
-* required=true,
-* example="1"
-* ),
- * *  @OA\Parameter(
-* name="max_total_due",
-* in="query",
-* description="max_total_due",
-* required=true,
-* example="1"
-* ),
- * *  @OA\Parameter(
-* name="min_total_over_due",
-* in="query",
-* description="min_total_over_due",
-* required=true,
-* example="1"
-* ),
- * *  @OA\Parameter(
-* name="max_total_over_due",
-* in="query",
-* description="max_total_over_due",
-* required=true,
-* example="1"
-* ),
+     * name="order_by",
+     * in="query",
+     * description="order_by",
+     * required=true,
+     * example="ASC"
+     * ),
+     * *  @OA\Parameter(
+     * name="search_key",
+     * in="query",
+     * description="search_key",
+     * required=true,
+     * example="search_key"
+     * ),
+     * *  @OA\Parameter(
+     * name="min_total_due",
+     * in="query",
+     * description="min_total_due",
+     * required=true,
+     * example="1"
+     * ),
+     * *  @OA\Parameter(
+     * name="max_total_due",
+     * in="query",
+     * description="max_total_due",
+     * required=true,
+     * example="1"
+     * ),
+     * *  @OA\Parameter(
+     * name="min_total_over_due",
+     * in="query",
+     * description="min_total_over_due",
+     * required=true,
+     * example="1"
+     * ),
+     * *  @OA\Parameter(
+     * name="max_total_over_due",
+     * in="query",
+     * description="max_total_over_due",
+     * required=true,
+     * example="1"
+     * ),
      *      summary="This method is to get all landlords ",
      *      description="This method is to get all landlords",
      *
@@ -1482,32 +1813,30 @@ class LandlordController extends Controller
      *     )
      */
 
-     public function getAllLandlordsOptimized(Request $request)
-     {
-         try {
-             $this->storeActivity($request,"");
+    public function getAllLandlordsOptimized(Request $request)
+    {
+        try {
+            $this->storeActivity($request, "");
 
 
-             // $automobilesQuery = AutomobileMake::with("makes");
+            // $automobilesQuery = AutomobileMake::with("makes");
 
-             $landlordQuery =  Landlord::
+            $landlordQuery =  Landlord::where(["landlords.created_by" => $request->user()->id]);
 
-             where(["landlords.created_by" => $request->user()->id]);
+            if (!empty($request->search_key)) {
+                $landlordQuery = $landlordQuery->where(function ($query) use ($request) {
+                    $term = $request->search_key;
+                    $terms = preg_split('/\s+/', $term); // Split search term by any whitespace
 
-             if (!empty($request->search_key)) {
-                 $landlordQuery = $landlordQuery->where(function ($query) use ($request) {
-                     $term = $request->search_key;
-                     $terms = preg_split('/\s+/', $term); // Split search term by any whitespace
-
-                     foreach ($terms as $individualTerm) {
-                         $query->orWhere(function ($innerQuery) use ($individualTerm) {
-                             $innerQuery->where("landlords.first_Name", "like", "%" . $individualTerm . "%");
-                             $innerQuery->orWhere("landlords.last_Name", "like", "%" . $individualTerm . "%");
-                         });
-                     }
+                    foreach ($terms as $individualTerm) {
+                        $query->orWhere(function ($innerQuery) use ($individualTerm) {
+                            $innerQuery->where("landlords.first_Name", "like", "%" . $individualTerm . "%");
+                            $innerQuery->orWhere("landlords.last_Name", "like", "%" . $individualTerm . "%");
+                        });
+                    }
 
 
-                     $query->orWhere("landlords.phone", "like", "%" . $term . "%");
+                    $query->orWhere("landlords.phone", "like", "%" . $term . "%");
 
 
                     //  $query->orWhere("landlords.address_line_1", "like", "%" . $term . "%");
@@ -1516,30 +1845,30 @@ class LandlordController extends Controller
                     //  $query->orWhere("landlords.city", "like", "%" . $term . "%");
                     //  $query->orWhere("landlords.postcode", "like", "%" . $term . "%");
                     //  $query->orWhere("landlords.email", "like", "%" . $term . "%");
-                 });
-             }
-
-             if (!empty($request->start_date)) {
-                 $landlordQuery = $landlordQuery->where('landlords.created_at', ">=", $request->start_date);
-             }
-             if (!empty($request->end_date)) {
-                 $landlordQuery = $landlordQuery->where('landlords.created_at', "<=", $request->end_date);
-             }
-
-
-            if(!empty($request->property_id)){
-                $landlordQuery = $landlordQuery->whereHas('properties',function($query) {
-                 $query->whereIn("properties.id",[request()->input("property_id")]);
                 });
             }
 
-            if(!empty($request->property_ids)) {
+            if (!empty($request->start_date)) {
+                $landlordQuery = $landlordQuery->where('landlords.created_at', ">=", $request->start_date);
+            }
+            if (!empty($request->end_date)) {
+                $landlordQuery = $landlordQuery->where('landlords.created_at', "<=", $request->end_date);
+            }
+
+
+            if (!empty($request->property_id)) {
+                $landlordQuery = $landlordQuery->whereHas('properties', function ($query) {
+                    $query->whereIn("properties.id", [request()->input("property_id")]);
+                });
+            }
+
+            if (!empty($request->property_ids)) {
                 $null_filter = collect(array_filter($request->property_ids))->values();
-            $property_ids =  $null_filter->all();
-                if(count($property_ids)) {
-                    $landlordQuery = $landlordQuery->whereHas('properties',function($query) use($property_ids){
-                        $query->whereIn("properties.id",$property_ids);
-                       });
+                $property_ids =  $null_filter->all();
+                if (count($property_ids)) {
+                    $landlordQuery = $landlordQuery->whereHas('properties', function ($query) use ($property_ids) {
+                        $query->whereIn("properties.id", $property_ids);
+                    });
                 }
             }
 
@@ -1548,33 +1877,33 @@ class LandlordController extends Controller
                 $landlordQuery =  $landlordQuery->whereIn("landlords.id", $ids);
             }
 
-             $currentDate = Carbon::now();
-             $endDate = $currentDate->copy()->addDays(15);
+            $currentDate = Carbon::now();
+            $endDate = $currentDate->copy()->addDays(15);
 
 
 
 
 
-           $landlords =  $landlordQuery
-           ->select(
-            "landlords.id",
-            "landlords.generated_id",
-            'landlords.first_Name',
-            'landlords.last_Name',
+            $landlords =  $landlordQuery
+                ->select(
+                    "landlords.id",
+                    "landlords.generated_id",
+                    'landlords.first_Name',
+                    'landlords.last_Name',
 
-        )
-           ->groupBy("landlords.id")
-           ->orderBy("landlords.first_Name",$request->order_by)->get();
+                )
+                ->groupBy("landlords.id")
+                ->orderBy("landlords.first_Name", $request->order_by)->get();
 
-             return response()->json($landlords, 200);
-         } catch (Exception $e) {
+            return response()->json($landlords, 200);
+        } catch (Exception $e) {
 
-             return $this->sendError($e, 500,$request);
-         }
-     }
+            return $this->sendError($e, 500, $request);
+        }
+    }
 
 
- /**
+    /**
      *
      * @OA\Get(
      *      path="/v1.0/landlords/get/single/{id}",
@@ -1630,38 +1959,38 @@ class LandlordController extends Controller
     public function getLandlordById($id, Request $request)
     {
         try {
-            $this->storeActivity($request,"");
+            $this->storeActivity($request, "");
 
 
             $landlord = Landlord::with("properties")->where([
                 "generated_id" => $id,
                 "created_by" => $request->user()->id
             ])
-            ->select(
+                ->select(
 
-            "landlords.*",
-            DB::raw('
+                    "landlords.*",
+                    DB::raw('
             COALESCE(
                 (SELECT COUNT(property_landlords.id) FROM property_landlords WHERE property_landlords.landlord_id = landlords.id),
                 0
             ) AS total_properties
             '),
 
-             )
-             ->withTrashed()
-            ->first();
+                )
+                ->withTrashed()
+                ->first();
 
-            if(!$landlord) {
-         return response()->json([
-"message" => "no landlord found"
-],404);
+            if (!$landlord) {
+                return response()->json([
+                    "message" => "no landlord found"
+                ], 404);
             }
 
 
             return response()->json($landlord, 200);
         } catch (Exception $e) {
 
-            return $this->sendError($e, 500,$request);
+            return $this->sendError($e, 500, $request);
         }
     }
 
@@ -1674,100 +2003,98 @@ class LandlordController extends Controller
 
 
 
-   /**
- * @OA\Delete(
- *     path="/v1.0/landlords/{id}",
- *     operationId="deleteLandlordById",
- *     tags={"property_management.landlord_management"},
- *     security={
- *         {"bearerAuth": {}},
- *        {"pin": {}}
- *     },
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         description="id",
- *         required=true,
- *         example="1"
- *     ),
+    /**
+     * @OA\Delete(
+     *     path="/v1.0/landlords/{id}",
+     *     operationId="deleteLandlordById",
+     *     tags={"property_management.landlord_management"},
+     *     security={
+     *         {"bearerAuth": {}},
+     *        {"pin": {}}
+     *     },
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="id",
+     *         required=true,
+     *         example="1"
+     *     ),
 
- *     summary="This method is to delete landlord by id",
- *     description="This method is to delete landlord by id",
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation",
- *         @OA\JsonContent()
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated",
- *         @OA\JsonContent()
- *     ),
- *     @OA\Response(
- *         response=422,
- *         description="Unprocessable Content",
- *         @OA\JsonContent()
- *     ),
- *     @OA\Response(
- *         response=403,
- *         description="Forbidden",
- *         @OA\JsonContent()
- *     ),
- *     @OA\Response(
- *         response=400,
- *         description="Bad Request",
- *         @OA\JsonContent()
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Not Found",
- *         @OA\JsonContent()
- *     )
- * )
- */
+     *     summary="This method is to delete landlord by id",
+     *     description="This method is to delete landlord by id",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent()
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated",
+     *         @OA\JsonContent()
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Unprocessable Content",
+     *         @OA\JsonContent()
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden",
+     *         @OA\JsonContent()
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request",
+     *         @OA\JsonContent()
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Not Found",
+     *         @OA\JsonContent()
+     *     )
+     * )
+     */
     public function deleteLandlordById($id, Request $request)
     {
 
         try {
-            $this->storeActivity($request,"");
+            $this->storeActivity($request, "");
 
             $business = Business::where([
                 "owner_id" => $request->user()->id
-              ])->first();
+            ])->first();
 
-            if(!$business) {
+            if (!$business) {
                 return response()->json([
-                 "message" => "you don't have a valid business"
-                ],401);
-             }
+                    "message" => "you don't have a valid business"
+                ], 401);
+            }
 
 
-             if(!($business->pin == $request->header("pin"))) {
-                 return response()->json([
-                     "message" => "invalid pin"
-                    ],401);
-             }
+            if (!($business->pin == $request->header("pin"))) {
+                return response()->json([
+                    "message" => "invalid pin"
+                ], 401);
+            }
 
             $landlord = Landlord::where([
                 "id" => $id,
                 "created_by" => $request->user()->id
             ])
-            ->first();
+                ->first();
 
-            if(!$landlord) {
+            if (!$landlord) {
 
-         return response()->json([
-             "message" => "no landlord found"
-         ],404);
-
+                return response()->json([
+                    "message" => "no landlord found"
+                ], 404);
             }
             $landlord->delete();
 
             return response()->json(["ok" => true], 200);
         } catch (Exception $e) {
 
-            return $this->sendError($e, 500,$request);
+            return $this->sendError($e, 500, $request);
         }
     }
-
 }
