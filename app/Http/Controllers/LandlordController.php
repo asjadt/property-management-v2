@@ -711,9 +711,9 @@ class LandlordController extends Controller
      * {"bearerAuth": {}}},
 
      * * @OA\Parameter(
-     *  name="perPage",
+     *  name="per_page",
      *  in="query",
-     *  description="perPage",
+     *  description="per_page",
      *  required=false,
      *  example="6"
      *  ),
@@ -1038,7 +1038,7 @@ class LandlordController extends Controller
             $landlords = $landlordQuery
                 ->groupBy('landlords.id')
                 ->orderBy('landlords.first_name', $request->order_by ?? 'asc')
-                ->paginate($perPage);
+                ->paginate($request->per_page);
 
             return response()->json($landlords, 200);
         } catch (Exception $e) {
