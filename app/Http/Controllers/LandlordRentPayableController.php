@@ -333,9 +333,9 @@ class LandlordRentPayableController extends Controller
                                 ->whereDoesntHave('rent_adjustments', function ($query) use ($rentPayable) {
                                     $query->whereNotIn("landlord_rent_payable_id", [$rentPayable->id]);
                                 })
-                                ->where([
-                                    "paid_by" => "agent"
-                                ])
+                                // ->where([
+                                //     "paid_by" => "agent"
+                                // ])
                                 ->first();
                             if (!$valid_repair) {
                                 $error =  [
@@ -356,9 +356,9 @@ class LandlordRentPayableController extends Controller
                                 ->whereDoesntHave('rent_adjustments', function ($query) use ($rentPayable) {
                                     $query->whereNotIn("landlord_rent_payable_id", [$rentPayable->id]);
                                 })
-                                ->where([
-                                    "paid_by" => "agent"
-                                ])
+                                // ->where([
+                                //     "paid_by" => "agent"
+                                // ])
                                 ->first();
                             if (!$valid_expense) {
                                 $error =  [
@@ -536,9 +536,9 @@ class LandlordRentPayableController extends Controller
                                 ->whereDoesntHave('rent_adjustments', function ($query) use ($rentPayable) {
                                     $query->whereNotIn("landlord_rent_payable_id", [$rentPayable->id]);
                                 })
-                                ->where([
-                                    "paid_by" => "agent"
-                                ])
+                                // ->where([
+                                //     "paid_by" => "agent"
+                                // ])
                                 ->first();
                             if (!$valid_repair) {
                                 $error =  [
@@ -558,9 +558,9 @@ class LandlordRentPayableController extends Controller
                                 ->whereDoesntHave('rent_adjustments', function ($query) use ($rentPayable) {
                                     $query->whereNotIn("landlord_rent_payable_id", [$rentPayable->id]);
                                 })
-                                ->where([
-                                    "paid_by" => "agent"
-                                ])
+                                // ->where([
+                                //     "paid_by" => "agent"
+                                // ])
                                 ->first();
                             if (!$valid_expense) {
                                 $error =  [

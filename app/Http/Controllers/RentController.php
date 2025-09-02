@@ -450,7 +450,10 @@ class RentController extends Controller
         try {
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
 
-            $query = Rent::with("tenancy_agreement.property", "tenancy_agreement.tenants")
+            $query = Rent::withCount([
+                "landlord_payables"
+            ])
+            ->with("tenancy_agreement.property", "tenancy_agreement.tenants")
                 ->filters();
 
             $rents = $this->retrieveData($query, "month", "rents");
@@ -600,7 +603,8 @@ class RentController extends Controller
 
         try {
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
-            $query = Rent::with("tenancy_agreement.property", "tenancy_agreement.tenants")
+            $query = Rent::
+            withCount("landlord_payables")->with("tenancy_agreement.property", "tenancy_agreement.tenants")
                 ->filters();
             $rents = $this->retrieveData($query, "month", "rents");
 

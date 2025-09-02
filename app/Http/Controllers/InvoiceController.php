@@ -281,9 +281,9 @@ class InvoiceController extends Controller
                                 return $query->whereNotIn('invoice_id', [$invoice->id]);
                             })
                             ->whereDoesntHave('rent_adjustments')
-                            ->where([
-                                "paid_by" => "agent"
-                            ])
+                            // ->where([
+                            //     "paid_by" => "agent"
+                            // ])
                             ->first();
                         if (!$valid_repair) {
                             $error =  [
@@ -303,9 +303,9 @@ class InvoiceController extends Controller
                                 return $query->whereNotIn('invoice_id', [$invoice->id]);
                             })
                             ->whereDoesntHave('rent_adjustments')
-                            ->where([
-                                "paid_by" => "agent"
-                            ])
+                            // ->where([
+                            //     "paid_by" => "agent"
+                            // ])
                             ->first();
                         if (!$valid_expense) {
                             $error =  [
@@ -599,9 +599,9 @@ class InvoiceController extends Controller
                                 return $query->whereNotIn('invoice_id', [$invoice->id]);
                             })
                             ->whereDoesntHave('rent_adjustments')
-                            ->where([
-                                "paid_by" => "agent"
-                            ])
+                            // ->where([
+                            //     "paid_by" => "agent"
+                            // ])
                             ->first();
                         if (!$valid_repair) {
                             $error =  [
@@ -621,9 +621,9 @@ class InvoiceController extends Controller
                                 return $query->whereNotIn('invoice_id', [$invoice->id]);
                             })
                             ->whereDoesntHave('rent_adjustments')
-                            ->where([
-                                "paid_by" => "agent"
-                            ])
+                            // ->where([
+                            //     "paid_by" => "agent"
+                            // ])
                             ->first();
                         if (!$valid_expense) {
                             $error =  [

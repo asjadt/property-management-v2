@@ -669,9 +669,10 @@ public function getRepairs($perPage, Request $request)
          ->when(request()->boolean("invoice_not_issued"), function ($query) {
             return $query->whereDoesntHave('invoice_items')
             ->whereDoesntHave('rent_adjustments')
-            ->where([
-                "paid_by" => "agent"
-            ]);
+            // ->where([
+            //     "paid_by" => "agent"
+            // ])
+            ;
         });
 
        
