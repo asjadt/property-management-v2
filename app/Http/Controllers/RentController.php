@@ -453,7 +453,7 @@ class RentController extends Controller
             $query = Rent::withCount([
                 "landlord_payables"
             ])
-            ->with("tenancy_agreement.property", "tenancy_agreement.tenants")
+                ->with("tenancy_agreement.property", "tenancy_agreement.tenants")
                 ->filters();
 
             $rents = $this->retrieveData($query, "month", "rents");
@@ -603,9 +603,20 @@ class RentController extends Controller
 
         try {
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
-            $query = Rent::
-            withCount("landlord_payables")->with("tenancy_agreement.property", "tenancy_agreement.tenants")
+
+            $query = Rent::withCount("landlord_payables")->with(
+                
+              [ "tenancy_agreement.property", "tenancy_agreement.tenants", 
+            "landlord_payables" => function ($q) {
+                $q->select(
+                    "landlord_payables.id",
+                    "landlord_payables.rent_id");
+            }
+
+            ]
+            )
                 ->filters();
+
             $rents = $this->retrieveData($query, "month", "rents");
 
             $data_highlights = [
@@ -617,7 +628,6 @@ class RentController extends Controller
 
             ];
 
-            $today = Carbon::today();
 
             $tenancy_agreements = TenancyAgreement::whereHas('rents', function ($q) {
                 $q->filters();
@@ -647,7 +657,7 @@ class RentController extends Controller
         }
     }
 
-      /**
+    /**
      *
      * @OA\Get(
      * path="/v3.0/rents",
@@ -795,14 +805,14 @@ class RentController extends Controller
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
 
             $query = Rent::with("tenancy_agreement.property", "tenancy_agreement.tenants")
-            ->filters();
+                ->filters();
 
             $rents = $this->retrieveData($query, "month", "rents");
 
-                $processed_rents = transform_mixed($rents, function ($rent){
+            $processed_rents = transform_mixed($rents, function ($rent) {
                 $rent["landlords"] = $rent->landlords;
                 return $rent;
-});
+            });
 
             return response()->json($processed_rents, 200);
         } catch (Exception $e) {
