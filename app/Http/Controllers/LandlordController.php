@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ImageUploadRequest;
 use App\Http\Requests\LandlordCreateRequest;
 use App\Http\Requests\LandlordUpdateRequest;
+use App\Http\Utils\BasicUtil;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Business;
@@ -17,7 +18,7 @@ use Illuminate\Support\Str;
 
 class LandlordController extends Controller
 {
-    use ErrorUtil, UserActivityUtil;
+    use ErrorUtil, UserActivityUtil, BasicUtil;
     /**
      *
      * @OA\Post(
@@ -1036,11 +1037,13 @@ class LandlordController extends Controller
              * Execute Query
              * ------------------------- */
             $landlords = $landlordQuery
-                ->groupBy('landlords.id')
-                ->orderBy('landlords.first_name', $request->order_by ?? 'asc')
-                ->paginate($request->per_page);
+                ->groupBy('landlords.id');
 
-            return response()->json($landlords, 200);
+            $result =  $this->retrieveData($landlords, "first_name", "landlords");
+            //     ->orderBy('landlords.first_name', $request->order_by ?? 'asc')
+            //     ->paginate($request->per_page);
+
+            return response()->json($result, 200);
         } catch (Exception $e) {
             return $this->sendError($e, 500, $request);
         }
