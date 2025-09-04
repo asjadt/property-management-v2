@@ -34,7 +34,8 @@ class Rent extends Model
         return $this->belongsTo(TenancyAgreement::class, 'tenancy_agreement_id', 'id');
     }
 
-    public function landlord_payables() {
+    public function landlord_payables()
+    {
         return $this->hasMany(LandlordPayableRent::class, 'rent_id', 'id');
     }
 
@@ -51,12 +52,26 @@ public function landlord_rent_payables()
     );
 }
 
-      public function getLandlordsAttribute() {
+
+public function landlord_rent_payables()
+{
+    return $this->hasManyThrough(
+        LandlordRentPayable::class,   // Final model you want
+        LandlordPayableRent::class,   // Intermediate model
+        'rent_id',                    // FK on LandlordPayableRent → rents.id
+        'id',                         // FK on LandlordRentPayable → landlord_payable_rents.landlord_rent_payable_id
+        'id',                         // Local key on rents
+        'landlord_rent_payable_id'    // Local key on landlord_payable_rents
+    );
+}
+
+    public function getLandlordsAttribute()
+    {
         return $this->tenancy_agreement->property->property_landlords ?? collect();
     }
     // AUTO GENERATE RENT REFERENCE NO
 
-      public function scopeFilters($query)
+    public function scopeFilters($query)
     {
 
         return $query->where('rents.created_by', auth()->user()->id)
@@ -67,11 +82,11 @@ public function landlord_rent_payables()
                 });
             })
             ->when(request()->filled("landlord_ids"), function ($query) {
-    return $query->whereHas("tenancy_agreement.property.property_landlords", function ($query) {
-        $landlord_ids = explode(',', request()->input("landlord_ids"));
-        $query->whereIn("landlords.id", $landlord_ids);
-    });
-})
+                return $query->whereHas("tenancy_agreement.property.property_landlords", function ($query) {
+                    $landlord_ids = explode(',', request()->input("landlord_ids"));
+                    $query->whereIn("landlords.id", $landlord_ids);
+                });
+            })
             ->when(request()->filled("property_ids"), function ($query) {
                 return $query->whereHas("tenancy_agreement", function ($query) {
                     $property_ids = explode(',', request()->input("property_ids"));
