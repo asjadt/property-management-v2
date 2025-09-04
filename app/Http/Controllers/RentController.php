@@ -453,8 +453,8 @@ class RentController extends Controller
             $query = Rent::withCount([
                 "landlord_payables"
             ])
-                ->with("tenancy_agreement.property", "tenancy_agreement.tenants")
-                ->filters();
+            ->with("tenancy_agreement.property", "tenancy_agreement.tenants")
+            ->filters();
 
             $rents = $this->retrieveData($query, "month", "rents");
 
@@ -607,10 +607,10 @@ class RentController extends Controller
             $query = Rent::withCount("landlord_payables")->with(
                 
               [ "tenancy_agreement.property", "tenancy_agreement.tenants", 
-            "landlord_payables" => function ($q) {
+            "landlord_rent_payables" => function ($q) {
                 $q->select(
-                    "landlord_payables.id",
-                    "landlord_payables.rent_id");
+                    "landlord_rent_payables.id",
+                    "landlord_rent_payables.generated_id");
             }
 
             ]

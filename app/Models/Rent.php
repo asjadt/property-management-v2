@@ -38,6 +38,19 @@ class Rent extends Model
         return $this->hasMany(LandlordPayableRent::class, 'rent_id', 'id');
     }
 
+
+public function landlord_rent_payables()
+{
+    return $this->hasManyThrough(
+        LandlordRentPayable::class,   // Final model you want
+        LandlordPayableRent::class,   // Intermediate model
+        'rent_id',                    // FK on LandlordPayableRent → rents.id
+        'id',                         // FK on LandlordRentPayable → landlord_payable_rents.landlord_rent_payable_id
+        'id',                         // Local key on rents
+        'landlord_rent_payable_id'    // Local key on landlord_payable_rents
+    );
+}
+
       public function getLandlordsAttribute() {
         return $this->tenancy_agreement->property->property_landlords ?? collect();
     }
@@ -66,7 +79,20 @@ class Rent extends Model
                 });
             })
             ->when(request()->filled("invoice_not_issued"), function ($query) {
-                $query->whereDoesntHave("landlord_payables");
+                $query
+                ->where(function ($query) {
+
+                    $query->whereDoesntHave("landlord_payables")
+                    ->when(request()->filled("not_considering_landlord_rent_payable_ids"), function ($query) {
+                        $query->orWhereHas("landlord_payables", function ($query) {
+                             $not_considering_landlord_rent_payable_ids = explode(',', request()->input("not_considering_landlord_rent_payable_ids"));
+                        $query->whereIn("landlord_payable_rents.landlord_rent_payable_id", $not_considering_landlord_rent_payable_ids);
+                        });
+                       
+                    });
+                });
+                
+                
             })
             ->when(request()->filled("rent_reference"), function ($query) {
                 return $query->where('rents.rent_reference', "like", "%" .  request()->input("rent_reference") . "%");
