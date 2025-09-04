@@ -20,15 +20,15 @@ class CreateRentAdjustmentsTable extends Migration
             $table->decimal('amount', 10, 2)->default(0.00);
             $table->string('description')->nullable();
 
-            $table->unsignedBigInteger('expense_id')->nullable()->after('id');
+            $table->unsignedBigInteger('expense_id')->nullable();
             $table->foreign('expense_id')
-                  ->references('id')
-                  ->on('expenses')
-                  ->onDelete('set null');
+                ->references('id')
+                ->on('expenses')
+                ->onDelete('set null');
 
-          $table->unsignedBigInteger("repair_id")->nullable();
+            $table->unsignedBigInteger("repair_id")->nullable();
             $table->foreign('repair_id')->references('id')->on('repairs')->onDelete('set null');
-            
+
             $table->json('files')->nullable();
 
             $table->timestamps();

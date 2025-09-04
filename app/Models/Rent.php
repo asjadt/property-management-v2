@@ -34,16 +34,18 @@ class Rent extends Model
         return $this->belongsTo(TenancyAgreement::class, 'tenancy_agreement_id', 'id');
     }
 
-    public function landlord_payables() {
+    public function landlord_payables()
+    {
         return $this->hasMany(LandlordPayableRent::class, 'rent_id', 'id');
     }
 
-      public function getLandlordsAttribute() {
+    public function getLandlordsAttribute()
+    {
         return $this->tenancy_agreement->property->property_landlords ?? collect();
     }
     // AUTO GENERATE RENT REFERENCE NO
 
-      public function scopeFilters($query)
+    public function scopeFilters($query)
     {
 
         return $query->where('rents.created_by', auth()->user()->id)
@@ -54,20 +56,20 @@ class Rent extends Model
                 });
             })
             ->when(request()->filled("landlord_ids"), function ($query) {
-    return $query->whereHas("tenancy_agreement.property.property_landlords", function ($query) {
-        $landlord_ids = explode(',', request()->input("landlord_ids"));
-        $query->whereIn("landlords.id", $landlord_ids);
-    });
-})
+                return $query->whereHas("tenancy_agreement.property.property_landlords", function ($query) {
+                    $landlord_ids = explode(',', request()->input("landlord_ids"));
+                    $query->whereIn("landlords.id", $landlord_ids);
+                });
+            })
             ->when(request()->filled("property_ids"), function ($query) {
                 return $query->whereHas("tenancy_agreement", function ($query) {
                     $property_ids = explode(',', request()->input("property_ids"));
                     $query->whereIn("tenancy_agreements.property_id", $property_ids);
                 });
             })
-            ->when(request()->filled("invoice_not_issued"), function ($query) {
-                $query->whereDoesntHave("landlord_payables");
-            })
+            // ->when(request()->filled("invoice_not_issued"), function ($query) {
+            //     $query->whereDoesntHave("landlord_payables");
+            // })
             ->when(request()->filled("rent_reference"), function ($query) {
                 return $query->where('rents.rent_reference', "like", "%" .  request()->input("rent_reference") . "%");
             })

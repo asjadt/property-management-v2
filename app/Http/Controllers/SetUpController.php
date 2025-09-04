@@ -24,15 +24,16 @@ use Spatie\Permission\Models\Role;
 class SetUpController extends Controller
 {
 
-    public function getErrorLogs() {
+    public function getErrorLogs()
+    {
         $error_logs = ErrorLog::orderbyDesc("id")->paginate(10);
-        return view("error-log",compact("error_logs"));
+        return view("error-log", compact("error_logs"));
     }
-   public function getActivityLogs(Request $request)
+    public function getActivityLogs(Request $request)
     {
         $activity_logs = ActivityLog::when(!empty($request->status_code), function ($query) use ($request) {
-                $query->where('status_code', $request->status_code);
-            })
+            $query->where('status_code', $request->status_code);
+        })
             ->when(!empty($request->user_id), function ($query) use ($request) {
                 $query->where('user_id', $request->user_id);
             })
@@ -68,34 +69,36 @@ class SetUpController extends Controller
         return view('user-activity-log', compact('activity_logs'));
     }
 
-   public function dbOperation1(Request $request) {
-    $tenancyAgreements = TenancyAgreement::with('tenants')->get();
-    echo "tenancy agreement count: " . $tenancyAgreements->count() . "<br>";
+    public function dbOperation1(Request $request)
+    {
+        $tenancyAgreements = TenancyAgreement::with('tenants')->get();
+        echo "tenancy agreement count: " . $tenancyAgreements->count() . "<br>";
 
-    foreach ($tenancyAgreements as $agreement) {
-        echo "agreement id: " . $agreement->id . "<br>";
-        echo "property id: " . $agreement->property_id . "<br>";
+        foreach ($tenancyAgreements as $agreement) {
+            echo "agreement id: " . $agreement->id . "<br>";
+            echo "property id: " . $agreement->property_id . "<br>";
 
-        foreach ($agreement->tenants as $tenant) {
-            $tenant_id = $tenant->id;
-            $propertyTenant = PropertyTenant::where([
-                'property_id' => $agreement->property_id,
-                'tenant_id' => $tenant_id
-            ])->first();
-
-            if (!$propertyTenant) {
-                PropertyTenant::create([
+            foreach ($agreement->tenants as $tenant) {
+                $tenant_id = $tenant->id;
+                $propertyTenant = PropertyTenant::where([
                     'property_id' => $agreement->property_id,
                     'tenant_id' => $tenant_id
-                ]);
+                ])->first();
+
+                if (!$propertyTenant) {
+                    PropertyTenant::create([
+                        'property_id' => $agreement->property_id,
+                        'tenant_id' => $tenant_id
+                    ]);
+                }
             }
         }
+
+        return "Database operation 1 executed";
     }
 
-    return "Database operation 1 executed";
-}
-
-    public function automobileRefresh() {
+    public function automobileRefresh()
+    {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         AutomobileCategory::truncate();
         AutomobileMake::truncate();
@@ -108,17 +111,22 @@ class SetUpController extends Controller
         Artisan::call('db:seed --class AutomobileCarSeeder');
 
         return "automobile refreshed";
-
     }
 
-    public function migrate(Request $request) {
+    //  migrate
+    public function migrate(Request $request)
+    {
 
         Artisan::call('check:migrate');
         return "migrated";
-            }
-    public function swaggerRefresh() {
-Artisan::call('l5-swagger:generate');
-return "swagger generated";
+    }
+
+
+    // swaggerRefresh
+    public function swaggerRefresh()
+    {
+        Artisan::call('l5-swagger:generate');
+        return "swagger generated";
     }
     public function setUp(Request $request)
     {
@@ -141,19 +149,19 @@ return "swagger generated";
         // ##########################################
         // user
         // #########################################
-      $admin =  User::create([
-        'first_Name' => "super",
-        'last_Name'=> "admin",
-        'phone'=> "01771034383",
-        'address_line_1',
-        'address_line_2',
-        'country'=> "Bangladesh",
-        'city'=> "Dhaka",
-        'postcode'=> "1207",
-        'email'=> "asjadtariq@gmail.com",
-        'password'=>Hash::make("12345678@We"),
-        "email_verified_at"=>now(),
-        'is_active' => 1
+        $admin =  User::create([
+            'first_Name' => "super",
+            'last_Name' => "admin",
+            'phone' => "01771034383",
+            'address_line_1',
+            'address_line_2',
+            'country' => "Bangladesh",
+            'city' => "Dhaka",
+            'postcode' => "1207",
+            'email' => "asjadtariq@gmail.com",
+            'password' => Hash::make("12345678@We"),
+            "email_verified_at" => now(),
+            'is_active' => 1
         ]);
         $admin->email_verified_at = now();
         $admin->save();
@@ -163,24 +171,22 @@ return "swagger generated";
         $permissions =  config("setup-config.permissions");
         // setup permissions
         foreach ($permissions as $permission) {
-            if(!Permission::where([
-            'name' => $permission
+            if (!Permission::where([
+                'name' => $permission
             ])
-            ->exists()){
+                ->exists()) {
                 Permission::create(['guard_name' => 'api', 'name' => $permission]);
             }
-
         }
         // setup roles
         $roles = config("setup-config.roles");
         foreach ($roles as $role) {
-            if(!Role::where([
-            'name' => $role
+            if (!Role::where([
+                'name' => $role
             ])
-            ->exists()){
-             Role::create(['guard_name' => 'api', 'name' => $role]);
+                ->exists()) {
+                Role::create(['guard_name' => 'api', 'name' => $role]);
             }
-
         }
 
         // setup roles and permissions
@@ -190,11 +196,9 @@ return "swagger generated";
             error_log($role_permission["role"]);
             $permissions = $role_permission["permissions"];
             foreach ($permissions as $permission) {
-                if(!$role->hasPermissionTo($permission)){
+                if (!$role->hasPermissionTo($permission)) {
                     $role->givePermissionTo($permission);
                 }
-
-
             }
         }
         $admin->assignRole("superadmin");
@@ -218,18 +222,18 @@ return "swagger generated";
         // ##########################################
         // user
         // #########################################
-      $admin =  User::create([
-        'first_Name' => "super",
-        'last_Name'=> "admin",
-        'phone'=> "01771034383",
-        'address_line_1',
-        'address_line_2',
-        'country'=> "Bangladesh",
-        'city'=> "Dhaka",
-        'postcode'=> "1207",
-        'email'=> "admin@gmail.com",
-        'password'=>Hash::make("12345678We"),
-        'is_active' => 1
+        $admin =  User::create([
+            'first_Name' => "super",
+            'last_Name' => "admin",
+            'phone' => "01771034383",
+            'address_line_1',
+            'address_line_2',
+            'country' => "Bangladesh",
+            'city' => "Dhaka",
+            'postcode' => "1207",
+            'email' => "admin@gmail.com",
+            'password' => Hash::make("12345678We"),
+            'is_active' => 1
         ]);
 
         // ###############################
@@ -238,24 +242,22 @@ return "swagger generated";
         $permissions =  config("setup-config.permissions");
         // setup permissions
         foreach ($permissions as $permission) {
-            if(!Permission::where([
-            'name' => $permission
+            if (!Permission::where([
+                'name' => $permission
             ])
-            ->exists()){
+                ->exists()) {
                 Permission::create(['guard_name' => 'api', 'name' => $permission]);
             }
-
         }
         // setup roles
         $roles = config("setup-config.roles");
         foreach ($roles as $role) {
-            if(!Role::where([
-            'name' => $role
+            if (!Role::where([
+                'name' => $role
             ])
-            ->exists()){
-             Role::create(['guard_name' => 'api', 'name' => $role]);
+                ->exists()) {
+                Role::create(['guard_name' => 'api', 'name' => $role]);
             }
-
         }
 
         // setup roles and permissions
@@ -265,11 +267,9 @@ return "swagger generated";
             error_log($role_permission["role"]);
             $permissions = $role_permission["permissions"];
             foreach ($permissions as $permission) {
-                if(!$role->hasPermissionTo($permission)){
+                if (!$role->hasPermissionTo($permission)) {
                     $role->givePermissionTo($permission);
                 }
-
-
             }
         }
         $admin->assignRole("superadmin");
@@ -406,13 +406,12 @@ return "swagger generated";
 
         $this->roleRefreshFunc();
         return "You are done with setup";
-
-
     }
 
 
 
-    public function backup() {
+    public function backup()
+    {
 
 
 
@@ -430,59 +429,59 @@ return "swagger generated";
 
 
 
-                            foreach(DB::connection('backup_database')->table('repair_categories')->get() as $backup_data){
-                                $data_exists = DB::connection('mysql')->table('repair_categories')->where([
-                                    "id" => $backup_data->id
-                                   ])->first();
-                                   if(!$data_exists) {
-                                    DB::connection('mysql')->table('repair_categories')->insert(get_object_vars($backup_data));
-                                   }
-                                }
+        foreach (DB::connection('backup_database')->table('repair_categories')->get() as $backup_data) {
+            $data_exists = DB::connection('mysql')->table('repair_categories')->where([
+                "id" => $backup_data->id
+            ])->first();
+            if (!$data_exists) {
+                DB::connection('mysql')->table('repair_categories')->insert(get_object_vars($backup_data));
+            }
+        }
 
-                                // foreach(DB::connection('backup_database')->table('garage_automobile_makes')->get() as $backup_data){
-                                //     $data_exists = DB::connection('mysql')->table('garage_automobile_makes')->where([
-                                //         "id" => $backup_data->id
-                                //        ])->first();
-                                //        if(!$data_exists) {
-                                //         DB::connection('mysql')->table('garage_automobile_makes')->insert(get_object_vars($backup_data));
-                                //        }
-                                //     }
+        // foreach(DB::connection('backup_database')->table('garage_automobile_makes')->get() as $backup_data){
+        //     $data_exists = DB::connection('mysql')->table('garage_automobile_makes')->where([
+        //         "id" => $backup_data->id
+        //        ])->first();
+        //        if(!$data_exists) {
+        //         DB::connection('mysql')->table('garage_automobile_makes')->insert(get_object_vars($backup_data));
+        //        }
+        //     }
 
-                                //     foreach(DB::connection('backup_database')->table('garage_automobile_models')->get() as $backup_data){
-                                //         $data_exists = DB::connection('mysql')->table('garage_automobile_models')->where([
-                                //             "id" => $backup_data->id
-                                //            ])->first();
-                                //            if(!$data_exists) {
-                                //             DB::connection('mysql')->table('garage_automobile_models')->insert(get_object_vars($backup_data));
-                                //            }
-                                //         }
+        //     foreach(DB::connection('backup_database')->table('garage_automobile_models')->get() as $backup_data){
+        //         $data_exists = DB::connection('mysql')->table('garage_automobile_models')->where([
+        //             "id" => $backup_data->id
+        //            ])->first();
+        //            if(!$data_exists) {
+        //             DB::connection('mysql')->table('garage_automobile_models')->insert(get_object_vars($backup_data));
+        //            }
+        //         }
 
-                                //         foreach(DB::connection('backup_database')->table('garage_services')->get() as $backup_data){
-                                //             $data_exists = DB::connection('mysql')->table('garage_services')->where([
-                                //                 "id" => $backup_data->id
-                                //                ])->first();
-                                //                if(!$data_exists) {
-                                //                 DB::connection('mysql')->table('garage_services')->insert(get_object_vars($backup_data));
-                                //                }
-                                //             }
+        //         foreach(DB::connection('backup_database')->table('garage_services')->get() as $backup_data){
+        //             $data_exists = DB::connection('mysql')->table('garage_services')->where([
+        //                 "id" => $backup_data->id
+        //                ])->first();
+        //                if(!$data_exists) {
+        //                 DB::connection('mysql')->table('garage_services')->insert(get_object_vars($backup_data));
+        //                }
+        //             }
 
-                                //             foreach(DB::connection('backup_database')->table('garage_sub_services')->get() as $backup_data){
-                                //                 $data_exists = DB::connection('mysql')->table('garage_sub_services')->where([
-                                //                     "id" => $backup_data->id
-                                //                    ])->first();
-                                //                    if(!$data_exists) {
-                                //                     DB::connection('mysql')->table('garage_sub_services')->insert(get_object_vars($backup_data));
-                                //                    }
-                                //                 }
-                                //                 foreach(DB::connection('backup_database')->table('fuel_stations')->get() as $backup_data){
-                                //                     $data_exists = DB::connection('mysql')->table('fuel_stations')->where([
-                                //                         "id" => $backup_data->id
-                                //                        ])->first();
-                                //                        if(!$data_exists) {
-                                //                         DB::connection('mysql')->table('fuel_stations')->insert(get_object_vars($backup_data));
-                                //                        }
-                                //                     }
+        //             foreach(DB::connection('backup_database')->table('garage_sub_services')->get() as $backup_data){
+        //                 $data_exists = DB::connection('mysql')->table('garage_sub_services')->where([
+        //                     "id" => $backup_data->id
+        //                    ])->first();
+        //                    if(!$data_exists) {
+        //                     DB::connection('mysql')->table('garage_sub_services')->insert(get_object_vars($backup_data));
+        //                    }
+        //                 }
+        //                 foreach(DB::connection('backup_database')->table('fuel_stations')->get() as $backup_data){
+        //                     $data_exists = DB::connection('mysql')->table('fuel_stations')->where([
+        //                         "id" => $backup_data->id
+        //                        ])->first();
+        //                        if(!$data_exists) {
+        //                         DB::connection('mysql')->table('fuel_stations')->insert(get_object_vars($backup_data));
+        //                        }
+        //                     }
 
-                                                return response()->json("done",200);
+        return response()->json("done", 200);
     }
 }
