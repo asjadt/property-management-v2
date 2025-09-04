@@ -52,21 +52,7 @@ public function landlord_rent_payables()
     );
 }
 
-
-public function landlord_rent_payables()
-{
-    return $this->hasManyThrough(
-        LandlordRentPayable::class,   // Final model you want
-        LandlordPayableRent::class,   // Intermediate model
-        'rent_id',                    // FK on LandlordPayableRent → rents.id
-        'id',                         // FK on LandlordRentPayable → landlord_payable_rents.landlord_rent_payable_id
-        'id',                         // Local key on rents
-        'landlord_rent_payable_id'    // Local key on landlord_payable_rents
-    );
-}
-
-    public function getLandlordsAttribute()
-    {
+      public function getLandlordsAttribute() {
         return $this->tenancy_agreement->property->property_landlords ?? collect();
     }
     // AUTO GENERATE RENT REFERENCE NO
