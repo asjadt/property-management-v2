@@ -42,4 +42,6 @@ class LandlordRentPayable extends Model
     {
         return $this->hasMany(RentAdjustment::class, 'landlord_rent_payable_id', 'id');
     }
+
+    
 }

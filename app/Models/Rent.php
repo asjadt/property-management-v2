@@ -91,9 +91,7 @@ public function landlord_rent_payables()
                         });
                        
                     });
-                });
-                
-                
+                }); 
             })
             ->when(request()->filled("rent_reference"), function ($query) {
                 return $query->where('rents.rent_reference', "like", "%" .  request()->input("rent_reference") . "%");
