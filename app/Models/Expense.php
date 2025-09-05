@@ -89,7 +89,7 @@ class Expense extends Model
 
         return null;
     }
-}
+
     public function expense_category() {
         return $this->hasOne(ExpenseCategory::class,'id','expense_category_id');
     }

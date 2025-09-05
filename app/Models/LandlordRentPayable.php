@@ -37,6 +37,12 @@ class LandlordRentPayable extends Model
         return $this->hasMany(LandlordPayableRent::class, 'landlord_rent_payable_id', 'id');
     }
 
+    public function rents()
+    {
+        return $this->belongsToMany(Rent::class,"landlord_payable_rents", 'landlord_rent_payable_id', 'rent_id');
+    }
+
+
     // Rent adjustments
     public function rent_adjustments()
     {
