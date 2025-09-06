@@ -285,22 +285,7 @@ class BillController extends Controller
                     }
 
         }
-    //     if(!empty($item["sale_id"])) {
-    //         $invoice_item_exists =    InvoiceItem::where([
-    //                 "sale_id" => $item["sale_id"]
-    //             ])
-    //            ->whereNotIn("invoice_id",[$invoice->id])
-    //             ->first();
-    //             if($invoice_item_exists) {
-    //                 $error =  [
-    //                     "message" => "The given data was invalid.",
-    //                     "errors" => ["invoice_items"=>["invalid sale item"]]
-    //              ];
-    //                 throw new Exception(json_encode($error),422);
-    //             }
-
-    // }
-
+ 
 
             return [
                 "name" => $item["item"],
