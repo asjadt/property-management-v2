@@ -12,6 +12,7 @@ class Invoice extends Model
     use HasFactory;
 
     protected $fillable = [
+        "landlord_rent_payable_id",
         "logo",
         "invoice_title",
         "invoice_summary",

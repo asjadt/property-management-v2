@@ -334,9 +334,12 @@ class LandlordRentPayableController extends Controller
                             $valid_repair =  Repair::where([
                                 "id" => $adjData["repair_id"]
                             ])
-                                ->whereDoesntHave('invoice_items')
-                                ->whereDoesntHave('rent_adjustments', function ($query) use ($rentPayable) {
-                                    $query->whereNotIn("landlord_rent_payable_id", [$rentPayable->id]);
+                                 ->whereDoesntHave('invoice_items',function ($query) use ($rentPayable) {
+                                    $query->whereHas("invoice", function ($query) use ($rentPayable) {
+                            
+                                        $query->whereNotIn("invoices.landlord_rent_payable_id", [$rentPayable->id]);
+                                    });
+                                   
                                 })
                                 // ->where([
                                 //     "paid_by" => "agent"
@@ -357,7 +360,13 @@ class LandlordRentPayableController extends Controller
                             $valid_expense =  Expense::where([
                                 "id" => $adjData["expense_id"]
                             ])
-                                ->whereDoesntHave('invoice_items')
+                                ->whereDoesntHave('invoice_items',function ($query) use ($rentPayable) {
+                                    $query->whereHas("invoice", function ($query) use ($rentPayable) {
+                            
+                                        $query->whereNotIn("invoices.landlord_rent_payable_id", [$rentPayable->id]);
+                                    });
+                                   
+                                })
                                 ->whereDoesntHave('rent_adjustments', function ($query) use ($rentPayable) {
                                     $query->whereNotIn("landlord_rent_payable_id", [$rentPayable->id]);
                                 })
@@ -392,6 +401,7 @@ class LandlordRentPayableController extends Controller
 
                 // Calculate total_amount
                 $total_rent_amount = !empty($payableRentIds) ? Rent::whereIn('id', $payableRentIds)->sum('paid_amount') : 0;
+
                 $adjustment_amount = $rentPayable->rent_adjustments()->sum('amount');
 
                 $rentPayable->total_amount = $total_rent_amount + $adjustment_amount;
@@ -402,7 +412,7 @@ class LandlordRentPayableController extends Controller
 
 
 $business = Business::where("owner_id", $request->user()->id)->first();
-$this->handleLandlordInvoice($rentPayable, $request_data, $business, auth()->user());
+$this->handleLandlordInvoice($rentPayable, $request_data, $business, auth()->user(),$total_rent_amount);
 
              
 
@@ -545,7 +555,13 @@ $this->handleLandlordInvoice($rentPayable, $request_data, $business, auth()->use
                             $valid_repair =  Repair::where([
                                 "id" => $adjData["repair_id"]
                             ])
-                                ->whereDoesntHave('invoice_items')
+                                ->whereDoesntHave('invoice_items',function ($query) use ($rentPayable) {
+                                    $query->whereHas("invoice", function ($query) use ($rentPayable) {
+                            
+                                        $query->whereNotIn("invoices.landlord_rent_payable_id", [$rentPayable->id]);
+                                    });
+                                   
+                                })
                                 ->whereDoesntHave('rent_adjustments', function ($query) use ($rentPayable) {
                                     $query->whereNotIn("landlord_rent_payable_id", [$rentPayable->id]);
                                 })
@@ -567,7 +583,12 @@ $this->handleLandlordInvoice($rentPayable, $request_data, $business, auth()->use
                             $valid_expense =  Expense::where([
                                 "id" => $adjData["expense_id"]
                             ])
-                                ->whereDoesntHave('invoice_items')
+                              ->whereDoesntHave('invoice_items',function ($query) use ($rentPayable) {
+                                    $query->whereHas("invoice", function ($query) use ($rentPayable) {
+                                        $query->whereNotIn("invoices.landlord_rent_payable_id", [$rentPayable->id]);
+                                    });
+                                   
+                                })
                                 ->whereDoesntHave('rent_adjustments', function ($query) use ($rentPayable) {
                                     $query->whereNotIn("landlord_rent_payable_id", [$rentPayable->id]);
                                 })
@@ -612,7 +633,7 @@ $this->handleLandlordInvoice($rentPayable, $request_data, $business, auth()->use
                 $rentPayable->load(['payable_rents.rent', 'rent_adjustments', 'creator']);
 
                 $business = Business::where("owner_id", $request->user()->id)->first();
-$this->handleLandlordInvoice($rentPayable, $validated, $business, $request->user());
+$this->handleLandlordInvoice($rentPayable, $validated, $business, $request->user(),$total_rent_amount);
 
 
 
@@ -624,7 +645,7 @@ $this->handleLandlordInvoice($rentPayable, $validated, $business, $request->user
         }
     }
 
-    protected function handleLandlordInvoice(LandlordRentPayable $rentPayable, array $request_data, Business $business, $user)
+    protected function handleLandlordInvoice(LandlordRentPayable $rentPayable, array $request_data, Business $business, $user,$total_rent_amount)
 {
     // Delete previous invoices related to this rent payable
     $existingInvoices = Invoice::where('landlord_rent_payable_id', $rentPayable->id)->get();
@@ -662,7 +683,7 @@ $this->handleLandlordInvoice($rentPayable, $validated, $business, $request->user
             "due_date" => $rentPayable->created_at,
             "footer_text" => $business->footer_text ?? "Thanks for business with us",
             "property_id" => $rentPayable->payable_rents()->first()?->rent?->tenancy_agreement?->property_id ?? null,
-            "status" => "paid",
+            "status" => ($total_rent_amount + $adjustment_amount < 0) ? "partial" : "paid",
             "sub_total" => -$adjustment_amount,
             "total_amount" => -$adjustment_amount,
             "landlord_rent_payable_id" => $rentPayable->id,
@@ -691,6 +712,7 @@ $this->handleLandlordInvoice($rentPayable, $validated, $business, $request->user
             ]);
         }
 
+
         $paid_amount = ($total_rent_amount + $adjustment_amount < 0) ? $total_rent_amount : -$adjustment_amount;
 
         $invoice_payment = InvoicePayment::create([
@@ -706,6 +728,7 @@ $this->handleLandlordInvoice($rentPayable, $validated, $business, $request->user
         $invoice_payment->shareable_link = env("FRONT_END_URL_DASHBOARD") . "/share/receipt/" . Str::random(4) . "-" . $invoice_payment->generated_id . "-" . Str::random(4);
         $invoice_payment->save();
     }
+}
 
     /**
      *
