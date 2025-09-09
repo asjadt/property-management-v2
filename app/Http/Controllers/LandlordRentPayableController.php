@@ -1072,7 +1072,7 @@ $this->handleLandlordInvoice($rentPayable, $validated, $business, $request->user
                     "message" => "no expense found"
                 ], 404);
             }
-            $landlord_rent_payable->delete();
+            $landlord_rent_payable->forceDelete();
 
             return response()->json(["ok" => true], 200);
         } catch (Exception $e) {

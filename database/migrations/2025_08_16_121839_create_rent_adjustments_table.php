@@ -15,8 +15,9 @@ class CreateRentAdjustmentsTable extends Migration
     {
         Schema::create('rent_adjustments', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('landlord_rent_payable_id')->nullable();
+            $table->unsignedBigInteger('landlord_rent_payable_id');
             $table->foreign('landlord_rent_payable_id')->references('id')->on('landlord_rent_payables')->onDelete('cascade');
+            
             $table->decimal('amount', 10, 2)->default(0.00);
             $table->string('description')->nullable();
 

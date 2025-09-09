@@ -535,8 +535,8 @@ public function getExpenses($perPage, Request $request)
         $this->storeActivity($request,"");
 
         $expenseQuery =  Expense::with("expense_category","property")
-        // ->leftJoin('invoice_items', 'invoice_items.expense_id', '=', 'repairs.id')
-        // ->leftJoin('invoices', 'invoices.id', '=', 'invoice_items.invoice_id')
+        ->leftJoin('invoice_items', 'invoice_items.expense_id', '=', 'expenses.id')
+        ->leftJoin('invoices', 'invoices.id', '=', 'invoice_items.invoice_id')
         ->leftJoin('properties', 'properties.id', '=', 'expenses.property_id')
         ->leftJoin('expense_categories', 'expense_categories.id', '=', 'expenses.expense_category_id')
         ->where(["expenses.created_by" => $request->user()->id])

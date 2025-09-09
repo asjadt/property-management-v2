@@ -2495,7 +2495,7 @@ class InvoiceController extends Controller
                     "message" => "no invoice found"
                 ], 404);
             }
-            $invoice->delete();
+            $invoice->forceDelete();
 
             return response()->json(["ok" => true], 200);
         } catch (Exception $e) {

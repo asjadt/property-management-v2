@@ -401,7 +401,14 @@ class PropertyBasicController extends Controller
             ->when($start_date, fn($q) => $q->whereDate('payment_date', "<", $start_date))
             ->sum('paid_amount');
 
-        $total_expenses_before = Repair::where([
+        $total_repairs_before = Repair::where([
+                "property_id" => $property->id,
+                "created_by" => $request->user()->id
+            ])
+            ->when($start_date, fn($q) => $q->whereDate('create_date', "<", $start_date))
+            ->sum('price');
+
+             $total_expenses_before = Expense::where([
                 "property_id" => $property->id,
                 "created_by" => $request->user()->id
             ])
@@ -425,7 +432,7 @@ class PropertyBasicController extends Controller
         // Outflows: expenses + landlord payouts
         // -------------------------
         $opening_balance = ($total_invoice_payments_before + $total_rents_before)
-            - ($total_expenses_before + $total_landlord_rent_payables_before);
+            - ($total_expenses_before + $total_repairs_before + $total_landlord_rent_payables_before);
 
         // -------------------------
         // Fetch transactions within period
@@ -450,13 +457,21 @@ class PropertyBasicController extends Controller
             ->select('paid_amount as amount', 'payment_date as date')
             ->get();
 
-        $expenses = Repair::where([
+        $repairs = Repair::where([
                 "property_id" => $property->id,
                 "created_by" => $request->user()->id
             ])
             ->when($request->start_date, fn($q) => $q->whereDate('create_date', ">=", $request->start_date))
             ->when($request->end_date, fn($q) => $q->whereDate('create_date', "<=", $request->end_date))
-            ->select('price as amount', 'create_date as date', 'description')
+            ->select('price as amount', 'create_date as date', 'item_description')
+            ->get();
+        $expenses = Expense::where([
+                "property_id" => $property->id,
+                "created_by" => $request->user()->id
+            ])
+            ->when($request->start_date, fn($q) => $q->whereDate('create_date', ">=", $request->start_date))
+            ->when($request->end_date, fn($q) => $q->whereDate('create_date', "<=", $request->end_date))
+            ->select('price as amount', 'create_date as date', 'item_description')
             ->get();
 
         $landlord_rent_payables = LandlordRentPayable::where([
@@ -484,34 +499,44 @@ class PropertyBasicController extends Controller
         ]);
 
         // Expenses paid by management -> Debit
+        foreach ($repairs as $row) {
+            $ledger->push([
+                'date' => $row->date,
+                'transaction' => 'Repair Paid - Amount: ' . number_format($row->amount, 2),
+                'debit' => 0.0,
+                'credit' => (float)$row->amount,
+                'notes' => $row->description ?? 'Repair paid by management'
+            ]);
+        }
         foreach ($expenses as $row) {
             $ledger->push([
                 'date' => $row->date,
-                'transaction' => 'Expense / Repair Paid - Amount: ' . number_format($row->amount, 2),
-                'debit' => (float)$row->amount,
-                'credit' => 0.0,
-                'notes' => $row->description ?? 'Repair or expense paid by management'
+                'transaction' => 'Expense Paid - Amount: ' . number_format($row->amount, 2),
+                'debit' => 0.0,
+                'credit' => (float)$row->amount,
+                'notes' => $row->description ?? 'Expenses paid by management'
             ]);
         }
 
         // Invoice charged to landlord -> Debit (landlord owes management)
-        foreach ($invoices as $row) {
-            $ledger->push([
-                'date' => $row->date,
-                'transaction' => 'Invoice Charged to Landlord - Amount: ' . number_format($row->amount, 2),
-                'debit' => (float)$row->amount,
-                'credit' => 0.0,
-                'notes' => 'Management invoice to landlord'
-            ]);
-        }
+
+        // foreach ($invoices as $row) {
+        //     $ledger->push([
+        //         'date' => $row->date,
+        //         'transaction' => 'Invoice Charged to Landlord - Amount: ' . number_format($row->amount, 2),
+        //         'debit' => (float)$row->amount,
+        //         'credit' => 0.0,
+        //         'notes' => 'Management invoice to landlord'
+        //     ]);
+        // }
 
         // Invoice payments from landlord -> Credit
         foreach ($invoice_payments as $row) {
             $ledger->push([
-                'date' => $row->date,
+                "date" => Carbon::parse($row->date)->format('Y-m-d'),
                 'transaction' => 'Invoice Payment Received from Landlord - Amount: ' . number_format($row->amount, 2),
-                'debit' => 0.0,
-                'credit' => (float)$row->amount,
+                'debit' => (float)$row->amount,
+                'credit' => 0.0,
                 'notes' => 'Payment received from landlord'
             ]);
         }
@@ -521,8 +546,8 @@ class PropertyBasicController extends Controller
             $ledger->push([
                 'date' => $row->date,
                 'transaction' => 'Rent Collected from Tenant - Amount: ' . number_format($row->amount, 2),
-                'debit' => 0.0,
-                'credit' => (float)$row->amount,
+                'debit' => (float)$row->amount,
+                'credit' => 0.0,
                 'notes' => 'Rent collected by management'
             ]);
         }
@@ -531,9 +556,9 @@ class PropertyBasicController extends Controller
         foreach ($landlord_rent_payables as $row) {
             $ledger->push([
                 'date' => $row->date,
-                'transaction' => 'Landlord Rent Paid - Amount: ' . number_format($row->rents->sum('paid_amount'), 2),
-                'debit' => (float)$row->rents->sum('paid_amount'),
-                'credit' => 0.0,
+                'transaction' => 'Paid to Landlord - Amount: ' . number_format($row->rents->sum('paid_amount'), 2),
+                'debit' => 0.0,
+                'credit' => (float)$row->rents->sum('paid_amount'),
                 'notes' => $row->item_description ?? 'Payable to landlord'
             ]);
         }
@@ -545,10 +570,12 @@ class PropertyBasicController extends Controller
         $running_balance = $opening_balance;
 
         $ledger = $ledger->map(function ($entry) use (&$running_balance) {
-            $debit = (float)$entry['debit'];
-            $credit = (float)$entry['credit'];
-            $running_balance += $credit - $debit;
-            $entry['cash_balance'] = $running_balance;
+            $debit = (float) $entry["debit"];
+            $credit = (float) $entry["credit"];
+            $running_balance += $debit - $credit;
+            $entry["cash_balance"] = $running_balance;
+            $entry["debit"] = $debit;
+            $entry["credit"] = $credit;
             return $entry;
         });
 
@@ -719,7 +746,7 @@ class PropertyBasicController extends Controller
             })->sum();
 
         // Opening balance: invoices + landlord payables (debit) - invoice payments (credit)
-        $opening_balance = ($total_invoices_before + $total_landlord_rent_payables_before) - $total_invoice_payments_before;
+        $opening_balance = $total_landlord_rent_payables_before - $total_invoice_payments_before;
 
         // -------------------------
         // Current Period Transactions
@@ -761,16 +788,16 @@ class PropertyBasicController extends Controller
             "notes" => "Previous due"
         ]);
 
-        // Invoice issued -> Debit
-        foreach ($invoices as $row) {
-            $ledger->push([
-                "date" => Carbon::parse($row->date)->format('Y-m-d'),
-                "transaction" => "Invoice Issued - Amount: " . number_format($row->amount, 2),
-                "debit" => (float) $row->amount,
-                "credit" => 0.0,
-                "notes" => "Invoice issued"
-            ]);
-        }
+        // // Invoice issued -> Debit
+        // foreach ($invoices as $row) {
+        //     $ledger->push([
+        //         "date" => Carbon::parse($row->date)->format('Y-m-d'),
+        //         "transaction" => "Invoice Issued - Amount: " . number_format($row->amount, 2),
+        //         "debit" => (float) $row->amount,
+        //         "credit" => 0.0,
+        //         "notes" => "Invoice issued"
+        //     ]);
+        // }
 
         // Invoice payments received -> Credit
         foreach ($invoice_payments as $row) {
@@ -788,8 +815,8 @@ class PropertyBasicController extends Controller
             $ledger->push([
                 "date" => $row->date,
                 "transaction" => "Landlord Rent Payable - Amount: " . number_format($row->rents->sum("paid_amount"), 2),
-                "debit" => 0.0,
-                "credit" => (float) $row->rents->sum("paid_amount"),
+                "debit" => (float) $row->rents->sum("paid_amount"),
+                "credit" => 0.0,
                 "notes" => $row->item_description ?? "Payable to landlord"
             ]);
         }
