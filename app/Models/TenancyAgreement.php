@@ -42,8 +42,6 @@ class TenancyAgreement extends Model
         "tenant_sign_images",
         "agency_sign_images",
 
-
-
     ];
 
 

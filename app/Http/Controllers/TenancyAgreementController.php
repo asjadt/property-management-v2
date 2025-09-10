@@ -524,38 +524,37 @@ class TenancyAgreementController extends Controller
             // Calculate rent highlights (total rent, total paid, total arrears, highest rent)
 
             // Calculate total rent (sum of total_agreed_rent across all selected agreements)
-            $totalRent = TenancyAgreement::whereIn('tenancy_agreements.id', $agreementIds)
+            $total_rent = TenancyAgreement::whereIn('tenancy_agreements.id', $agreementIds)
                 ->sum('total_agreed_rent');
 
             // Calculate total paid amount from the rents table
-            $rentHighlights = Rent::whereIn('tenancy_agreement_id', $agreementIds)
-                ->get();
+            $total_paid = Rent::whereIn('tenancy_agreement_id', $agreementIds)
+                ->sum('paid_amount');
 
             // Get the highest rent from the tenancy agreements
-            $highestRent = TenancyAgreement::whereIn('tenancy_agreements.id', $agreementIds)
+            $highest_rent = TenancyAgreement::whereIn('tenancy_agreements.id', $agreementIds)
                 ->max('total_agreed_rent');
 
 
 
 
 
-            $total_due = 0;
+            $total_arrears = 0;
 
             foreach ($agreements as $agreement) {
-                $total_due += $this->calculatePayments($agreement, today())['total_arrears'];
+                $total_arrears += $this->calculatePayments($agreement, today())['total_arrears'];
             }
 
 
             // Combine everything into one array
             $rentHighlightsData = [
-                'total_rent' => $totalRent,
-                'total_paid' => $rentHighlights->sum('paid_amount'),
-                'total_arrears' => $total_due,
-                'highest_rent' => $highestRent
+                'total_rent' => $total_rent,
+                'total_paid' => $total_paid,
+                'total_arrears' => $total_arrears,
+                'highest_rent' => $highest_rent
             ];
 
-            // Return or use $rentHighlightsData as needed
-
+    
 
             return response()->json([
                 'data' => $agreements,

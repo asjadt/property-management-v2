@@ -619,26 +619,38 @@ class RentController extends Controller
 
             $rents = $this->retrieveData($query, "month", "rents");
 
-            $data_highlights = [
-                "total_rent" => 0,
-                "highest_rent" => 0,
-                "total_paid" => 0,
+
+          
+        
+            $tenancy_agreements = TenancyAgreement::
+            when(request()->filled("property_ids"), function ($query) {
+                $property_ids = explode(',', request()->input("property_ids"));
+                return  $query->whereIn("tenancy_agreements.property_id", $property_ids);
+            })
+            ->get();
+
+            $totalRent = TenancyAgreement::whereIn('tenancy_agreements.id', $tenancy_agreements->pluck("id"))
+                ->sum('total_agreed_rent');
+
+                 $total_paid = Rent::whereIn('tenancy_agreement_id', $tenancy_agreements->pluck("id"))
+                ->sum("paid_amount");
+
+                 // Get the highest rent from the tenancy agreements
+            $highest_rent = TenancyAgreement::whereIn('tenancy_agreements.id', $tenancy_agreements->pluck("id"))
+                ->max('total_agreed_rent');
+
+                  $data_highlights = [
+                "total_rent" => $totalRent,
+                "highest_rent" => $highest_rent,
+                "total_paid" => $total_paid,
                 "total_arrears" => 0
-
-
             ];
 
-
-            $tenancy_agreements = TenancyAgreement::whereHas('rents', function ($q) {
-                $q->filters();
-            })->get();
 
             foreach ($tenancy_agreements as $agreement) {
 
                 $pyment_data = $this->calculatePayments($agreement, today());
-                $data_highlights["total_rent"] += $pyment_data["total_rent"];
-                $data_highlights["highest_rent"] += $pyment_data["total_rent"];
-                $data_highlights["total_paid"] += $pyment_data["total_paid"];
+
                 $data_highlights["total_arrears"] += $pyment_data["total_arrears"];
             }
 

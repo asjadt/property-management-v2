@@ -398,6 +398,7 @@ class PropertyBasicController extends Controller
             "tenancy_agreement.property",
             fn($q) => $q->where("properties.id", $property->id)
         )
+        
             ->when($start_date, fn($q) => $q->whereDate('payment_date', "<", $start_date))
             ->sum('paid_amount');
 
@@ -405,6 +406,13 @@ class PropertyBasicController extends Controller
                 "property_id" => $property->id,
                 "created_by" => $request->user()->id
             ])
+             ->where(function ($query) {
+                $query->where("paid_by", "agent")
+                ->orWhere(function($query) {
+                    $query->where("paid_by", "landlord")
+                    ->whereHas("invoice_items");
+                });
+            })
             ->when($start_date, fn($q) => $q->whereDate('create_date', "<", $start_date))
             ->sum('price');
 
@@ -412,6 +420,13 @@ class PropertyBasicController extends Controller
                 "property_id" => $property->id,
                 "created_by" => $request->user()->id
             ])
+             ->where(function ($query) {
+                $query->where("paid_by", "agent")
+                ->orWhere(function($query) {
+                    $query->where("paid_by", "landlord")
+                    ->whereHas("invoice_items");
+                });
+            })
             ->when($start_date, fn($q) => $q->whereDate('create_date', "<", $start_date))
             ->sum('price');
 
@@ -461,6 +476,13 @@ class PropertyBasicController extends Controller
                 "property_id" => $property->id,
                 "created_by" => $request->user()->id
             ])
+             ->where(function ($query) {
+                $query->where("paid_by", "agent")
+                ->orWhere(function($query) {
+                    $query->where("paid_by", "landlord")
+                    ->whereHas("invoice_items");
+                });
+            })
             ->when($request->start_date, fn($q) => $q->whereDate('create_date', ">=", $request->start_date))
             ->when($request->end_date, fn($q) => $q->whereDate('create_date', "<=", $request->end_date))
             ->select('price as amount', 'create_date as date', 'item_description')
@@ -469,6 +491,13 @@ class PropertyBasicController extends Controller
                 "property_id" => $property->id,
                 "created_by" => $request->user()->id
             ])
+            ->where(function ($query) {
+                $query->where("paid_by", "agent")
+                ->orWhere(function($query) {
+                    $query->where("paid_by", "landlord")
+                    ->whereHas("invoice_items");
+                });
+            })
             ->when($request->start_date, fn($q) => $q->whereDate('create_date', ">=", $request->start_date))
             ->when($request->end_date, fn($q) => $q->whereDate('create_date', "<=", $request->end_date))
             ->select('price as amount', 'create_date as date', 'item_description')

@@ -18,7 +18,7 @@ class AddLandlordRentPayableIdToInvoicesTable extends Migration
             $table->foreign('landlord_rent_payable_id')
                   ->references('id')
                   ->on('landlord_rent_payables')
-                  ->onDelete('set null');
+                  ->onDelete('CASCADE');
         });
     }
 
