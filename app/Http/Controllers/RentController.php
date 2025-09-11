@@ -907,6 +907,9 @@ class RentController extends Controller
             }
 
             $tenancy_agreement_id = $rent->tenancy_agreement_id;
+
+            $this->adjust_rent_and_expense_on_rent_delete($rent->id);
+
             $rent->delete();
 
             $agreement = TenancyAgreement::where([
@@ -929,6 +932,7 @@ class RentController extends Controller
                 ->get();
 
             $this->processArrears($agreement, $all_rents, true);
+
 
             return response()->json(["message" => "data deleted sussfully"], 200);
         } catch (Exception $e) {

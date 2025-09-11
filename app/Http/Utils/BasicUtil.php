@@ -2,6 +2,9 @@
 
 namespace App\Http\Utils;
 
+use App\Models\Expense;
+use App\Models\LandlordRentPayable;
+use App\Models\Rent;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -68,6 +71,29 @@ trait BasicUtil
         return $total_arrear;
     }
 
+    public function adjust_rent_and_expense_on_rent_payable_delete($landlord_rent_payable_id)  {
+        Expense::whereHas("rent_adjustments", function ($q) use ($landlord_rent_payable_id) {
+                $q->where("landlord_rent_payable_id", $landlord_rent_payable_id);
+            })
+            ->update([
+                "paid_by" => "agent"
+            ]);
+
+        Rent::whereHas("rent_adjustments", function ($q) use ($landlord_rent_payable_id) {
+                $q->where("landlord_rent_payable_id", $landlord_rent_payable_id);
+            })
+            ->update([
+                "paid_by" => "agent"
+            ]);
+    }
+       public function adjust_rent_and_expense_on_rent_delete($rent_id)  {
+       $landlord_rent_payable = LandlordRentPayable::whereHas("payable_rents", function ($q) use ($rent_id) {
+                $q->where("rent_id", $rent_id);
+       })
+       ->first();
+
+       $this->adjust_rent_and_expense_on_rent_payable_delete($landlord_rent_payable->id);
+    }
     public function calculatePayments($agreement, $compareDate)
     {
         $start_date = Carbon::parse($agreement->date_of_moving)->startOfDay();

@@ -28,6 +28,12 @@ class Rent extends Model
         "created_by"
     ];
 
+
+    public function rent_adjustments()
+    {
+        return $this->hasMany(RentAdjustment::class, 'repair_id');
+    }
+
     // RENT RELATION WITH TENANCY AGREEMENT
     public function tenancy_agreement()
     {
