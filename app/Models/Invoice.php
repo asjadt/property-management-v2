@@ -36,6 +36,10 @@ class Invoice extends Model
         "created_by"
     ];
 
+    public function landlord_rent_payable(){
+        return $this->belongsTo(LandlordRentPayable::class,'landlord_rent_payable_id', 'id');
+    }
+
     public function invoice_items(){
         return $this->hasMany(InvoiceItem::class,'invoice_id', 'id');
     }

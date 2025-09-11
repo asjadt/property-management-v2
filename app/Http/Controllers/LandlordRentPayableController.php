@@ -1081,7 +1081,7 @@ $this->handleLandlordInvoice($landlord_rent_payable, $validated, $business, $req
             $this->adjust_rent_and_expense_on_rent_payable_delete($landlord_rent_payable->id);
 
 
-            $landlord_rent_payable->forceDelete();
+            $landlord_rent_payable->delete();
 
             return response()->json(["ok" => true], 200);
         } catch (Exception $e) {

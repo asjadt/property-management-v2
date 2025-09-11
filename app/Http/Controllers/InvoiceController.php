@@ -1172,7 +1172,13 @@ class InvoiceController extends Controller
     {
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $invoiceQuery = Invoice::with("invoice_items");
+        $invoiceQuery = Invoice::with([
+            "invoice_items",
+            "landlord_rent_payable" => function ($q) {
+                $q->select("landlord_rent_payables.id", "landlord_rent_payables.generated_id");
+            }
+        
+        ]);
 
 
 
@@ -1285,8 +1291,11 @@ class InvoiceController extends Controller
     {
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $invoiceQuery = Invoice::with("invoice_items")
-
+        $invoiceQuery = Invoice::with(["invoice_items",
+         "landlord_rent_payable" => function ($q) {
+                $q->select("landlord_rent_payables.id", "landlord_rent_payables.generated_id");
+        }
+        ])
 
             ->where([
                 "invoices.created_by" => $request->user()->id
@@ -1414,7 +1423,13 @@ class InvoiceController extends Controller
     {
         // $automobilesQuery = AutomobileMake::with("makes");
 
-        $invoiceQuery = Invoice::where([
+        $invoiceQuery = Invoice::
+        with([
+             "landlord_rent_payable" => function ($q) {
+                $q->select("landlord_rent_payables.id", "landlord_rent_payables.generated_id");
+            }
+        ])
+        ->where([
                 "invoices.created_by" => $request->user()->id
             ])
             ->leftJoin('clients', 'invoices.client_id', '=', 'clients.id');
@@ -1524,6 +1539,7 @@ class InvoiceController extends Controller
                 "invoices.due_date",
                 "invoices.total_amount",
                 "property_id",
+                "invoices.landlord_rent_payable_id",
                 DB::raw('
        COALESCE(
            (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),

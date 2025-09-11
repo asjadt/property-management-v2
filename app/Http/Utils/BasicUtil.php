@@ -5,6 +5,7 @@ namespace App\Http\Utils;
 use App\Models\Expense;
 use App\Models\LandlordRentPayable;
 use App\Models\Rent;
+use App\Models\Repair;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -79,7 +80,7 @@ trait BasicUtil
                 "paid_by" => "agent"
             ]);
 
-        Rent::whereHas("rent_adjustments", function ($q) use ($landlord_rent_payable_id) {
+        Repair::whereHas("rent_adjustments", function ($q) use ($landlord_rent_payable_id) {
                 $q->where("landlord_rent_payable_id", $landlord_rent_payable_id);
             })
             ->update([
@@ -93,6 +94,9 @@ trait BasicUtil
        ->first();
 
        $this->adjust_rent_and_expense_on_rent_payable_delete($landlord_rent_payable->id);
+
+       $landlord_rent_payable->delete();
+
     }
     public function calculatePayments($agreement, $compareDate)
     {
