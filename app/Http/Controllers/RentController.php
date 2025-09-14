@@ -908,7 +908,9 @@ class RentController extends Controller
 
             $tenancy_agreement_id = $rent->tenancy_agreement_id;
 
+            
             $this->adjust_rent_and_expense_on_rent_delete($rent->id);
+
 
             $rent->delete();
 

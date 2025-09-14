@@ -1173,6 +1173,9 @@ class InvoiceController extends Controller
         // $automobilesQuery = AutomobileMake::with("makes");
 
         $invoiceQuery = Invoice::with([
+      "landlords" => function ($q) {
+                $q->select("landlords.id", "landlords.generated_id");
+        },
             "invoice_items",
             "landlord_rent_payable" => function ($q) {
                 $q->select("landlord_rent_payables.id", "landlord_rent_payables.generated_id");
@@ -1292,6 +1295,10 @@ class InvoiceController extends Controller
         // $automobilesQuery = AutomobileMake::with("makes");
 
         $invoiceQuery = Invoice::with(["invoice_items",
+
+         "landlords" => function ($q) {
+                $q->select("landlords.id", "landlords.generated_id");
+        },
          "landlord_rent_payable" => function ($q) {
                 $q->select("landlord_rent_payables.id", "landlord_rent_payables.generated_id");
         }
@@ -1425,6 +1432,9 @@ class InvoiceController extends Controller
 
         $invoiceQuery = Invoice::
         with([
+            "landlords" => function ($q) {
+                $q->select("landlords.id", "landlords.generated_id");
+        },
              "landlord_rent_payable" => function ($q) {
                 $q->select("landlord_rent_payables.id", "landlord_rent_payables.generated_id");
             }

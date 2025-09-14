@@ -880,6 +880,10 @@ $this->handleLandlordInvoice($landlord_rent_payable, $validated, $business, $req
                 $query->where('create_date', '<=', $request->end_date);
             }
 
+            if (!empty($request->id)) {
+                $query->where('generated_id', $request->id);
+            }
+
             // Filter by is_active
             if (!is_null($request->is_active)) {
                 $query->where('is_active', $request->is_active);
@@ -891,6 +895,8 @@ $this->handleLandlordInvoice($landlord_rent_payable, $validated, $business, $req
                     $q->where('rent_id', $request->rent_id);
                 });
             }
+
+            
 
             // Pagination and ordering
             $orderBy = $request->order_by ?? 'desc';

@@ -93,6 +93,10 @@ trait BasicUtil
        })
        ->first();
 
+       if(empty($landlord_rent_payable)) {
+           return false;
+       }
+
        $this->adjust_rent_and_expense_on_rent_payable_delete($landlord_rent_payable->id);
 
        $landlord_rent_payable->delete();

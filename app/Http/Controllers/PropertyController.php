@@ -3075,7 +3075,16 @@ class PropertyController extends Controller
                     },
                     "property_landlords",
                     "repairs.repair_category",
-                    "invoices",
+                    "invoices" => function ($query) {
+                        $query->with([
+            "landlords" => function ($q) {
+                $q->select("landlords.id", "landlords.generated_id");
+        },
+             "landlord_rent_payable" => function ($q) {
+                $q->select("landlord_rent_payables.id", "landlord_rent_payables.generated_id");
+            }
+        ]);
+                    },
                     "documents",
                     "maintenance_item_types",
                 ]
