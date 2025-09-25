@@ -1450,8 +1450,13 @@ class InvoiceController extends Controller
 
 
         if (!empty($request->status)) {
-            if ($request->status == "unpaid") {
-                $invoiceQuery =      $invoiceQuery->whereNotIn("status", ['draft', 'paid', 'overpaid']);
+            if ($request->status == "unpaid" || $request->status == "overdue") {
+                $invoiceQuery =      $invoiceQuery->whereNotIn("status", ['draft', 'paid', 'overpaid'])
+                ->when($request->status == "overdue", function ($q) {
+                    $q->whereDate('invoices.due_date', '<', Carbon::now());
+                }, function ($q) {
+                    $q->whereDate('invoices.due_date', '>=', Carbon::now());
+                }) ;
             } else if ($request->status == "next_15_days_invoice_due") {
                 $currentDate = Carbon::now();
                 $endDate = $currentDate->copy()->addDays(15);
