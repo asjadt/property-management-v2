@@ -23,6 +23,7 @@ trait BasicUtil
             $endDate = Carbon::createFromDate(request()->input("year"), request()->input("month"), 1)
                 ->endOfMonth()->endOfDay();
         } else {
+            
             $endDate = Carbon::parse($agreement->tenant_contact_expired_date);
         }
 
@@ -105,7 +106,9 @@ trait BasicUtil
     public function calculatePayments($agreement, $compareDate)
     {
         $start_date = Carbon::parse($agreement->date_of_moving)->startOfDay();
-        $end_date = Carbon::parse($agreement->tenant_contact_expired_date)->endOfDay();
+        $end_date = $start_date->copy()->addMonthsNoOverflow(explode("_", $agreement->tenant_contact_duration)[0])->subDay()->endOfDay();
+       
+
         $due_day = (int)$agreement->rent_due_day;
 
         $compareDate = Carbon::parse($compareDate);
@@ -129,11 +132,14 @@ trait BasicUtil
             return Carbon::parse($date)->lt($compareDate);
         })->count();
 
+    
+
 
         $total_rent   = $agreement->agreed_rent * $passed_due_count;
         $total_paid = $agreement->rents()
             ->sum('paid_amount');
         $total_arrears = $total_rent - $total_paid;
+
 
         $last_passed_due_date = collect($due_dates)
             ->filter(function ($date) use ($compareDate) {

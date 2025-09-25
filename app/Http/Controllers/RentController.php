@@ -623,26 +623,28 @@ class RentController extends Controller
           
         
             $tenancy_agreements = TenancyAgreement::
-            when(request()->filled("property_ids"), function ($query) {
+            
+            whereHas("property", function ($query) {
+                $query->where("properties.created_by", auth()->user()->id)
+                ->when(request()->filled("property_ids"), function ($query) {
                 $property_ids = explode(',', request()->input("property_ids"));
-                return  $query->whereIn("tenancy_agreements.property_id", $property_ids);
+                return  $query->whereIn("properties.id", $property_ids);
+            });
             })
             ->get();
 
-            $totalRent = TenancyAgreement::whereIn('tenancy_agreements.id', $tenancy_agreements->pluck("id"))
-                ->sum('total_agreed_rent');
+            error_log(json_encode(["check1", $tenancy_agreements->count()]));
 
-                 $total_paid = Rent::whereIn('tenancy_agreement_id', $tenancy_agreements->pluck("id"))
-                ->sum("paid_amount");
+          
 
                  // Get the highest rent from the tenancy agreements
             $highest_rent = TenancyAgreement::whereIn('tenancy_agreements.id', $tenancy_agreements->pluck("id"))
                 ->max('total_agreed_rent');
 
                   $data_highlights = [
-                "total_rent" => $totalRent,
+                "total_rent" => 0,
                 "highest_rent" => $highest_rent,
-                "total_paid" => $total_paid,
+                "total_paid" => 0,
                 "total_arrears" => 0
             ];
 
@@ -651,7 +653,9 @@ class RentController extends Controller
 
                 $pyment_data = $this->calculatePayments($agreement, today());
 
+                $data_highlights["total_rent"] += $pyment_data["total_rent"];
                 $data_highlights["total_arrears"] += $pyment_data["total_arrears"];
+                $data_highlights["total_paid"] += $pyment_data["total_paid"];
             }
 
 
@@ -1018,7 +1022,7 @@ class RentController extends Controller
 
             return response()->json(["rent_reference" => $rent_reference], 200);
         } catch (Exception $e) {
-            error_log($e->getMessage());
+ 
             return $this->sendError($e, 500, $request);
         }
     }
@@ -1093,7 +1097,7 @@ class RentController extends Controller
 
             return response()->json(["rent_reference_exists" => $rent_reference_exists], 200);
         } catch (Exception $e) {
-            error_log($e->getMessage());
+      
             return $this->sendError($e, 500, $request);
         }
     }

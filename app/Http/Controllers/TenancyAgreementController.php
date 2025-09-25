@@ -125,6 +125,7 @@ class TenancyAgreementController extends Controller
 
                 $start_date = Carbon::parse($request_data["date_of_moving"]);
                 $end_date = Carbon::parse($request_data["tenant_contact_expired_date"]);
+                
                 $months_difference = $start_date->diffInMonths($end_date);
                 $request_data["total_agreed_rent"] = $request_data["agreed_rent"] * $months_difference;
 
