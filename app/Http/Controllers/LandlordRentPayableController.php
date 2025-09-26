@@ -909,6 +909,181 @@ $this->handleLandlordInvoice($landlord_rent_payable, $validated, $business, $req
         }
     }
 
+    /**
+ *
+ * @OA\Get(
+ *      path="/v2.0/landlord-rent-payables/{perPage}",
+ *      operationId="getLandlordRentPayablesV2",
+ *      tags={"property_management.landlord_rent_payable"},
+ *      security={{"bearerAuth": {}}},
+ *
+ *      @OA\Parameter(
+ *         name="perPage",
+ *         in="path",
+ *         description="Number of records per page",
+ *         required=true,
+ *         example=10
+ *      ),
+ *      @OA\Parameter(
+ *         name="search_key",
+ *         in="query",
+ *         description="Search by item description or generated ID",
+ *         required=false,
+ *         example="rent"
+ *      ),
+ *      @OA\Parameter(
+ *         name="landlord_id",
+ *         in="query",
+ *         description="Filter by landlord ID",
+ *         required=false,
+ *         example=1
+ *      ),
+ *      @OA\Parameter(
+ *         name="rent_id",
+ *         in="query",
+ *         description="Filter by related rent ID",
+ *         required=false,
+ *         example=1
+ *      ),
+ *      @OA\Parameter(
+ *         name="start_date",
+ *         in="query",
+ *         description="Filter from create_date",
+ *         required=false,
+ *         example="2025-01-01"
+ *      ),
+ *      @OA\Parameter(
+ *         name="end_date",
+ *         in="query",
+ *         description="Filter till create_date",
+ *         required=false,
+ *         example="2025-09-26"
+ *      ),
+ *      @OA\Parameter(
+ *         name="status",
+ *         in="query",
+ *         description="Filter by status",
+ *         required=false,
+ *         example="pending"
+ *      ),
+ *      @OA\Parameter(
+ *         name="payment_method",
+ *         in="query",
+ *         description="Filter by payment method",
+ *         required=false,
+ *         example="bank_transfer"
+ *      ),
+ *      @OA\Parameter(
+ *         name="is_active",
+ *         in="query",
+ *         description="Filter by active status (1/0)",
+ *         required=false,
+ *         example=1
+ *      ),
+ *      @OA\Parameter(
+ *         name="order_by",
+ *         in="query",
+ *         description="Order by ID ASC/DESC",
+ *         required=false,
+ *         example="DESC"
+ *      ),
+ *
+ *      summary="Get landlord rent payables with detailed data highlights",
+ *      description="Returns landlord rent payables with Total Rent, Total Paid via Payable, Total Deducted, and Total Unassigned Rent",
+ *
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *          @OA\JsonContent()
+ *      ),
+ *      @OA\Response(response=401, description="Unauthenticated", @OA\JsonContent()),
+ *      @OA\Response(response=403, description="Forbidden", @OA\JsonContent()),
+ *      @OA\Response(response=422, description="Unprocessable Content", @OA\JsonContent()),
+ *      @OA\Response(response=400, description="Bad Request", @OA\JsonContent()),
+ *      @OA\Response(response=404, description="Not found", @OA\JsonContent())
+ * )
+ */
+public function getLandlordRentPayablesV2($perPage, Request $request)
+{
+    try {
+        $this->storeActivity($request, "Fetch landlord rent payables summary");
+
+        // MAIN QUERY
+        $query = LandlordRentPayable::with(['payable_rents.rent', 'rent_adjustments'])
+            ->where('created_by', $request->user()->id);
+
+        // Filters
+        if (!empty($request->search_key)) {
+            $term = $request->search_key;
+            $query->where(function ($q) use ($term) {
+                $q->orWhere('item_description', 'like', "%$term%")
+                  ->orWhere('generated_id', 'like', "%$term%");
+            });
+        }
+
+        if (!empty($request->payment_method)) $query->where('payment_method', $request->payment_method);
+        if (!empty($request->status)) $query->where('status', $request->status);
+        if (!empty($request->landlord_id)) $query->where('landlord_id', $request->landlord_id);
+        if (!empty($request->start_date)) $query->where('create_date', '>=', $request->start_date);
+        if (!empty($request->end_date)) $query->where('create_date', '<=', $request->end_date);
+        if (!empty($request->rent_id)) {
+            $query->whereHas('payable_rents', fn($q) => $q->where('rent_id', $request->rent_id));
+        }
+        if (!is_null($request->is_active)) $query->where('is_active', $request->is_active);
+
+        $orderBy = $request->order_by ?? 'desc';
+        $landlord_rent_payables = $query->orderBy('id', $orderBy)
+            ->paginate($perPage);
+
+        // =========================
+        // DATA HIGHLIGHTS
+        // =========================
+
+        // 1. Total Rent Amount (all collected rents)
+        $total_rent_amount = Rent::where('created_by', $request->user()->id)
+        ->whereHas("tenancy_agreement", function($q) use ($request) {
+            $q->whereHas('property', function($q) use ($request) {
+                $q->whereHas("property_landlords", function($q) use ($request) {
+                    $q->where('landlords.id', $request->landlord_id);
+                });
+            });
+        })
+        ->sum('paid_amount');
+
+        // 2. Total Paid via Payable (rents already linked to payables)
+        $total_paid = Rent::whereHas('landlord_payables', function($q) use ($request) {
+            $q->where('created_by', $request->user()->id);
+        })->sum('paid_amount');
+
+        // 3. Total Deducted (all adjustments)
+        $total_deducted = RentAdjustment::whereHas('landlord_rent_payable', function($q) use ($request) {
+            $q->where('created_by', $request->user()->id);
+        })->sum('amount');
+
+        // 4. Total Unassigned Rent (rents collected but not linked to any payable)
+        $total_unassigned_rent = Rent::where('paid_amount', '>', 0)
+            ->whereDoesntHave('landlord_payables', function($q) use ($request) {
+                $q->where('created_by', $request->user()->id);
+            })->sum('paid_amount');
+
+        $data_highlights = [
+            'total_rent_amount' => $total_rent_amount,
+            'total_paid_via_payable' => $total_paid,
+            'total_deducted' => $total_deducted,
+            'total_due_rents' => $total_unassigned_rent,
+        ];
+
+        $response = [
+            'data' => $landlord_rent_payables,
+            'data_highlights' => $data_highlights,
+        ];
+
+        return response()->json($response, 200);
+
+    } catch (\Exception $e) {
+        return $this->sendError($e, 500, $request);
+    }
+}
 
 
     /**

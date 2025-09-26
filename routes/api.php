@@ -592,6 +592,8 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('/v1.0/landlord-rent-payables', [LandlordRentPayableController::class, "createLandlordRentPayable"]);
     Route::put('/v1.0/landlord-rent-payables', [LandlordRentPayableController::class, "updateLandlordRentPayable"]);
     Route::get('/v1.0/landlord-rent-payables/{perPage}', [LandlordRentPayableController::class, "getLandlordRentPayables"]);
+  Route::get('/v2.0/landlord-rent-payables/{perPage}', [LandlordRentPayableController::class, "getLandlordRentPayablesV2"]);
+    
     Route::get('/v1.0/landlord-rent-payables/get/single/{id}', [LandlordRentPayableController::class, "getLandlordRentPayableById"]);
     Route::delete('/v1.0/landlord-rent-payables/{id}', [LandlordRentPayableController::class, "deleteLandlordRentPayableById"]);
 
