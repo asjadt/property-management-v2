@@ -2182,7 +2182,7 @@ COALESCE(
 
     return [
         'total_properties' => $properties_query->count(),
-        'total_expired_agreements' => (clone $properties_query)
+        'total_expired' => (clone $properties_query)
             ->whereHas('latest_tenancy_agreement', function ($q) {
                 $q->whereDate('tenant_contact_expired_date', '<', Carbon::today());
             })->count(),
@@ -2220,7 +2220,7 @@ public function getPropertyAgreementReport()
 
     return [
         'total_properties' => $properties_query->count(),
-        'total_expired_agreements' => (clone $properties_query)
+        'total_expired' => (clone $properties_query)
             ->whereHas('latest_property_agreement', function ($q) {
                 $q->whereDate('end_date', '<', Carbon::today());
             })->count(),
