@@ -70,6 +70,18 @@ class Property extends Model
     {
         return $this->hasMany(TenancyAgreement::class,"property_id","id");
     }
+      public function latest_tenancy_agreement()
+{
+    return $this->hasOne(TenancyAgreement::class,"property_id","id")
+ 
+        ->orderByDesc('tenant_contact_expired_date');  // Specify which column determines the latest record
+}
+
+     public function latest_property_agreement()
+{
+    return $this->hasOne(PropertyAgreement::class,"property_id","id")
+        ->orderByDesc('end_date');  // Specify which column determines the latest record
+}
 
 
     public function latest_inspection()

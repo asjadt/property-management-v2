@@ -16,6 +16,7 @@ use App\Models\LandlordRentPayable;
 use App\Models\MaintenanceItem;
 use App\Models\MaintenanceItemType;
 use App\Models\Property;
+use App\Models\PropertyAgreement;
 use App\Models\PropertyDocument;
 use App\Models\Receipt;
 use App\Models\Rent;
@@ -1888,10 +1889,17 @@ COALESCE(
             $data["repair_report"] = $this->getRepairReport();
 
             $data["document_report"] = $this->getDocumentReport();
+
+            $data["tenancy_agreement_report"] = $this->getTenancyAgreementReportByProperty();
+
+            $data["property_agreement_report"] = $this->getPropertyAgreementReport();
+
+            
+
             $data["maintainance_report"] = $this->getMaintainanceReport();
             $data["overall_maintainance_report"] = $this->getOverallMaintainanceReport();
 
-            $now = Carbon::now();
+      
 
 
 
@@ -2168,8 +2176,80 @@ COALESCE(
 
         return $document_report;
     }
+  public function getTenancyAgreementReportByProperty()
+{
+    $properties_query = Property::where("created_by", auth()->user()->id);
+
+    return [
+        'total_properties' => $properties_query->count(),
+        'total_expired_agreements' => (clone $properties_query)
+            ->whereHas('latest_tenancy_agreement', function ($q) {
+                $q->whereDate('tenant_contact_expired_date', '<', Carbon::today());
+            })->count(),
+        'today_expiry' => (clone $properties_query)
+            ->whereHas('latest_tenancy_agreement', function ($q) {
+                $q->whereDate('tenant_contact_expired_date', Carbon::today());
+            })->count(),
+        'expires_in_15_days' => (clone $properties_query)
+            ->whereHas('latest_tenancy_agreement', function ($q) {
+                $q->whereDate('tenant_contact_expired_date', '>', Carbon::today())
+                  ->whereDate('tenant_contact_expired_date', '<=', Carbon::today()->addDays(15));
+            })->count(),
+        'expires_in_30_days' => (clone $properties_query)
+            ->whereHas('latest_tenancy_agreement', function ($q) {
+                $q->whereDate('tenant_contact_expired_date', '>', Carbon::today()->addDays(15))
+                  ->whereDate('tenant_contact_expired_date', '<=', Carbon::today()->addDays(30));
+            })->count(),
+        'expires_in_45_days' => (clone $properties_query)
+            ->whereHas('latest_tenancy_agreement', function ($q) {
+                $q->whereDate('tenant_contact_expired_date', '>', Carbon::today()->addDays(30))
+                  ->whereDate('tenant_contact_expired_date', '<=', Carbon::today()->addDays(45));
+            })->count(),
+        'expires_in_60_days' => (clone $properties_query)
+            ->whereHas('latest_tenancy_agreement', function ($q) {
+                $q->whereDate('tenant_contact_expired_date', '>', Carbon::today()->addDays(45))
+                  ->whereDate('tenant_contact_expired_date', '<=', Carbon::today()->addDays(60));
+            })->count(),
+    ];
+}
 
 
+public function getPropertyAgreementReport()
+{
+    $properties_query = Property::where("created_by", auth()->user()->id);
+
+    return [
+        'total_properties' => $properties_query->count(),
+        'total_expired_agreements' => (clone $properties_query)
+            ->whereHas('latest_property_agreement', function ($q) {
+                $q->whereDate('end_date', '<', Carbon::today());
+            })->count(),
+        'today_expiry' => (clone $properties_query)
+            ->whereHas('latest_property_agreement', function ($q) {
+                $q->whereDate('end_date', Carbon::today());
+            })->count(),
+        'expires_in_15_days' => (clone $properties_query)
+            ->whereHas('latest_property_agreement', function ($q) {
+                $q->whereDate('end_date', '>', Carbon::today())
+                  ->whereDate('end_date', '<=', Carbon::today()->addDays(15));
+            })->count(),
+        'expires_in_30_days' => (clone $properties_query)
+            ->whereHas('latest_property_agreement', function ($q) {
+                $q->whereDate('end_date', '>', Carbon::today()->addDays(15))
+                  ->whereDate('end_date', '<=', Carbon::today()->addDays(30));
+            })->count(),
+        'expires_in_45_days' => (clone $properties_query)
+            ->whereHas('latest_property_agreement', function ($q) {
+                $q->whereDate('end_date', '>', Carbon::today()->addDays(30))
+                  ->whereDate('end_date', '<=', Carbon::today()->addDays(45));
+            })->count(),
+        'expires_in_60_days' => (clone $properties_query)
+            ->whereHas('latest_property_agreement', function ($q) {
+                $q->whereDate('end_date', '>', Carbon::today()->addDays(45))
+                  ->whereDate('end_date', '<=', Carbon::today()->addDays(60));
+            })->count(),
+    ];
+}
 
 
     public function getOverallMaintainanceReport()

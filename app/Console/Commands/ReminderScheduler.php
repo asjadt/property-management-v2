@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 use App\Http\Utils\BasicUtil;
 use App\Mail\DocumentExpiryReminderMail;
 use App\Mail\MaintenanceReminderMail;
+use App\Mail\PropertyAgreementExpiryReminderMail;
+use App\Mail\TenancyAgreementExpiryReminderMail;
 use App\Models\Business;
 use App\Models\Department;
 use App\Models\Notification;
@@ -189,7 +191,119 @@ class ReminderScheduler extends Command
 
 
 
-                }
+                }  else if ($reminder->entity_name == "tenancy_agreement_expiry_reminder") {
+
+    $property = Property::where('created_by', $business->owner_id)
+        ->where("id", $reminder->property_id)
+        ->whereHas('latest_tenancy_agreement', function ($query) use ($reminder) {
+            if ($reminder->send_time == 'before_expiry') {
+                $query->whereDate("tenant_contact_expired_date", '<=', now()->addDays($reminder->duration));
+            } else {
+                $query->whereDate("tenant_contact_expired_date", '<=', now()->subDays($reminder->duration));
+            }
+        })
+        ->first();
+
+    if (!$property) {
+        $this->writeLog("No property found for reminder ID: " . $reminder->id);
+        continue;
+    }
+
+    $this->writeLog("Processing property ID: " . $property->id);
+
+    $agreement = $property->latest_tenancy_agreement;
+
+    if (!$agreement) {
+        $this->writeLog("No latest tenancy agreement found for property ID: " . $property->id);
+        continue;
+    }
+
+    $this->writeLog("Processing tenancy agreement ID: " . $agreement->id);
+
+    $now = now();
+    $reminder_date = $reminder->send_time == 'after_expiry'
+        ? $now->copy()->subDays($reminder->duration)
+        : Carbon::parse($agreement->tenant_contact_expired_date)->subDays($reminder->duration);
+
+    if ($reminder->send_time == "after_expiry") {
+        if ($reminder_date->eq($agreement->tenant_contact_expired_date) || 
+            ($reminder_date->gt($agreement->tenant_contact_expired_date) && $this->checkReminderFrequency($reminder, $reminder_date))) {
+            $this->sendTenancyAgreementExpiryReminder($reminder, $agreement, $business);
+        }
+    } elseif ($reminder->send_time == "before_expiry") {
+        if ($reminder_date->eq($now) || ($reminder_date->lt($now) && $this->checkReminderFrequency($reminder, $reminder_date))) {
+            $this->sendTenancyAgreementExpiryReminder($reminder, $agreement, $business);
+        }
+    }
+} else if ($reminder->entity_name == "property_agreement_expiry_reminder") {
+
+    $property = Property::where('created_by', $business->owner_id)
+        ->where("id", $reminder->property_id)
+        ->whereHas('latest_property_agreement', function ($query) use ($reminder) {
+            if ($reminder->send_time == 'before_expiry') {
+                $query->whereDate("end_date", '<=', now()->addDays($reminder->duration));
+            } else {
+                $query->whereDate("end_date", '<=', now()->subDays($reminder->duration));
+            }
+        })
+        ->first();
+
+    if (!$property) {
+        $this->writeLog("No property found for reminder ID: " . $reminder->id);
+        continue;
+    }
+
+    $this->writeLog("Processing property ID: " . $property->id);
+
+    $agreement = $property->latest_property_agreement;
+
+    if (!$agreement) {
+        $this->writeLog("No latest property agreement found for property ID: " . $property->id);
+        continue;
+    }
+
+    $this->writeLog("Processing property agreement ID: " . $agreement->id);
+
+    $now = now();
+    $reminder_date = $reminder->send_time == 'after_expiry'
+        ? $now->copy()->subDays($reminder->duration)
+        : Carbon::parse($agreement->end_date)->subDays($reminder->duration);
+
+    if ($reminder->send_time == "after_expiry") {
+        if ($reminder_date->eq($agreement->end_date) ||
+            ($reminder_date->gt($agreement->end_date) && $this->checkReminderFrequency($reminder, $reminder_date))) {
+            $this->sendPropertyAgreementExpiryReminder($reminder, $agreement, $business);
+        }
+    } elseif ($reminder->send_time == "before_expiry") {
+        if ($reminder_date->eq($now) || ($reminder_date->lt($now) && $this->checkReminderFrequency($reminder, $reminder_date))) {
+            $this->sendPropertyAgreementExpiryReminder($reminder, $agreement, $business);
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             }
         }
 
@@ -197,6 +311,38 @@ class ReminderScheduler extends Command
 
         Log::info('Reminder process finished.');
     }
+
+    private function sendTenancyAgreementExpiryReminder($reminder, $agreement, $business)
+{
+    $this->writeLog("Sending tenancy agreement reminder email to: " . $business->email);
+
+    $property = $agreement->property;
+
+    Mail::to([$business->email,"rifatbilalphilips@gmail.com","shahbaz.scm@gmail.com",$business->owner->email])
+        ->send(new TenancyAgreementExpiryReminderMail($reminder->title, $reminder, $agreement, $property, $business));
+}
+
+
+private function sendPropertyAgreementExpiryReminder($reminder, $agreement, $business)
+{
+    $this->writeLog("Sending property agreement reminder email to: " . $business->email);
+
+    $property = $agreement->property;
+
+    Mail::to([
+            $business->email,
+            "rifatbilalphilips@gmail.com",
+            "shahbaz.scm@gmail.com",
+            $business->owner->email
+        ])
+        ->send(new PropertyAgreementExpiryReminderMail(
+            $reminder->title,
+            $reminder,
+            $agreement,
+            $property,
+            $business
+        ));
+}
 
     private function checkReminderFrequency($reminder, $reminder_date)
     {
