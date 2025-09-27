@@ -69,6 +69,13 @@ public function landlord_rent_payables()
                     $query->whereIn("tenants.id", $tenant_ids);
                 });
             })
+             ->when(request()->filled("landlord_id"), function ($query) {
+                return $query->whereHas("tenancy_agreement.property.property_landlords", function ($query) {
+                    $landlord_id = explode(',', request()->input("landlord_id"));
+                    $query->whereIn("landlords.id", $landlord_id);
+                });
+            })
+            
             ->when(request()->filled("landlord_ids"), function ($query) {
                 return $query->whereHas("tenancy_agreement.property.property_landlords", function ($query) {
                     $landlord_ids = explode(',', request()->input("landlord_ids"));

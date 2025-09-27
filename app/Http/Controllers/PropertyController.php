@@ -1434,6 +1434,47 @@ class PropertyController extends Controller
                     }
                 });
             })
+
+            // ---------------- Agency Agreement ----------------
+->when(
+    request()->filled("is_agency_agreement_expired") ||
+    request()->filled("agency_agreement_expired_in"),
+    function ($query) {
+        $query->whereHas("latest_property_agreement", function ($subQuery) {
+            if (request()->filled('is_agency_agreement_expired')) {
+                $subQuery->whereDate('end_date', '<', Carbon::today());
+            }
+            if (request()->filled('agency_agreement_expired_in')) {
+                $expiryDays = request()->input('agency_agreement_expired_in');
+                if (is_numeric($expiryDays) && $expiryDays > 0) {
+                    $subQuery->whereDate('end_date', '>', Carbon::today())
+                        ->whereDate('end_date', '<=', Carbon::today()->addDays($expiryDays));
+                }
+            }
+        });
+    }
+)
+
+// ---------------- Tenancy Agreement ----------------
+->when(
+    request()->filled("is_tenancy_agreement_expired") ||
+    request()->filled("tenancy_agreement_expired_in"),
+    function ($query) {
+        $query->whereHas("latest_tenancy_agreement", function ($subQuery) {
+            if (request()->filled('is_tenancy_agreement_expired')) {
+                $subQuery->whereDate('tenant_contact_expired_date', '<', Carbon::today());
+            }
+            if (request()->filled('tenancy_agreement_expired_in')) {
+                $expiryDays = request()->input('tenancy_agreement_expired_in');
+                if (is_numeric($expiryDays) && $expiryDays > 0) {
+                    $subQuery->whereDate('tenant_contact_expired_date', '>', Carbon::today())
+                        ->whereDate('tenant_contact_expired_date', '<=', Carbon::today()->addDays($expiryDays));
+                }
+            }
+        });
+    }
+)
+
             ->when(request()->filled('start_tenancy_agreement_date') || request()->filled('end_tenancy_agreement_date'), function ($query) {
                 $query->whereHas("tenancy_agreements", function ($subQuery) {
 

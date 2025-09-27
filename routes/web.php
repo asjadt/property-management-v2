@@ -52,7 +52,7 @@ Route::get('/migrate', [SetUpController::class, "migrate"]);
 
 
 Route::get("/custom-command",function(Request $request) {
-    Artisan::call('config:clear');
+    Artisan::call('reminder:send');
     return "done";
 });
 

@@ -1048,23 +1048,40 @@ public function getLandlordRentPayablesV2($perPage, Request $request)
                 });
             });
         })
+         
         ->sum('paid_amount');
 
         // 2. Total Paid via Payable (rents already linked to payables)
-        $total_paid = Rent::whereHas('landlord_payables', function($q) use ($request) {
-            $q->where('created_by', $request->user()->id);
-        })->sum('paid_amount');
+        $total_paid = Rent::whereHas('landlord_rent_payables')
+        ->where('created_by', $request->user()->id)
+        ->whereHas("tenancy_agreement", function($q) use ($request) {
+            $q->whereHas('property', function($q) use ($request) {
+                $q->whereHas("property_landlords", function($q) use ($request) {
+                    $q->where('landlords.id', $request->landlord_id);
+                });
+            });
+        })
+         
+        ->sum('paid_amount');
 
         // 3. Total Deducted (all adjustments)
         $total_deducted = RentAdjustment::whereHas('landlord_rent_payable', function($q) use ($request) {
-            $q->where('created_by', $request->user()->id);
+            $q->where('landlord_rent_payables.created_by', $request->user()->id)
+           ->where('landlord_rent_payables.landlord_id', request()->input("landlord_id"));
+
         })->sum('amount');
 
         // 4. Total Unassigned Rent (rents collected but not linked to any payable)
         $total_unassigned_rent = Rent::where('paid_amount', '>', 0)
-            ->whereDoesntHave('landlord_payables', function($q) use ($request) {
-                $q->where('created_by', $request->user()->id);
-            })->sum('paid_amount');
+            ->whereDoesntHave('landlord_rent_payables')
+        ->where('created_by', $request->user()->id)
+        ->whereHas("tenancy_agreement", function($q) use ($request) {
+            $q->whereHas('property', function($q) use ($request) {
+                $q->whereHas("property_landlords", function($q) use ($request) {
+                    $q->where('landlords.id', $request->landlord_id);
+                });
+            });
+        })->sum('paid_amount');
 
         $data_highlights = [
             'total_rent_amount' => $total_rent_amount,

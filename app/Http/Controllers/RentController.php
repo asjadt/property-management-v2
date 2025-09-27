@@ -623,14 +623,26 @@ class RentController extends Controller
           
         
             $tenancy_agreements = TenancyAgreement::
-            
             whereHas("property", function ($query) {
                 $query->where("properties.created_by", auth()->user()->id)
                 ->when(request()->filled("property_ids"), function ($query) {
                 $property_ids = explode(',', request()->input("property_ids"));
                 return  $query->whereIn("properties.id", $property_ids);
+            })
+            ->when(request()->filled("landlord_id"), function ($query) {
+                return $query->whereHas("property_landlords", function ($query) {
+                    $landlord_id = explode(',', request()->input("landlord_id"));
+                    $query->whereIn("landlords.id", $landlord_id);
+                });
+            })
+             ->when(request()->filled("landlord_ids"), function ($query) {
+                return $query->whereHas("property_landlords", function ($query) {
+                    $landlord_ids = explode(',', request()->input("landlord_ids"));
+                    $query->whereIn("landlords.id", $landlord_ids);
+                });
             });
             })
+
             ->get();
 
             error_log(json_encode(["check1", $tenancy_agreements->count()]));
