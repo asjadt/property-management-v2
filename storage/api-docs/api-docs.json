@@ -10490,7 +10490,7 @@
                 "description": "This method is to update email template",
                 "operationId": "updateEmailTemplate",
                 "requestBody": {
-                    "description": "use [FirstName],[LastName],[FullName],[AccountVerificationLink],[ForgotPasswordLink]\n     * [customer_FirstName],[customer_LastName],[customer_FullName],[garage_owner_FirstName],[garage_owner_LastName],[garage_owner_FullName],[automobile_make],[automobile_model],[car_registration_no],[car_registration_year],[status],[payment_status],[additional_information],[discount_type],[discount_amount],[price],[job_start_date],[job_start_time],[job_end_time],[coupon_code],[fuel],[transmission]\n     *  in the template",
+                    "description": "use [FirstName],[LastName],[FullName],[AccountVerificationLink],[ForgotPasswordLink]\r\n     * [customer_FirstName],[customer_LastName],[customer_FullName],[garage_owner_FirstName],[garage_owner_LastName],[garage_owner_FullName],[automobile_make],[automobile_model],[car_registration_no],[car_registration_year],[status],[payment_status],[additional_information],[discount_type],[discount_amount],[price],[job_start_date],[job_start_time],[job_end_time],[coupon_code],[fuel],[transmission]\r\n     *  in the template",
                     "required": true,
                     "content": {
                         "application/json": {
@@ -23933,6 +23933,157 @@
                 ]
             }
         },
+        "/v2.0/landlords": {
+            "get": {
+                "tags": [
+                    "property_management.landlord_management"
+                ],
+                "summary": "This method is to get landlords ",
+                "description": "This method is to get landlords",
+                "operationId": "getLandlordsV2",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "per_page",
+                        "required": false,
+                        "example": "6"
+                    },
+                    {
+                        "name": "landlord_ids ",
+                        "in": "query",
+                        "description": "landlord_ids ",
+                        "required": false,
+                        "example": "1,2"
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "start_date",
+                        "required": false,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "end_date",
+                        "required": false,
+                        "example": "2019-06-29"
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "description": "order_by",
+                        "required": false,
+                        "example": "ASC"
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "search_key",
+                        "required": false,
+                        "example": "search_key"
+                    },
+                    {
+                        "name": "property_id",
+                        "in": "query",
+                        "description": "property_id",
+                        "required": false,
+                        "example": "1"
+                    },
+                    {
+                        "name": "property_ids[]",
+                        "in": "query",
+                        "description": "property_ids",
+                        "required": false,
+                        "example": "1,2"
+                    },
+                    {
+                        "name": "min_total_due",
+                        "in": "query",
+                        "description": "min_total_due",
+                        "required": false,
+                        "example": "1"
+                    },
+                    {
+                        "name": "max_total_due",
+                        "in": "query",
+                        "description": "max_total_due",
+                        "required": false,
+                        "example": "1"
+                    },
+                    {
+                        "name": "min_total_over_due",
+                        "in": "query",
+                        "description": "min_total_over_due",
+                        "required": false,
+                        "example": "1"
+                    },
+                    {
+                        "name": "max_total_over_due",
+                        "in": "query",
+                        "description": "max_total_over_due",
+                        "required": false,
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/v1.0/landlords/optimized/{perPage}": {
             "get": {
                 "tags": [
@@ -25118,6 +25269,143 @@
                 ]
             }
         },
+        "/v2.0/landlord-rent-payables/{perPage}": {
+            "get": {
+                "tags": [
+                    "property_management.landlord_rent_payable"
+                ],
+                "summary": "Get landlord rent payables with detailed data highlights",
+                "description": "Returns landlord rent payables with Total Rent, Total Paid via Payable, Total Deducted, and Total Unassigned Rent",
+                "operationId": "getLandlordRentPayablesV2",
+                "parameters": [
+                    {
+                        "name": "perPage",
+                        "in": "path",
+                        "description": "Number of records per page",
+                        "required": true,
+                        "example": 10
+                    },
+                    {
+                        "name": "search_key",
+                        "in": "query",
+                        "description": "Search by item description or generated ID",
+                        "required": false,
+                        "example": "rent"
+                    },
+                    {
+                        "name": "landlord_id",
+                        "in": "query",
+                        "description": "Filter by landlord ID",
+                        "required": false,
+                        "example": 1
+                    },
+                    {
+                        "name": "rent_id",
+                        "in": "query",
+                        "description": "Filter by related rent ID",
+                        "required": false,
+                        "example": 1
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "Filter from create_date",
+                        "required": false,
+                        "example": "2025-01-01"
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "Filter till create_date",
+                        "required": false,
+                        "example": "2025-09-26"
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filter by status",
+                        "required": false,
+                        "example": "pending"
+                    },
+                    {
+                        "name": "payment_method",
+                        "in": "query",
+                        "description": "Filter by payment method",
+                        "required": false,
+                        "example": "bank_transfer"
+                    },
+                    {
+                        "name": "is_active",
+                        "in": "query",
+                        "description": "Filter by active status (1/0)",
+                        "required": false,
+                        "example": 1
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "description": "Order by ID ASC/DESC",
+                        "required": false,
+                        "example": "DESC"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/v1.0/landlord-rent-payables/get/single/{id}": {
             "get": {
                 "tags": [
@@ -26043,7 +26331,7 @@
                 "description": "This method is to update notification template",
                 "operationId": "updateNotificationTemplate",
                 "requestBody": {
-                    "description": "use [customer_name],[garage_owner_name],[garage_name],\n     *  in the template and use [customer_id], [pre_booking_id],[booking_id],[job_id],[garage_id],[bid_id] in link",
+                    "description": "use [customer_name],[garage_owner_name],[garage_name],\r\n     *  in the template and use [customer_id], [pre_booking_id],[booking_id],[job_id],[garage_id],[bid_id] in link",
                     "required": true,
                     "content": {
                         "application/json": {
@@ -45710,7 +45998,7 @@
                     "client.booking"
                 ],
                 "summary": "This method is to change booking status",
-                "description": "This method is to change booking status.\n     * if status is accepted. the booking will be converted to a job.  and the status of the job will be pending ",
+                "description": "This method is to change booking status.\r\n     * if status is accepted. the booking will be converted to a job.  and the status of the job will be pending ",
                 "operationId": "changeBookingStatusClient",
                 "requestBody": {
                     "required": true,

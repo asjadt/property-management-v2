@@ -619,8 +619,8 @@ class PropertyController extends Controller
                     'documents.*.description' => 'nullable|string',
 
                     'documents.*.document_type_id' => 'required|numeric|exists:document_types,id',
-                    'documents.*.files' => 'required|array',
-                    'documents.*.files.*' => 'string', // File paths or URLs
+                    // 'documents.*.files' => 'required|array',
+                    // 'documents.*.files.*' => 'string', // File paths or URLs
                 ]);
             } catch (ValidationException $e) {
                 return response()->json(['errors' => $e->errors()], 422);
@@ -719,8 +719,8 @@ class PropertyController extends Controller
                     'description' => 'nullable|string',
 
                     'document_type_id' => 'required|numeric|exists:document_types,id',
-                    'files' => 'required|array',
-                    'files.*' => 'string',  // Assuming file paths or URLs are provided as strings
+                    // 'files' => 'required|array',
+                    // 'files.*' => 'string',  // Assuming file paths or URLs are provided as strings
                 ]);
             } catch (ValidationException $e) {
                 return response()->json(['errors' => $e->errors()], 422);
@@ -2294,46 +2294,46 @@ class PropertyController extends Controller
                     });
                 })
 
-                            // ---------------- Agency Agreement ----------------
-->when(
-    request()->filled("is_agency_agreement_expired") ||
-    request()->filled("agency_agreement_expired_in"),
-    function ($query) {
-        $query->whereHas("latest_property_agreement", function ($subQuery) {
-            if (request()->filled('is_agency_agreement_expired')) {
-                $subQuery->whereDate('end_date', '<', Carbon::today());
-            }
-            if (request()->filled('agency_agreement_expired_in')) {
-                $expiryDays = request()->input('agency_agreement_expired_in');
-                if (is_numeric($expiryDays) && $expiryDays > 0) {
-                    $subQuery->whereDate('end_date', '>', Carbon::today())
-                        ->whereDate('end_date', '<=', Carbon::today()->addDays($expiryDays));
-                }
-            }
-        });
-    }
-)
+                // ---------------- Agency Agreement ----------------
+                ->when(
+                    request()->filled("is_agency_agreement_expired") ||
+                        request()->filled("agency_agreement_expired_in"),
+                    function ($query) {
+                        $query->whereHas("latest_property_agreement", function ($subQuery) {
+                            if (request()->filled('is_agency_agreement_expired')) {
+                                $subQuery->whereDate('end_date', '<', Carbon::today());
+                            }
+                            if (request()->filled('agency_agreement_expired_in')) {
+                                $expiryDays = request()->input('agency_agreement_expired_in');
+                                if (is_numeric($expiryDays) && $expiryDays > 0) {
+                                    $subQuery->whereDate('end_date', '>', Carbon::today())
+                                        ->whereDate('end_date', '<=', Carbon::today()->addDays($expiryDays));
+                                }
+                            }
+                        });
+                    }
+                )
 
-// ---------------- Tenancy Agreement ----------------
-->when(
-    request()->filled("is_tenancy_agreement_expired") ||
-    request()->filled("tenancy_agreement_expired_in"),
-    function ($query) {
-      
-        $query->whereHas("latest_tenancy_agreement", function ($subQuery) {
-            if (request()->filled('is_tenancy_agreement_expired')) {
-                $subQuery->whereDate('tenant_contact_expired_date', '<', Carbon::today());
-            }
-            if (request()->filled('tenancy_agreement_expired_in')) {
-                $expiryDays = request()->input('tenancy_agreement_expired_in');
-                if (is_numeric($expiryDays) && $expiryDays > 0) {
-                    $subQuery->whereDate('tenant_contact_expired_date', '>', Carbon::today())
-                        ->whereDate('tenant_contact_expired_date', '<=', Carbon::today()->addDays($expiryDays));
-                }
-            }
-        });
-    }
-)
+                // ---------------- Tenancy Agreement ----------------
+                ->when(
+                    request()->filled("is_tenancy_agreement_expired") ||
+                        request()->filled("tenancy_agreement_expired_in"),
+                    function ($query) {
+
+                        $query->whereHas("latest_tenancy_agreement", function ($subQuery) {
+                            if (request()->filled('is_tenancy_agreement_expired')) {
+                                $subQuery->whereDate('tenant_contact_expired_date', '<', Carbon::today());
+                            }
+                            if (request()->filled('tenancy_agreement_expired_in')) {
+                                $expiryDays = request()->input('tenancy_agreement_expired_in');
+                                if (is_numeric($expiryDays) && $expiryDays > 0) {
+                                    $subQuery->whereDate('tenant_contact_expired_date', '>', Carbon::today())
+                                        ->whereDate('tenant_contact_expired_date', '<=', Carbon::today()->addDays($expiryDays));
+                                }
+                            }
+                        });
+                    }
+                )
 
                 // ->when(request()->filled("document_type_id"), function ($query) {
                 //     $query->whereHas("documents", function ($subQuery) {
@@ -3120,13 +3120,13 @@ class PropertyController extends Controller
                     "repairs.repair_category",
                     "invoices" => function ($query) {
                         $query->with([
-            "landlords" => function ($q) {
-                $q->select("landlords.id", "landlords.generated_id");
-        },
-             "landlord_rent_payable" => function ($q) {
-                $q->select("landlord_rent_payables.id", "landlord_rent_payables.generated_id");
-            }
-        ]);
+                            "landlords" => function ($q) {
+                                $q->select("landlords.id", "landlords.generated_id");
+                            },
+                            "landlord_rent_payable" => function ($q) {
+                                $q->select("landlord_rent_payables.id", "landlord_rent_payables.generated_id");
+                            }
+                        ]);
                     },
                     "documents",
                     "maintenance_item_types",
