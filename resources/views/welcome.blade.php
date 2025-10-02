@@ -14,33 +14,26 @@
 </head>
 
 <body>
-    <div class="container">
-        <div class="row mt-5">
-            <div class="col-md-3">
-                <a href="{{ env('APP_URL') }}/api/documentation#/" class="btn btn-primary" target="_blank">Api Doc</a>
-            </div>
-            {{-- <div class="col-md-3">
-            <a href="{{env('APP_URL')}}/setup" class="btn btn-primary" target="_blank">Clear Every Thing</a>
-        </div> --}}
-            <div class="col-md-3">
-                <a href="{{ env('APP_URL') }}/swagger-refresh" class="btn btn-primary" target="_blank">Swagger
-                    Refresh</a>
-            </div>
-            <div class="col-md-3">
-                <a href="{{ env('APP_URL') }}/automobile-refresh" class="btn btn-primary" target="_blank">Automobile
-                    Refresh</a>
-            </div>
-            <div class="col-md-3">
-                <a href="{{ env('APP_URL') }}/roleRefresh" class="btn btn-primary" target="_blank">Role Refresh </a>
-            </div>
+    <div class="container my-5">
+        <div class="row mt-5 gap-2">
+            {{-- swagger doc --}}
+            <x-link-button :link="env('APP_URL') . '/api/documentation#/'" label="API Documentation" type="success" />
+
+            {{-- swagger refresh --}}
+            <x-link-button :link="env('APP_URL') . '/swagger-refresh'" label="Swagger Refresh" type="primary" />
+
+            {{-- migrate --}}
+            <x-link-button :link="env('APP_URL') . '/migrate'" label="Migrate" type="danger" />
+
+            {{-- role refresh --}}
+            <x-link-button :link="env('APP_URL') . '/roleRefresh'" label="Role Refresh" type="danger" />
+
+            {{-- error log --}}
+            <x-link-button :link="env('APP_URL') . '/error-log'" label="Activity Logs" type="danger" />
         </div>
-        <div class="col-md-3">
-            <a href="{{ env('APP_URL') }}/error-log" class="btn btn-danger" target="_blank">Error Log </a>
-        </div>
+    </div>
 
 
-    </div>
-    </div>
 
     <!-- Optional JavaScript; choose one of the two! -->
 
