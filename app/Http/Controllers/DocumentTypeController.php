@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\DocumentTypeCreateRequest;
-use App\Http\Requests\DocumentTypeUpdateRequest;
+use App\Http\Requests\DocumentTypeRequest;
 use App\Http\Utils\BasicUtil;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
@@ -73,7 +72,7 @@ class DocumentTypeController extends Controller
      *     )
      */
 
-    public function createDocumentType(DocumentTypeCreateRequest $request)
+    public function createDocumentType(DocumentTypeRequest $request)
     {
         try {
             $this->storeActivity($request, "");
@@ -151,7 +150,7 @@ class DocumentTypeController extends Controller
      *     )
      */
 
-    public function updateDocumentType(DocumentTypeUpdateRequest $request)
+    public function updateDocumentType(DocumentTypeRequest $request)
     {
         try {
             $this->storeActivity($request, "");
@@ -467,7 +466,7 @@ class DocumentTypeController extends Controller
             $this->storeActivity($request, "");
 
 
-            if(!auth()->user()->hasRole("superadmin")) {
+            if (!auth()->user()->hasRole("superadmin")) {
                 $business = Business::where([
                     "owner_id" => $request->user()->id
                 ])->first();
@@ -482,17 +481,16 @@ class DocumentTypeController extends Controller
                         "message" => "invalid pin"
                     ], 401);
                 }
-
             }
 
             DocumentType::where([
                 "id" => $id
             ])
-            ->where([
-                "created_by" => auth()->user()->id
-            ])
+                ->where([
+                    "created_by" => auth()->user()->id
+                ])
                 ->delete();
-            
+
 
             return response()->json(["ok" => true], 200);
         } catch (Exception $e) {

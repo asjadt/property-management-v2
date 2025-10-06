@@ -2,9 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\ValidDocumentType;
 use Illuminate\Foundation\Http\FormRequest;
 
-class DocumentTypeUpdateRequest extends FormRequest
+class DocumentTypeRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,13 +24,17 @@ class DocumentTypeUpdateRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            "id" => "required|numeric",
+        $rules = [
             "name" => "required|string",
             "icon" => "nullable|string",
-
             "description" => "nullable|string",
             "is_active" => "nullable|boolean"
         ];
+
+        if ($this->method() == "patch" || $this->method() == "put") {
+            $rules["id"] = ["required", 'integer', new ValidDocumentType()];
+        }
+
+        return $rules;
     }
 }
