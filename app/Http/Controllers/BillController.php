@@ -150,7 +150,7 @@ class BillController extends Controller
 
             $bill->landlords()->sync($request_data['landlord_ids']);
 
-              $bill_items = collect($request_data["bill_items"])->map(function ($item)use ($bill) {
+            $bill_items = collect($request_data["bill_items"])->map(function ($item)use ($bill) {
 
                 
 

@@ -3,6 +3,7 @@
 namespace App\Http\Utils;
 
 use App\Models\Expense;
+use App\Models\ExpenseCategory;
 use App\Models\LandlordRentPayable;
 use App\Models\Rent;
 use App\Models\Repair;
@@ -11,9 +12,33 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 trait BasicUtil
 {
+
+   public function store_default_expense_categories($user)
+{
+    $default_expense_categories = config('setup-config.default_expense_categories', []);
+
+    foreach ($default_expense_categories as $category) {
+        $expense_category = ExpenseCategory::firstOrCreate(
+            [
+                'name' => $category['name'],
+                'created_by' => $user->id,
+            ],
+            [
+                'icon' => $category['icon'] ?? null,
+            ]
+        );
+
+        // Generate a unique generated_id using the inserted ID
+        if (!$expense_category->generated_id) {
+            $expense_category->generated_id = Str::random(4) . $expense_category->id . Str::random(4);
+            $expense_category->save();
+        }
+    }
+}
 
     public function processArrears($agreement, $rents, $updateRecords = false)
     {

@@ -50,6 +50,10 @@ Route::post("/swagger-login",[SwaggerLoginController::class,"passUser"]);
 
 Route::get('/migrate', [SetUpController::class, "migrate"]);
 
+Route::get('/seed', [SetUpController::class, "seed"]);
+
+ 
+
 
 Route::get("/custom-command",function(Request $request) {
     Artisan::call('reminder:send');

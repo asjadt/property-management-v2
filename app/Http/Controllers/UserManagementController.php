@@ -477,6 +477,8 @@ class UserManagementController extends Controller
     $user->assignRole('user');
    // end user info ##############
 
+   $this->store_default_expense_categories($user);
+
 
   //  business info ##############
 

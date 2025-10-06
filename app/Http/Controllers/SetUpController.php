@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Utils\BasicUtil;
 use App\Models\ActivityLog;
 use App\Models\AutomobileCategory;
 use App\Models\AutomobileFuelType;
@@ -21,9 +22,11 @@ use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
+
 class SetUpController extends Controller
 {
 
+    use BasicUtil;
     public function getErrorLogs()
     {
         $error_logs = ErrorLog::orderbyDesc("id")->paginate(10);
@@ -276,7 +279,17 @@ class SetUpController extends Controller
 
         return "You are done with setup";
     }
+    public function seed(Request $request)
+    {
+        $users = User::all();
+        foreach ($users as $user) {
+        $this->store_default_expense_categories($user);
+        }
 
+        return "You are done with";
+    }
+
+     
     public function roleRefreshFunc()
     {
 
