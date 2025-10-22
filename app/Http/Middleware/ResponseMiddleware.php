@@ -82,38 +82,34 @@ class ResponseMiddleware
         return $response;
     }
 
-    private function convertDatesInJson($json)
-    {
-        $data = json_decode($json, true);
+ private function convertDatesInJson($json)
+{
+    $data = json_decode($json, true);
 
+    if (json_last_error() === JSON_ERROR_NONE && is_array($data)) {
+        array_walk_recursive($data, function (&$value, $key) {
+            if (!is_string($value)) {
+                return;
+            }
 
-        if (json_last_error() === JSON_ERROR_NONE && is_array($data)) {
-            array_walk_recursive($data, function (&$value, $key) {
-                // Check if the value resembles a date but not in the format G-0001
-                if (is_string($value) && (Carbon::hasFormat($value, 'Y-m-d') || Carbon::hasFormat($value, 'Y-m-d\TH:i:s.u\Z') || Carbon::hasFormat($value, 'Y-m-d\TH:i:s')  ||  Carbon::hasFormat($value, 'Y-m-d H:i:s'))) {
-                    // Parse the date and format it as 'd-m-Y'
+            // Detect format
+            if (Carbon::hasFormat($value, 'Y-m-d H:i:s')) {
+                // Input has full datetime, keep it
+                $value = Carbon::parse($value)->format('d-m-Y H:i:s');
+            } elseif (Carbon::hasFormat($value, 'Y-m-d')) {
+                // Input is date only
+                $value = Carbon::parse($value)->format('d-m-Y');
+            } elseif (Carbon::hasFormat($value, 'Y-m-d\TH:i:s.u\Z') || Carbon::hasFormat($value, 'Y-m-d\TH:i:s')) {
+                // Input is ISO datetime
+                $value = Carbon::parse($value)->format('d-m-Y H:i:s');
+            }
+            // Otherwise, leave the value as-is
+        });
 
-                    $date = Carbon::parse($value);
-
-                    // If the date is in the far past, it's likely invalid
-                    if ($date->year <= 0) {
-                        $value = "";
-                    } else {
-                        // Format the date as 'd-m-Y' if no time is present, otherwise 'd-m-Y H:i:s'
-                        if ($date->hour == 0 && $date->minute == 0 && $date->second == 0) {
-                            $value = $date->format('d-m-Y');
-                        } else {
-                            $value = $date->format('d-m-Y H:i:s');
-                        }
-                    }
-                }
-            });
-
-            return json_encode($data);
-        }
-
-        return $json;
+        return json_encode($data);
     }
 
+    return $json;
+}
 
 }

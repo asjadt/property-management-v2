@@ -399,7 +399,7 @@ class PropertyBasicController extends Controller
             "tenancy_agreement.property",
             fn($q) => $q->where("properties.id", $property->id)
         )
-        
+
             ->when($start_date, fn($q) => $q->whereDate('payment_date', "<", $start_date))
             ->sum('paid_amount');
 
@@ -747,6 +747,9 @@ class PropertyBasicController extends Controller
             ->when(request()->filled("property_id"), function ($query) {
                 $query->where("invoices.property_id", request()->input("property_id"));
             })
+            ->when(request()->filled("property_ids"), function ($query) {
+                $query->whereIn("invoices.property_id", request()->input("property_ids"));
+            })
             ->whereHas("landlords", fn($q) => $q->where("landlords.id", $landlord_id))
             ->when($start_date, fn($q) => $q->whereDate("invoice_date", "<", $start_date))
             ->sum("total_amount");
@@ -757,6 +760,9 @@ class PropertyBasicController extends Controller
                     $query->where("created_by", auth()->user()->id)
                         ->when(request()->filled("property_id"), function ($query) {
                             $query->where("invoices.property_id", request()->input("property_id"));
+                        })
+                         ->when(request()->filled("property_ids"), function ($query) {
+                            $query->whereIn("invoices.property_id", request()->input("property_ids"));
                         })
                         ->whereNotIn("invoices.status", ['draft'])
                         ->whereHas("landlords", fn($q) => $q->where("landlords.id", $landlord_id));
@@ -769,6 +775,13 @@ class PropertyBasicController extends Controller
             "landlord_id" => $landlord_id,
             "created_by" => $request->user()->id
         ])
+        ->when(request()->filled("property_ids"), function($query) {
+           $query->whereHas("rents", function($query) {
+              $query->wherehas("tenancy_agreement",function($query) {
+                 $query->whereIn("tenancy_agreements.property_id",request()->input("property_ids"));
+              });
+           });
+        })
             ->when($start_date, fn($q) => $q->whereDate("create_date", "<", $start_date))
             ->get()->map(function ($item) {
                 $item->paid_amount = $item->rents->sum("paid_amount");
@@ -786,6 +799,9 @@ class PropertyBasicController extends Controller
             ->when(request()->filled("property_id"), function ($query) {
                 $query->where("invoices.property_id", request()->input("property_id"));
             })
+             ->when(request()->filled("property_ids"), function ($query) {
+                $query->whereIn("invoices.property_id", request()->input("property_ids"));
+            })
             ->whereHas("landlords", fn($q) => $q->where("landlords.id", $landlord_id))
             ->when($request->start_date, fn($q) => $q->whereDate("invoice_date", ">=", $request->start_date))
             ->when($request->end_date, fn($q) => $q->whereDate("invoice_date", "<=", $request->end_date))
@@ -800,6 +816,13 @@ class PropertyBasicController extends Controller
             "landlord_id" => $landlord_id,
             "created_by" => $request->user()->id,
         ])
+         ->when(request()->filled("property_ids"), function($query) {
+           $query->whereHas("rents", function($query) {
+              $query->wherehas("tenancy_agreement",function($query) {
+                 $query->whereIn("tenancy_agreements.property_id",request()->input("property_ids"));
+              });
+           });
+        })
             ->when($request->start_date, fn($q) => $q->whereDate("create_date", ">=", $request->start_date))
             ->when($request->end_date, fn($q) => $q->whereDate("create_date", "<=", $request->end_date))
             ->select('landlord_rent_payables.*', "total_amount as amount", "create_date as date", "item_description")
@@ -833,7 +856,7 @@ class PropertyBasicController extends Controller
         foreach ($invoice_payments as $row) {
             $ledger->push([
                 "date" => $row->date,
-                "transaction" => "Invoice Payment Received - Amount: " . number_format($row->amount, 2),
+                "transaction" => "Invoice Payment Received",
                 "debit" => 0.0,
                 "credit" => (float) $row->amount,
                 "notes" => "Payment received"
@@ -844,7 +867,7 @@ class PropertyBasicController extends Controller
         foreach ($landlord_rent_payables as $row) {
             $ledger->push([
                 "date" => $row->date,
-                "transaction" => "Landlord Rent Payable - Amount: " . number_format($row->rents->sum("paid_amount"), 2),
+                "transaction" => "Landlord Rent Payable",
                 "debit" => (float) $row->rents->sum("paid_amount"),
                 "credit" => 0.0,
                 "notes" => $row->item_description ?? "Payable to landlord"
@@ -882,6 +905,11 @@ class PropertyBasicController extends Controller
                 "total_credits" => $total_credits,
                 "closing_balance" => $closing_balance
             ],
+
+            "properties" => Property::whereIn("id",(request()->has("property_ids")?request()->input("property_ids"):[-1]))
+            ->select("properties.id", "properties.address")
+            ->get(),
+
             "ledger" => $ledger
         ], 200);
     } catch (Exception $e) {
@@ -1894,12 +1922,12 @@ COALESCE(
 
             $data["property_agreement_report"] = $this->getPropertyAgreementReport();
 
-            
+
 
             $data["maintainance_report"] = $this->getMaintainanceReport();
             $data["overall_maintainance_report"] = $this->getOverallMaintainanceReport();
 
-      
+
 
 
 
