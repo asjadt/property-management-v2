@@ -383,6 +383,7 @@ class PropertyBasicController extends Controller
             "property_id" => $property->id,
             "created_by" => $request->user()->id
         ])
+
             ->whereNotIn("invoices.status", ['draft'])
             ->when($start_date, fn($q) => $q->whereDate('invoice_date', "<", $start_date))
             ->sum('total_amount');
@@ -532,7 +533,7 @@ class PropertyBasicController extends Controller
         foreach ($repairs as $row) {
             $ledger->push([
                 'date' => $row->date,
-                'transaction' => 'Repair Paid - Amount: ' . number_format($row->amount, 2),
+                'transaction' => 'Repair Paid',
                 'debit' => 0.0,
                 'credit' => (float)$row->amount,
                 'notes' => $row->description ?? 'Repair paid by management'
@@ -541,7 +542,7 @@ class PropertyBasicController extends Controller
         foreach ($expenses as $row) {
             $ledger->push([
                 'date' => $row->date,
-                'transaction' => 'Expense Paid - Amount: ' . number_format($row->amount, 2),
+                'transaction' => 'Expense Paid',
                 'debit' => 0.0,
                 'credit' => (float)$row->amount,
                 'notes' => $row->description ?? 'Expenses paid by management'
@@ -564,7 +565,7 @@ class PropertyBasicController extends Controller
         foreach ($invoice_payments as $row) {
             $ledger->push([
                 "date" => Carbon::parse($row->date)->format('Y-m-d'),
-                'transaction' => 'Invoice Payment Received from Landlord - Amount: ' . number_format($row->amount, 2),
+                'transaction' => 'Invoice Payment Received from Landlord',
                 'debit' => (float)$row->amount,
                 'credit' => 0.0,
                 'notes' => 'Payment received from landlord'
@@ -575,7 +576,7 @@ class PropertyBasicController extends Controller
         foreach ($rents as $row) {
             $ledger->push([
                 'date' => $row->date,
-                'transaction' => 'Rent Collected from Tenant - Amount: ' . number_format($row->amount, 2),
+                'transaction' => 'Rent Collected from Tenant',
                 'debit' => (float)$row->amount,
                 'credit' => 0.0,
                 'notes' => 'Rent collected by management'
@@ -586,7 +587,7 @@ class PropertyBasicController extends Controller
         foreach ($landlord_rent_payables as $row) {
             $ledger->push([
                 'date' => $row->date,
-                'transaction' => 'Paid to Landlord - Amount: ' . number_format($row->rents->sum('paid_amount'), 2),
+                'transaction' => 'Paid to Landlord',
                 'debit' => 0.0,
                 'credit' => (float)$row->rents->sum('paid_amount'),
                 'notes' => $row->item_description ?? 'Payable to landlord'
@@ -626,7 +627,8 @@ class PropertyBasicController extends Controller
                 'total_credits' => $total_credits,
                 'closing_balance' => $closing_balance
             ],
-            'ledger' => $ledger
+            'ledger' => $ledger,
+            "properties" => [$property]
         ], 200);
 
     } catch (Exception $e) {
