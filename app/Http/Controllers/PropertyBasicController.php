@@ -842,7 +842,7 @@ class PropertyBasicController extends Controller
                 ->select("properties.id", "properties.address")
                 ->get();
 
-            $propertyAddresses = $properties->pluck('address', 'id');
+
 
 
             // -------------------------
@@ -864,21 +864,22 @@ class PropertyBasicController extends Controller
             //         "date" => Carbon::parse($row->date)->format('Y-m-d'),
             //         "transaction" => "Invoice Issued - Amount: " . number_format($row->amount, 2),
             //         "debit" => (float) $row->amount,
-            //         "credit" => 0.0,
+            //         "credi         t" => 0.0,
             //         "notes" => "Invoice issued"
             //     ]);
             // }
 
             // Invoice payments received -> Credit
             foreach ($invoice_payments as $row) {
+                $invoice = $row->invoice;
                 $ledger->push([
                     "date" => $row->date,
                     "transaction" => "Invoice Payment Received",
                     "debit" => 0.0,
                     "credit" => (float) $row->amount,
                     "notes" => "Payment received",
-                    "invoice_id" => $row->invoice_id,
-                    "property_address" => $propertyAddresses[$row->property_id] ?? null,
+                    "invoice_id" => $invoice->id,
+                    "property_address" => $invoice?->property?->address,
                 ]);
             }
 
