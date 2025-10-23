@@ -24,25 +24,29 @@ class PropertyCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'=>"nullable|string",
-            'image'=>"nullable|string",
-            'address'=>"nullable|string",
-            'country'=>"required|string",
-            'city'=>"required|string",
-            'postcode'=>"required|string",
+            'name' => "nullable|string",
+            'image' => "nullable|string",
+            'address' => "nullable|string",
+            'country' => "required|string",
+            'city' => "required|string",
+            'postcode' => "required|string",
             "town" => "nullable|string",
             'lat' => 'nullable|numeric',
             'long' => 'nullable|numeric',
-            'type'=>"required|string",
+            'type' => "required|string",
             'reference_no' => 'required|string|max:255',
 
- 
+
 
             'tenant_ids' => 'nullable|array',
             'tenant_ids.*' => 'nullable|exists:tenants,id',
 
             'landlord_ids' => 'present|array',
             'landlord_ids.*' => 'numeric|exists:landlords,id',
+
+            //
+            "min_price" => "nullable|numeric",
+            "max_price" => "nullable|numeric|gt:min_price",
 
         ];
     }

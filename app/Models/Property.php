@@ -37,11 +37,17 @@ class Property extends Model
         'property_road',
         'is_dss',
         'county',
-        "created_by"
+        "created_by",
+
+        // 2ND MIGRATION
+        "min_price",
+        "max_price",
 
     ];
     protected $casts = [
         'images' => 'array',
+        'min_price' => 'decimal:2',
+        'max_price' => 'decimal:2',
     ];
     public function user()
     {
@@ -54,34 +60,34 @@ class Property extends Model
     }
 
     public function latest_documents()
-{
-    return $this->hasMany(PropertyDocument::class)
-        ->select('property_documents.*')  // Select all columns of the PropertyDocument model
-        ->distinct('document_type_id')    // Ensure only unique document_type_id records are selected
-        ->orderByDesc('gas_start_date');  // Specify which column determines the latest record
-}
+    {
+        return $this->hasMany(PropertyDocument::class)
+            ->select('property_documents.*')  // Select all columns of the PropertyDocument model
+            ->distinct('document_type_id')    // Ensure only unique document_type_id records are selected
+            ->orderByDesc('gas_start_date');  // Specify which column determines the latest record
+    }
 
     public function inspections()
     {
-        return $this->hasMany(TenantInspection::class,"property_id","id");
+        return $this->hasMany(TenantInspection::class, "property_id", "id");
     }
 
     public function tenancy_agreements()
     {
-        return $this->hasMany(TenancyAgreement::class,"property_id","id");
+        return $this->hasMany(TenancyAgreement::class, "property_id", "id");
     }
-      public function latest_tenancy_agreement()
-{
-    return $this->hasOne(TenancyAgreement::class,"property_id","id")
- 
-        ->orderByDesc('tenant_contact_expired_date');  // Specify which column determines the latest record
-}
+    public function latest_tenancy_agreement()
+    {
+        return $this->hasOne(TenancyAgreement::class, "property_id", "id")
 
-     public function latest_property_agreement()
-{
-    return $this->hasOne(PropertyAgreement::class,"property_id","id")
-        ->orderByDesc('end_date');  // Specify which column determines the latest record
-}
+            ->orderByDesc('tenant_contact_expired_date');  // Specify which column determines the latest record
+    }
+
+    public function latest_property_agreement()
+    {
+        return $this->hasOne(PropertyAgreement::class, "property_id", "id")
+            ->orderByDesc('end_date');  // Specify which column determines the latest record
+    }
 
 
     public function latest_inspection()
@@ -91,26 +97,26 @@ class Property extends Model
     }
 
 
-    public function property_tenants() {
+    public function property_tenants()
+    {
         return $this->belongsToMany(Tenant::class, 'property_tenants', 'property_id', 'tenant_id');
     }
 
 
-    public function property_landlords() {
+    public function property_landlords()
+    {
         return $this->belongsToMany(Landlord::class, 'property_landlords', 'property_id', 'landlord_id');
     }
 
 
-    public function maintenance_item_types() {
-        return $this->belongsToMany(MaintenanceItemType::class, 'maintenance_item_properties',
-        'property_id',
-        'maintenance_item_type_id'
-    );
-
-
-
-
-
+    public function maintenance_item_types()
+    {
+        return $this->belongsToMany(
+            MaintenanceItemType::class,
+            'maintenance_item_properties',
+            'property_id',
+            'maintenance_item_type_id'
+        );
     }
 
 
@@ -119,17 +125,18 @@ class Property extends Model
 
 
 
-    public function repairs() {
-        return $this->hasMany(Repair::class,'property_id','id');
+    public function repairs()
+    {
+        return $this->hasMany(Repair::class, 'property_id', 'id');
     }
-    public function invoices() {
-        return $this->hasMany(Invoice::class,'property_id','id')
-        ->select('*', DB::raw('
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class, 'property_id', 'id')
+            ->select('*', DB::raw('
         COALESCE(
             invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
             invoices.total_amount
         ) AS total_due
     '));
     }
-
 }

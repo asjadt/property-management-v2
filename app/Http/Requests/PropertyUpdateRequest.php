@@ -25,16 +25,16 @@ class PropertyUpdateRequest extends FormRequest
     {
         return [
             'id' => "required|numeric|exists:properties,id",
-            'name'=>"nullable|string",
-            'image'=>"nullable|string",
-            'address'=>"nullable|string",
-            'country'=>"required|string",
-            'city'=>"required|string",
-            'postcode'=>"required|string",
+            'name' => "nullable|string",
+            'image' => "nullable|string",
+            'address' => "nullable|string",
+            'country' => "required|string",
+            'city' => "required|string",
+            'postcode' => "required|string",
             'town' => "nullable|string",
             'lat' => 'nullable|numeric',
             'long' => 'nullable|numeric',
-            'type'=>"required|string",
+            'type' => "required|string",
             'reference_no' => 'required|string|max:255',
 
 
@@ -44,6 +44,10 @@ class PropertyUpdateRequest extends FormRequest
 
             'landlord_ids' => 'present|array',
             'landlord_ids.*' => 'numeric|exists:landlords,id',
+
+            //
+            "min_price" => "nullable|numeric",
+            "max_price" => "nullable|numeric|gt:min_price",
         ];
     }
 }

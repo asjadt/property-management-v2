@@ -64,6 +64,10 @@ class PropertyUpdateRequestV2 extends FormRequest
             'is_dss' => 'nullable|required_if:category,let_property,manage_property|boolean',
             'maintenance_item_type_ids' => 'present|array',
             'maintenance_item_type_ids.*' => 'nullable|exists:maintenance_item_types,id',
+
+            //
+            "min_price" => "nullable|numeric",
+            "max_price" => "nullable|numeric|gt:min_price",
         ];
     }
     public function messages()

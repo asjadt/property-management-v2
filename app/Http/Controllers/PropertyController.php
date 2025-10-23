@@ -487,7 +487,9 @@ class PropertyController extends Controller
                                 'property_road',
                                 'is_dss',
                                 'county',
-                                "created_by"
+                                "created_by",
+                                "min_price",
+                                "max_price",
                             ]
 
                         )
