@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Utils\BasicUtil;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
+use App\Models\Accreditation;
 use App\Models\Bill;
 use App\Models\Client;
 use App\Models\DocumentType;
@@ -563,9 +564,15 @@ class PropertyBasicController extends Controller
 
             // Invoice payments from landlord -> Credit
             foreach ($invoice_payments as $row) {
+
+        $invoice = $row->invoice;
+    $property_address = $invoice?->property?->address ?? 'N/A';
+    $invoice_id = $invoice->id ?? 'N/A';
+
+
                 $ledger->push([
                     "date" => Carbon::parse($row->date)->format('Y-m-d'),
-                    'transaction' => 'Invoice Payment Received from Landlord',
+            "transaction" => "Payment received for Invoice #{$invoice_id} (Property: {$property_address})",
                     'debit' => (float)$row->amount,
                     'credit' => 0.0,
                     'notes' => 'Payment received from landlord'
@@ -870,18 +877,19 @@ class PropertyBasicController extends Controller
             // }
 
             // Invoice payments received -> Credit
-            foreach ($invoice_payments as $row) {
-                $invoice = $row->invoice;
-                $ledger->push([
-                    "date" => $row->date,
-                    "transaction" => "Invoice Payment Received",
-                    "debit" => 0.0,
-                    "credit" => (float) $row->amount,
-                    "notes" => "Payment received",
-                    "invoice_id" => $invoice->id,
-                    "property_address" => $invoice?->property?->address,
-                ]);
-            }
+          foreach ($invoice_payments as $row) {
+    $invoice = $row->invoice;
+    $property_address = $invoice?->property?->address ?? 'N/A';
+    $invoice_id = $invoice->id ?? 'N/A';
+
+    $ledger->push([
+        "date" => $row->date,
+        "transaction" => "Payment received for Invoice #{$invoice_id} (Property: {$property_address})",
+        "debit" => 0.0,
+        "credit" => (float) $row->amount,
+        "notes" => "Payment received",
+    ]);
+}
 
             // Landlord rent payable -> Credit (cash received by landlord)
             foreach ($landlord_rent_payables as $row) {
@@ -1942,9 +1950,14 @@ COALESCE(
             $data["property_agreement_report"] = $this->getPropertyAgreementReport();
 
 
+            $data["accreditation_report"] = $this->getAccreditationReport();
+
+
+
 
             $data["maintainance_report"] = $this->getMaintainanceReport();
             $data["overall_maintainance_report"] = $this->getOverallMaintainanceReport();
+
 
 
 
@@ -2297,6 +2310,42 @@ COALESCE(
                 })->count(),
         ];
     }
+public function getAccreditationReport()
+{
+    $base_query = Accreditation::where("created_by", auth()->user()->id);
+
+    return [
+        'total_data' => (clone $base_query)->count(),
+
+        'total_expired' => (clone $base_query)
+            ->whereDate('accreditation_expiry_date', '<', Carbon::today())
+            ->count(),
+
+        'today_expiry' => (clone $base_query)
+            ->whereDate('accreditation_expiry_date', Carbon::today())
+            ->count(),
+
+        'expires_in_15_days' => (clone $base_query)
+            ->whereDate('accreditation_expiry_date', '>', Carbon::today())
+            ->whereDate('accreditation_expiry_date', '<=', Carbon::today()->addDays(15))
+            ->count(),
+
+        'expires_in_30_days' => (clone $base_query)
+            ->whereDate('accreditation_expiry_date', '>', Carbon::today()->addDays(15))
+            ->whereDate('accreditation_expiry_date', '<=', Carbon::today()->addDays(30))
+            ->count(),
+
+        'expires_in_45_days' => (clone $base_query)
+            ->whereDate('accreditation_expiry_date', '>', Carbon::today()->addDays(30))
+            ->whereDate('accreditation_expiry_date', '<=', Carbon::today()->addDays(45))
+            ->count(),
+
+        'expires_in_60_days' => (clone $base_query)
+            ->whereDate('accreditation_expiry_date', '>', Carbon::today()->addDays(45))
+            ->whereDate('accreditation_expiry_date', '<=', Carbon::today()->addDays(60))
+            ->count(),
+    ];
+}
 
 
     public function getOverallMaintainanceReport()

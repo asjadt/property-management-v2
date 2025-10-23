@@ -24,8 +24,7 @@ class Accreditation extends Model
         "created_by"
     ];
 
-    protected $casts = [
-                 ];
+
 
 
 

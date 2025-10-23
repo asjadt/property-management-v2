@@ -372,7 +372,27 @@ class AccreditationController extends Controller
             })
             ->when(request()->filled("end_date"), function ($query) {
                 return $query->whereDate('accreditations.created_at', "<=", request()->input("end_date"));
-            });
+            })
+             // 🔹 EXPIRATION FILTERS (same logic as tenancy agreement)
+        ->when(
+            request()->filled("is_accreditation_expired") ||
+            request()->filled("accreditation_expired_in"),
+            function ($query) {
+                if (request()->filled('is_accreditation_expired')) {
+                    $query->whereDate('accreditations.accreditation_expiry_date', '<', Carbon::today());
+                }
+
+                if (request()->filled('accreditation_expired_in')) {
+                    $expiry_days = request()->input('accreditation_expired_in');
+                    if (is_numeric($expiry_days) && $expiry_days > 0) {
+                        $query->whereDate('accreditations.accreditation_expiry_date', '>', Carbon::today())
+                            ->whereDate('accreditations.accreditation_expiry_date', '<=', Carbon::today()->addDays($expiry_days));
+                    }
+                }
+            }
+        )
+
+            ;
     }
 
 
@@ -401,6 +421,22 @@ class AccreditationController extends Controller
      * required=false,
      * example=""
      * ),
+     *
+     *   * @OA\Parameter(
+     * name="is_accreditation_expired",
+     * in="query",
+     * description="is_accreditation_expired",
+     * required=false,
+     * example=""
+     * ),
+     *  *   * @OA\Parameter(
+     * name="accreditation_expired_in",
+     * in="query",
+     * description="accreditation_expired_in",
+     * required=false,
+     * example=""
+     * ),
+     *
      * @OA\Parameter(
      * name="start_accreditation_start_date",
      * in="query",
