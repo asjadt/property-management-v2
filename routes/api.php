@@ -38,6 +38,8 @@ use App\Http\Controllers\GarageServiceController;
 use App\Http\Controllers\GarageServicePriceController;
 use App\Http\Controllers\GarageTimesController;
 use App\Http\Controllers\HolderEntityController;
+use App\Http\Controllers\InventoryItemController;
+use App\Http\Controllers\InventoryLocationController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\InvoicePaymentController;
 use App\Http\Controllers\InvoiceReminderController;
@@ -592,8 +594,8 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('/v1.0/landlord-rent-payables', [LandlordRentPayableController::class, "createLandlordRentPayable"]);
     Route::put('/v1.0/landlord-rent-payables', [LandlordRentPayableController::class, "updateLandlordRentPayable"]);
     Route::get('/v1.0/landlord-rent-payables/{perPage}', [LandlordRentPayableController::class, "getLandlordRentPayables"]);
-  Route::get('/v2.0/landlord-rent-payables/{perPage}', [LandlordRentPayableController::class, "getLandlordRentPayablesV2"]);
-    
+    Route::get('/v2.0/landlord-rent-payables/{perPage}', [LandlordRentPayableController::class, "getLandlordRentPayablesV2"]);
+
     Route::get('/v1.0/landlord-rent-payables/get/single/{id}', [LandlordRentPayableController::class, "getLandlordRentPayableById"]);
     Route::delete('/v1.0/landlord-rent-payables/{id}', [LandlordRentPayableController::class, "deleteLandlordRentPayableById"]);
 
@@ -1492,6 +1494,31 @@ Route::middleware(['auth:api'])->group(function () {
 
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     // end product  management section
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+
+
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // start inventory management section
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+    // Inventory item management
+    Route::post('/v1.0/inventory-items', [InventoryItemController::class, "createInventoryItem"]);
+    Route::put('/v1.0/inventory-items', [InventoryItemController::class, "updateInventoryItem"]);
+    Route::get('/v1.0/inventory-items', [InventoryItemController::class, "getInventoryItems"]);
+    Route::get('/v1.0/inventory-items/{id}', [InventoryItemController::class, "getInventoryItemById"]);
+    Route::delete('/v1.0/inventory-items/{ids}', [InventoryItemController::class, "deleteInventoryItemById"]);
+
+    // INVENTORY LOCATION
+    Route::post('/v1.0/inventory-locations', [InventoryLocationController::class, "createInventoryLocation"]);
+    Route::put('/v1.0/inventory-locations', [InventoryLocationController::class, "updateInventoryLocation"]);
+    Route::get('/v1.0/inventory-locations', [InventoryLocationController::class, "getInventoryLocations"]);
+    Route::get('/v1.0/inventory-locations/{id}', [InventoryLocationController::class, "getInventoryLocationById"]);
+    Route::delete('/v1.0/inventory-locations/{ids}', [InventoryLocationController::class, "deleteInventoryLocationById"]);
+
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // end inventory  management section
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 
