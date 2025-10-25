@@ -128,9 +128,16 @@ class SetUpController extends Controller
     // swaggerRefresh
     public function swaggerRefresh()
     {
+        Artisan::call('optimize:clear');
+        Artisan::call('config:clear');
+        Artisan::call('cache:clear');
+        Artisan::call('view:clear');
+        Artisan::call('route:clear');
         Artisan::call('l5-swagger:generate');
-        return "swagger generated";
+
+        return "Swagger documentation regenerated successfully";
     }
+
     public function setUp(Request $request)
     {
         // @@@@@@@@@@@@@@@@@@@
@@ -283,13 +290,13 @@ class SetUpController extends Controller
     {
         $users = User::all();
         foreach ($users as $user) {
-        $this->store_default_expense_categories($user);
+            $this->store_default_expense_categories($user);
         }
 
         return "You are done with";
     }
 
-     
+
     public function roleRefreshFunc()
     {
 
