@@ -29,7 +29,7 @@ class InventoryLocationRequest extends FormRequest
             'description' => 'nullable|string',
         ];
 
-        if ($this->isMethod('post') || $this->isMethod('put')) {
+        if ($this->isMethod('patch') || $this->isMethod('put')) {
             $rules['id'] = [
                 'required',
                 'integer',
