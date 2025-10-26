@@ -3,7 +3,8 @@
 
 namespace App\Http\Requests;
 
-
+use App\Rules\ValidateInventoryItem;
+use App\Rules\ValidateInventoryLocation;
 use Illuminate\Foundation\Http\FormRequest;
 
 
@@ -30,14 +31,16 @@ class PropertyInventoryCreateRequest extends FormRequest
 
         $rules = [
 
-            'item_name' => [
+            'inventory_item_id' => [
                 'required',
-                'string'
+                'integer',
+                new ValidateInventoryItem(),
             ],
 
-            'item_location' => [
+            'inventory_location_id' => [
                 'required',
-                'string'
+                'integer',
+                new ValidateInventoryLocation(),
             ],
 
             'item_quantity' => [
