@@ -54,6 +54,7 @@ use App\Http\Controllers\PaymentTypeController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PropertyAgreementController;
+use App\Http\Controllers\PropertyAppointmentController;
 use App\Http\Controllers\PropertyBasicController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\PropertyInventoryController;
@@ -1522,15 +1523,12 @@ Route::middleware(['auth:api'])->group(function () {
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 
-
-
-
-
-
-
-
-
-
+    // Create appointment
+    Route::post('/v1.0/appointments', [PropertyAppointmentController::class, 'createAppointment']);
+    Route::get('/v1.0/appointments', [PropertyAppointmentController::class, 'getAppointments']);
+    Route::get('/v1.0/appointments/{id}', [PropertyAppointmentController::class, 'getAppointmentById']);
+    Route::put('/v1.0/appointments/{id}', [PropertyAppointmentController::class, 'updateAppointment']);
+    Route::delete('/v1.0/appointments/{id}', [PropertyAppointmentController::class, 'deleteAppointmentById']);
 });
 
 // !!!!!!!@@@@@@@@@@@@$$$$$$$$$$$$%%%%%%%%%%%%%%%%^^^^^^^^^^
