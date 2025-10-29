@@ -34,7 +34,7 @@ class PropertyCreateRequestV2 extends FormRequest
             'documents.*.gas_end_date' => "required|date",
             'documents.*.description' => "nullable|string",
             'documents.*.document_type_id' => "required|numeric|exists:document_types,id",
-            'documents.*.files' => "required|array",
+            'documents.*.files' => "present|array",
             'documents.*.files.*' => "string",
 
 
@@ -88,5 +88,4 @@ class PropertyCreateRequestV2 extends FormRequest
             'category.in' => 'The type must be one of the following: let_property, manage_property, sale_property.',
         ];
     }
-
 }
