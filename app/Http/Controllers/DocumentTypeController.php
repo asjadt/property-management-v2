@@ -108,7 +108,7 @@ class DocumentTypeController extends Controller
      *  @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *            required={"id","name","description","is_active"},
+     *            required={"id","name","is_active"},
      * *    @OA\Property(property="id", type="number", format="number",example="1"),
      *    @OA\Property(property="name", type="string", format="string",example="car"),
      *    @OA\Property(property="description", type="string", format="string",example="car"),
@@ -156,23 +156,14 @@ class DocumentTypeController extends Controller
             $this->storeActivity($request, "");
             return  DB::transaction(function () use ($request) {
 
-                $request_data = $request->validated();
+                $payload_data = $request->validated();
 
+                $document_types  =  DocumentType::findOrFail($payload_data["id"]);
 
+                $document_types->update($payload_data);
+                $document_types->refresh();
 
-                $fuel_station  =  tap(DocumentType::where(["id" => $request_data["id"]]))->update(
-                    collect($request_data)->only([
-                        "name",
-                        "icon",
-                        "description",
-                        "is_active",
-                    ])->toArray()
-                )
-                    // ->with("somthing")
-
-                    ->first();
-
-                return response($fuel_station, 201);
+                return response($document_types, 201);
             });
         } catch (Exception $e) {
             error_log($e->getMessage());

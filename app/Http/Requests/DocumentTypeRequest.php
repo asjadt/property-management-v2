@@ -31,7 +31,7 @@ class DocumentTypeRequest extends FormRequest
             "is_active" => "nullable|boolean"
         ];
 
-        if ($this->method() == "patch" || $this->method() == "put") {
+        if ($this->isMethod('put') || $this->isMethod('patch')) {
             $rules["id"] = ["required", 'integer', new ValidDocumentType()];
         }
 
