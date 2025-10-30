@@ -118,16 +118,56 @@ class PropertyAppointment extends Model
     /**
      * Scope to filter by employee
      */
-    // public function scopeByEmployee(Builder $query, $employeeId = null)
-    // {
-    //     $employeeId = $employeeId ?? request('employee_id');
+    public function scopeByEmployee(Builder $query, $employeeId = null)
+    {
+        $employeeId = $employeeId ?? request('employee_id');
 
-    //     if (empty($employeeId)) {
-    //         return $query;
-    //     }
+        if (empty($employeeId)) {
+            return $query;
+        }
 
-    //     return $query->where('employee_id', 'like', '%' . $employeeId . '%');
-    // }
+        return $query->where('employee_id', 'like', '%' . $employeeId . '%');
+    }
+
+    /**
+     * Scope for sorting
+     * @param Builder $query
+     * @param string|null $sortBy - Column to sort by (default: 'id')
+     * @param string|null $orderBy - Direction ASC or DESC (default: 'DESC')
+     */
+    public function scopeSort(Builder $query, $sortBy = null, $orderBy = null)
+    {
+        // Get sort column from parameter or request, default to 'id'
+        $sortBy = $sortBy ?? request('sort_by', 'id');
+
+        // Get sort direction from parameter or request, default to 'DESC'
+        $orderBy = $orderBy ?? request('order_by', 'DESC');
+
+        // Allowed columns for sorting (security measure)
+        $allowedSortColumns = [
+            'id',
+            'job_type',
+            'employee_id',
+            'start_time',
+            'end_time',
+            'property_id',
+            'created_at',
+            'updated_at'
+        ];
+
+        // Validate sort column
+        if (!in_array($sortBy, $allowedSortColumns)) {
+            $sortBy = 'id';
+        }
+
+        // Validate order direction
+        $orderBy = strtoupper($orderBy);
+        if (!in_array($orderBy, ['ASC', 'DESC'])) {
+            $orderBy = 'DESC';
+        }
+
+        return $query->orderBy($sortBy, $orderBy);
+    }
 
     /**
      * Main filter scope - combines all filters
@@ -136,8 +176,9 @@ class PropertyAppointment extends Model
     {
         return $query->createdByUser(auth()->id())
             ->search()
-            ->dateRange()
+            ->dateTimeRange()
             ->byProperty()
-            ->byJobType();
+            ->byJobType()
+            ->byEmployee();
     }
 }

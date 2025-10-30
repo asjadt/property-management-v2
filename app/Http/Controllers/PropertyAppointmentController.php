@@ -285,15 +285,20 @@ class PropertyAppointmentController extends Controller
         try {
             $this->storeActivity($request, "");
 
-            $appointments = PropertyAppointment::filter()
-                ->paginate(request('per_page', 10));
+            $query = PropertyAppointment::filter()->sort();
+
+            // Check if per_page exists, then paginate, otherwise get all
+            if ($request->filled('per_page')) {
+                $appointments = $query->paginate($request->per_page);
+            } else {
+                $appointments = $query->get();
+            }
 
             return response()->json($appointments, 200);
         } catch (Exception $e) {
             return $this->sendError($e, 500, $request);
         }
     }
-
     /**
      * @OA\Delete(
      *      path="/v1.0/appointments/{id}",
