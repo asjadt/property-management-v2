@@ -2,7 +2,7 @@
 
 namespace App\Rules;
 
-use App\Models\Appointment;
+use App\Models\PropertyAppointment;
 use Illuminate\Contracts\Validation\Rule;
 
 class ValidateAppointment implements Rule
@@ -26,7 +26,7 @@ class ValidateAppointment implements Rule
      */
     public function passes($attribute, $value)
     {
-        return Appointment::where('id', $value)->exists();
+        return PropertyAppointment::where('id', $value)->exists();
     }
 
     /**

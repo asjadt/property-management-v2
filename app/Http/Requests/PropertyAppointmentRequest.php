@@ -15,7 +15,7 @@ class PropertyAppointmentRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -28,8 +28,8 @@ class PropertyAppointmentRequest extends FormRequest
         $rules = [
             'job_type' => 'required|string|max:255',
             'employee_id' => 'required|string|max:255',
-            'start_time' => 'required|date|date_format:Y-m-d H:i:s', // Changed to datetime format
-            'end_time' => 'required|date|date_format:Y-m-d H:i:s|after:start_time', // Changed to datetime format
+            'start_time' => 'required|date',
+            'end_time' => 'required|date|after:start_time',
             'description' => 'nullable|string',
             'property_id' => ['nullable', 'integer', new ValidProperty()],
         ];

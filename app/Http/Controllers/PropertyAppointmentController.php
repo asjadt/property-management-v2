@@ -101,19 +101,11 @@ class PropertyAppointmentController extends Controller
      *      },
      *      summary="This method is to update property appointment",
      *      description="This method is to update property appointment",
-     *
-     *      @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Appointment ID",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *      ),
-     *
      *      @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
      *            required={"job_type","employee_id","start_time","end_time","property_id"},
+     *            @OA\Property(property="id", type="integer", format="string", example="1"),
      *            @OA\Property(property="job_type", type="string", format="string", example="Inspection"),
      *            @OA\Property(property="employee_id", type="string", format="string", example="John Doe"),
      *            @OA\Property(property="start_time", type="string", format="datetime", example="2025-10-30 14:00:00"),
@@ -154,14 +146,14 @@ class PropertyAppointmentController extends Controller
      *      )
      * )
      */
-    public function updateAppointment(PropertyAppointmentRequest $request, $id)
+    public function updateAppointment(PropertyAppointmentRequest $request)
     {
         try {
             $this->storeActivity($request, "");
-            return DB::transaction(function () use ($request, $id) {
+            return DB::transaction(function () use ($request) {
                 $request_data = $request->validated();
 
-                $appointment = PropertyAppointment::where('id', $id)
+                $appointment = PropertyAppointment::where('id', $request_data['id'])
                     ->where('created_by', auth()->id())
                     ->firstOrFail();
 
