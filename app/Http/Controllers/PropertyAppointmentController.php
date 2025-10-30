@@ -9,6 +9,7 @@ use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\PropertyAppointment;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -92,7 +93,7 @@ class PropertyAppointmentController extends Controller
 
     /**
      * @OA\Put(
-     *      path="/v1.0/appointments",
+     *      path="/v1.0/appointments/{id}",
      *      operationId="updateAppointment",
      *      tags={"property_management.appointment_management"},
      *      security={
@@ -153,35 +154,33 @@ class PropertyAppointmentController extends Controller
      *      )
      * )
      */
-    public function updateAppointment(PropertyAppointmentRequest $request)
+    public function updateAppointment(PropertyAppointmentRequest $request, $id)
     {
         try {
             $this->storeActivity($request, "");
-            return DB::transaction(function () use ($request) {
+            return DB::transaction(function () use ($request, $id) {
                 $request_data = $request->validated();
 
-                // Find the appointment
-                $appointment = PropertyAppointment::findOrFail($request_data["id"]);
+                $appointment = PropertyAppointment::where('id', $id)
+                    ->where('created_by', auth()->id())
+                    ->firstOrFail();
 
-                // Optional: Check if user has permission to update this appointment
-                // if ($appointment->created_by != auth()->id()) {
-                //     return response()->json(['message' => 'Unauthorized'], 403);
-                // }
-
-                // Remove id from update data
-                unset($request_data['id']);
-
-                // Update the appointment
                 $appointment->update($request_data);
                 $appointment->refresh();
 
                 return response($appointment, 200);
             });
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                "message" => "Appointment not found or you don't have permission to update it"
+            ], 404);
         } catch (Exception $e) {
             error_log($e->getMessage());
             return $this->sendError($e, 500, $request);
         }
     }
+
+
     /**
      * @OA\Get(
      *      path="/v1.0/appointments",
