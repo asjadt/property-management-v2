@@ -17,8 +17,8 @@ class CreatePropertyAppointmentTable extends Migration
             $table->id();
             $table->string('job_type');
             $table->string('employee_id');
-            $table->date('start_date');
-            $table->date('end_date');
+            $table->dateTime('start_time');
+            $table->dateTime('end_time');
             $table->longText('description')->nullable();
             $table->foreignId('property_id')->constrained('properties')->cascadeOnDelete();
             $table->foreignId('created_by')->nullable()->constrained('users')->cascadeOnDelete();

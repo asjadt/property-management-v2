@@ -28,8 +28,8 @@ class PropertyAppointmentRequest extends FormRequest
         $rules = [
             'job_type' => 'required|string|max:255',
             'employee_id' => 'required|string|max:255',
-            'start_date' => 'required|date|date_format:d-m-Y',
-            'end_date' => 'required|date|date_format:d-m-Y|after_or_equal:start_date',
+            'start_time' => 'required|date|date_format:Y-m-d H:i:s', // Changed to datetime format
+            'end_time' => 'required|date|date_format:Y-m-d H:i:s|after:start_time', // Changed to datetime format
             'description' => 'nullable|string',
             'property_id' => ['nullable', 'integer', new ValidProperty()],
         ];
@@ -45,7 +45,10 @@ class PropertyAppointmentRequest extends FormRequest
     public function messages()
     {
         return [
-            'end_date.after_or_equal' => 'The end date must be equal to or after the start date.',
+            'end_time.after' => 'The end time must be after the start time.',
+            'employee_id.required' => 'The employee name is required.',
+            'start_time.date_format' => 'The start time must be in format: Y-m-d H:i:s (e.g., 2025-10-30 14:30:00)',
+            'end_time.date_format' => 'The end time must be in format: Y-m-d H:i:s (e.g., 2025-10-30 16:30:00)',
         ];
     }
 }

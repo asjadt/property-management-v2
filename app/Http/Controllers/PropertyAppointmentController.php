@@ -30,11 +30,11 @@ class PropertyAppointmentController extends Controller
      *      @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *            required={"job_type","employee_id","start_date","end_date","property_id"},
+     *            required={"job_type","employee_id","start_time","end_time","property_id"},
      *            @OA\Property(property="job_type", type="string", format="string", example="Inspection"),
-     *            @OA\Property(property="employee_id", type="string", format="string", example=""),
-     *            @OA\Property(property="start_date", type="string", format="date", example="2025-11-01"),
-     *            @OA\Property(property="end_date", type="string", format="date", example="2025-11-05"),
+     *            @OA\Property(property="employee_id", type="string", format="string", example="John Doe"),
+     *            @OA\Property(property="start_time", type="string", format="datetime", example="2025-10-30 14:00:00"),
+     *            @OA\Property(property="end_time", type="string", format="datetime", example="2025-10-30 16:00:00"),
      *            @OA\Property(property="description", type="string", format="string", example="Property inspection for maintenance"),
      *            @OA\Property(property="property_id", type="integer", format="int64", example=1),
      *         ),
@@ -101,15 +101,22 @@ class PropertyAppointmentController extends Controller
      *      summary="This method is to update property appointment",
      *      description="This method is to update property appointment",
      *
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Appointment ID",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *      ),
+     *
      *      @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *            required={"id","job_type","employee_id","start_date","end_date","property_id"},
-     *            @OA\Property(property="id", type="integer", format="int64", example=1),
+     *            required={"job_type","employee_id","start_time","end_time","property_id"},
      *            @OA\Property(property="job_type", type="string", format="string", example="Inspection"),
      *            @OA\Property(property="employee_id", type="string", format="string", example="John Doe"),
-     *            @OA\Property(property="start_date", type="string", format="date", example="2025-11-01"),
-     *            @OA\Property(property="end_date", type="string", format="date", example="2025-11-05"),
+     *            @OA\Property(property="start_time", type="string", format="datetime", example="2025-10-30 14:00:00"),
+     *            @OA\Property(property="end_time", type="string", format="datetime", example="2025-10-30 16:00:00"),
      *            @OA\Property(property="description", type="string", format="string", example="Updated property inspection details"),
      *            @OA\Property(property="property_id", type="integer", format="int64", example=1),
      *         ),

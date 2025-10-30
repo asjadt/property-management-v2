@@ -18,16 +18,16 @@ class PropertyAppointment extends Model
     protected $fillable = [
         'job_type',
         'employee_id',
-        'start_date',
-        'end_date',
+        'start_time',
+        'end_time',
         'description',
         'property_id',
         'created_by',
     ];
 
     protected $casts = [
-        'start_date' => 'date',
-        'end_date' => 'date',
+        'start_time' => 'datetime', // Cast to datetime (UTC by default)
+        'end_time' => 'datetime',   // Cast to datetime (UTC by default)
     ];
 
     // Relationships
@@ -70,24 +70,23 @@ class PropertyAppointment extends Model
     }
 
     /**
-     * Scope to filter by date range
+     * Scope to filter by datetime range
      */
-    public function scopeDateRange(Builder $query, $startDate = null, $endDate = null)
+    public function scopeDateTimeRange(Builder $query, $startTime = null, $endTime = null)
     {
-        $startDate = $startDate ?? request('start_date');
-        $endDate = $endDate ?? request('end_date');
+        $startTime = $startTime ?? request('start_time');
+        $endTime = $endTime ?? request('end_time');
 
-        if (!empty($startDate)) {
-            $query->where('start_date', '>=', $startDate);
+        if (!empty($startTime)) {
+            $query->where('start_time', '>=', $startTime);
         }
 
-        if (!empty($endDate)) {
-            $query->where('start_date', '<=', $endDate);
+        if (!empty($endTime)) {
+            $query->where('start_time', '<=', $endTime);
         }
 
         return $query;
     }
-
     /**
      * Scope to filter by property
      */
