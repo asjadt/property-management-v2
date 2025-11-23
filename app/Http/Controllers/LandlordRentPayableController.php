@@ -294,141 +294,141 @@ class LandlordRentPayableController extends Controller
      *     )
      */
 
-//     public function createLandlordRentPayable(LandlordRentPayableCreateRequest $request)
-//     {
-//         try {
-//             $this->storeActivity($request, "");
+    //     public function createLandlordRentPayable(LandlordRentPayableCreateRequest $request)
+    //     {
+    //         try {
+    //             $this->storeActivity($request, "");
 
-//             return DB::transaction(function () use ($request) {
+    //             return DB::transaction(function () use ($request) {
 
-//                 $request_data = $request->validated();
-
-
-//                 $request_data['created_by'] = $request->user()->id;
-
-//                 // Create main record
-//                 $landlord_rent_payable = LandlordRentPayable::create($request_data);
-
-//                 // Generate random ID
-//                 $landlord_rent_payable->generated_id = Str::random(4) . $landlord_rent_payable->id . Str::random(4);
-//                 $landlord_rent_payable->save();
-
-//                 $payableRentIds = [];
-
-//                 // Create related rents
-//                 if (!empty($request_data['payable_rents'])) {
-//                     foreach ($request_data['payable_rents'] as $rentData) {
-//                         $rent = LandlordPayableRent::create([
-//                             'landlord_rent_payable_id' => $landlord_rent_payable->id,
-//                             'rent_id' => $rentData['rent_id']
-//                         ]);
-//                         $payableRentIds[] = $rent->rent_id;
-//                     }
-//                 }
+    //                 $request_data = $request->validated();
 
 
-//                 // Create related rent adjustments
-//                 if (!empty($request_data['rent_adjustments'])) {
-//                     foreach ($request_data['rent_adjustments'] as $adjData) {
+    //                 $request_data['created_by'] = $request->user()->id;
 
-//                         if (!empty($adjData["repair_id"])) {
-//                             $valid_repair =  Repair::where([
-//                                 "id" => $adjData["repair_id"]
-//                             ])
-//                                  ->whereDoesntHave('invoice_items',function ($query) use ($landlord_rent_payable) {
-//                                     $query->whereHas("invoice", function ($query) use ($landlord_rent_payable) {
+    //                 // Create main record
+    //                 $landlord_rent_payable = LandlordRentPayable::create($request_data);
 
-//                                         $query->whereNotIn("invoices.landlord_rent_payable_id", [$landlord_rent_payable->id]);
-//                                     });
+    //                 // Generate random ID
+    //                 $landlord_rent_payable->generated_id = Str::random(4) . $landlord_rent_payable->id . Str::random(4);
+    //                 $landlord_rent_payable->save();
 
-//                                 })
-//                                 // ->where([
-//                                 //     "paid_by" => "agent"
-//                                 // ])
-//                                 ->first();
-//                             if (!$valid_repair) {
-//                                 $error =  [
-//                                     "message" => "The given data was invalid.",
-//                                     "errors" => ["invoice_items" => ["invalid repair item"]]
-//                                 ];
-//                                 throw new Exception(json_encode($error), 422);
-//                             }
+    //                 $payableRentIds = [];
 
-//                             $valid_repair->paid_by = "landlord";
-//                             $valid_repair->save();
-//                         }
-//                         if (!empty($adjData["expense_id"])) {
-//                             $valid_expense =  Expense::where([
-//                                 "id" => $adjData["expense_id"]
-//                             ])
-//                                 ->whereDoesntHave('invoice_items',function ($query) use ($landlord_rent_payable) {
-//                                     $query->whereHas("invoice", function ($query) use ($landlord_rent_payable) {
-
-//                                         $query->whereNotIn("invoices.landlord_rent_payable_id", [$landlord_rent_payable->id]);
-//                                     });
-
-//                                 })
-//                                 ->whereDoesntHave('rent_adjustments', function ($query) use ($landlord_rent_payable) {
-//                                     $query->whereNotIn("landlord_rent_payable_id", [$landlord_rent_payable->id]);
-//                                 })
-//                                 // ->where([
-//                                 //     "paid_by" => "agent"
-//                                 // ])
-//                                 ->first();
-//                             if (!$valid_expense) {
-//                                 $error =  [
-//                                     "message" => "The given data was invalid.",
-//                                     "errors" => ["invoice_items" => ["invalid expense item"]]
-//                                 ];
-//                                 throw new Exception(json_encode($error), 422);
-//                             }
-//                             $valid_expense->paid_by = "landlord";
-//                             $valid_expense->save();
-//                         }
+    //                 // Create related rents
+    //                 if (!empty($request_data['payable_rents'])) {
+    //                     foreach ($request_data['payable_rents'] as $rentData) {
+    //                         $rent = LandlordPayableRent::create([
+    //                             'landlord_rent_payable_id' => $landlord_rent_payable->id,
+    //                             'rent_id' => $rentData['rent_id']
+    //                         ]);
+    //                         $payableRentIds[] = $rent->rent_id;
+    //                     }
+    //                 }
 
 
+    //                 // Create related rent adjustments
+    //                 if (!empty($request_data['rent_adjustments'])) {
+    //                     foreach ($request_data['rent_adjustments'] as $adjData) {
 
+    //                         if (!empty($adjData["repair_id"])) {
+    //                             $valid_repair =  Repair::where([
+    //                                 "id" => $adjData["repair_id"]
+    //                             ])
+    //                                  ->whereDoesntHave('invoice_items',function ($query) use ($landlord_rent_payable) {
+    //                                     $query->whereHas("invoice", function ($query) use ($landlord_rent_payable) {
 
-//                         RentAdjustment::create([
-//                             'landlord_rent_payable_id' => $landlord_rent_payable->id,
-//                             'amount' => $adjData['amount'],
-//                             'description' => $adjData['description'] ?? null,
-//                             "files" => $adjData["files"] ?? [],
-//                             'expense_id' => $adjData['expense_id'] ?? null,
-//                             'repair_id' => $adjData['repair_id'] ?? null,
-//                         ]);
-//                     }
-//                 }
+    //                                         $query->whereNotIn("invoices.landlord_rent_payable_id", [$landlord_rent_payable->id]);
+    //                                     });
 
-//                 // Calculate total_amount
-//                 $total_rent_amount = !empty($payableRentIds) ? Rent::whereIn('id', $payableRentIds)->sum('paid_amount') : 0;
+    //                                 })
+    //                                 // ->where([
+    //                                 //     "paid_by" => "agent"
+    //                                 // ])
+    //                                 ->first();
+    //                             if (!$valid_repair) {
+    //                                 $error =  [
+    //                                     "message" => "The given data was invalid.",
+    //                                     "errors" => ["invoice_items" => ["invalid repair item"]]
+    //                                 ];
+    //                                 throw new Exception(json_encode($error), 422);
+    //                             }
 
-//                 $adjustment_amount = $landlord_rent_payable->rent_adjustments()->sum('amount');
+    //                             $valid_repair->paid_by = "landlord";
+    //                             $valid_repair->save();
+    //                         }
+    //                         if (!empty($adjData["expense_id"])) {
+    //                             $valid_expense =  Expense::where([
+    //                                 "id" => $adjData["expense_id"]
+    //                             ])
+    //                                 ->whereDoesntHave('invoice_items',function ($query) use ($landlord_rent_payable) {
+    //                                     $query->whereHas("invoice", function ($query) use ($landlord_rent_payable) {
 
-//                 $landlord_rent_payable->total_amount = $total_rent_amount + $adjustment_amount;
-//                 $landlord_rent_payable->save();
+    //                                         $query->whereNotIn("invoices.landlord_rent_payable_id", [$landlord_rent_payable->id]);
+    //                                     });
 
-//                 // Load relations
-//                 $landlord_rent_payable->load(['payable_rents.rent', 'rent_adjustments', 'creator']);
-
-
-// $business = Business::where("owner_id", $request->user()->id)->first();
-// $this->handleLandlordInvoice($landlord_rent_payable, $request_data, $business, auth()->user(),$total_rent_amount);
+    //                                 })
+    //                                 ->whereDoesntHave('rent_adjustments', function ($query) use ($landlord_rent_payable) {
+    //                                     $query->whereNotIn("landlord_rent_payable_id", [$landlord_rent_payable->id]);
+    //                                 })
+    //                                 // ->where([
+    //                                 //     "paid_by" => "agent"
+    //                                 // ])
+    //                                 ->first();
+    //                             if (!$valid_expense) {
+    //                                 $error =  [
+    //                                     "message" => "The given data was invalid.",
+    //                                     "errors" => ["invoice_items" => ["invalid expense item"]]
+    //                                 ];
+    //                                 throw new Exception(json_encode($error), 422);
+    //                             }
+    //                             $valid_expense->paid_by = "landlord";
+    //                             $valid_expense->save();
+    //                         }
 
 
 
 
-//                 return response()->json($landlord_rent_payable, 201);
-//             });
-//         } catch (Exception $e) {
-//             return $this->sendError($e, 500, $request);
-//         }
-//     }
+    //                         RentAdjustment::create([
+    //                             'landlord_rent_payable_id' => $landlord_rent_payable->id,
+    //                             'amount' => $adjData['amount'],
+    //                             'description' => $adjData['description'] ?? null,
+    //                             "files" => $adjData["files"] ?? [],
+    //                             'expense_id' => $adjData['expense_id'] ?? null,
+    //                             'repair_id' => $adjData['repair_id'] ?? null,
+    //                         ]);
+    //                     }
+    //                 }
+
+    //                 // Calculate total_amount
+    //                 $total_rent_amount = !empty($payableRentIds) ? Rent::whereIn('id', $payableRentIds)->sum('paid_amount') : 0;
+
+    //                 $adjustment_amount = $landlord_rent_payable->rent_adjustments()->sum('amount');
+
+    //                 $landlord_rent_payable->total_amount = $total_rent_amount + $adjustment_amount;
+    //                 $landlord_rent_payable->save();
+
+    //                 // Load relations
+    //                 $landlord_rent_payable->load(['payable_rents.rent', 'rent_adjustments', 'creator']);
+
+
+    // $business = Business::where("owner_id", $request->user()->id)->first();
+    // $this->handleLandlordInvoice($landlord_rent_payable, $request_data, $business, auth()->user(),$total_rent_amount);
 
 
 
 
-   public function createLandlordRentPayable(LandlordRentPayableCreateRequest $request)
+    //                 return response()->json($landlord_rent_payable, 201);
+    //             });
+    //         } catch (Exception $e) {
+    //             return $this->sendError($e, 500, $request);
+    //         }
+    //     }
+
+
+
+
+    public function createLandlordRentPayable(LandlordRentPayableCreateRequest $request)
     {
         try {
             $this->storeActivity($request, "");
@@ -450,13 +450,13 @@ class LandlordRentPayableController extends Controller
                 $payableRentIds = [];
 
 
-                if($request_data["invoice_id"]) {
+                // if($request_data["invoice_id"]) {
 
-                     Invoice::where([
-                        "id" => $request_data["invoice_id"]
-                     ])
-                     ->delete();
-                }
+                //      Invoice::where([
+                //         "id" => $request_data["invoice_id"]
+                //      ])
+                //      ->delete();
+                // }
 
 
 
@@ -480,12 +480,11 @@ class LandlordRentPayableController extends Controller
                             $valid_repair =  Repair::where([
                                 "id" => $adjData["repair_id"]
                             ])
-                                 ->whereDoesntHave('invoice_items',function ($query) use ($landlord_rent_payable) {
+                                ->whereDoesntHave('invoice_items', function ($query) use ($landlord_rent_payable) {
                                     $query->whereHas("invoice", function ($query) use ($landlord_rent_payable) {
 
                                         $query->whereNotIn("invoices.landlord_rent_payable_id", [$landlord_rent_payable->id]);
                                     });
-
                                 })
                                 // ->where([
                                 //     "paid_by" => "agent"
@@ -506,12 +505,11 @@ class LandlordRentPayableController extends Controller
                             $valid_expense =  Expense::where([
                                 "id" => $adjData["expense_id"]
                             ])
-                                ->whereDoesntHave('invoice_items',function ($query) use ($landlord_rent_payable) {
+                                ->whereDoesntHave('invoice_items', function ($query) use ($landlord_rent_payable) {
                                     $query->whereHas("invoice", function ($query) use ($landlord_rent_payable) {
 
                                         $query->whereNotIn("invoices.landlord_rent_payable_id", [$landlord_rent_payable->id]);
                                     });
-
                                 })
                                 ->whereDoesntHave('rent_adjustments', function ($query) use ($landlord_rent_payable) {
                                     $query->whereNotIn("landlord_rent_payable_id", [$landlord_rent_payable->id]);
@@ -557,8 +555,8 @@ class LandlordRentPayableController extends Controller
                 $landlord_rent_payable->load(['payable_rents.rent', 'rent_adjustments', 'creator']);
 
 
-$business = Business::where("owner_id", $request->user()->id)->first();
-$this->handleLandlordInvoice($landlord_rent_payable, $request_data, $business, auth()->user(),$total_rent_amount);
+                $business = Business::where("owner_id", $request->user()->id)->first();
+                $this->handleLandlordInvoice($landlord_rent_payable, $request_data, $business, auth()->user(), $total_rent_amount);
 
 
 
@@ -680,7 +678,7 @@ $this->handleLandlordInvoice($landlord_rent_payable, $request_data, $business, a
                     'created_by' => $request->user()->id
                 ])->firstOrFail();
 
-             $this->adjust_rent_and_expense_on_rent_payable_delete($landlord_rent_payable->id);
+                $this->adjust_rent_and_expense_on_rent_payable_delete($landlord_rent_payable->id);
 
 
                 // Update main fields (excluding total_amount)
@@ -709,12 +707,11 @@ $this->handleLandlordInvoice($landlord_rent_payable, $request_data, $business, a
                             $valid_repair =  Repair::where([
                                 "id" => $adjData["repair_id"]
                             ])
-                                ->whereDoesntHave('invoice_items',function ($query) use ($landlord_rent_payable) {
+                                ->whereDoesntHave('invoice_items', function ($query) use ($landlord_rent_payable) {
                                     $query->whereHas("invoice", function ($query) use ($landlord_rent_payable) {
 
                                         $query->whereNotIn("invoices.landlord_rent_payable_id", [$landlord_rent_payable->id]);
                                     });
-
                                 })
                                 ->whereDoesntHave('rent_adjustments', function ($query) use ($landlord_rent_payable) {
                                     $query->whereNotIn("landlord_rent_payable_id", [$landlord_rent_payable->id]);
@@ -737,11 +734,10 @@ $this->handleLandlordInvoice($landlord_rent_payable, $request_data, $business, a
                             $valid_expense =  Expense::where([
                                 "id" => $adjData["expense_id"]
                             ])
-                              ->whereDoesntHave('invoice_items',function ($query) use ($landlord_rent_payable) {
+                                ->whereDoesntHave('invoice_items', function ($query) use ($landlord_rent_payable) {
                                     $query->whereHas("invoice", function ($query) use ($landlord_rent_payable) {
                                         $query->whereNotIn("invoices.landlord_rent_payable_id", [$landlord_rent_payable->id]);
                                     });
-
                                 })
                                 ->whereDoesntHave('rent_adjustments', function ($query) use ($landlord_rent_payable) {
                                     $query->whereNotIn("landlord_rent_payable_id", [$landlord_rent_payable->id]);
@@ -787,7 +783,7 @@ $this->handleLandlordInvoice($landlord_rent_payable, $request_data, $business, a
                 $landlord_rent_payable->load(['payable_rents.rent', 'rent_adjustments', 'creator']);
 
                 $business = Business::where("owner_id", $request->user()->id)->first();
-$this->handleLandlordInvoice($landlord_rent_payable, $validated, $business, $request->user(),$total_rent_amount);
+                $this->handleLandlordInvoice($landlord_rent_payable, $validated, $business, $request->user(), $total_rent_amount);
 
 
 
@@ -799,90 +795,90 @@ $this->handleLandlordInvoice($landlord_rent_payable, $validated, $business, $req
         }
     }
 
-    protected function handleLandlordInvoice(LandlordRentPayable $landlord_rent_payable, array $request_data, Business $business, $user,$total_rent_amount)
-{
-    // Delete previous invoices related to this rent payable
-    $existingInvoices = Invoice::where('landlord_rent_payable_id', $landlord_rent_payable->id)->get();
-    foreach ($existingInvoices as $invoice) {
-        // Delete invoice items
-        InvoiceItem::where('invoice_id', $invoice->id)->delete();
-        // Delete invoice payments
-        InvoicePayment::where('invoice_id', $invoice->id)->delete();
-        // Delete invoice itself
-        $invoice->delete();
-    }
-
-    $adjustment_amount = $landlord_rent_payable->rent_adjustments()->sum('amount');
-
-    if (!empty($request_data['rent_adjustments']) && $adjustment_amount < 0) {
-
-        $current_number = 1;
-        do {
-            $invoice_reference = str_pad($current_number, 4, '0', STR_PAD_LEFT);
-            $current_number++;
-        } while (
-            Invoice::where([
-                'invoice_reference' => $invoice_reference,
-                'created_by' => $user->id
-            ])->exists()
-        );
-
-        $invoice_data = [
-            "logo" => $business->logo,
-            "invoice_title" => $business->invoice_title ?? "Invoice",
-            "invoice_reference" => $invoice_reference,
-            "business_name" => $business->name,
-            "business_address" => $business->address_line_1,
-            "invoice_date" => $landlord_rent_payable->create_date,
-            "due_date" => $landlord_rent_payable->create_date,
-            "footer_text" => $business->footer_text ?? "Thanks for business with us",
-            "property_id" => $landlord_rent_payable->payable_rents()->first()?->rent?->tenancy_agreement?->property_id ?? null,
-            "status" => ($total_rent_amount + $adjustment_amount < 0) ? "partial" : "paid",
-            "sub_total" => -$adjustment_amount,
-            "total_amount" => -$adjustment_amount,
-            "landlord_rent_payable_id" => $landlord_rent_payable->id,
-            "created_by" => $user->id,
-        ];
-
-        $invoice = Invoice::create($invoice_data);
-
-        $invoice->generated_id = Str::random(4) . $invoice->id . Str::random(4);
-        $invoice->shareable_link = env("FRONT_END_URL_DASHBOARD") . "/share/invoice/" . Str::random(4) . "-" . $invoice->generated_id . "-" . Str::random(4);
-        $invoice->save();
-
-        $invoice->landlords()->sync([$request_data['landlord_id']]);
-
-        foreach ($request_data['rent_adjustments'] as $adjData) {
-            InvoiceItem::create([
-                "name" => $adjData["description"] ?? "",
-                "description" => $adjData["description"] ?? "",
-                "quantity" => 1,
-                "price" => -$adjData["amount"],
-                "tax" => 0,
-                "amount" => -$adjData["amount"],
-                "repair_id" => $adjData["repair_id"] ?? null,
-                "expense_id" => $adjData["expense_id"] ?? null,
-                "invoice_id" => $invoice->id
-            ]);
+    protected function handleLandlordInvoice(LandlordRentPayable $landlord_rent_payable, array $request_data, Business $business, $user, $total_rent_amount)
+    {
+        // Delete previous invoices related to this rent payable
+        $existingInvoices = Invoice::where('landlord_rent_payable_id', $landlord_rent_payable->id)->get();
+        foreach ($existingInvoices as $invoice) {
+            // Delete invoice items
+            InvoiceItem::where('invoice_id', $invoice->id)->delete();
+            // Delete invoice payments
+            InvoicePayment::where('invoice_id', $invoice->id)->delete();
+            // Delete invoice itself
+            $invoice->delete();
         }
 
+        $adjustment_amount = $landlord_rent_payable->rent_adjustments()->sum('amount');
 
-        $paid_amount = ($total_rent_amount + $adjustment_amount < 0) ? $total_rent_amount : -$adjustment_amount;
+        if (!empty($request_data['rent_adjustments']) && $adjustment_amount < 0) {
 
-        $invoice_payment = InvoicePayment::create([
-            "amount" => $paid_amount,
-            "payment_method" => "Landlord Payable Adjustment",
-            "payment_date" => $landlord_rent_payable->create_date,
-            "note" => "Invoice cleared against BiLL ID " . $landlord_rent_payable->id,
-            "invoice_id" => $invoice->id,
-            "receipt_by" => $user->id
-        ]);
+            $current_number = 1;
+            do {
+                $invoice_reference = str_pad($current_number, 4, '0', STR_PAD_LEFT);
+                $current_number++;
+            } while (
+                Invoice::where([
+                    'invoice_reference' => $invoice_reference,
+                    'created_by' => $user->id
+                ])->exists()
+            );
 
-        $invoice_payment->generated_id = Str::random(4) . $invoice_payment->id . Str::random(4);
-        $invoice_payment->shareable_link = env("FRONT_END_URL_DASHBOARD") . "/share/receipt/" . Str::random(4) . "-" . $invoice_payment->generated_id . "-" . Str::random(4);
-        $invoice_payment->save();
+            $invoice_data = [
+                "logo" => $business->logo,
+                "invoice_title" => $business->invoice_title ?? "Invoice",
+                "invoice_reference" => $invoice_reference,
+                "business_name" => $business->name,
+                "business_address" => $business->address_line_1,
+                "invoice_date" => $landlord_rent_payable->create_date,
+                "due_date" => $landlord_rent_payable->create_date,
+                "footer_text" => $business->footer_text ?? "Thanks for business with us",
+                "property_id" => $landlord_rent_payable->payable_rents()->first()?->rent?->tenancy_agreement?->property_id ?? null,
+                "status" => ($total_rent_amount + $adjustment_amount < 0) ? "partial" : "paid",
+                "sub_total" => -$adjustment_amount,
+                "total_amount" => -$adjustment_amount,
+                "landlord_rent_payable_id" => $landlord_rent_payable->id,
+                "created_by" => $user->id,
+            ];
+
+            $invoice = Invoice::create($invoice_data);
+
+            $invoice->generated_id = Str::random(4) . $invoice->id . Str::random(4);
+            $invoice->shareable_link = env("FRONT_END_URL_DASHBOARD") . "/share/invoice/" . Str::random(4) . "-" . $invoice->generated_id . "-" . Str::random(4);
+            $invoice->save();
+
+            $invoice->landlords()->sync([$request_data['landlord_id']]);
+
+            foreach ($request_data['rent_adjustments'] as $adjData) {
+                InvoiceItem::create([
+                    "name" => $adjData["description"] ?? "",
+                    "description" => $adjData["description"] ?? "",
+                    "quantity" => 1,
+                    "price" => -$adjData["amount"],
+                    "tax" => 0,
+                    "amount" => -$adjData["amount"],
+                    "repair_id" => $adjData["repair_id"] ?? null,
+                    "expense_id" => $adjData["expense_id"] ?? null,
+                    "invoice_id" => $invoice->id
+                ]);
+            }
+
+
+            $paid_amount = ($total_rent_amount + $adjustment_amount < 0) ? $total_rent_amount : -$adjustment_amount;
+
+            $invoice_payment = InvoicePayment::create([
+                "amount" => $paid_amount,
+                "payment_method" => "Landlord Payable Adjustment",
+                "payment_date" => $landlord_rent_payable->create_date,
+                "note" => "Invoice cleared against BiLL ID " . $landlord_rent_payable->id,
+                "invoice_id" => $invoice->id,
+                "receipt_by" => $user->id
+            ]);
+
+            $invoice_payment->generated_id = Str::random(4) . $invoice_payment->id . Str::random(4);
+            $invoice_payment->shareable_link = env("FRONT_END_URL_DASHBOARD") . "/share/receipt/" . Str::random(4) . "-" . $invoice_payment->generated_id . "-" . Str::random(4);
+            $invoice_payment->save();
+        }
     }
-}
 
     /**
      *
@@ -1060,197 +1056,195 @@ $this->handleLandlordInvoice($landlord_rent_payable, $validated, $business, $req
     }
 
     /**
- *
- * @OA\Get(
- *      path="/v2.0/landlord-rent-payables/{perPage}",
- *      operationId="getLandlordRentPayablesV2",
- *      tags={"property_management.landlord_rent_payable"},
- *      security={{"bearerAuth": {}}},
- *
- *      @OA\Parameter(
- *         name="perPage",
- *         in="path",
- *         description="Number of records per page",
- *         required=true,
- *         example=10
- *      ),
- *      @OA\Parameter(
- *         name="search_key",
- *         in="query",
- *         description="Search by item description or generated ID",
- *         required=false,
- *         example="rent"
- *      ),
- *      @OA\Parameter(
- *         name="landlord_id",
- *         in="query",
- *         description="Filter by landlord ID",
- *         required=false,
- *         example=1
- *      ),
- *      @OA\Parameter(
- *         name="rent_id",
- *         in="query",
- *         description="Filter by related rent ID",
- *         required=false,
- *         example=1
- *      ),
- *      @OA\Parameter(
- *         name="start_date",
- *         in="query",
- *         description="Filter from create_date",
- *         required=false,
- *         example="2025-01-01"
- *      ),
- *      @OA\Parameter(
- *         name="end_date",
- *         in="query",
- *         description="Filter till create_date",
- *         required=false,
- *         example="2025-09-26"
- *      ),
- *      @OA\Parameter(
- *         name="status",
- *         in="query",
- *         description="Filter by status",
- *         required=false,
- *         example="pending"
- *      ),
- *      @OA\Parameter(
- *         name="payment_method",
- *         in="query",
- *         description="Filter by payment method",
- *         required=false,
- *         example="bank_transfer"
- *      ),
- *      @OA\Parameter(
- *         name="is_active",
- *         in="query",
- *         description="Filter by active status (1/0)",
- *         required=false,
- *         example=1
- *      ),
- *      @OA\Parameter(
- *         name="order_by",
- *         in="query",
- *         description="Order by ID ASC/DESC",
- *         required=false,
- *         example="DESC"
- *      ),
- *
- *      summary="Get landlord rent payables with detailed data highlights",
- *      description="Returns landlord rent payables with Total Rent, Total Paid via Payable, Total Deducted, and Total Unassigned Rent",
- *
- *      @OA\Response(
- *          response=200,
- *          description="Successful operation",
- *          @OA\JsonContent()
- *      ),
- *      @OA\Response(response=401, description="Unauthenticated", @OA\JsonContent()),
- *      @OA\Response(response=403, description="Forbidden", @OA\JsonContent()),
- *      @OA\Response(response=422, description="Unprocessable Content", @OA\JsonContent()),
- *      @OA\Response(response=400, description="Bad Request", @OA\JsonContent()),
- *      @OA\Response(response=404, description="Not found", @OA\JsonContent())
- * )
- */
-public function getLandlordRentPayablesV2($perPage, Request $request)
-{
-    try {
-        $this->storeActivity($request, "Fetch landlord rent payables summary");
+     *
+     * @OA\Get(
+     *      path="/v2.0/landlord-rent-payables/{perPage}",
+     *      operationId="getLandlordRentPayablesV2",
+     *      tags={"property_management.landlord_rent_payable"},
+     *      security={{"bearerAuth": {}}},
+     *
+     *      @OA\Parameter(
+     *         name="perPage",
+     *         in="path",
+     *         description="Number of records per page",
+     *         required=true,
+     *         example=10
+     *      ),
+     *      @OA\Parameter(
+     *         name="search_key",
+     *         in="query",
+     *         description="Search by item description or generated ID",
+     *         required=false,
+     *         example="rent"
+     *      ),
+     *      @OA\Parameter(
+     *         name="landlord_id",
+     *         in="query",
+     *         description="Filter by landlord ID",
+     *         required=false,
+     *         example=1
+     *      ),
+     *      @OA\Parameter(
+     *         name="rent_id",
+     *         in="query",
+     *         description="Filter by related rent ID",
+     *         required=false,
+     *         example=1
+     *      ),
+     *      @OA\Parameter(
+     *         name="start_date",
+     *         in="query",
+     *         description="Filter from create_date",
+     *         required=false,
+     *         example="2025-01-01"
+     *      ),
+     *      @OA\Parameter(
+     *         name="end_date",
+     *         in="query",
+     *         description="Filter till create_date",
+     *         required=false,
+     *         example="2025-09-26"
+     *      ),
+     *      @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="Filter by status",
+     *         required=false,
+     *         example="pending"
+     *      ),
+     *      @OA\Parameter(
+     *         name="payment_method",
+     *         in="query",
+     *         description="Filter by payment method",
+     *         required=false,
+     *         example="bank_transfer"
+     *      ),
+     *      @OA\Parameter(
+     *         name="is_active",
+     *         in="query",
+     *         description="Filter by active status (1/0)",
+     *         required=false,
+     *         example=1
+     *      ),
+     *      @OA\Parameter(
+     *         name="order_by",
+     *         in="query",
+     *         description="Order by ID ASC/DESC",
+     *         required=false,
+     *         example="DESC"
+     *      ),
+     *
+     *      summary="Get landlord rent payables with detailed data highlights",
+     *      description="Returns landlord rent payables with Total Rent, Total Paid via Payable, Total Deducted, and Total Unassigned Rent",
+     *
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent()
+     *      ),
+     *      @OA\Response(response=401, description="Unauthenticated", @OA\JsonContent()),
+     *      @OA\Response(response=403, description="Forbidden", @OA\JsonContent()),
+     *      @OA\Response(response=422, description="Unprocessable Content", @OA\JsonContent()),
+     *      @OA\Response(response=400, description="Bad Request", @OA\JsonContent()),
+     *      @OA\Response(response=404, description="Not found", @OA\JsonContent())
+     * )
+     */
+    public function getLandlordRentPayablesV2($perPage, Request $request)
+    {
+        try {
+            $this->storeActivity($request, "Fetch landlord rent payables summary");
 
-        // MAIN QUERY
-        $query = LandlordRentPayable::with(['payable_rents.rent', 'rent_adjustments'])
-            ->where('created_by', $request->user()->id);
+            // MAIN QUERY
+            $query = LandlordRentPayable::with(['payable_rents.rent', 'rent_adjustments'])
+                ->where('created_by', $request->user()->id);
 
-        // Filters
-        if (!empty($request->search_key)) {
-            $term = $request->search_key;
-            $query->where(function ($q) use ($term) {
-                $q->orWhere('item_description', 'like', "%$term%")
-                  ->orWhere('generated_id', 'like', "%$term%");
-            });
+            // Filters
+            if (!empty($request->search_key)) {
+                $term = $request->search_key;
+                $query->where(function ($q) use ($term) {
+                    $q->orWhere('item_description', 'like', "%$term%")
+                        ->orWhere('generated_id', 'like', "%$term%");
+                });
+            }
+
+            if (!empty($request->payment_method)) $query->where('payment_method', $request->payment_method);
+            if (!empty($request->status)) $query->where('status', $request->status);
+            if (!empty($request->landlord_id)) $query->where('landlord_id', $request->landlord_id);
+            if (!empty($request->start_date)) $query->where('create_date', '>=', $request->start_date);
+            if (!empty($request->end_date)) $query->where('create_date', '<=', $request->end_date);
+            if (!empty($request->rent_id)) {
+                $query->whereHas('payable_rents', fn($q) => $q->where('rent_id', $request->rent_id));
+            }
+            if (!is_null($request->is_active)) $query->where('is_active', $request->is_active);
+
+            $orderBy = $request->order_by ?? 'desc';
+            $landlord_rent_payables = $query->orderBy('id', $orderBy)
+                ->paginate($perPage);
+
+            // =========================
+            // DATA HIGHLIGHTS
+            // =========================
+
+            // 1. Total Rent Amount (all collected rents)
+            $total_rent_amount = Rent::where('created_by', $request->user()->id)
+                ->whereHas("tenancy_agreement", function ($q) use ($request) {
+                    $q->whereHas('property', function ($q) use ($request) {
+                        $q->whereHas("property_landlords", function ($q) use ($request) {
+                            $q->where('landlords.id', $request->landlord_id);
+                        });
+                    });
+                })
+
+                ->sum('paid_amount');
+
+            // 2. Total Paid via Payable (rents already linked to payables)
+            $total_paid = Rent::whereHas('landlord_rent_payables')
+                ->where('created_by', $request->user()->id)
+                ->whereHas("tenancy_agreement", function ($q) use ($request) {
+                    $q->whereHas('property', function ($q) use ($request) {
+                        $q->whereHas("property_landlords", function ($q) use ($request) {
+                            $q->where('landlords.id', $request->landlord_id);
+                        });
+                    });
+                })
+
+                ->sum('paid_amount');
+
+            // 3. Total Deducted (all adjustments)
+            $total_deducted = RentAdjustment::whereHas('landlord_rent_payable', function ($q) use ($request) {
+                $q->where('landlord_rent_payables.created_by', $request->user()->id)
+                    ->where('landlord_rent_payables.landlord_id', request()->input("landlord_id"));
+            })->sum('amount');
+
+            // 4. Total Unassigned Rent (rents collected but not linked to any payable)
+            $total_unassigned_rent = Rent::where('paid_amount', '>', 0)
+                ->whereDoesntHave('landlord_rent_payables')
+                ->where('created_by', $request->user()->id)
+                ->whereHas("tenancy_agreement", function ($q) use ($request) {
+                    $q->whereHas('property', function ($q) use ($request) {
+                        $q->whereHas("property_landlords", function ($q) use ($request) {
+                            $q->where('landlords.id', $request->landlord_id);
+                        });
+                    });
+                })->sum('paid_amount');
+
+            $data_highlights = [
+                'total_rent_amount' => $total_rent_amount,
+                'total_paid_via_payable' => $total_paid,
+                'total_deducted' => $total_deducted,
+                'total_due_rents' => $total_unassigned_rent,
+            ];
+
+            $response = [
+                'data' => $landlord_rent_payables,
+                'data_highlights' => $data_highlights,
+            ];
+
+            return response()->json($response, 200);
+        } catch (\Exception $e) {
+            return $this->sendError($e, 500, $request);
         }
-
-        if (!empty($request->payment_method)) $query->where('payment_method', $request->payment_method);
-        if (!empty($request->status)) $query->where('status', $request->status);
-        if (!empty($request->landlord_id)) $query->where('landlord_id', $request->landlord_id);
-        if (!empty($request->start_date)) $query->where('create_date', '>=', $request->start_date);
-        if (!empty($request->end_date)) $query->where('create_date', '<=', $request->end_date);
-        if (!empty($request->rent_id)) {
-            $query->whereHas('payable_rents', fn($q) => $q->where('rent_id', $request->rent_id));
-        }
-        if (!is_null($request->is_active)) $query->where('is_active', $request->is_active);
-
-        $orderBy = $request->order_by ?? 'desc';
-        $landlord_rent_payables = $query->orderBy('id', $orderBy)
-            ->paginate($perPage);
-
-        // =========================
-        // DATA HIGHLIGHTS
-        // =========================
-
-        // 1. Total Rent Amount (all collected rents)
-        $total_rent_amount = Rent::where('created_by', $request->user()->id)
-        ->whereHas("tenancy_agreement", function($q) use ($request) {
-            $q->whereHas('property', function($q) use ($request) {
-                $q->whereHas("property_landlords", function($q) use ($request) {
-                    $q->where('landlords.id', $request->landlord_id);
-                });
-            });
-        })
-
-        ->sum('paid_amount');
-
-        // 2. Total Paid via Payable (rents already linked to payables)
-        $total_paid = Rent::whereHas('landlord_rent_payables')
-        ->where('created_by', $request->user()->id)
-        ->whereHas("tenancy_agreement", function($q) use ($request) {
-            $q->whereHas('property', function($q) use ($request) {
-                $q->whereHas("property_landlords", function($q) use ($request) {
-                    $q->where('landlords.id', $request->landlord_id);
-                });
-            });
-        })
-
-        ->sum('paid_amount');
-
-        // 3. Total Deducted (all adjustments)
-        $total_deducted = RentAdjustment::whereHas('landlord_rent_payable', function($q) use ($request) {
-            $q->where('landlord_rent_payables.created_by', $request->user()->id)
-           ->where('landlord_rent_payables.landlord_id', request()->input("landlord_id"));
-
-        })->sum('amount');
-
-        // 4. Total Unassigned Rent (rents collected but not linked to any payable)
-        $total_unassigned_rent = Rent::where('paid_amount', '>', 0)
-            ->whereDoesntHave('landlord_rent_payables')
-        ->where('created_by', $request->user()->id)
-        ->whereHas("tenancy_agreement", function($q) use ($request) {
-            $q->whereHas('property', function($q) use ($request) {
-                $q->whereHas("property_landlords", function($q) use ($request) {
-                    $q->where('landlords.id', $request->landlord_id);
-                });
-            });
-        })->sum('paid_amount');
-
-        $data_highlights = [
-            'total_rent_amount' => $total_rent_amount,
-            'total_paid_via_payable' => $total_paid,
-            'total_deducted' => $total_deducted,
-            'total_due_rents' => $total_unassigned_rent,
-        ];
-
-        $response = [
-            'data' => $landlord_rent_payables,
-            'data_highlights' => $data_highlights,
-        ];
-
-        return response()->json($response, 200);
-
-    } catch (\Exception $e) {
-        return $this->sendError($e, 500, $request);
     }
-}
 
 
     /**
