@@ -1189,167 +1189,138 @@ class LandlordController extends Controller
     {
         try {
             $this->storeActivity($request, "");
-            $currentDate = Carbon::now();
-            $endDate = $currentDate->copy()->addDays(15);
 
+            $todayDate = today();
 
-            $landlordQuery =  Landlord::where(["landlords.created_by" => $request->user()->id]);
+            $landlordQuery = Landlord::where('landlords.created_by', $request->user()->id);
 
-            if (!empty($request->search_key)) {
-                $landlordQuery = $landlordQuery->where(function ($query) use ($request) {
-                    $term = $request->search_key;
-                    $terms = preg_split('/\s+/', $term); // Split search term by any whitespace
+            // Search filter
+            if ($request->filled('search_key')) {
+                $searchTerm = $request->search_key;
+                $terms = preg_split('/\s+/', $searchTerm);
 
-                    foreach ($terms as $individualTerm) {
-                        $query->orWhere(function ($innerQuery) use ($individualTerm) {
-                            $innerQuery->where("landlords.first_Name", "like", "%" . $individualTerm . "%");
-                            $innerQuery->orWhere("landlords.last_Name", "like", "%" . $individualTerm . "%");
+                $landlordQuery->where(function ($query) use ($terms, $searchTerm) {
+                    foreach ($terms as $term) {
+                        $query->orWhere(function ($inner) use ($term) {
+                            $inner->where('landlords.first_Name', 'like', "%{$term}%")
+                                ->orWhere('landlords.last_Name', 'like', "%{$term}%");
                         });
                     }
 
-                    $query->orWhere("landlords.phone", "like", "%" . $term . "%");
-                    $query->orWhere("landlords.address_line_1", "like", "%" . $term . "%");
-                    $query->orWhere("landlords.address_line_2", "like", "%" . $term . "%");
-                    $query->orWhere("landlords.country", "like", "%" . $term . "%");
-                    $query->orWhere("landlords.city", "like", "%" . $term . "%");
-                    $query->orWhere("landlords.postcode", "like", "%" . $term . "%");
-                    $query->orWhere("landlords.email", "like", "%" . $term . "%");
-                });
-            }
-            if (!empty($request->ids)) {
-                $ids = explode(',', request()->input("ids"));
-                $landlordQuery =  $landlordQuery->whereIn("landlords.id", $ids);
-            }
-
-            if (!empty($request->property_id)) {
-                $landlordQuery = $landlordQuery->whereHas('properties', function ($query) {
-                    $query->whereIn("properties.id", [request()->input("property_id")]);
+                    $searchFields = ['phone', 'address_line_1', 'address_line_2', 'country', 'city', 'postcode', 'email'];
+                    foreach ($searchFields as $field) {
+                        $query->orWhere("landlords.{$field}", 'like', "%{$searchTerm}%");
+                    }
                 });
             }
 
-            if (!empty($request->property_ids)) {
-                $null_filter = collect(array_filter($request->property_ids))->values();
-                $property_ids = $null_filter->all();
-                if (count($property_ids)) {
-                    $landlordQuery = $landlordQuery->whereHas('properties', function ($query) use ($property_ids) {
-                        $query->whereIn("properties.id", $property_ids);
+            // IDs filter
+            if ($request->filled('ids')) {
+                $ids = array_map('intval', explode(',', $request->ids));
+                $landlordQuery->whereIn('landlords.id', $ids);
+            }
+
+            // Property filters
+            if ($request->filled('property_id')) {
+                $landlordQuery->whereHas('properties', function ($query) use ($request) {
+                    $query->where('properties.id', $request->property_id);
+                });
+            }
+
+            if ($request->filled('property_ids')) {
+                $propertyIds = collect($request->property_ids)->filter()->values()->all();
+                if (!empty($propertyIds)) {
+                    $landlordQuery->whereHas('properties', function ($query) use ($propertyIds) {
+                        $query->whereIn('properties.id', $propertyIds);
                     });
                 }
             }
 
-
-            if (!empty($request->start_date)) {
-                $landlordQuery = $landlordQuery->where('landlords.created_at', ">=", $request->start_date);
+            // Date filters
+            if ($request->filled('start_date')) {
+                $landlordQuery->where('landlords.created_at', '>=', $request->start_date);
             }
-            if (!empty($request->end_date)) {
-                $landlordQuery = $landlordQuery->where('landlords.created_at', "<=", $request->end_date);
-            }
-
-            $landlordQuery = $landlordQuery
-
-             ->select(
-    "landlords.id",
-    "landlords.generated_id",
-    "landlords.first_Name",
-    "landlords.last_Name",
-    "landlords.phone",
-
-    // Total invoices count
-    DB::raw('
-        COALESCE(
-            (
-                SELECT COUNT(invoices.id)
-                FROM invoices
-                JOIN invoice_landlords ON invoice_landlords.invoice_id = invoices.id
-                WHERE invoice_landlords.landlord_id = landlords.id
-                AND invoices.status != "draft"
-            ),
-            0
-        ) AS total_invoices
-    '),
-
-    // Total due
-    DB::raw('
-        COALESCE(
-            COALESCE(
-                (
-                    SELECT SUM(invoices.total_amount)
-                    FROM invoices
-                    JOIN invoice_landlords ON invoice_landlords.invoice_id = invoices.id
-                    WHERE invoice_landlords.landlord_id = landlords.id
-                    AND invoices.status != "draft"
-                ),
-                0
-            )
-            -
-            COALESCE(
-                (
-                    SELECT SUM(invoice_payments.amount)
-                    FROM invoices
-                    LEFT JOIN invoice_payments ON invoices.id = invoice_payments.invoice_id
-                    JOIN invoice_landlords ON invoice_landlords.invoice_id = invoices.id
-                    WHERE invoice_landlords.landlord_id = landlords.id
-                    AND invoices.status != "draft"
-                ),
-                0
-            )
-        )
-        as total_due
-    '),
-
-    // Total overdue
-    DB::raw('
-        COALESCE(
-            COALESCE(
-                (
-                    SELECT SUM(invoices.total_amount)
-                    FROM invoices
-                    JOIN invoice_landlords ON invoice_landlords.invoice_id = invoices.id
-                    WHERE invoice_landlords.landlord_id = landlords.id
-                    AND invoices.due_date < "' . today() . '"
-                    AND invoices.status != "draft"
-                ),
-                0
-            )
-            -
-            COALESCE(
-                (
-                    SELECT SUM(invoice_payments.amount)
-                    FROM invoices
-                    LEFT JOIN invoice_payments ON invoices.id = invoice_payments.invoice_id
-                    JOIN invoice_landlords ON invoice_landlords.invoice_id = invoices.id
-                    WHERE invoice_landlords.landlord_id = landlords.id
-                    AND invoices.due_date < "' . today() . '"
-                    AND invoices.status != "draft"
-                ),
-                0
-            )
-        )
-        as total_over_due
-    ')
-);
-
-            if (!empty($request->min_total_due)) {
-                $landlordQuery = $landlordQuery->havingRaw("total_due >= " . $request->min_total_due . "");
-            }
-            if (!empty($request->max_total_due)) {
-                $landlordQuery = $landlordQuery->havingRaw("total_due <= " . $request->max_total_due . "");
+            if ($request->filled('end_date')) {
+                $landlordQuery->where('landlords.created_at', '<=', $request->end_date);
             }
 
-            if (!empty($request->min_total_over_due)) {
-                $landlordQuery = $landlordQuery->havingRaw("total_over_due >= " . $request->min_total_over_due . "");
+            // Select fields with calculations
+            $landlordQuery->select([
+                'landlords.id',
+                'landlords.generated_id',
+                'landlords.first_Name',
+                'landlords.last_Name',
+                'landlords.phone',
+                DB::raw("
+                    COALESCE(
+                        (SELECT COUNT(invoices.id)
+                         FROM invoices
+                         JOIN invoice_landlords ON invoice_landlords.invoice_id = invoices.id
+                         WHERE invoice_landlords.landlord_id = landlords.id
+                           AND invoices.status != 'draft'), 0
+                    ) AS total_invoices
+                "),
+                DB::raw("
+                    COALESCE(
+                        (SELECT SUM(invoices.total_amount)
+                         FROM invoices
+                         JOIN invoice_landlords ON invoice_landlords.invoice_id = invoices.id
+                         WHERE invoice_landlords.landlord_id = landlords.id
+                           AND invoices.status != 'draft'), 0
+                    )
+                    -
+                    COALESCE(
+                        (SELECT SUM(invoice_payments.amount)
+                         FROM invoices
+                         LEFT JOIN invoice_payments ON invoices.id = invoice_payments.invoice_id
+                         JOIN invoice_landlords ON invoice_landlords.invoice_id = invoices.id
+                         WHERE invoice_landlords.landlord_id = landlords.id
+                           AND invoices.status != 'draft'), 0
+                    ) AS total_due
+                "),
+                DB::raw("
+                    COALESCE(
+                        (SELECT SUM(invoices.total_amount)
+                         FROM invoices
+                         JOIN invoice_landlords ON invoice_landlords.invoice_id = invoices.id
+                         WHERE invoice_landlords.landlord_id = landlords.id
+                           AND invoices.due_date < ?
+                           AND invoices.status != 'draft'), 0
+                    )
+                    -
+                    COALESCE(
+                        (SELECT SUM(invoice_payments.amount)
+                         FROM invoices
+                         LEFT JOIN invoice_payments ON invoices.id = invoice_payments.invoice_id
+                         JOIN invoice_landlords ON invoice_landlords.invoice_id = invoices.id
+                         WHERE invoice_landlords.landlord_id = landlords.id
+                           AND invoices.due_date < ?
+                           AND invoices.status != 'draft'), 0
+                    ) AS total_over_due
+                ")
+            ])->addBinding([$todayDate, $todayDate], 'select');
+
+            // Having filters
+            if ($request->filled('min_total_due')) {
+                $landlordQuery->havingRaw('total_due >= ?', [$request->min_total_due]);
             }
-            if (!empty($request->max_total_over_due)) {
-                $landlordQuery = $landlordQuery->havingRaw("total_over_due <= " . $request->max_total_over_due . "");
+            if ($request->filled('max_total_due')) {
+                $landlordQuery->havingRaw('total_due <= ?', [$request->max_total_due]);
+            }
+            if ($request->filled('min_total_over_due')) {
+                $landlordQuery->havingRaw('total_over_due >= ?', [$request->min_total_over_due]);
+            }
+            if ($request->filled('max_total_over_due')) {
+                $landlordQuery->havingRaw('total_over_due <= ?', [$request->max_total_over_due]);
             }
 
-            $landlords =  $landlordQuery
-                ->groupBy("landlords.id")
-                ->orderBy("landlords.first_Name", $request->order_by)->paginate($perPage);
+            $landlords = $landlordQuery
+                ->groupBy('landlords.id')
+                ->orderBy('landlords.first_Name', $request->order_by ?? 'asc')
+                ->paginate($perPage);
 
             return response()->json($landlords, 200);
         } catch (Exception $e) {
-
             return $this->sendError($e, 500, $request);
         }
     }

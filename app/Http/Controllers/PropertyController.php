@@ -435,129 +435,67 @@ class PropertyController extends Controller
     {
         try {
             $this->storeActivity($request, "");
+
             return DB::transaction(function () use ($request) {
+                $requestData = $request->validated();
+                $requestData["created_by"] = $request->user()->id;
 
+                // Check if reference number already exists
+                $referenceExists = Property::where([
+                    'reference_no' => $requestData['reference_no'],
+                    'created_by' => $request->user()->id
+                ])->exists();
 
-                $request_data = $request->validated();
-                $request_data["created_by"] = $request->user()->id;
-
-
-                $reference_no_exists =  DB::table('properties')->where(
-                    [
-                        'reference_no' => $request_data['reference_no'],
-                        "created_by" => $request->user()->id
-                    ]
-                )->exists();
-
-                if ($reference_no_exists) {
-                    $error =  [
+                if ($referenceExists) {
+                    $error = [
                         "message" => "The given data was invalid.",
                         "errors" => ["reference_no" => ["The reference no has already been taken."]]
                     ];
                     throw new Exception(json_encode($error), 422);
                 }
 
-                $property =  Property::create(
-                    collect($request_data)
-                        ->only(
-                            [
-                                'name',
-                                'image',
-                                // 'images',
-                                'address',
-                                'country',
-                                'city',
-                                'postcode',
-                                "town",
-                                "lat",
-                                "long",
-                                'type',
-                                'reference_no',
-                                'is_active',
-                                'date_of_instruction',
-                                'howDetached',
-                                "no_of_beds",
-                                "no_of_baths",
-                                "is_garden",
-                                'propertyFloor',
-                                'category',
-                                'price',
-                                'purpose',
-                                'property_door_no',
-                                'property_road',
-                                'is_dss',
-                                'county',
-                                "created_by",
-                                "min_price",
-                                "max_price",
-                            ]
-
-                        )
-                        ->toArray()
-
-                );
+                // Create property
+                $property = Property::create($requestData);
                 $property->generated_id = Str::random(4) . $property->id . Str::random(4);
 
-                $request_data["images"] = $this->storeUploadedFiles($request_data["images"], "", "images", false, $property->id);
-
-
-                $property->images = ($request_data["images"]);
+                // Store and attach images
+                $requestData["images"] = $this->storeUploadedFiles(
+                    $requestData["images"],
+                    "",
+                    "images",
+                    false,
+                    $property->id
+                );
+                $property->images = $requestData["images"];
                 $property->save();
 
+                // Store and attach documents
+                $requestData["documents"] = $this->storeUploadedFiles(
+                    $requestData["documents"],
+                    "files",
+                    "documents",
+                    true,
+                    $property->id
+                );
 
-
-
-                $request_data["documents"] = $this->storeUploadedFiles($request_data["documents"], "files", "documents", true, $property->id);
-
-
-                if (!empty($request_data['documents'])) {
-                    foreach ($request_data['documents'] as $document) {
-                        $property->documents()->create($document); // Save the document with file paths
+                if (!empty($requestData['documents'])) {
+                    foreach ($requestData['documents'] as $document) {
+                        $property->documents()->create($document);
                     }
                 }
 
-                // for($i=0;$i<500;$i++) {
-                //     $property =  Property::create([
+                // Sync relationships
+                $property->maintenance_item_types()->sync($requestData['maintenance_item_type_ids']);
 
-                //          'name' => $request_data["name"] . Str::random(4),
-                //          'image',
-                //          'address'=> $request_data["address"] . Str::random(4),
-                //          'country'=> $request_data["country"] . Str::random(4),
-                //          'city'=> $request_data["city"] . Str::random(4),
-                //          'postcode'=> $request_data["postcode"] . Str::random(4),
-                //          "town"=> $request_data["town"] . Str::random(4),
-                //          "lat"=> $request_data["lat"] . Str::random(4),
-                //          "long"=> $request_data["long"] . Str::random(4),
-                //          'type' => $request_data["type"],
-                //          'reference_no'=> $request_data["reference_no"] . Str::random(4),
-                //          'landlord_id'=> $request_data["landlord_id"],
-                //          "created_by"=>$request->user()->id,
-                //          'is_active'=>1,
-                //     ]);
-                //     $property->generated_id = Str::random(4) . $property->id . Str::random(4);
-                //     $property->save();
-                // }
-
-
-                $property->maintenance_item_types()->sync($request_data['maintenance_item_type_ids']);
-
-
-
-                if (!empty($request_data['tenant_ids'])) {
-                    $property->property_tenants()->sync($request_data['tenant_ids']);
+                if (!empty($requestData['tenant_ids'])) {
+                    $property->property_tenants()->sync($requestData['tenant_ids']);
                 }
 
-
-                $property->property_landlords()->sync($request_data['landlord_ids']);
-
-
-
-
+                $property->property_landlords()->sync($requestData['landlord_ids']);
 
                 return response($property, 201);
             });
         } catch (Exception $e) {
-
             return $this->sendError($e, 500, $request);
         }
     }
@@ -999,24 +937,9 @@ class PropertyController extends Controller
                 $property  =  tap(Property::where([
                     "id" => $request_data["id"],
                     "created_by" => $request->user()->id
-                ]))->update(
-                    collect($request_data)->only([
-                        'name',
-                        'image',
-                        'address',
-                        'country',
-                        'city',
-                        'postcode',
-                        "town",
-                        "lat",
-                        "long",
-                        'type',
-                        'reference_no'
-                    ])->toArray()
-                )
-                    // ->with("somthing")
+                ]))->first();
 
-                    ->first();
+                $property->update($request_data);
 
                 if (!$property) {
                     return response()->json([

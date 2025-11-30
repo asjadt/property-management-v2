@@ -77,7 +77,9 @@ class PropertyCreateRequestV2 extends FormRequest
 
             'maintenance_item_type_ids' => 'present|array',
             'maintenance_item_type_ids.*' => 'nullable|exists:maintenance_item_types,id',
-
+            //
+            "min_price" => "nullable|numeric",
+            "max_price" => "nullable|numeric|gt:min_price",
 
         ];
     }

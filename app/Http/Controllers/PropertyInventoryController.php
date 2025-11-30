@@ -185,30 +185,16 @@ class PropertyInventoryController extends Controller
                 "id" => $request_data["id"],
             ];
 
-            $property_inventory =
-                PropertyInventory::where($property_inventory_query_params)->first();
+            $property_inventory = PropertyInventory::find($request_data["id"]);
 
-            if ($property_inventory) {
-                $property_inventory->fill(collect($request_data)->only([
-
-                    "item_name",
-                    "item_location",
-                    "item_quantity",
-                    "item_condition",
-                    "item_details",
-                    "property_id",
-                    "files",
-                    // "is_default",
-                    // "is_active",
-                    // "business_id",
-                    // "created_by"
-                ])->toArray());
-                $property_inventory->save();
-            } else {
+            if (!$property_inventory) {
                 return response()->json([
-                    "message" => "something went wrong."
-                ], 500);
+                    "message" => "Property inventory not found."
+                ], 404);
             }
+
+            $property_inventory->fill($request_data);
+            $property_inventory->save();
 
 
             DB::commit();
@@ -228,10 +214,10 @@ class PropertyInventoryController extends Controller
 
         return $query->where('property_inventories.created_by', auth()->user()->id)
 
-        ->when(request()->filled("property_ids"), function ($query) {
-            $property_ids = explode(',', request()->input("property_ids"));
-           return $query->whereIn("property_inventories.property_id", $property_ids);
-        })
+            ->when(request()->filled("property_ids"), function ($query) {
+                $property_ids = explode(',', request()->input("property_ids"));
+                return $query->whereIn("property_inventories.property_id", $property_ids);
+            })
             ->when(request()->filled("item_name"), function ($query) {
                 return $query->where(
                     'property_inventories.item_name',
@@ -273,8 +259,6 @@ class PropertyInventoryController extends Controller
             ->when(request()->filled("end_date"), function ($query) {
                 return $query->whereDate('property_inventories.created_at', "<=", request()->input("end_date"));
             });
-
-
     }
 
 
@@ -409,17 +393,20 @@ class PropertyInventoryController extends Controller
         try {
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
 
+            $query = PropertyInventory::with([
+                "inventoryItem" => function ($query) {
+                    $query->select("id", "name");
+                },
+                "inventoryLocation" => function ($query) {
+                    $query->select("id", "name");
+                }
+            ]);
 
-
-            $query = PropertyInventory::query();
             $query = $this->query_filters($query);
             $property_inventories = $this->retrieveData($query, "id", "property_inventories");
 
-
-
             return response()->json($property_inventories, 200);
         } catch (Exception $e) {
-
             return $this->sendError($e, 500, $request);
         }
     }

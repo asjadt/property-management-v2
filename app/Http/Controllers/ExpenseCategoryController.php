@@ -666,12 +666,11 @@ class ExpenseCategoryController extends Controller
             $this->storeActivity($request, "");
 
 
-            if (!Hash::check($request->header("password"), $request->user()->password)) {
+            if ($request->header("pin") !== $request->user()->my_business()->pin) {
                 return response()->json([
-                    "message" => "Invalid password"
+                    "message" => "Invalid Pin"
                 ], 401);
             }
-
 
 
             $expense_category = ExpenseCategory::where([

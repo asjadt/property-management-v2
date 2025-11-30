@@ -33,13 +33,13 @@ class PropertyInventoryCreateRequest extends FormRequest
 
             'inventory_item_id' => [
                 'required',
-                'integer',
+                'numeric',
                 new ValidateInventoryItem(),
             ],
 
             'inventory_location_id' => [
                 'required',
-                'integer',
+                'numeric',
                 new ValidateInventoryLocation(),
             ],
 
