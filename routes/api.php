@@ -537,7 +537,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/v1.0/expense-categories/{perPage}', [ExpenseCategoryController::class, "getExpenseCategories"]);
     Route::get('/v1.0/expense-categories/get/all/optimized', [ExpenseCategoryController::class, "getAllExpenseCategoriesOptimized"]);
     Route::get('/v1.0/expense-categories/get/single/{id}', [ExpenseCategoryController::class, "getExpenseCategoryById"]);
-    Route::delete('/v1.0/expense-categories/{id}', [ExpenseCategoryController::class, "deleteRepairCategoryById"]);
+    Route::delete('/v1.0/expense-categories/{id}', [ExpenseCategoryController::class, "deleteExpenseCategoryById"]);
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     // repair category management section
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1507,16 +1507,16 @@ Route::middleware(['auth:api'])->group(function () {
     // Inventory item management
     Route::post('/v1.0/inventory-items', [InventoryItemController::class, "createInventoryItem"]);
     Route::put('/v1.0/inventory-items', [InventoryItemController::class, "updateInventoryItem"]);
-    Route::get('/v1.0/inventory-items', [InventoryItemController::class, "getInventoryItems"]);
+    Route::get('/v1.0/inventory-items', [InventoryItemController::class, "getAllInventoryItems"]);
     Route::get('/v1.0/inventory-items/{id}', [InventoryItemController::class, "getInventoryItemById"]);
-    Route::delete('/v1.0/inventory-items/{ids}', [InventoryItemController::class, "deleteInventoryItemById"]);
+    Route::delete('/v1.0/inventory-items/{ids}', [InventoryItemController::class, "deleteInventoryItemByIds"]);
 
     // INVENTORY LOCATION
     Route::post('/v1.0/inventory-locations', [InventoryLocationController::class, "createInventoryLocation"]);
     Route::put('/v1.0/inventory-locations', [InventoryLocationController::class, "updateInventoryLocation"]);
-    Route::get('/v1.0/inventory-locations', [InventoryLocationController::class, "getInventoryLocations"]);
+    Route::get('/v1.0/inventory-locations', [InventoryLocationController::class, "getAllInventoryLocations"]);
     Route::get('/v1.0/inventory-locations/{id}', [InventoryLocationController::class, "getInventoryLocationById"]);
-    Route::delete('/v1.0/inventory-locations/{ids}', [InventoryLocationController::class, "deleteInventoryLocationById"]);
+    Route::delete('/v1.0/inventory-locations/{ids}', [InventoryLocationController::class, "deleteInventoryLocationByIds"]);
 
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     // end inventory  management section
