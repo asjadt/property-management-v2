@@ -666,7 +666,7 @@ class ExpenseCategoryController extends Controller
             $this->storeActivity($request, "");
 
 
-            if ($request->header("pin") !== $request->user()->my_business()->pin) {
+            if ($request->header("pin") != $request->user()->my_business->pin) {
                 return response()->json([
                     "message" => "Invalid Pin"
                 ], 401);
