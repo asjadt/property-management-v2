@@ -2507,4 +2507,214 @@ public function getAccreditationReport()
 
         return $maintainance_report;
     }
+
+    public function getAllExpiries(Request $request)
+    {
+        try {
+            $this->storeActivity($request, "");
+            $user_id = $request->user()->id;
+
+            $data = [
+                "documents" => $this->getDetailedDocumentExpiries($user_id),
+                "tenancy_agreements" => $this->getDetailedTenancyExpiries($user_id),
+                "property_agreements" => $this->getDetailedPropertyAgreementExpiries($user_id),
+                "inspections" => $this->getDetailedInspectionExpiries($user_id),
+                "maintenance_items" => $this->getDetailedMaintenanceExpiries($user_id),
+                "repairs" => $this->getDetailedRepairExpiries($user_id),
+                "accreditations" => $this->getDetailedAccreditationExpiries($user_id),
+            ];
+
+            // Flatten items into a single list of today's expiries
+            $today_only = [];
+            foreach ($data as $key => $section) {
+                if (is_array($section)) {
+                    foreach ($section as $subKey => $items) {
+                        if (is_iterable($items)) {
+                            foreach ($items as $item) {
+                                $today_only[] = array_merge($item, [
+                                    'category' => $key,
+                                    'sub_category' => is_string($subKey) ? $subKey : null
+                                ]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return response()->json($today_only, 200);
+        } catch (Exception $e) {
+            return $this->sendError($e, 500, $request);
+        }
+    }
+
+    private function getDetailedDocumentExpiries($user_id)
+    {
+        $document_types = DocumentType::where("created_by", $user_id)->get();
+        $report = [];
+
+        foreach ($document_types as $type) {
+            $base_query = Property::where("properties.created_by", $user_id)
+                ->whereHas("latest_documents", function ($q) use ($type) {
+                    $q->where("property_documents.document_type_id", $type->id);
+                })
+                ->with(['latest_documents' => function ($q) use ($type) {
+                    $q->where("property_documents.document_type_id", $type->id);
+                }]);
+
+            $report[$type->name] = $this->mapPropertyItems($base_query->get(), 'latest_documents', 'gas_end_date', 'eq');
+        }
+        return $report;
+    }
+
+    private function getDetailedTenancyExpiries($user_id)
+    {
+        $base_query = Property::where("created_by", $user_id)
+            ->whereHas('latest_tenancy_agreement')
+            ->with('latest_tenancy_agreement');
+
+        return $this->mapPropertyItems($base_query->get(), 'latest_tenancy_agreement', 'tenant_contact_expired_date', 'eq');
+    }
+
+    private function getDetailedPropertyAgreementExpiries($user_id)
+    {
+        $base_query = Property::where("created_by", $user_id)
+            ->whereHas('latest_property_agreement')
+            ->with('latest_property_agreement');
+
+        return $this->mapPropertyItems($base_query->get(), 'latest_property_agreement', 'end_date', 'eq');
+    }
+
+    private function getDetailedInspectionExpiries($user_id)
+    {
+        $base_query = Property::where("created_by", $user_id)
+            ->whereHas('latest_inspection')
+            ->with('latest_inspection');
+
+        return $this->mapPropertyItems($base_query->get(), 'latest_inspection', 'next_inspection_date', 'eq');
+    }
+
+    private function getDetailedMaintenanceExpiries($user_id)
+    {
+        $item_types = MaintenanceItemType::get();
+        $report = [];
+
+        foreach ($item_types as $type) {
+            $base_query = Property::where("properties.created_by", $user_id)
+                ->whereHas("latest_inspection.maintenance_item", function ($q) use ($type) {
+                    $q->where("maintenance_item_type_id", $type->id)->where("status", "work_required");
+                })
+                ->with(['latest_inspection.maintenance_item' => function ($q) use ($type) {
+                    $q->where("maintenance_item_type_id", $type->id)->where("status", "work_required");
+                }]);
+
+            $report[$type->name] = $this->mapMaintenanceItems($base_query->get(), 'eq');
+        }
+        return $report;
+    }
+
+    private function getDetailedRepairExpiries($user_id)
+    {
+        $categories = RepairCategory::get();
+        $report = [];
+
+        foreach ($categories as $cat) {
+            $repairs = Repair::where("created_by", $user_id)
+                ->where("repair_category_id", $cat->id)
+                ->where("status", "pending")
+                ->get();
+
+            $report[$cat->name] = $this->filterItems($repairs, 'create_date', 'eq');
+        }
+        return $report;
+    }
+
+    private function mapPropertyItems($properties, $relation, $dateField, $operator, $days = [])
+    {
+        return $properties->map(function ($property) use ($relation, $dateField, $operator, $days) {
+            $item = $property->{$relation};
+            if (!$item) return null;
+
+            // Handle collection (like latest_documents)
+            if ($item instanceof \Illuminate\Support\Collection) {
+                $item = $item->first();
+            }
+
+            if (!$item) return null;
+
+            $date = Carbon::parse($item->{$dateField});
+            $today = Carbon::today();
+
+            $match = false;
+            if ($operator == 'lt') $match = $date->lt($today);
+            elseif ($operator == 'eq') $match = $date->equalTo($today);
+            elseif ($operator == 'between') $match = $date->gt($today) && $date->lte($today->copy()->addDays($days[1]));
+
+            if ($match) {
+                return [
+                    'property_id' => $property->id,
+                    'property_name' => $property->name,
+                    'property_address' => $property->address,
+                    'item_id' => $item->id,
+                    'expiry_date' => $item->{$dateField},
+                    'type' => $relation
+                ];
+            }
+            return null;
+        })->filter()->values();
+    }
+
+    private function mapMaintenanceItems($properties, $operator, $days = [])
+    {
+        return $properties->map(function ($property) use ($operator, $days) {
+            $inspection = $property->latest_inspection;
+            if (!$inspection || !$inspection->maintenance_item) return null;
+
+            $item = $inspection->maintenance_item;
+            $date = Carbon::parse($item->next_follow_up_date);
+            $today = Carbon::today();
+
+            $match = false;
+            if ($operator == 'lt') $match = $date->lt($today);
+            elseif ($operator == 'eq') $match = $date->equalTo($today);
+            elseif ($operator == 'between') $match = $date->gt($today) && $date->lte($today->copy()->addDays($days[1]));
+
+            if ($match) {
+                return [
+                    'property_id' => $property->id,
+                    'property_name' => $property->name,
+                    'property_address' => $property->address,
+                    'item_id' => $item->id,
+                    'expiry_date' => $item->next_follow_up_date,
+                    'type' => 'maintenance_item'
+                ];
+            }
+            return null;
+        })->filter()->values();
+    }
+
+    private function filterItems($items, $dateField, $operator, $days = [], $customType = 'repair')
+    {
+        return $items->filter(function ($item) use ($dateField, $operator, $days) {
+            $date = Carbon::parse($item->{$dateField});
+            $today = Carbon::today();
+
+            if ($operator == 'lt') return $date->lt($today);
+            if ($operator == 'eq') return $date->equalTo($today);
+            if ($operator == 'between') return $date->gt($today) && $date->lte($today->copy()->addDays($days[1]));
+            return false;
+        })->map(function ($item) use ($dateField, $customType) {
+            return [
+                'item_id' => $item->id,
+                'expiry_date' => $item->{$dateField},
+                'type' => $customType,
+                'status' => $item->status ?? null
+            ];
+        })->values();
+    }
+
+    private function getDetailedAccreditationExpiries($user_id)
+    {
+        $items = Accreditation::where("created_by", $user_id)->get();
+        return $this->filterItems($items, 'accreditation_expiry_date', 'eq', [], 'accreditation');
+    }
 }
