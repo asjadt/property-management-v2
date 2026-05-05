@@ -2508,7 +2508,7 @@ public function getAccreditationReport()
         return $maintainance_report;
     }
 
-    public function getAllExpiries(Request $request)
+    public function getTodaysExpiries(Request $request)
     {
         try {
             $this->storeActivity($request, "");

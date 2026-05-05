@@ -208,7 +208,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::put('/v1.0/update-user-info', [AuthController::class, "updateUserInfo"]);
 
     Route::get('/v1.0/dashboard', [PropertyBasicController::class, "getDashboardData"]);
-    Route::get('/v1.0/all-expiries', [PropertyBasicController::class, "getAllExpiries"]);
+    Route::get('/v1.0/todays-expiries', [PropertyBasicController::class, "getTodaysExpiries"]);
 
     Route::get('/v1.0/inspection-reports', [PropertyBasicController::class, "getInspectionReportData"]);
 
