@@ -81,6 +81,32 @@ class PropertyController extends Controller
         $property->save();
     }
 
+    /**
+     * @OA\Get(
+     *      path="/v1.0/properties/statuses/options",
+     *      operationId="getPropertyStatuses",
+     *      tags={"property_management.property_management"},
+     *      security={{"bearerAuth": {}}},
+     *      summary="Get fixed property status options",
+     *      description="Returns the fixed property status list for dashboard filters and property status dropdowns.",
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @OA\Items(
+     *                      @OA\Property(property="value", type="string", example="available"),
+     *                      @OA\Property(property="label", type="string", example="Available / Vacant"),
+     *                      @OA\Property(property="description", type="string", example="The property or unit is empty and ready to be rented or sold.")
+     *                  )
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(response=401, description="Unauthenticated", @OA\JsonContent())
+     * )
+     */
     public function getPropertyStatuses(Request $request)
     {
         return response()->json([
@@ -88,6 +114,36 @@ class PropertyController extends Controller
         ], 200);
     }
 
+    /**
+     * @OA\Put(
+     *      path="/v1.0/properties/{id}/status",
+     *      operationId="updatePropertyStatus",
+     *      tags={"property_management.property_management"},
+     *      security={{"bearerAuth": {}}},
+     *      summary="Update property status and keep status history",
+     *      description="Updates the current status of a property and automatically closes the previous open history row before creating the new status history row.",
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          required=true,
+     *          description="Property ID",
+     *          @OA\Schema(type="integer", example=1)
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              required={"current_status"},
+     *              @OA\Property(property="current_status", type="string", enum={"available","occupied","reserved","under_maintenance","off_market","eviction","notice_given","under_offer","sold","blocked"}, example="under_maintenance"),
+     *              @OA\Property(property="from_date", type="string", format="date", example="2026-06-02"),
+     *              @OA\Property(property="note", type="string", example="Repair work started")
+     *          )
+     *      ),
+     *      @OA\Response(response=200, description="Successful operation", @OA\JsonContent()),
+     *      @OA\Response(response=401, description="Unauthenticated", @OA\JsonContent()),
+     *      @OA\Response(response=404, description="No property found", @OA\JsonContent()),
+     *      @OA\Response(response=422, description="Validation error", @OA\JsonContent())
+     * )
+     */
     public function updatePropertyStatus(Request $request, $id)
     {
         try {
@@ -120,6 +176,26 @@ class PropertyController extends Controller
         }
     }
 
+    /**
+     * @OA\Get(
+     *      path="/v1.0/properties/{id}/status-history",
+     *      operationId="getPropertyStatusHistory",
+     *      tags={"property_management.property_management"},
+     *      security={{"bearerAuth": {}}},
+     *      summary="Get property status history",
+     *      description="Returns the current status and full previous status history for one property, including from_date and to_date.",
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          required=true,
+     *          description="Property ID",
+     *          @OA\Schema(type="integer", example=1)
+     *      ),
+     *      @OA\Response(response=200, description="Successful operation", @OA\JsonContent()),
+     *      @OA\Response(response=401, description="Unauthenticated", @OA\JsonContent()),
+     *      @OA\Response(response=404, description="No property found", @OA\JsonContent())
+     * )
+     */
     public function getPropertyStatusHistory(Request $request, $id)
     {
         try {
@@ -142,6 +218,34 @@ class PropertyController extends Controller
         }
     }
 
+    /**
+     * @OA\Put(
+     *      path="/v1.0/properties/{id}/toggle-active",
+     *      operationId="togglePropertyActive",
+     *      tags={"property_management.property_management"},
+     *      security={{"bearerAuth": {}}},
+     *      summary="Activate or deactivate property",
+     *      description="Updates is_active. Inactive properties can be hidden from dashboard lists and excluded from calculations by frontend/backend filters.",
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          required=true,
+     *          description="Property ID",
+     *          @OA\Schema(type="integer", example=1)
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              required={"is_active"},
+     *              @OA\Property(property="is_active", type="boolean", example=true)
+     *          )
+     *      ),
+     *      @OA\Response(response=200, description="Successful operation", @OA\JsonContent()),
+     *      @OA\Response(response=401, description="Unauthenticated", @OA\JsonContent()),
+     *      @OA\Response(response=404, description="No property found", @OA\JsonContent()),
+     *      @OA\Response(response=422, description="Validation error", @OA\JsonContent())
+     * )
+     */
     public function togglePropertyActive(Request $request, $id)
     {
         try {
@@ -167,6 +271,25 @@ class PropertyController extends Controller
         }
     }
 
+    /**
+     * @OA\Get(
+     *      path="/v1.0/properties/statuses/summary",
+     *      operationId="propertyStatusSummary",
+     *      tags={"property_management.property_management"},
+     *      security={{"bearerAuth": {}}},
+     *      summary="Get dashboard property status summary",
+     *      description="Returns count totals by fixed property status. Optional is_active query filter supports active-only dashboard calculations.",
+     *      @OA\Parameter(
+     *          name="is_active",
+     *          in="query",
+     *          required=false,
+     *          description="Filter active or inactive properties",
+     *          @OA\Schema(type="boolean", example=true)
+     *      ),
+     *      @OA\Response(response=200, description="Successful operation", @OA\JsonContent()),
+     *      @OA\Response(response=401, description="Unauthenticated", @OA\JsonContent())
+     * )
+     */
     public function propertyStatusSummary(Request $request)
     {
         try {
