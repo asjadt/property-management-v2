@@ -16,6 +16,8 @@ use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Business;
 use App\Models\Property;
+use App\Models\PropertyStatus;
+use App\Models\PropertyStatusHistory;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -28,6 +30,168 @@ use Illuminate\Validation\ValidationException;
 class PropertyController extends Controller
 {
     use ErrorUtil, UserActivityUtil, BasicUtil;
+
+    private function normalisePropertyStatus(?string $status): string
+    {
+        return $status ?: PropertyStatus::AVAILABLE;
+    }
+
+    private function ensureInitialPropertyStatusHistory(Property $property, Request $request): void
+    {
+        $status = $this->normalisePropertyStatus($property->current_status ?? null);
+        $property->current_status = $status;
+        $property->save();
+
+        PropertyStatusHistory::firstOrCreate(
+            [
+                'property_id' => $property->id,
+                'status' => $status,
+                'to_date' => null,
+            ],
+            [
+                'from_date' => Carbon::today()->toDateString(),
+                'changed_by' => optional($request->user())->id,
+                'note' => 'Initial property status',
+            ]
+        );
+    }
+
+    private function syncPropertyStatusHistory(Property $property, ?string $newStatus, Request $request, ?string $note = null, ?string $fromDate = null): void
+    {
+        if (!$newStatus || $property->current_status === $newStatus) {
+            return;
+        }
+
+        $effectiveFromDate = $fromDate ?: Carbon::today()->toDateString();
+
+        PropertyStatusHistory::where('property_id', $property->id)
+            ->whereNull('to_date')
+            ->update(['to_date' => Carbon::parse($effectiveFromDate)->copy()->subDay()->toDateString()]);
+
+        PropertyStatusHistory::create([
+            'property_id' => $property->id,
+            'status' => $newStatus,
+            'from_date' => $effectiveFromDate,
+            'to_date' => null,
+            'changed_by' => optional($request->user())->id,
+            'note' => $note,
+        ]);
+
+        $property->current_status = $newStatus;
+        $property->save();
+    }
+
+    public function getPropertyStatuses(Request $request)
+    {
+        return response()->json([
+            'data' => PropertyStatus::options(),
+        ], 200);
+    }
+
+    public function updatePropertyStatus(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'current_status' => 'required|string|in:' . implode(',', PropertyStatus::values()),
+                'from_date' => 'nullable|date',
+                'note' => 'nullable|string',
+            ]);
+
+            $property = Property::where([
+                'id' => $id,
+                'created_by' => $request->user()->id,
+            ])->first();
+
+            if (!$property) {
+                return response()->json(['message' => 'no property found'], 404);
+            }
+
+            $this->syncPropertyStatusHistory(
+                $property,
+                $request->input('current_status'),
+                $request,
+                $request->input('note'),
+                $request->input('from_date')
+            );
+
+            return response()->json($property->load('status_histories'), 200);
+        } catch (Exception $e) {
+            return $this->sendError($e, 500, $request);
+        }
+    }
+
+    public function getPropertyStatusHistory(Request $request, $id)
+    {
+        try {
+            $property = Property::where([
+                'id' => $id,
+                'created_by' => $request->user()->id,
+            ])->first();
+
+            if (!$property) {
+                return response()->json(['message' => 'no property found'], 404);
+            }
+
+            return response()->json([
+                'property_id' => $property->id,
+                'current_status' => $property->current_status,
+                'data' => $property->status_histories()->get(),
+            ], 200);
+        } catch (Exception $e) {
+            return $this->sendError($e, 500, $request);
+        }
+    }
+
+    public function togglePropertyActive(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'is_active' => 'required|boolean',
+            ]);
+
+            $property = Property::where([
+                'id' => $id,
+                'created_by' => $request->user()->id,
+            ])->first();
+
+            if (!$property) {
+                return response()->json(['message' => 'no property found'], 404);
+            }
+
+            $property->is_active = $request->boolean('is_active');
+            $property->save();
+
+            return response()->json($property, 200);
+        } catch (Exception $e) {
+            return $this->sendError($e, 500, $request);
+        }
+    }
+
+    public function propertyStatusSummary(Request $request)
+    {
+        try {
+            $query = Property::where('created_by', $request->user()->id);
+
+            if ($request->filled('is_active')) {
+                $query->where('is_active', $request->boolean('is_active'));
+            }
+
+            $counts = $query->select('current_status', DB::raw('COUNT(*) as total'))
+                ->groupBy('current_status')
+                ->pluck('total', 'current_status')
+                ->toArray();
+
+            $data = collect(PropertyStatus::options())->map(function ($status) use ($counts) {
+                $status['total'] = $counts[$status['value']] ?? 0;
+                return $status;
+            })->values();
+
+            return response()->json(['data' => $data], 200);
+        } catch (Exception $e) {
+            return $this->sendError($e, 500, $request);
+        }
+    }
+
     /**
      *
      * @OA\Post(
@@ -290,6 +454,7 @@ class PropertyController extends Controller
 
                 $request_data = $request->validated();
                 $request_data["created_by"] = $request->user()->id;
+                $request_data["current_status"] = $this->normalisePropertyStatus($request_data["current_status"] ?? null);
 
                 $reference_no_exists =  DB::table('properties')->where(
                     [
@@ -311,6 +476,7 @@ class PropertyController extends Controller
                 $property =  Property::create($request_data);
                 $property->generated_id = Str::random(4) . $property->id . Str::random(4);
                 $property->save();
+                $this->ensureInitialPropertyStatusHistory($property, $request);
 
                 // for($i=0;$i<500;$i++) {
                 //     $property =  Property::create([
@@ -439,6 +605,7 @@ class PropertyController extends Controller
             return DB::transaction(function () use ($request) {
                 $requestData = $request->validated();
                 $requestData["created_by"] = $request->user()->id;
+                $requestData["current_status"] = $this->normalisePropertyStatus($requestData["current_status"] ?? null);
 
                 // Check if reference number already exists
                 $referenceExists = Property::where([
@@ -468,6 +635,7 @@ class PropertyController extends Controller
                 );
                 $property->images = $requestData["images"];
                 $property->save();
+                $this->ensureInitialPropertyStatusHistory($property, $request);
 
                 // Store and attach documents
                 $requestData["documents"] = $this->storeUploadedFiles(
@@ -939,13 +1107,16 @@ class PropertyController extends Controller
                     "created_by" => $request->user()->id
                 ]))->first();
 
-                $property->update($request_data);
-
                 if (!$property) {
                     return response()->json([
                         "message" => "no property found"
                     ], 404);
                 }
+
+                $newStatus = $request_data["current_status"] ?? null;
+                $request_data["current_status"] = $property->current_status;
+                $property->update($request_data);
+                $this->syncPropertyStatusHistory($property, $newStatus, $request, $request->input("status_note"));
 
                 $property->property_tenants()->detach();
                 if (!empty($request_data['tenant_ids'])) {
@@ -1045,6 +1216,8 @@ class PropertyController extends Controller
             $request_data = $request->validated();
 
             // Update property fields using fill()
+            $newStatus = $request_data["current_status"] ?? null;
+            $request_data["current_status"] = $property->current_status;
 
             if (isset($request_data["images"])) {
                 $request_data["images"] =  $this->storeUploadedFiles(
@@ -1812,7 +1985,8 @@ class PropertyController extends Controller
             $propertyQuery =  Property::with(
                 "property_landlords",
                 "property_tenants",
-                "latest_inspection"
+                "latest_inspection",
+                "latest_status_history"
             );
 
             $propertyQuery = $this->propertyQuery($propertyQuery);
@@ -2197,6 +2371,12 @@ class PropertyController extends Controller
             )
 
                 ->where(["properties.created_by" => $request->user()->id])
+                ->when($request->filled("current_status"), function ($query) use ($request) {
+                    $query->where("properties.current_status", $request->current_status);
+                })
+                ->when($request->filled("is_active"), function ($query) use ($request) {
+                    $query->where("properties.is_active", $request->boolean("is_active"));
+                })
 
                 ->when($request->filled("search_key"), function ($query) use ($request) {
                     $term = $request->search_key;
@@ -3055,6 +3235,7 @@ class PropertyController extends Controller
                     },
                     "documents",
                     "maintenance_item_types",
+                    "status_histories",
                 ]
 
             )

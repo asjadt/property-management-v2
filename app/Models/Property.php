@@ -24,6 +24,7 @@ class Property extends Model
         'type',
         'reference_no',
         'is_active',
+        'current_status',
         'date_of_instruction',
         'howDetached',
         "no_of_beds",
@@ -48,6 +49,7 @@ class Property extends Model
         'images' => 'array',
         'min_price' => 'decimal:2',
         'max_price' => 'decimal:2',
+        'is_active' => 'boolean',
     ];
     public function user()
     {
@@ -123,6 +125,17 @@ class Property extends Model
 
 
 
+
+
+    public function status_histories()
+    {
+        return $this->hasMany(PropertyStatusHistory::class, 'property_id', 'id')->orderByDesc('from_date')->orderByDesc('id');
+    }
+
+    public function latest_status_history()
+    {
+        return $this->hasOne(PropertyStatusHistory::class, 'property_id', 'id')->latestOfMany();
+    }
 
 
     public function repairs()

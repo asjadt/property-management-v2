@@ -35,6 +35,8 @@ class PropertyCreateRequest extends FormRequest
             'long' => 'nullable|numeric',
             'type' => "required|string",
             'reference_no' => 'required|string|max:255',
+            'current_status' => 'nullable|string|in:available,occupied,reserved,under_maintenance,off_market,eviction,notice_given,under_offer,sold,blocked',
+            'is_active' => 'nullable|boolean',
 
 
 
