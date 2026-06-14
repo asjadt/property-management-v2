@@ -2200,6 +2200,13 @@ class PropertyController extends Controller
      *     example="1"
      * ),
      * @OA\Parameter(
+     *     name="current_status",
+     *     in="query",
+     *     description="Filter properties by current status (e.g. available, occupied, reserved, under_maintenance, off_market, eviction, notice_given, under_offer, sold, blocked)",
+     *     required=false,
+     *     example="available"
+     * ),
+     * @OA\Parameter(
      *     name="category",
      *     in="query",
      *     description="Filter properties by category",

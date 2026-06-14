@@ -622,53 +622,58 @@ class RentController extends Controller
 
           
         
-            $tenancy_agreements = TenancyAgreement::
-            whereHas("property", function ($query) {
-                $query->where("properties.created_by", auth()->user()->id)
-                ->when(request()->filled("property_ids"), function ($query) {
-                $property_ids = explode(',', request()->input("property_ids"));
-                return  $query->whereIn("properties.id", $property_ids);
-            })
-            ->when(request()->filled("landlord_id"), function ($query) {
-                return $query->whereHas("property_landlords", function ($query) {
+            $highlights_query = Rent::where('rents.created_by', auth()->user()->id)
+                ->when(request()->filled("tenant_ids"), function ($query) {
+                    $tenant_ids = explode(',', request()->input("tenant_ids"));
+                    return $query->whereHas("tenancy_agreement.tenants", function ($query) use ($tenant_ids) {
+                        $query->whereIn("tenants.id", $tenant_ids);
+                    });
+                })
+                ->when(request()->filled("landlord_id"), function ($query) {
                     $landlord_id = explode(',', request()->input("landlord_id"));
-                    $query->whereIn("landlords.id", $landlord_id);
-                });
-            })
-             ->when(request()->filled("landlord_ids"), function ($query) {
-                return $query->whereHas("property_landlords", function ($query) {
+                    return $query->whereHas("tenancy_agreement.property.property_landlords", function ($query) use ($landlord_id) {
+                        $query->whereIn("landlords.id", $landlord_id);
+                    });
+                })
+                ->when(request()->filled("landlord_ids"), function ($query) {
                     $landlord_ids = explode(',', request()->input("landlord_ids"));
-                    $query->whereIn("landlords.id", $landlord_ids);
+                    return $query->whereHas("tenancy_agreement.property.property_landlords", function ($query) use ($landlord_ids) {
+                        $query->whereIn("landlords.id", $landlord_ids);
+                    });
+                })
+                ->when(request()->filled("property_ids"), function ($query) {
+                    $property_ids = explode(',', request()->input("property_ids"));
+                    return $query->whereHas("tenancy_agreement", function ($query) use ($property_ids) {
+                        $query->whereIn("tenancy_agreements.property_id", $property_ids);
+                    });
+                })
+                ->when(request()->filled("rent_reference"), function ($query) {
+                    return $query->where('rents.rent_reference', "like", "%" . request()->input("rent_reference") . "%");
+                })
+                ->when(request()->filled("start_payment_date"), function ($query) {
+                    return $query->whereDate('rents.payment_date', ">=", request()->input("start_payment_date"));
+                })
+                ->when(request()->filled("end_payment_date"), function ($query) {
+                    return $query->whereDate('rents.payment_date', "<=", request()->input("end_payment_date"));
+                })
+                ->when(request()->filled("start_date"), function ($query) {
+                    return $query->whereDate('rents.created_at', ">=", request()->input("start_date"));
+                })
+                ->when(request()->filled("end_date"), function ($query) {
+                    return $query->whereDate('rents.created_at', "<=", request()->input("end_date"));
                 });
-            });
-            })
 
-            ->get();
+            $total_rent = (double) (clone $highlights_query)->sum('rent_amount');
+            $total_paid = (double) (clone $highlights_query)->sum('paid_amount');
+            $total_arrears = $total_rent - $total_paid;
+            $highest_rent = (double) (clone $highlights_query)->max('rent_amount');
 
-            error_log(json_encode(["check1", $tenancy_agreements->count()]));
-
-          
-
-                 // Get the highest rent from the tenancy agreements
-            $highest_rent = TenancyAgreement::whereIn('tenancy_agreements.id', $tenancy_agreements->pluck("id"))
-                ->max('total_agreed_rent');
-
-                  $data_highlights = [
-                "total_rent" => 0,
+            $data_highlights = [
+                "total_rent" => $total_rent,
                 "highest_rent" => $highest_rent,
-                "total_paid" => 0,
-                "total_arrears" => 0
+                "total_paid" => $total_paid,
+                "total_arrears" => $total_arrears
             ];
-
-
-            foreach ($tenancy_agreements as $agreement) {
-
-                $pyment_data = $this->calculatePayments($agreement, today());
-
-                $data_highlights["total_rent"] += $pyment_data["total_rent"];
-                $data_highlights["total_arrears"] += $pyment_data["total_arrears"];
-                $data_highlights["total_paid"] += $pyment_data["total_paid"];
-            }
 
 
 

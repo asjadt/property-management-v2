@@ -1838,8 +1838,8 @@ class PropertyBasicController extends Controller
             $data["total_due_invoice_count"] = (int) Invoice::where([
                 "invoices.created_by" => $request->user()->id
             ])
-                ->where("invoices.status", "!=", "draft")
-
+                ->whereNotIn("invoices.status", ['draft', 'paid', 'overpaid'])
+                ->whereDate('invoices.due_date', '>=', Carbon::now())
                 ->select(
                     DB::raw('
         COALESCE(
@@ -1853,8 +1853,8 @@ class PropertyBasicController extends Controller
             $data["total_due_invoice_amount"] = Invoice::where([
                 "invoices.created_by" => $request->user()->id
             ])
-                ->where("invoices.status", "!=", "draft")
-
+                ->whereNotIn("invoices.status", ['draft', 'paid', 'overpaid'])
+                ->whereDate('invoices.due_date', '>=', Carbon::now())
                 ->select(
                     DB::raw('
         COALESCE(
@@ -1869,8 +1869,8 @@ class PropertyBasicController extends Controller
             $data["total_overdue_invoice_count"] = Invoice::where([
                 "invoices.created_by" => $request->user()->id
             ])
-
-                ->where('invoices.status',  'overdue')
+                ->whereNotIn("invoices.status", ['draft', 'paid', 'overpaid'])
+                ->whereDate('invoices.due_date', '<', Carbon::now())
                 ->select(
                     DB::raw('
         COALESCE(
@@ -1884,8 +1884,8 @@ class PropertyBasicController extends Controller
             $data["total_overdue_invoice_amount"] = Invoice::where([
                 "invoices.created_by" => $request->user()->id
             ])
-                ->where('invoices.status',  'overdue')
-
+                ->whereNotIn("invoices.status", ['draft', 'paid', 'overpaid'])
+                ->whereDate('invoices.due_date', '<', Carbon::now())
                 ->select(
                     DB::raw('
         COALESCE(
@@ -1965,6 +1965,8 @@ COALESCE(
 
             // GET RENT REPORT
             $data["rent_report"] = $this->rent_report();
+
+            $data["property_status_report"] = $this->getPropertyStatusReport();
 
             return response()->json($data, 200);
         } catch (Exception $e) {
@@ -2310,6 +2312,30 @@ COALESCE(
                 })->count(),
         ];
     }
+
+    public function getPropertyStatusReport()
+    {
+        $properties_query = Property::where("created_by", auth()->user()->id);
+
+        $counts = $properties_query->select('current_status', DB::raw('COUNT(*) as total'))
+            ->groupBy('current_status')
+            ->pluck('total', 'current_status')
+            ->toArray();
+
+        return [
+            'available' => $counts['available'] ?? 0,
+            'occupied' => $counts['occupied'] ?? 0,
+            'reserved' => $counts['reserved'] ?? 0,
+            'under_maintenance' => $counts['under_maintenance'] ?? 0,
+            'off_market' => $counts['off_market'] ?? 0,
+            'eviction' => $counts['eviction'] ?? 0,
+            'notice_given' => $counts['notice_given'] ?? 0,
+            'under_offer' => $counts['under_offer'] ?? 0,
+            'sold' => $counts['sold'] ?? 0,
+            'blocked' => $counts['blocked'] ?? 0,
+        ];
+    }
+
 public function getAccreditationReport()
 {
     $base_query = Accreditation::where("created_by", auth()->user()->id);
