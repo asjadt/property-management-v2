@@ -1,61 +1,111 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+@extends('layouts.app')
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+@section('title', 'User Activity Logs')
 
-    <title>Hello, world!</title>
-  </head>
-  <body>
-
-  <div class="container">
-    <div class="row mt-5">
-        <table class="table table-responsive">
-            <thead>
-                <th>id</th>
-<th>api_url</th>
-<th>user</th>
-<th>user_id</th>
-<th>activity</th>
-<th>ip_address</th>
-<th>request_method</th>
-            </thead>
-            <tbody>
-                @foreach ($activity_logs as $activity_log)
-                <tr>
-                    <td>{{$activity_log->id}} </td>
-                    <td>{{$activity_log->api_url}} </td>
-<td> {{$activity_log->user}} </td>
-<td>{{$activity_log->user_id}} </td>
-<td>{{$activity_log->activity}} </td>
-<td>{{$activity_log->ip_address}} </td>
-<td>{{$activity_log->request_method}} </td>
-                </tr>
-                @endforeach
-
-
-            </tbody>
-
-        </table>
-
-        {{$activity_logs->links()}}
-
+@section('header')
+    <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center">
+                <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-white">User Activity Logs</h1>
+                <p class="text-slate-400 text-sm mt-0.5">
+                    Audit trail of all user actions &mdash;
+                    <span class="text-emerald-400 font-medium">{{ $activity_logs->total() }} total</span>
+                </p>
+            </div>
+        </div>
+        <a href="{{ env('APP_URL') }}" class="flex items-center gap-2 text-slate-400 hover:text-white text-sm transition-colors px-3 py-2 rounded-lg hover:bg-slate-800 border border-slate-700">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back
+        </a>
     </div>
-  </div>
+@endsection
 
-    <!-- Optional JavaScript; choose one of the two! -->
+@section('content')
+    <div class="rounded-xl border border-slate-800 bg-slate-900 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead>
+                    <tr class="border-b border-slate-800 bg-slate-800/50">
+                        <th class="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">#ID</th>
+                        <th class="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">API URL</th>
+                        <th class="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">User</th>
+                        <th class="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">User ID</th>
+                        <th class="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Activity</th>
+                        <th class="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">IP Address</th>
+                        <th class="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Method</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800">
+                    @forelse ($activity_logs as $activity_log)
+                    <tr class="hover:bg-slate-800/40 transition-colors">
+                        <td class="px-4 py-3 text-slate-500 font-mono text-xs">{{ $activity_log->id }}</td>
+                        <td class="px-4 py-3">
+                            <span class="text-indigo-400 text-xs font-mono truncate max-w-[180px] block" title="{{ $activity_log->api_url }}">
+                                {{ $activity_log->api_url }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-full bg-indigo-600/30 border border-indigo-500/30 flex items-center justify-center shrink-0">
+                                    <span class="text-indigo-300 text-xs font-semibold">
+                                        {{ strtoupper(substr($activity_log->user ?? '?', 0, 1)) }}
+                                    </span>
+                                </div>
+                                <span class="text-slate-300 text-xs">{{ $activity_log->user }}</span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 text-slate-400 text-xs font-mono">{{ $activity_log->user_id }}</td>
+                        <td class="px-4 py-3">
+                            <span class="text-slate-300 text-xs line-clamp-2 max-w-[200px] block" title="{{ $activity_log->activity }}">
+                                {{ $activity_log->activity }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-slate-400 text-xs font-mono">{{ $activity_log->ip_address }}</td>
+                        <td class="px-4 py-3">
+                            @php
+                                $method = strtoupper($activity_log->request_method ?? '');
+                                $methodColor = match($method) {
+                                    'GET' => 'bg-sky-500/20 text-sky-300 border-sky-500/30',
+                                    'POST' => 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+                                    'PUT', 'PATCH' => 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+                                    'DELETE' => 'bg-rose-500/20 text-rose-300 border-rose-500/30',
+                                    default => 'bg-slate-700 text-slate-400 border-slate-600',
+                                };
+                            @endphp
+                            <span class="inline-flex items-center px-2 py-0.5 rounded border text-xs font-mono font-semibold {{ $methodColor }}">
+                                {{ $method ?: 'N/A' }}
+                            </span>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" class="px-4 py-16 text-center">
+                            <div class="flex flex-col items-center gap-3">
+                                <div class="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    </svg>
+                                </div>
+                                <p class="text-slate-500 text-sm">No activity logs found</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
 
-    <!-- Option 1: Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-
-    <!-- Option 2: Separate Popper and Bootstrap JS -->
-    <!--
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
-    -->
-  </body>
-</html>
+        @if ($activity_logs->hasPages())
+        <div class="px-4 py-4 border-t border-slate-800 bg-slate-900/50">
+            {{ $activity_logs->links() }}
+        </div>
+        @endif
+    </div>
+@endsection
