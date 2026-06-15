@@ -1772,7 +1772,7 @@ class PropertyBasicController extends Controller
      *      ),
      *        @OA\Response(
      *          response=422,
-     *          description="Unprocesseble Content",
+     *          description="Unprocessable Content",
      *    @OA\JsonContent(),
      *      ),
      *      @OA\Response(
@@ -1998,7 +1998,7 @@ COALESCE(
      *      ),
      *        @OA\Response(
      *          response=422,
-     *          description="Unprocesseble Content",
+     *          description="Unprocessable Content",
      *    @OA\JsonContent(),
      *      ),
      *      @OA\Response(
@@ -2032,6 +2032,8 @@ COALESCE(
             return $this->sendError($e, 500, $request);
         }
     }
+
+
     public function getRepairReport()
     {
 
@@ -2384,49 +2386,55 @@ public function getAccreditationReport()
         // Count documents for different expiration periods
         $maintainance_report = [
 
-            'total_data' => (clone $base_maintance_query)->count(),
-            'total_expired' => (clone $base_maintance_query)
-                ->whereHas("latest_inspection", function ($subQuery) {
-                    $subQuery->whereDate('tenant_inspections.next_inspection_date', '<', Carbon::today());
-                })
+            'total_data' => (clone $base_maintance_query)
+                ->whereHas("latest_inspection.maintenance_item", function ($subQuery) {
+                    $subQuery->where("maintenance_items.status", "work_required");
+                })->count(),
 
+            'total_expired' => (clone $base_maintance_query)
+                ->whereHas("latest_inspection.maintenance_item", function ($subQuery) {
+                    $subQuery->where("maintenance_items.status", "work_required")
+                             ->whereDate('maintenance_items.next_follow_up_date', '<', Carbon::today());
+                })
                 ->count(),
+
             'today_expiry' => (clone $base_maintance_query)
-                ->whereHas("latest_inspection", function ($subQuery) {
-                    $subQuery->whereDate('tenant_inspections.next_inspection_date', Carbon::today());
+                ->whereHas("latest_inspection.maintenance_item", function ($subQuery) {
+                    $subQuery->where("maintenance_items.status", "work_required")
+                             ->whereDate('maintenance_items.next_follow_up_date', Carbon::today());
                 })
                 ->count(),
 
             'expires_in_15_days' => (clone $base_maintance_query)
-                ->whereHas("latest_inspection", function ($subQuery) {
-                    $subQuery->whereDate('tenant_inspections.next_inspection_date', ">", Carbon::today())
-                        ->whereDate('tenant_inspections.next_inspection_date', "<=", Carbon::today()->addDays(15));
+                ->whereHas("latest_inspection.maintenance_item", function ($subQuery) {
+                    $subQuery->where("maintenance_items.status", "work_required")
+                             ->whereDate('maintenance_items.next_follow_up_date', ">", Carbon::today())
+                             ->whereDate('maintenance_items.next_follow_up_date', "<=", Carbon::today()->addDays(15));
                 })
-
                 ->count(),
 
             'expires_in_30_days' => (clone $base_maintance_query)
-                ->whereHas("latest_inspection", function ($subQuery) {
-                    $subQuery->whereDate('tenant_inspections.next_inspection_date', ">", Carbon::today())
-                        ->whereDate('tenant_inspections.next_inspection_date', "<=", Carbon::today()->addDays(30));
+                ->whereHas("latest_inspection.maintenance_item", function ($subQuery) {
+                    $subQuery->where("maintenance_items.status", "work_required")
+                             ->whereDate('maintenance_items.next_follow_up_date', ">", Carbon::today())
+                             ->whereDate('maintenance_items.next_follow_up_date', "<=", Carbon::today()->addDays(30));
                 })
-
                 ->count(),
 
             'expires_in_45_days' => (clone $base_maintance_query)
-                ->whereHas("latest_inspection", function ($subQuery) {
-                    $subQuery->whereDate('tenant_inspections.next_inspection_date', ">", Carbon::today())
-                        ->whereDate('tenant_inspections.next_inspection_date', "<=", Carbon::today()->addDays(45));
+                ->whereHas("latest_inspection.maintenance_item", function ($subQuery) {
+                    $subQuery->where("maintenance_items.status", "work_required")
+                             ->whereDate('maintenance_items.next_follow_up_date', ">", Carbon::today())
+                             ->whereDate('maintenance_items.next_follow_up_date', "<=", Carbon::today()->addDays(45));
                 })
-
                 ->count(),
 
             'expires_in_60_days' => (clone $base_maintance_query)
-                ->whereHas("latest_inspection", function ($subQuery) {
-                    $subQuery->whereDate('tenant_inspections.next_inspection_date', ">", Carbon::today())
-                        ->whereDate('tenant_inspections.next_inspection_date', "<=", Carbon::today()->addDays(60));
+                ->whereHas("latest_inspection.maintenance_item", function ($subQuery) {
+                    $subQuery->where("maintenance_items.status", "work_required")
+                             ->whereDate('maintenance_items.next_follow_up_date', ">", Carbon::today())
+                             ->whereDate('maintenance_items.next_follow_up_date', "<=", Carbon::today()->addDays(60));
                 })
-
                 ->count()
 
         ];

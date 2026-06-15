@@ -353,7 +353,7 @@ class TenantInspectionController extends Controller
                 if (is_numeric($expiryDays) && $expiryDays > 0) {
                     $query->whereHas('maintenance_item', function ($subQuery) use ($expiryDays) {
                         $subQuery->whereDate('maintenance_items.next_follow_up_date', '>=', Carbon::today())
-                                 ->whereDate('maintenance_items.next_follow_up_date', '<=', Carbon::today()->addDays($expiryDays));
+                                 ->whereDate('maintenance_items.next_follow_up_date', '<=', Carbon::today()->addDays((int) $expiryDays));
                     });
                 }
             })

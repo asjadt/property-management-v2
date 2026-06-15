@@ -131,7 +131,7 @@ trait BasicUtil
     public function calculatePayments($agreement, $compareDate)
     {
         $start_date = Carbon::parse($agreement->date_of_moving)->startOfDay();
-        $end_date = $start_date->copy()->addMonthsNoOverflow(explode("_", $agreement->tenant_contact_duration)[0])->subDay()->endOfDay();
+        $end_date = $start_date->copy()->addMonthsNoOverflow((int) explode("_", $agreement->tenant_contact_duration)[0])->subDay()->endOfDay();
 
 
         $due_day = (int)$agreement->rent_due_day;

@@ -13,12 +13,9 @@ use App\Http\Requests\AccreditationCreateRequest;
 use App\Http\Requests\AccreditationUpdateRequest;
 use App\Http\Requests\GetIdRequest;
 use App\Http\Utils\BasicUtil;
-use App\Http\Utils\BusinessUtil;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Accreditation;
-use App\Models\DisabledAccreditation;
-use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -386,7 +383,7 @@ class AccreditationController extends Controller
                     $expiry_days = request()->input('accreditation_expired_in');
                     if (is_numeric($expiry_days) && $expiry_days > 0) {
                         $query->whereDate('accreditations.accreditation_expiry_date', '>', Carbon::today())
-                            ->whereDate('accreditations.accreditation_expiry_date', '<=', Carbon::today()->addDays($expiry_days));
+                            ->whereDate('accreditations.accreditation_expiry_date', '<=', Carbon::today()->addDays((int) $expiry_days));
                     }
                 }
             }
