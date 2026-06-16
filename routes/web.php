@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DevAccessController;
 use App\Http\Controllers\SetUpController;
 use App\Http\Controllers\SwaggerLoginController;
 use App\Mail\SendInvoiceReminderEmail;
@@ -24,47 +25,78 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+// Developer Authentication Routes (Public)
+Route::get('/dev/login', [DevAccessController::class, 'showLoginForm'])->name('dev.login');
+Route::post('/dev/send-otp', [DevAccessController::class, 'sendOtp'])->name('dev.send-otp');
+Route::post('/dev/verify-otp', [DevAccessController::class, 'verifyOtp'])->name('dev.verify-otp');
+
+// Protected Developer Routes
+Route::middleware([\App\Http\Middleware\DevAccessMiddleware::class])->group(function () {
+    
+    Route::post('/dev/logout', [DevAccessController::class, 'logout'])->name('dev.logout');
+
+    Route::get('/', function () {
+        return view('welcome');
+    });
+
+    Route::get('/error-log', [SetUpController::class, "getErrorLogs"])->name("error-log");
+    Route::get('/activity-log', [SetUpController::class, "getActivityLogs"])->name("activity-log");
+
+    Route::get('/setup', [SetUpController::class, "setUp"])->name("setup");
+    Route::get('/setup2', [SetUpController::class, "setUp2"])->name("setup2");
+
+    Route::get('/backup', [SetUpController::class, "backup"])->name("backup");
+
+    Route::get('/v1/db-operation', [SetUpController::class, "dbOperation1"]);
+
+    Route::get('/roleRefresh', [SetUpController::class, "roleRefresh"])->name("roleRefresh");
+    Route::get('/swagger-refresh', [SetUpController::class, "swaggerRefresh"]);
+    Route::get('/automobile-refresh', [SetUpController::class, "automobileRefresh"]);
+
+    Route::get("/swagger-login",[SwaggerLoginController::class,"login"])->name("login.view");
+    Route::post("/swagger-login",[SwaggerLoginController::class,"passUser"]);
+
+    Route::get('/migrate', [SetUpController::class, "migrate"]);
+    Route::get('/migrate-activity', [SetUpController::class, "migrateActivity"]);
+
+    Route::get('/seed', [SetUpController::class, "seed"]);
+
+    Route::get("/custom-command",function(Request $request) {
+        Artisan::call('reminder:send');
+        return "done";
+    });
+
+    Route::get("/test",function() {
+        Log::info('Task started.');
+        $invoice_reminders = InvoiceReminder::whereDate(
+           "reminder_date", today()
+       )
+       ->where([
+           "send_reminder" => TRUE
+       ])
+       ->get()
+       ;
+
+       foreach($invoice_reminders as $invoice_reminder) {
+           $recipients = ["drrifatalashwad0@gmail.com"];
+           return response()->json($invoice_reminder->invoice);
+           if($invoice_reminder->invoice->tenant) {
+               array_push($recipients, $invoice_reminder->invoice->tenant->email);
+           }
+           if($invoice_reminder->invoice->landlord) {
+               array_push($recipients, $invoice_reminder->invoice->landlord->email);
+           }
+
+           Mail::to($recipients)
+           ->send(new SendInvoiceReminderEmail($invoice_reminder->invoice));
+       }
+
+              Log::info('Task executed.');
+
+    });
 });
 
-
-Route::get('/error-log', [SetUpController::class, "getErrorLogs"])->name("error-log");
-Route::get('/activity-log', [SetUpController::class, "getActivityLogs"])->name("activity-log");
-
-Route::get('/setup', [SetUpController::class, "setUp"])->name("setup");
-Route::get('/setup2', [SetUpController::class, "setUp2"])->name("setup2");
-
-
-Route::get('/backup', [SetUpController::class, "backup"])->name("backup");
-
-Route::get('/v1/db-operation', [SetUpController::class, "dbOperation1"]);
-
-Route::get('/roleRefresh', [SetUpController::class, "roleRefresh"])->name("roleRefresh");
-Route::get('/swagger-refresh', [SetUpController::class, "swaggerRefresh"]);
-Route::get('/automobile-refresh', [SetUpController::class, "automobileRefresh"]);
-
-
-Route::get("/swagger-login",[SwaggerLoginController::class,"login"])->name("login.view");
-Route::post("/swagger-login",[SwaggerLoginController::class,"passUser"]);
-
-Route::get('/migrate', [SetUpController::class, "migrate"]);
-Route::get('/migrate-activity', [SetUpController::class, "migrateActivity"]);
-
-Route::get('/seed', [SetUpController::class, "seed"]);
-
- 
-
-
-Route::get("/custom-command",function(Request $request) {
-    Artisan::call('reminder:send');
-    return "done";
-});
-
-
-
-
-
+// Public User Activation Route
 Route::get("/activate/{token}",function(Request $request,$token) {
     $user = User::where([
         "email_verify_token" => $token,
@@ -109,36 +141,3 @@ Route::get("/activate/{token}",function(Request $request,$token) {
 
     return view("dynamic-welcome-message",["html_content" => $html_final]);
 });
-
-Route::get("/test",function() {
-
-    Log::info('Task started.');
-    $invoice_reminders = InvoiceReminder::whereDate(
-       "reminder_date", today()
-   )
-   ->where([
-       "send_reminder" => TRUE
-   ])
-   ->get()
-   ;
-
-   foreach($invoice_reminders as $invoice_reminder) {
-       $recipients = ["drrifatalashwad0@gmail.com"];
-       return response()->json($invoice_reminder->invoice);
-       if($invoice_reminder->invoice->tenant) {
-           array_push($recipients, $invoice_reminder->invoice->tenant->email);
-       }
-       if($invoice_reminder->invoice->landlord) {
-           array_push($recipients, $invoice_reminder->invoice->landlord->email);
-       }
-
-       Mail::to($recipients)
-       ->send(new SendInvoiceReminderEmail($invoice_reminder->invoice));
-   }
-
-          Log::info('Task executed.');
-
-
-});
-
-

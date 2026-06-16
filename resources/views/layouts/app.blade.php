@@ -31,6 +31,14 @@
                     <a href="{{ env('APP_URL') }}/api/documentation" class="text-slate-400 hover:text-white text-sm transition-colors px-3 py-1.5 rounded-md hover:bg-slate-800">
                         API Docs
                     </a>
+                    @if(session('dev_access_granted'))
+                    <form action="{{ route('dev.logout') }}" method="POST" class="inline ml-2">
+                        @csrf
+                        <button type="submit" class="text-error hover:text-white text-sm transition-colors px-3 py-1.5 rounded-md hover:bg-error/20 font-medium">
+                            Logout Access
+                        </button>
+                    </form>
+                    @endif
                 </div>
             </div>
         </div>

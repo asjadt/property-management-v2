@@ -61,9 +61,9 @@ return [
              * Middleware allows to prevent unexpected access to API documentation
             */
             'middleware' => [
-                'api' => ["web","swagger"],
+                'api' => ["web", \App\Http\Middleware\DevAccessMiddleware::class, "swagger"],
                 'asset' => [],
-                'docs' => [],
+                'docs' => ["web", \App\Http\Middleware\DevAccessMiddleware::class],
                 'oauth2_callback' => [],
             ],
 
