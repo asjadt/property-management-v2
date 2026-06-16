@@ -117,11 +117,37 @@ class SetUpController extends Controller
     }
 
     //  migrate
-    public function migrate(Request $request)
+    public function migrate()
     {
 
+        // CHECK MIGRATION
         Artisan::call('check:migrate');
-        return "migrated";
+
+        // SEND RESPONSE
+        return response()->json([
+            "status" => 200,
+            "message" => "Migration success",
+        ],200);
+    }
+
+    //  migrate activity
+    public function migrateActivity()
+    {
+        try {
+            Artisan::call('migrate', [
+                '--path' => 'database/activity_migrations'
+            ]);
+
+            return response()->json([
+                "status" => 200,
+                "message" => "Activity migration success",
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                "status" => 500,
+                "message" => "Migration failed: " . $e->getMessage(),
+            ], 500);
+        }
     }
 
 
@@ -135,7 +161,7 @@ class SetUpController extends Controller
         Artisan::call('route:clear');
         Artisan::call('l5-swagger:generate');
 
-        return "Swagger documentation regenerated successfully";
+        return redirect()->route("swagger.documentation");
     }
 
     public function setUp(Request $request)

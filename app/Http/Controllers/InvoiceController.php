@@ -267,7 +267,7 @@ class InvoiceController extends Controller
                 }
 
                 $invoice->generated_id = Str::random(4) . $invoice->id . Str::random(4);
-                $invoice->shareable_link =  env("FRONT_END_URL_DASHBOARD") . "/share/invoice/" . Str::random(4) . "-" . $invoice->generated_id . "-" . Str::random(4);
+                $invoice->shareable_link =  env("FRONT_END_URL") . "/share/invoice/" . Str::random(4) . "-" . $invoice->generated_id . "-" . Str::random(4);
 
                 $invoice->save();
 
@@ -1180,7 +1180,7 @@ class InvoiceController extends Controller
             "landlord_rent_payable" => function ($q) {
                 $q->select("landlord_rent_payables.id", "landlord_rent_payables.generated_id");
             }
-        
+
         ]);
 
 

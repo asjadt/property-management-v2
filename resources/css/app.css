@@ -3,18 +3,19 @@
 @theme {
     --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
 
-    --color-primary-50: #eef2ff;
-    --color-primary-100: #e0e7ff;
-    --color-primary-200: #c7d2fe;
-    --color-primary-300: #a5b4fc;
-    --color-primary-400: #818cf8;
-    --color-primary-500: #6366f1;
-    --color-primary-600: #4f46e5;
-    --color-primary-700: #4338ca;
-    --color-primary-800: #3730a3;
-    --color-primary-900: #312e81;
-
-    --color-surface: #0f172a;
-    --color-surface-2: #1e293b;
-    --color-surface-3: #334155;
+    --color-primary: #1E4658;
+    --color-primary-content: #ffffff;
+    --color-secondary: #B4C61A;
+    --color-secondary-content: #ffffff;
+    --color-accent: #17394E;
+    --color-neutral: #374151;
+    --color-base-100: #ffffff;
+    --color-base-200: #e2e8f0;
+    --color-base-300: #E9EBEB;
+    --color-content: #1E4658;
+    --color-muted: #5C6F77;
+    --color-info: #38bdf8;
+    --color-success: #34d399;
+    --color-warning: #fde047;
+    --color-error: #ef4444;
 }

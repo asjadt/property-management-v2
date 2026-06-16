@@ -201,7 +201,7 @@ else {
                 $receipt->save();
 
                 $invoice->generated_id = Str::random(4) . $invoice->id . Str::random(4);
-                $invoice->shareable_link =  env("FRONT_END_URL_DASHBOARD")."/share/invoice/". Str::random(4) . "-". $invoice->generated_id ."-" . Str::random(4);
+                $invoice->shareable_link =  env("FRONT_END_URL")."/share/invoice/". Str::random(4) . "-". $invoice->generated_id ."-" . Str::random(4);
 
                 $invoice->save();
 
@@ -238,7 +238,7 @@ else {
                 }
                 $invoice_payment->generated_id = Str::random(4) . $invoice_payment->id . Str::random(4);
 
-                $invoice_payment->shareable_link = env("FRONT_END_URL_DASHBOARD")."/share/receipt/". Str::random(4) . "-". $invoice_payment->generated_id ."-" . Str::random(4);
+                $invoice_payment->shareable_link = env("FRONT_END_URL")."/share/receipt/". Str::random(4) . "-". $invoice_payment->generated_id ."-" . Str::random(4);
 
                 $invoice_payment->save();
 

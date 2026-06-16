@@ -151,7 +151,7 @@ public function createInvoicePayment(InvoicePaymentCreateRequest $request)
             }
             $invoice_payment->generated_id = Str::random(4) . $invoice_payment->id . Str::random(4);
 
-            $invoice_payment->shareable_link = env("FRONT_END_URL_DASHBOARD")."/share/receipt/". Str::random(4) . "-". $invoice_payment->generated_id ."-" . Str::random(4);
+            $invoice_payment->shareable_link = env("FRONT_END_URL")."/share/receipt/". Str::random(4) . "-". $invoice_payment->generated_id ."-" . Str::random(4);
 
             $invoice_payment->save();
 

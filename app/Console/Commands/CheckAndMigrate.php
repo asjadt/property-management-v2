@@ -18,6 +18,11 @@ class CheckAndMigrate extends Command
 
     public function handle()
     {
+        // Ensure the migrations table exists before querying it
+        if (!Schema::hasTable('migrations')) {
+            Artisan::call('migrate:install');
+        }
+
         // Get all migration files in the database/migrations directory
         $migrationFiles = glob(database_path('migrations/*.php'));
 

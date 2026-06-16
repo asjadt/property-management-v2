@@ -49,6 +49,7 @@ Route::get("/swagger-login",[SwaggerLoginController::class,"login"])->name("logi
 Route::post("/swagger-login",[SwaggerLoginController::class,"passUser"]);
 
 Route::get('/migrate', [SetUpController::class, "migrate"]);
+Route::get('/migrate-activity', [SetUpController::class, "migrateActivity"]);
 
 Route::get('/seed', [SetUpController::class, "seed"]);
 

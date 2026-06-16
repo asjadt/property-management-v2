@@ -144,7 +144,7 @@ class BillController extends Controller
             }
 
             $bill->generated_id = Str::random(4) . $bill->id . Str::random(4);
-            $bill->shareable_link =  env("FRONT_END_URL_DASHBOARD")."/share/invoice/". Str::random(4) . "-". $bill->generated_id ."-" . Str::random(4);
+            $bill->shareable_link =  env("FRONT_END_URL")."/share/invoice/". Str::random(4) . "-". $bill->generated_id ."-" . Str::random(4);
 
             $bill->save();
 
@@ -152,7 +152,7 @@ class BillController extends Controller
 
             $bill_items = collect($request_data["bill_items"])->map(function ($item)use ($bill) {
 
-                
+
 
 
 
@@ -261,7 +261,7 @@ class BillController extends Controller
         }
 
         $invoice->generated_id = Str::random(4) . $invoice->id . Str::random(4);
-        $invoice->shareable_link =  env("FRONT_END_URL_DASHBOARD")."/share/invoice/". Str::random(4) . "-". $invoice->generated_id ."-" . Str::random(4);
+        $invoice->shareable_link =  env("FRONT_END_URL")."/share/invoice/". Str::random(4) . "-". $invoice->generated_id ."-" . Str::random(4);
 
         $invoice->save();
 
@@ -285,7 +285,7 @@ class BillController extends Controller
                     }
 
         }
- 
+
 
             return [
                 "name" => $item["item"],
@@ -316,7 +316,7 @@ class BillController extends Controller
         }
         $invoice_payment->generated_id = Str::random(4) . $invoice_payment->id . Str::random(4);
 
-        $invoice_payment->shareable_link = env("FRONT_END_URL_DASHBOARD")."/share/receipt/". Str::random(4) . "-". $invoice_payment->generated_id ."-" . Str::random(4);
+        $invoice_payment->shareable_link = env("FRONT_END_URL")."/share/receipt/". Str::random(4) . "-". $invoice_payment->generated_id ."-" . Str::random(4);
 
         $invoice_payment->save();
 
@@ -629,7 +629,7 @@ $invoice_prev = Invoice::where([
            } else {
             $invoice  = Invoice::create($invoice_data);
             $invoice->generated_id = Str::random(4) . $invoice->id . Str::random(4);
-            $invoice->shareable_link =  env("FRONT_END_URL_DASHBOARD")."/share/invoice/". Str::random(4) . "-". $invoice->generated_id ."-" . Str::random(4);
+            $invoice->shareable_link =  env("FRONT_END_URL")."/share/invoice/". Str::random(4) . "-". $invoice->generated_id ."-" . Str::random(4);
 
             $invoice->save();
            }
@@ -707,7 +707,7 @@ $invoice_prev = Invoice::where([
                     }
                     $invoice_payment->generated_id = Str::random(4) . $invoice_payment->id . Str::random(4);
 
-                    $invoice_payment->shareable_link = env("FRONT_END_URL_DASHBOARD")."/share/receipt/". Str::random(4) . "-". $invoice_payment->generated_id ."-" . Str::random(4);
+                    $invoice_payment->shareable_link = env("FRONT_END_URL")."/share/receipt/". Str::random(4) . "-". $invoice_payment->generated_id ."-" . Str::random(4);
 
                     $invoice_payment->save();
 
