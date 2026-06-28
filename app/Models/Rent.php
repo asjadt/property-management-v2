@@ -123,6 +123,12 @@ public function landlord_rent_payables()
                     request()->input("payment_status")
                 );
             })
+            ->when(request()->filled("month"), function ($query) {
+                return $query->where('rents.month', request()->input("month"));
+            })
+            ->when(request()->filled("year"), function ($query) {
+                return $query->where('rents.year', request()->input("year"));
+            })
             ->when(request()->filled("search_key"), function ($query) {
                 return $query->where(function ($query) {
                     $term = request()->input("search_key");
