@@ -1,157 +1,236 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Verification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0b0f19;
+            --bg-card: #151c2c;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border: #223049;
+            --error: #ef4444;
+            --success: #10b981;
+        }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            position: relative;
+        }
+        /* Gradient backdrop */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -20%;
+            left: -20%;
+            width: 140%;
+            height: 140%;
+            background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.12) 0%, transparent 60%),
+                        radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 50%);
+            z-index: -1;
+        }
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 1.25rem;
+            padding: 2.5rem;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            backdrop-filter: blur(8px);
+            animation: cardFadeIn 0.5s ease-out;
+        }
+        @keyframes cardFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .logo {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0 0 0.75rem 0;
+            background: linear-gradient(to right, #a5b4fc, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin: 0 0 2rem 0;
+        }
+        .form-group {
+            margin-bottom: 1.25rem;
+            text-align: left;
+        }
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+        input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+            background: rgba(11, 15, 25, 0.8);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: all 0.25s ease;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            background: rgba(11, 15, 25, 0.95);
+        }
+        button {
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.25s ease;
+            margin-top: 0.5rem;
+        }
+        button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px -6px rgba(99, 102, 241, 0.5);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .alert {
+            border-radius: 0.75rem;
+            padding: 0.875rem 1rem;
+            font-size: 0.875rem;
+            margin-bottom: 1.5rem;
+            text-align: left;
+            line-height: 1.5;
+        }
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: #a7f3d0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 1.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        .back-link:hover {
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        @if(!session('dev_password_verified'))
+            <!-- Stage 1: Password Verification -->
+            <div class="logo">🛡️</div>
+            <h1>Developer Access</h1>
+            <p>Please enter the developer password to begin verification.</p>
 
-@section('title', 'Developer Login')
+            @if(session('error'))
+                <div class="alert alert-error">{{ session('error') }}</div>
+            @endif
 
-@section('content')
-<div class="min-h-[70vh] flex items-center justify-center">
-    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden p-8">
-        
-        <div class="text-center mb-8">
-            <div class="w-12 h-12 mx-auto bg-primary/20 border border-primary/30 rounded-xl flex items-center justify-center mb-4">
-                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-            </div>
-            <h2 class="text-2xl font-bold text-white">Developer Access</h2>
-            <p class="text-slate-400 text-sm mt-1">Authenticate to access administrative tools</p>
-        </div>
+            <form action="{{ route('dev.verify_password') }}" method="POST">
+                @csrf
+                <div class="form-group">
+                    <label for="key">Developer Password</label>
+                    <input type="password" id="key" name="key" placeholder="Enter password" required autofocus>
+                </div>
+                <button type="submit">Verify Password</button>
+            </form>
 
-        <div id="alertBox" class="hidden mb-6 p-4 rounded-lg text-sm border"></div>
+        @elseif(!session('dev_otp_email'))
+            <!-- Stage 2: Email Verification -->
+            <div class="logo">✉️</div>
+            <h1>Developer Email</h1>
+            <p>Enter your authorized developer email to receive a verification code.</p>
 
-        <!-- Email Form -->
-        <form id="emailForm" onsubmit="sendOtp(event)" class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-slate-300 mb-1">Developer Email</label>
-                <input type="email" id="emailInput" required
-                       class="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-white outline-none transition-colors"
-                       placeholder="Enter your authorized email">
-            </div>
-            <button type="submit" id="sendBtn"
-                    class="w-full py-3 bg-primary hover:bg-opacity-90 text-primary-content font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
-                <span id="sendBtnText">Send OTP via Email</span>
-                <svg id="sendSpinner" class="hidden animate-spin w-5 h-5 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-            </button>
-        </form>
+            @if(session('error'))
+                <div class="alert alert-error">{{ session('error') }}</div>
+            @endif
+            @if(session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
 
-        <!-- OTP Form -->
-        <form id="otpForm" onsubmit="verifyOtp(event)" class="hidden space-y-4 mt-6 pt-6 border-t border-slate-800">
-            <div>
-                <label class="block text-sm font-medium text-slate-300 mb-1">6-Digit OTP</label>
-                <input type="text" id="otpInput" required maxlength="6" pattern="\d{6}"
-                       class="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary text-white outline-none tracking-widest text-center text-xl transition-colors"
-                       placeholder="&bull;&bull;&bull;&bull;&bull;&bull;">
-            </div>
-            <button type="submit" id="verifyBtn"
-                    class="w-full py-3 bg-secondary hover:bg-opacity-90 text-secondary-content font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
-                <span id="verifyBtnText">Verify & Login</span>
-                <svg id="verifySpinner" class="hidden animate-spin w-5 h-5 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-            </button>
-        </form>
+            <form action="{{ route('dev.send_otp') }}" method="POST">
+                @csrf
+                <div class="form-group">
+                    <label for="email">Developer Email</label>
+                    <input type="email" id="email" name="email" placeholder="name@domain.com" required autofocus>
+                </div>
+                <button type="submit">Send Code</button>
+            </form>
+            <a href="{{ route('dev.clear_password') }}" class="back-link">← Back to password screen</a>
 
+        @else
+            <!-- Stage 3: OTP Verification -->
+            <div class="logo">🔑</div>
+            <h1>Verify OTP</h1>
+            <p>A 6-digit verification code has been sent to <strong>{{ session('dev_otp_email') }}</strong>. Please enter it to unlock the dashboard.</p>
+
+            @if(session('error'))
+                <div class="alert alert-error">{{ session('error') }}</div>
+            @endif
+            @if(session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+
+            <form action="{{ route('dev.verify_otp') }}" method="POST">
+                @csrf
+                <div class="form-group">
+                    <label for="otp">Verification Code</label>
+                    <input type="text" id="otp" name="otp" placeholder="123456" pattern="[0-9]{6}" maxlength="6" required autofocus autocomplete="one-time-code">
+                </div>
+                <button type="submit">Verify & Unlock</button>
+            </form>
+            <a href="{{ route('dev.clear_otp') }}" class="back-link">← Use a different email</a>
+        @endif
     </div>
-</div>
-
-<script>
-    const emailForm = document.getElementById('emailForm');
-    const otpForm = document.getElementById('otpForm');
-    const emailInput = document.getElementById('emailInput');
-    const otpInput = document.getElementById('otpInput');
-    const alertBox = document.getElementById('alertBox');
-    
-    // UI Helpers
-    function showAlert(message, isError = true) {
-        alertBox.classList.remove('hidden', 'bg-error/10', 'border-error/30', 'text-error', 'bg-success/10', 'border-success/30', 'text-success');
-        
-        if (isError) {
-            alertBox.classList.add('bg-error/10', 'border-error/30', 'text-error');
-        } else {
-            alertBox.classList.add('bg-success/10', 'border-success/30', 'text-success');
-        }
-        
-        alertBox.textContent = message;
-    }
-
-    function toggleSpinner(btnPrefix, show) {
-        document.getElementById(`${btnPrefix}BtnText`).classList.toggle('hidden', show);
-        document.getElementById(`${btnPrefix}Spinner`).classList.toggle('hidden', !show);
-        document.getElementById(`${btnPrefix}Btn`).disabled = show;
-    }
-
-    async function sendOtp(e) {
-        e.preventDefault();
-        alertBox.classList.add('hidden');
-        toggleSpinner('send', true);
-
-        try {
-            const res = await fetch('{{ url("/dev/send-otp") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ email: emailInput.value })
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                throw new Error(data.message || 'Validation Failed');
-            }
-
-            showAlert(data.message, false);
-            
-            // Switch UI state
-            emailInput.disabled = true;
-            document.getElementById('sendBtn').classList.add('hidden');
-            otpForm.classList.remove('hidden');
-            otpInput.focus();
-
-        } catch (error) {
-            showAlert(error.message);
-        } finally {
-            toggleSpinner('send', false);
-        }
-    }
-
-    async function verifyOtp(e) {
-        e.preventDefault();
-        alertBox.classList.add('hidden');
-        toggleSpinner('verify', true);
-
-        try {
-            const res = await fetch('{{ url("/dev/verify-otp") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ 
-                    email: emailInput.value,
-                    otp: otpInput.value 
-                })
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                throw new Error(data.message || 'Invalid OTP');
-            }
-
-            showAlert('Success! Redirecting...', false);
-            window.location.href = data.redirect;
-
-        } catch (error) {
-            showAlert(error.message);
-            toggleSpinner('verify', false);
-        }
-    }
-</script>
-@endsection
+</body>
+</html>

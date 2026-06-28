@@ -27,8 +27,11 @@ use Illuminate\Support\Facades\Route;
 
 // Developer Authentication Routes (Public)
 Route::get('/dev/login', [DevAccessController::class, 'showLoginForm'])->name('dev.login');
-Route::post('/dev/send-otp', [DevAccessController::class, 'sendOtp'])->name('dev.send-otp');
-Route::post('/dev/verify-otp', [DevAccessController::class, 'verifyOtp'])->name('dev.verify-otp');
+Route::post('/dev/verify-password', [DevAccessController::class, 'verifyPassword'])->name('dev.verify_password');
+Route::post('/dev/send-otp', [DevAccessController::class, 'sendOtp'])->name('dev.send_otp');
+Route::post('/dev/verify-otp', [DevAccessController::class, 'verifyOtp'])->name('dev.verify_otp');
+Route::get('/dev/clear-otp', [DevAccessController::class, 'clearOtp'])->name('dev.clear_otp');
+Route::get('/dev/clear-password', [DevAccessController::class, 'clearPassword'])->name('dev.clear_password');
 
 // Protected Developer Routes
 Route::middleware([\App\Http\Middleware\DevAccessMiddleware::class])->group(function () {

@@ -16,7 +16,13 @@ class DevAccessMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!session('dev_access_granted')) {
+        if (!env("DEVELOPER_LOGIN_ENABLED", true)) {
+            return response()->json([
+                "message" => "developer login is not enabled."
+            ], 403);
+        }
+
+        if (!$request->session()->get('developer_authenticated') && !$request->session()->get('dev_access_granted') && !env("DeveloperAutoLogin", false)) {
             return redirect()->route('dev.login');
         }
 
