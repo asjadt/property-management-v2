@@ -25,7 +25,7 @@ class ResponseMiddleware
 
 
         if ($response->headers->get('content-type') === 'application/json') {
-            Session::flush();
+            // Session::flush();
             $content = $response->getContent();
             $convertedContent = $this->convertDatesInJson($content);
             $response->setContent($convertedContent);
