@@ -58,6 +58,10 @@ Route::middleware([\App\Http\Middleware\DevAccessMiddleware::class])->group(func
 
     Route::get('/migrate', [SetUpController::class, "migrate"]);
     Route::get('/migrate-activity', [SetUpController::class, "migrateActivity"]);
+    Route::get('/optimize', function() {
+        \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+        return "Cache cleared successfully!";
+    });
 
     Route::get('/seed', [SetUpController::class, "seed"]);
 

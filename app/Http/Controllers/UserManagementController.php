@@ -799,6 +799,8 @@ class UserManagementController extends Controller
                     "account_name",
                     "account_number",
                     "send_email_alert",
+                    "sidebar_auto_collapse",
+                    "tax",
                     "sort_code",
                     "pin",
                     "type"

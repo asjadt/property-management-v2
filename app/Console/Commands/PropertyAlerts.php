@@ -45,8 +45,7 @@ class PropertyAlerts extends Command
     public function handle()
     {
 
-      $businesses = Business::where("type", "property_dealer")
-      ->where("send_email_alert",1)
+      $businesses = Business::where("send_email_alert", 1)
       ->get();
 
         foreach($businesses as $business) {

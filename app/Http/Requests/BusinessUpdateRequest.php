@@ -66,6 +66,8 @@ class BusinessUpdateRequest extends FormRequest
             "business.account_name" => "nullable|string",
             "business.account_number" => "nullable|string",
             "business.send_email_alert" => "nullable|boolean",
+            "business.sidebar_auto_collapse" => "required|boolean",
+            "business.tax" => "required|numeric|min:0|max:100",
 
             "business.sort_code" => "nullable|string",
             "business.pin" => "required|string",

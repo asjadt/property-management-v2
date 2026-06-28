@@ -132,10 +132,24 @@ public function landlord_rent_payables()
                 });
             })
             ->when(request()->filled("start_date"), function ($query) {
-                return $query->whereDate('rents.created_at', ">=", request()->input("start_date"));
+                $date = \Carbon\Carbon::parse(request()->input("start_date"));
+                return $query->where(function($q) use ($date) {
+                    $q->where('year', '>', $date->year)
+                      ->orWhere(function($sub) use ($date) {
+                          $sub->where('year', $date->year)
+                              ->where('month', '>=', $date->month);
+                      });
+                });
             })
             ->when(request()->filled("end_date"), function ($query) {
-                return $query->whereDate('rents.created_at', "<=", request()->input("end_date"));
+                $date = \Carbon\Carbon::parse(request()->input("end_date"));
+                return $query->where(function($q) use ($date) {
+                    $q->where('year', '<', $date->year)
+                      ->orWhere(function($sub) use ($date) {
+                          $sub->where('year', $date->year)
+                              ->where('month', '<=', $date->month);
+                      });
+                });
             })
             ->orderBy('rents.tenancy_agreement_id')
             ->orderBy('rents.year');

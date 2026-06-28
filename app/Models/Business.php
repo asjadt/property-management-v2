@@ -38,6 +38,8 @@ class Business extends Model
        "sort_code",
        "pin" ,
        "type" ,
+       "sidebar_auto_collapse",
+       "tax",
     ];
 
     public function owner(){
