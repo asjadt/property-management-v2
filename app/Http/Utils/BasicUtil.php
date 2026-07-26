@@ -48,8 +48,11 @@ trait BasicUtil
             $endDate = Carbon::createFromDate(request()->input("year"), request()->input("month"), 1)
                 ->endOfMonth()->endOfDay();
         } else {
-
-            $endDate = Carbon::parse($agreement->tenant_contact_expired_date);
+            if (empty($agreement->tenant_contact_expired_date)) {
+                $endDate = now()->endOfMonth()->endOfDay();
+            } else {
+                $endDate = Carbon::parse($agreement->tenant_contact_expired_date);
+            }
         }
 
         $rentAmount = $agreement->agreed_rent;

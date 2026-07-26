@@ -20,7 +20,7 @@
     <ul>
         <li><strong>ID:</strong> {{ $agreement->id }}</li>
         <li><strong>Tenant Name(s):</strong> {{ $agreement->tenants->pluck('name')->join(', ') }}</li>
-        <li><strong>Expiry Date:</strong> {{ $agreement->tenant_contact_expired_date }}</li>
+        <li><strong>Expiry Date:</strong> {{ $agreement->tenant_contact_expired_date ?? 'Ongoing / Periodic' }}</li>
         <li><strong>Agreed Rent:</strong> £{{ number_format($agreement->agreed_rent, 2) }}</li>
     </ul>
 

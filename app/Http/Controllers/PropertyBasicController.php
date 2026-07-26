@@ -2671,6 +2671,7 @@ public function getAccreditationReport()
             }
 
             if (!$item) return null;
+            if (empty($item->{$dateField})) return null;
 
             $date = Carbon::parse($item->{$dateField});
             $today = Carbon::today();

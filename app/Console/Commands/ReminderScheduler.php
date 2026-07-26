@@ -207,6 +207,11 @@ class ReminderScheduler extends Command
 
                     $this->writeLog("Processing tenancy agreement ID: " . $agreement->id);
 
+                    if (empty($agreement->tenant_contact_expired_date)) {
+                        $this->writeLog("Skipping tenancy agreement ID " . $agreement->id . " as it has no expiry date (periodic).");
+                        continue;
+                    }
+
                     $now = now();
                     $reminder_date = $reminder->send_time == 'after_expiry'
                         ? $now->copy()->subDays($reminder->duration)

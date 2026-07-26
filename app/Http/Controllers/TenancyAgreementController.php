@@ -124,10 +124,14 @@ class TenancyAgreementController extends Controller
 
 
                 $start_date = Carbon::parse($request_data["date_of_moving"]);
-                $end_date = Carbon::parse($request_data["tenant_contact_expired_date"]);
                 
-                $months_difference = $start_date->diffInMonths($end_date);
-                $request_data["total_agreed_rent"] = $request_data["agreed_rent"] * $months_difference;
+                if (!empty($request_data["tenant_contact_expired_date"])) {
+                    $end_date = Carbon::parse($request_data["tenant_contact_expired_date"]);
+                    $months_difference = $start_date->diffInMonths($end_date);
+                    $request_data["total_agreed_rent"] = $request_data["agreed_rent"] * $months_difference;
+                } else {
+                    $request_data["total_agreed_rent"] = 0;
+                }
 
                 $agreement = TenancyAgreement::create($request_data);
                 $agreement->tenants()->sync($request_data["tenant_ids"]);
@@ -250,9 +254,15 @@ class TenancyAgreementController extends Controller
                 // Ensure agreement exists
 
                 $start_date = Carbon::parse($request_data["date_of_moving"]);
-                $end_date = Carbon::parse($request_data["tenant_contact_expired_date"]);
-                $months_difference = $start_date->diffInMonths($end_date);
-                $request_data["total_agreed_rent"] = $request_data["agreed_rent"] * $months_difference;
+
+                if (!empty($request_data["tenant_contact_expired_date"])) {
+                    $end_date = Carbon::parse($request_data["tenant_contact_expired_date"]);
+                    $months_difference = $start_date->diffInMonths($end_date);
+                    $request_data["total_agreed_rent"] = $request_data["agreed_rent"] * $months_difference;
+                } else {
+                    $request_data["total_agreed_rent"] = 0;
+                }
+                
                 // Fill the model with the mass-assignable attributes
                 $agreement->fill($request_data);
                 $agreement->save(); // Save the agreement

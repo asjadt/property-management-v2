@@ -27,7 +27,9 @@ class TenancyAgreementExpiryReminderMail extends Mailable
 
     public function build()
     {
-        $days_difference = now()->diffInDays($this->agreement->tenant_contact_expired_date);
+        $days_difference = !empty($this->agreement->tenant_contact_expired_date) 
+            ? now()->diffInDays($this->agreement->tenant_contact_expired_date) 
+            : 'N/A';
         return $this->subject($this->title)
             ->view('email.tenancy_agreement_expiry_reminder')
             ->with([
