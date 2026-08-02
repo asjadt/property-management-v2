@@ -108,7 +108,10 @@ return [
              *
              * @see \OpenApi\scan
              */
-            'analyser' => null,
+            'analyser' => new \OpenApi\Analysers\ReflectionAnalyser([
+                new \OpenApi\Analysers\DocBlockAnnotationFactory(),
+                new \OpenApi\Analysers\AttributeAnnotationFactory()
+            ]),
 
             /**
              * analysis: defaults to a new \OpenApi\Analysis .

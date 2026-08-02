@@ -161,7 +161,7 @@ class SetUpController extends Controller
         Artisan::call('route:clear');
         Artisan::call('l5-swagger:generate');
 
-        return redirect()->route("swagger.documentation");
+        return redirect()->route("l5-swagger.default.api");
     }
 
     public function setUp(Request $request)
