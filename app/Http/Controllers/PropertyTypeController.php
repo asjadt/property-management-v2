@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PropertyTypeRequest;
+use App\Http\Requests\SyncPropertyTypeRelationsRequest;
 use App\Models\PropertyType;
+use Illuminate\Support\Facades\DB;
 use App\Rules\ValidatePropertyType;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,10 +25,11 @@ class PropertyTypeController extends Controller
      *      @OA\Response(response=403, description="Forbidden", @OA\JsonContent())
      * )
      */
-    // GET ALL PROPERTY TYPE
+
+        // GET ALL PROPERTY TYPE
     public function getAllPropertyType(Request $request)
     {
-        $query = PropertyType::propertyTypeFilters($request->all());
+        $query = PropertyType::propertyTypeFilters($request->all())->with(['beds', 'baths']);
         $propertyTypes = retrieve_data($query, 'sort_order', (new PropertyType)->getTable());
 
         return response()->json([
@@ -35,6 +38,62 @@ class PropertyTypeController extends Controller
             'data' => $propertyTypes
         ], Response::HTTP_OK);
     }
+
+
+    /**
+     * @OA\Put(
+     *      path="/v1.0/property-types/{id}/sync-options",
+     *      operationId="syncPropertyTypeRelations",
+     *      tags={"property_management.property_types"},
+     *      security={{"bearerAuth": {}}},
+     *      summary="Sync beds and baths to property type",
+     *      description="Syncs bed and bath relationships for a specific property type",
+     *      @OA\Parameter(name="id", in="path", required=true, description="Property type ID", example="1"),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="bed_ids", type="array", @OA\Items(type="integer"), example={1, 2}),
+     *              @OA\Property(property="bath_ids", type="array", @OA\Items(type="integer"), example={3, 4})
+     *          )
+     *      ),
+     *      @OA\Response(response=200, description="Successful operation", @OA\JsonContent()),
+     *      @OA\Response(response=401, description="Unauthenticated", @OA\JsonContent()),
+     *      @OA\Response(response=403, description="Forbidden", @OA\JsonContent()),
+     *      @OA\Response(response=404, description="Not found", @OA\JsonContent()),
+     *      @OA\Response(response=422, description="Unprocessable Content", @OA\JsonContent())
+     * )
+     */
+    // SYNC PROPERTY TYPE RELATIONS
+    public function syncPropertyTypeRelations(SyncPropertyTypeRelationsRequest $request, $id)
+    {
+        $propertyType = PropertyType::find($id);
+
+        if (!$propertyType) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Property type not found',
+                'data' => null
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        $validated = $request->validated();
+
+        DB::transaction(function () use ($propertyType, $validated) {
+            if (isset($validated['bed_ids'])) {
+                $propertyType->beds()->sync($validated['bed_ids']);
+            }
+            if (isset($validated['bath_ids'])) {
+                $propertyType->baths()->sync($validated['bath_ids']);
+            }
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Property type relations synced successfully',
+            'data' => $propertyType->load(['beds', 'baths'])
+        ], Response::HTTP_OK);
+    }
+
 
     /**
      * @OA\Get(
@@ -54,7 +113,7 @@ class PropertyTypeController extends Controller
     // GET PROPERTY TYPE BY ID
     public function getPropertyTypeById($id)
     {
-        $propertyType = PropertyType::find($id);
+        $propertyType = PropertyType::with(['beds', 'baths'])->find($id);
 
         if (!$propertyType) {
             return response()->json([
@@ -84,7 +143,9 @@ class PropertyTypeController extends Controller
      *          @OA\JsonContent(
      *              required={"title"},
      *              @OA\Property(property="title", type="string", example="Apartment"),
-     *              @OA\Property(property="description", type="string", example="An apartment building")
+     *              @OA\Property(property="description", type="string", example="An apartment building"),
+     *              @OA\Property(property="bed_ids", type="array", @OA\Items(type="integer"), example={1, 2}),
+     *              @OA\Property(property="bath_ids", type="array", @OA\Items(type="integer"), example={3, 4})
      *          )
      *      ),
      *      @OA\Response(response=200, description="Successful operation", @OA\JsonContent()),
@@ -97,7 +158,19 @@ class PropertyTypeController extends Controller
     public function createPropertyType(PropertyTypeRequest $request)
     {
         $validated = $request->validated();
-        $propertyType = PropertyType::create($validated);
+
+        $propertyType = DB::transaction(function () use ($validated) {
+            $pt = PropertyType::create($validated);
+
+            if (isset($validated['bed_ids'])) {
+                $pt->beds()->sync($validated['bed_ids']);
+            }
+            if (isset($validated['bath_ids'])) {
+                $pt->baths()->sync($validated['bath_ids']);
+            }
+
+            return $pt->load(['beds', 'baths']);
+        });
 
         return response()->json([
             'success' => true,
@@ -120,7 +193,9 @@ class PropertyTypeController extends Controller
      *              required={"id", "title"},
      *              @OA\Property(property="id", type="integer", example=1),
      *              @OA\Property(property="title", type="string", example="Apartment Updated"),
-     *              @OA\Property(property="description", type="string", example="An updated apartment building")
+     *              @OA\Property(property="description", type="string", example="An updated apartment building"),
+     *              @OA\Property(property="bed_ids", type="array", @OA\Items(type="integer"), example={1, 2}),
+     *              @OA\Property(property="bath_ids", type="array", @OA\Items(type="integer"), example={3, 4})
      *          )
      *      ),
      *      @OA\Response(response=200, description="Successful operation", @OA\JsonContent()),
@@ -144,7 +219,18 @@ class PropertyTypeController extends Controller
             ], Response::HTTP_NOT_FOUND);
         }
 
-        $propertyType->update($validated);
+        $propertyType = DB::transaction(function () use ($propertyType, $validated) {
+            $propertyType->update($validated);
+
+            if (isset($validated['bed_ids'])) {
+                $propertyType->beds()->sync($validated['bed_ids']);
+            }
+            if (isset($validated['bath_ids'])) {
+                $propertyType->baths()->sync($validated['bath_ids']);
+            }
+
+            return $propertyType->load(['beds', 'baths']);
+        });
 
         return response()->json([
             'success' => true,

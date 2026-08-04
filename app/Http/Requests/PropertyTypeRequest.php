@@ -6,6 +6,8 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use App\Models\PropertyType;
 use App\Rules\ValidatePropertyType;
+use App\Rules\ValidateBath;
+use App\Rules\ValidateBed;
 
 class PropertyTypeRequest extends FormRequest
 {
@@ -24,6 +26,10 @@ class PropertyTypeRequest extends FormRequest
                 Rule::unique((new PropertyType)->getTable(), 'title')
             ],
             'description' => 'nullable|string',
+            'bed_ids' => ['nullable', 'array'],
+            'bed_ids.*' => [new ValidateBed()],
+            'bath_ids' => ['nullable', 'array'],
+            'bath_ids.*' => [new ValidateBath()],
         ];
 
         if ($this->isMethod('put') || $this->isMethod('patch')) {

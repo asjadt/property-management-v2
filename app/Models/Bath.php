@@ -18,7 +18,9 @@ class Bath extends Model
         parent::boot();
         
         static::creating(function ($model) {
-            $model->sort_order = static::max('sort_order') + 1;
+            if (empty($model->sort_order)) {
+                $model->sort_order = static::max('sort_order') + 1;
+            }
         });
     }
 
@@ -38,6 +40,6 @@ class Bath extends Model
 
     public function propertyTypes(): BelongsToMany
     {
-        return $this->belongsToMany(PropertyType::class);
+        return $this->belongsToMany(PropertyType::class, 'property_type_bath');
     }
 }

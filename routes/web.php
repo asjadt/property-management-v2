@@ -55,6 +55,7 @@ Route::middleware([\App\Http\Middleware\DevAccessMiddleware::class])->group(func
     Route::get('/roleRefresh', [SetUpController::class, "roleRefresh"])->name("roleRefresh");
     Route::get('/swagger-refresh', [SetUpController::class, "swaggerRefresh"]);
     Route::get('/automobile-refresh', [SetUpController::class, "automobileRefresh"]);
+    Route::get('/property-type-option-refresh', [SetUpController::class, "propertyTypeOptionRefresh"]);
 
     Route::get("/swagger-login",[SwaggerLoginController::class,"login"])->name("login.view");
     Route::post("/swagger-login",[SwaggerLoginController::class,"passUser"]);

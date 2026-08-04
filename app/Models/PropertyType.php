@@ -18,7 +18,9 @@ class PropertyType extends Model
         parent::boot();
         
         static::creating(function ($model) {
-            $model->sort_order = static::max('sort_order') + 1;
+            if (empty($model->sort_order)) {
+                $model->sort_order = static::max('sort_order') + 1;
+            }
         });
     }
 
@@ -38,11 +40,11 @@ class PropertyType extends Model
 
     public function beds(): BelongsToMany
     {
-        return $this->belongsToMany(Bed::class);
+        return $this->belongsToMany(Bed::class, 'property_type_bed');
     }
 
     public function baths(): BelongsToMany
     {
-        return $this->belongsToMany(Bath::class);
+        return $this->belongsToMany(Bath::class, 'property_type_bath');
     }
 }

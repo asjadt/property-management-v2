@@ -495,6 +495,7 @@ Route::middleware(['auth:api'])->group(function () {
         Route::put('/v1.0/property-types', 'updatePropertyType');
         Route::get('/v1.0/property-types', 'getAllPropertyType');
         Route::get('/v1.0/property-types/{id}', 'getPropertyTypeById');
+        Route::put('/v1.0/property-types/{id}/sync-options', 'syncPropertyTypeRelations');
         Route::put('/v1.0/property-types/{id}/toggle-active', 'togglePropertyTypeActive');
         Route::delete('/v1.0/property-types/{ids}', 'deletePropertyType');
     });

@@ -100,6 +100,16 @@ class SetUpController extends Controller
         return "Database operation 1 executed";
     }
 
+    public function propertyTypeOptionRefresh()
+    {
+        Artisan::call('db:seed', ['--class' => 'PropertyTypeSeeder']);
+        Artisan::call('db:seed', ['--class' => 'BedSeeder']);
+        Artisan::call('db:seed', ['--class' => 'BathSeeder']);
+        Artisan::call('db:seed', ['--class' => 'PropertyTypeBedBathSeeder']);
+
+        return "Property type options seeders executed successfully!";
+    }
+
     public function automobileRefresh()
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
