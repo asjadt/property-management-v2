@@ -1,0 +1,19 @@
+---
+trigger: always_on
+---
+
+# PHP Laravel Rules
+
+1. **Route Grouping Convention**: Always organize API routes using `Route::controller()`. Strictly separate public and protected routes:
+   - Group public routes by their respective controller at the top level.
+   - For protected routes (e.g., requiring authentication), place them inside a single `Route::middleware(['auth:api'])->group(...)` block. Inside that middleware block, group the protected routes by their respective controller using `Route::controller(...)`. Do not nest middleware inside the controller blocks.
+2. **Auth Facade**: Prefer using the `Illuminate\Support\Facades\Auth` facade (e.g., `Auth::user()`) over the global `auth()` helper function to prevent "Undefined method 'user'." IDE warnings.
+3. **Route Versioning**: All API routes must include a version prefix (e.g., `v1.0/`) in their paths.
+4. **Inline Comments**: Use inline uppercase comments (e.g., `// GET AUTHENTICATED USER`, `// TOTAL MENU COUNT`) before logical code blocks and database queries inside controller methods to clarify what is being fetched or calculated.
+5. **PHP Laravel Response Pattern**: All API JSON responses must follow a standard format containing `success` (boolean), `message` (string), and `data` (array/object). Furthermore, always use the `Symfony\Component\HttpFoundation\Response` class constants (e.g., `Response::HTTP_OK`) for HTTP status codes instead of raw integers.
+6. **Model Filtering**: Implement a `scope[ModelName]Filters($query, array $filters = [])` method (e.g., `scopeOrderFilters`) in Eloquent models to handle filtering logic. Use `!empty($filters['key'])` checks before applying `where` clauses or manipulating the query.
+7. **Request Validation**: Always validate incoming requests using `$request->validate([...])` at the beginning of controller methods. Strictly use the returned `$validated` array for any subsequent database operations (e.g., updates, inserts) rather than accessing properties directly from the `$request` object (like `$request->name` or `$request->all()`).
+8. **Database Transactions**: Always wrap database write operations (inserts, updates, deletes) involving multiple related models or records inside a `DB::transaction(function () use (...) { ... });` block to ensure data consistency and atomicity. Perform any manual validation checks before starting the transaction.
+9. **Form Request Validation Pattern**: Consolidate validation into a single FormRequest class per entity. Use `$this->isMethod('put') || $this->isMethod('patch')` to apply update-specific rules. For uniqueness, use dynamic table references like `Rule::unique((new Model)->getTable(), 'column')` instead of hardcoded string table names. Furthermore, for ANY ID validation (whether inside a FormRequest or an inline `$request->validate()` call in a controller), ALWAYS use a dedicated custom `Rule` class (e.g., `new ValidatePropertyType()`) rather than the string `exists:table,id` rule to prevent table name typos.
+10. **Pagination and Listing Data**: For endpoints that return a list of records, always use the `retrieve_data($query, $defaultSortColumn, (new Model)->getTable())` helper to ensure consistent pagination and sorting. Never hardcode the table name string. Combine this with the model's filter scope (e.g., `Model::modelFilters($request->all())`) to keep controllers clean.
+11. **Dynamic Table Names**: Never hardcode database table names as strings anywhere in the application (e.g., controllers, form requests, validation rules, raw queries). Always retrieve the table name dynamically using the model instance, such as `(new Model)->getTable()`. This prevents typos, ensures consistency, and automatically adapts if the model's table name definition changes in the future.

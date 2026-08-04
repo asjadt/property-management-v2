@@ -58,6 +58,9 @@ use App\Http\Controllers\PropertyAppointmentController;
 use App\Http\Controllers\PropertyBasicController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\PropertyInventoryController;
+use App\Http\Controllers\PropertyTypeController;
+use App\Http\Controllers\BedController;
+use App\Http\Controllers\BathController;
 use App\Http\Controllers\PropertyNoteController;
 use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\ReminderController;
@@ -480,8 +483,43 @@ Route::middleware(['auth:api'])->group(function () {
 
 
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     // end maintenance item types management section
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+    // Property Type
+    Route::controller(PropertyTypeController::class)->group(function () {
+        Route::post('/v1.0/property-types', 'createPropertyType');
+        Route::put('/v1.0/property-types/sort-order', 'updatePropertyTypeSortOrder');
+        Route::put('/v1.0/property-types', 'updatePropertyType');
+        Route::get('/v1.0/property-types', 'getAllPropertyType');
+        Route::get('/v1.0/property-types/{id}', 'getPropertyTypeById');
+        Route::put('/v1.0/property-types/{id}/toggle-active', 'togglePropertyTypeActive');
+        Route::delete('/v1.0/property-types/{ids}', 'deletePropertyType');
+    });
+
+    // Bed
+    Route::controller(BedController::class)->group(function () {
+        Route::post('/v1.0/beds', 'createBed');
+        Route::put('/v1.0/beds/sort-order', 'updateBedSortOrder');
+        Route::put('/v1.0/beds', 'updateBed');
+        Route::get('/v1.0/beds', 'getAllBed');
+        Route::get('/v1.0/beds/{id}', 'getBedById');
+        Route::put('/v1.0/beds/{id}/toggle-active', 'toggleBedActive');
+        Route::delete('/v1.0/beds/{ids}', 'deleteBed');
+    });
+
+    // Bath
+    Route::controller(BathController::class)->group(function () {
+        Route::post('/v1.0/baths', 'createBath');
+        Route::put('/v1.0/baths/sort-order', 'updateBathSortOrder');
+        Route::put('/v1.0/baths', 'updateBath');
+        Route::get('/v1.0/baths', 'getAllBath');
+        Route::get('/v1.0/baths/{id}', 'getBathById');
+        Route::put('/v1.0/baths/{id}/toggle-active', 'toggleBathActive');
+        Route::delete('/v1.0/baths/{ids}', 'deleteBath');
+    });
 
 
     Route::put('/v1.0/properties', [PropertyController::class, "updateProperty"]);

@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use App\Models\ErrorLog;
 use Carbon\Carbon;
 use Closure;
-use Illuminate\Support\Facades\Session;
 
 class ResponseMiddleware
 {
