@@ -22,6 +22,7 @@ use App\Models\Repair;
 use App\Models\RepairCategory;
 use App\Models\TenancyAgreement;
 use App\Models\Tenant;
+use App\Models\PropertyStatus;
 
 use Carbon\Carbon;
 use Exception;
@@ -2321,18 +2322,11 @@ COALESCE(
             ->pluck('total', 'current_status')
             ->toArray();
 
-        return [
-            'available' => $counts['available'] ?? 0,
-            'occupied' => $counts['occupied'] ?? 0,
-            'reserved' => $counts['reserved'] ?? 0,
-            'under_maintenance' => $counts['under_maintenance'] ?? 0,
-            'off_market' => $counts['off_market'] ?? 0,
-            'eviction' => $counts['eviction'] ?? 0,
-            'notice_given' => $counts['notice_given'] ?? 0,
-            'under_offer' => $counts['under_offer'] ?? 0,
-            'sold' => $counts['sold'] ?? 0,
-            'blocked' => $counts['blocked'] ?? 0,
-        ];
+        $report = [];
+        foreach (PropertyStatus::values() as $status) {
+            $report[$status] = $counts[$status] ?? 0;
+        }
+        return $report;
     }
 
 public function getAccreditationReport()

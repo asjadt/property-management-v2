@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Models\PropertyStatus;
 
 class PropertyUpdateRequest extends FormRequest
 {
@@ -36,7 +37,7 @@ class PropertyUpdateRequest extends FormRequest
             'long' => 'nullable|numeric',
             'type' => "required|string",
             'reference_no' => 'required|string|max:255',
-            'current_status' => 'nullable|string|in:available,occupied,reserved,under_maintenance,off_market,eviction,notice_given,under_offer,sold,blocked',
+            'current_status' => 'nullable|string|in:' . implode(',', PropertyStatus::values()),
             'is_active' => 'nullable|boolean',
 
 
