@@ -44,7 +44,80 @@ class Property extends Model
         "min_price",
         "max_price",
 
+        // NEW LOOKUP COLUMNS
+        "property_type_id",
+        "bed_id",
+        "bath_id",
     ];
+
+    // ACCESSORS AND MUTATORS FOR MIGRATION ABSTRACTION
+
+    public function setPropertyTypeIdAttribute($value)
+    {
+        $this->attributes['property_type_id'] = $value;
+        if ($value) {
+            $map = \Illuminate\Support\Facades\Cache::rememberForever('property_types_id_to_title', fn() => \App\Models\PropertyType::pluck('title', 'id')->toArray());
+            if (isset($map[$value])) {
+                $this->attributes['type'] = str_replace(' ', '_', strtolower($map[$value]));
+            }
+        }
+    }
+
+    public function setBedIdAttribute($value)
+    {
+        $this->attributes['bed_id'] = $value;
+        if ($value) {
+            $map = \Illuminate\Support\Facades\Cache::rememberForever('beds_id_to_title', fn() => \App\Models\Bed::pluck('title', 'id')->toArray());
+            if (isset($map[$value])) {
+                $this->attributes['no_of_beds'] = str_replace('-', '_', strtolower($map[$value]));
+            }
+        }
+    }
+
+    public function setBathIdAttribute($value)
+    {
+        $this->attributes['bath_id'] = $value;
+        if ($value) {
+            $map = \Illuminate\Support\Facades\Cache::rememberForever('baths_id_to_title', fn() => \App\Models\Bath::pluck('title', 'id')->toArray());
+            if (isset($map[$value])) {
+                $this->attributes['no_of_baths'] = strtolower($map[$value]);
+            }
+        }
+    }
+
+    public function getPropertyTypeIdAttribute($value)
+    {
+        if ($value) return $value;
+        if (!empty($this->attributes['type'])) {
+            $map = \Illuminate\Support\Facades\Cache::rememberForever('property_types_title_to_id', fn() => \App\Models\PropertyType::pluck('id', 'title')->toArray());
+            $title = ucwords(str_replace('_', ' ', $this->attributes['type']));
+            return $map[$title] ?? null;
+        }
+        return null;
+    }
+
+    public function getBedIdAttribute($value)
+    {
+        if ($value) return $value;
+        if (!empty($this->attributes['no_of_beds'])) {
+            $map = \Illuminate\Support\Facades\Cache::rememberForever('beds_title_to_id', fn() => \App\Models\Bed::pluck('id', 'title')->toArray());
+            $title = ucwords(str_replace('_', '-', $this->attributes['no_of_beds']));
+            return $map[$title] ?? null;
+        }
+        return null;
+    }
+
+    public function getBathIdAttribute($value)
+    {
+        if ($value) return $value;
+        if (!empty($this->attributes['no_of_baths'])) {
+            $map = \Illuminate\Support\Facades\Cache::rememberForever('baths_title_to_id', fn() => \App\Models\Bath::pluck('id', 'title')->toArray());
+            $title = ucwords(str_replace('_', '-', $this->attributes['no_of_baths']));
+            return $map[$title] ?? null;
+        }
+        return null;
+    }
+
     protected $casts = [
         'images' => 'array',
         'min_price' => 'decimal:2',

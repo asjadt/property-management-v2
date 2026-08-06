@@ -2581,6 +2581,15 @@ class PropertyController extends Controller
                 ->when($request->filled("property_category"), function ($query) {
                     $query->where("properties.category", request()->property_category);
                 })
+                ->when($request->filled("property_type_id"), function ($query) {
+                    $query->where("properties.property_type_id", request()->property_type_id);
+                })
+                ->when($request->filled("bed_id"), function ($query) {
+                    $query->where("properties.bed_id", request()->bed_id);
+                })
+                ->when($request->filled("bath_id"), function ($query) {
+                    $query->where("properties.bath_id", request()->bath_id);
+                })
                 ->when($request->filled("type"), function ($query) {
                     $query->where("properties.type", request()->type);
                 })
