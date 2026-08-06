@@ -20,7 +20,42 @@ class PropertyTypeController extends Controller
      *      security={{"bearerAuth": {}}},
      *      summary="Get all property types",
      *      description="Returns list of property types",
-     *      @OA\Response(response=200, description="Successful operation", @OA\JsonContent()),
+     *      @OA\Response(
+     *          response=200, 
+     *          description="Successful operation", 
+     *          @OA\JsonContent(
+     *              @OA\Property(property="success", type="boolean", example=true),
+     *              @OA\Property(property="message", type="string", example="Property types retrieved successfully"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="current_page", type="integer", example=1),
+     *                  @OA\Property(property="data", type="array", @OA\Items(
+     *                      @OA\Property(property="id", type="integer", example=1),
+     *                      @OA\Property(property="title", type="string", example="Apartment"),
+     *                      @OA\Property(property="description", type="string", example="An apartment building"),
+     *                      @OA\Property(property="sort_order", type="integer", example=1),
+     *                      @OA\Property(property="is_active", type="boolean", example=true),
+     *                      @OA\Property(property="beds", type="array", @OA\Items(
+     *                          @OA\Property(property="id", type="integer", example=1),
+     *                          @OA\Property(property="title", type="string", example="One")
+     *                      )),
+     *                      @OA\Property(property="baths", type="array", @OA\Items(
+     *                          @OA\Property(property="id", type="integer", example=2),
+     *                          @OA\Property(property="title", type="string", example="Two")
+     *                      ))
+     *                  )),
+     *                  @OA\Property(property="first_page_url", type="string"),
+     *                  @OA\Property(property="from", type="integer", example=1),
+     *                  @OA\Property(property="last_page", type="integer", example=1),
+     *                  @OA\Property(property="last_page_url", type="string"),
+     *                  @OA\Property(property="next_page_url", type="string", nullable=true),
+     *                  @OA\Property(property="path", type="string"),
+     *                  @OA\Property(property="per_page", type="integer", example=15),
+     *                  @OA\Property(property="prev_page_url", type="string", nullable=true),
+     *                  @OA\Property(property="to", type="integer", example=5),
+     *                  @OA\Property(property="total", type="integer", example=5)
+     *              )
+     *          )
+     *      ),
      *      @OA\Response(response=401, description="Unauthenticated", @OA\JsonContent()),
      *      @OA\Response(response=403, description="Forbidden", @OA\JsonContent())
      * )
@@ -104,7 +139,29 @@ class PropertyTypeController extends Controller
      *      summary="Get property type by ID",
      *      description="Returns a single property type",
      *      @OA\Parameter(name="id", in="path", required=true, description="Property type ID", example="1"),
-     *      @OA\Response(response=200, description="Successful operation", @OA\JsonContent()),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="success", type="boolean", example=true),
+     *              @OA\Property(property="message", type="string", example="Property type retrieved successfully"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="id", type="integer", example=1),
+     *                  @OA\Property(property="title", type="string", example="Apartment"),
+     *                  @OA\Property(property="description", type="string", example="An apartment building"),
+     *                  @OA\Property(property="sort_order", type="integer", example=1),
+     *                  @OA\Property(property="is_active", type="boolean", example=true),
+     *                  @OA\Property(property="beds", type="array", @OA\Items(
+     *                      @OA\Property(property="id", type="integer", example=1),
+     *                      @OA\Property(property="title", type="string", example="One")
+     *                  )),
+     *                  @OA\Property(property="baths", type="array", @OA\Items(
+     *                      @OA\Property(property="id", type="integer", example=2),
+     *                      @OA\Property(property="title", type="string", example="Two")
+     *                  ))
+     *              )
+     *          )
+     *      ),
      *      @OA\Response(response=401, description="Unauthenticated", @OA\JsonContent()),
      *      @OA\Response(response=403, description="Forbidden", @OA\JsonContent()),
      *      @OA\Response(response=404, description="Not found", @OA\JsonContent())

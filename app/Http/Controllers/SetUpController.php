@@ -15,6 +15,7 @@ use App\Models\Service;
 use App\Models\SubService;
 use App\Models\TenancyAgreement;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -174,6 +175,60 @@ class SetUpController extends Controller
         return redirect()->route("l5-swagger.default.api");
     }
 
+     public function setupPassport()
+    {
+        try {
+            // Clear caches
+            Artisan::call('config:clear');
+            Artisan::call('cache:clear');
+
+            $this->privatePassportSetup();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Passport Setup Complete'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Passport setup failed: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    private function privatePassportSetup()
+    {
+        // Delete all old passport clients and tokens to prevent duplicates
+        \Illuminate\Support\Facades\DB::table('oauth_refresh_tokens')->delete();
+        \Illuminate\Support\Facades\DB::table('oauth_access_tokens')->delete();
+        \Illuminate\Support\Facades\DB::table('oauth_personal_access_clients')->delete();
+        \Illuminate\Support\Facades\DB::table('oauth_auth_codes')->delete();
+        \Illuminate\Support\Facades\DB::table('oauth_clients')->delete();
+
+        // Run passport migrations
+        Artisan::call('migrate', [
+            '--path' => 'vendor/laravel/passport/database/migrations',
+            '--force' => true
+        ]);
+
+        // Generate Passport Keys
+        Artisan::call('passport:keys', ['--force' => true, '--no-interaction' => true]);
+
+        // Create the personal access client explicitly
+        Artisan::call('passport:client', [
+            '--personal' => true,
+            '--name' => config('app.name', 'Laravel') . ' Personal Access Client',
+            '--no-interaction' => true,
+        ]);
+
+        // Create the password grant client explicitly (optional, but good to have as passport:install normally does this)
+        Artisan::call('passport:client', [
+            '--password' => true,
+            '--name' => config('app.name', 'Laravel') . ' Password Grant Client',
+            '--provider' => 'users',
+            '--no-interaction' => true,
+        ]);
+    }
     public function setUp(Request $request)
     {
         // @@@@@@@@@@@@@@@@@@@
@@ -186,8 +241,11 @@ class SetUpController extends Controller
 
         Artisan::call('optimize:clear');
         Artisan::call('migrate:fresh');
-        Artisan::call('migrate', ['--path' => 'vendor/laravel/passport/database/migrations']);
-        Artisan::call('passport:install');
+        Artisan::call('migrate', ['--path' => 'vendor/laravel/passport/database/migrations', '--force' => true]);
+        if (!defined('STDIN')) { define('STDIN', fopen('php://stdin', 'r')); }
+        Artisan::call('passport:keys', ['--force' => true, '--no-interaction' => true]);
+        Artisan::call('passport:client', ['--personal' => true, '--name' => config('app.name', 'Laravel') . ' Personal Access Client', '--no-interaction' => true]);
+        Artisan::call('passport:client', ['--password' => true, '--name' => config('app.name', 'Laravel') . ' Password Grant Client', '--provider' => 'users', '--no-interaction' => true]);
         Artisan::call('l5-swagger:generate');
 
 

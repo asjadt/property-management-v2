@@ -35,7 +35,7 @@ Route::get('/dev/clear-password', [DevAccessController::class, 'clearPassword'])
 
 // Protected Developer Routes
 Route::middleware([\App\Http\Middleware\DevAccessMiddleware::class])->group(function () {
-    
+
     Route::post('/dev/logout', [DevAccessController::class, 'logout'])->name('dev.logout');
 
     Route::get('/', function () {
@@ -66,6 +66,8 @@ Route::middleware([\App\Http\Middleware\DevAccessMiddleware::class])->group(func
         \Illuminate\Support\Facades\Artisan::call('optimize:clear');
         return "Cache cleared successfully!";
     });
+
+    Route::get('/passport-install',[SetUpController::class,"setupPassport"]);
 
     Route::get('/seed', [SetUpController::class, "seed"]);
 
