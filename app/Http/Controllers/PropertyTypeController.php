@@ -101,6 +101,14 @@ class PropertyTypeController extends Controller
     // SYNC PROPERTY TYPE RELATIONS
     public function syncPropertyTypeRelations(SyncPropertyTypeRelationsRequest $request, $id)
     {
+        if (!$request->user()->hasRole('superadmin')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized Access.',
+                'data' => null
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         $propertyType = PropertyType::find($id);
 
         if (!$propertyType) {
@@ -214,6 +222,14 @@ class PropertyTypeController extends Controller
     // CREATE PROPERTY TYPE
     public function createPropertyType(PropertyTypeRequest $request)
     {
+        if (!$request->user()->hasRole('superadmin')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized Access.',
+                'data' => null
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         $validated = $request->validated();
 
         $propertyType = DB::transaction(function () use ($validated) {
@@ -265,6 +281,14 @@ class PropertyTypeController extends Controller
     // UPDATE PROPERTY TYPE
     public function updatePropertyType(PropertyTypeRequest $request)
     {
+        if (!$request->user()->hasRole('superadmin')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized Access.',
+                'data' => null
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         $validated = $request->validated();
         $propertyType = PropertyType::find($validated['id']);
 
@@ -314,6 +338,14 @@ class PropertyTypeController extends Controller
     // DELETE PROPERTY TYPE
     public function deletePropertyType(Request $request, $ids)
     {
+        if (!$request->user()->hasRole('superadmin')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized Access.',
+                'data' => null
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         // PARSE COMMA SEPARATED IDS
         $idsArray = explode(',', $ids);
 
@@ -362,6 +394,14 @@ class PropertyTypeController extends Controller
     // TOGGLE PROPERTY TYPE ACTIVE STATUS
     public function togglePropertyTypeActive($id)
     {
+        if (!request()->user()->hasRole('superadmin')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized Access.',
+                'data' => null
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         $propertyType = PropertyType::find($id);
 
         if (!$propertyType) {
@@ -411,6 +451,14 @@ class PropertyTypeController extends Controller
     // UPDATE PROPERTY TYPE SORT ORDER
     public function updatePropertyTypeSortOrder(Request $request)
     {
+        if (!$request->user()->hasRole('superadmin')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized Access.',
+                'data' => null
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         $validated = $request->validate([
             'ids' => 'required|array',
             'ids.*' => ['integer', new ValidatePropertyType()]

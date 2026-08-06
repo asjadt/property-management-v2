@@ -96,6 +96,14 @@ class BedController extends Controller
     // CREATE BED
     public function createBed(BedRequest $request)
     {
+        if (!$request->user()->hasRole('superadmin')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized Access.',
+                'data' => null
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         $validated = $request->validated();
         $bed = Bed::create($validated);
 
@@ -133,6 +141,14 @@ class BedController extends Controller
     // UPDATE BED
     public function updateBed(BedRequest $request)
     {
+        if (!$request->user()->hasRole('superadmin')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized Access.',
+                'data' => null
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         $validated = $request->validated();
         $bed = Bed::find($validated['id']);
 
@@ -171,6 +187,14 @@ class BedController extends Controller
     // DELETE BED
     public function deleteBed(Request $request, $ids)
     {
+        if (!$request->user()->hasRole('superadmin')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized Access.',
+                'data' => null
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         // PARSE COMMA SEPARATED IDS
         $idsArray = explode(',', $ids);
         
@@ -219,6 +243,14 @@ class BedController extends Controller
     // TOGGLE BED ACTIVE STATUS
     public function toggleBedActive($id)
     {
+        if (!request()->user()->hasRole('superadmin')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized Access.',
+                'data' => null
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         $bed = Bed::find($id);
 
         if (!$bed) {
@@ -268,6 +300,14 @@ class BedController extends Controller
     // UPDATE BED SORT ORDER
     public function updateBedSortOrder(Request $request)
     {
+        if (!$request->user()->hasRole('superadmin')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized Access.',
+                'data' => null
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         $validated = $request->validate([
             'ids' => 'required|array',
             'ids.*' => ['integer', new ValidateBed()]

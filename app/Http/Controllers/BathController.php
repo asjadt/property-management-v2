@@ -96,6 +96,14 @@ class BathController extends Controller
     // CREATE BATH
     public function createBath(BathRequest $request)
     {
+        if (!$request->user()->hasRole('superadmin')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized Access.',
+                'data' => null
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         $validated = $request->validated();
         $bath = Bath::create($validated);
 
@@ -133,6 +141,14 @@ class BathController extends Controller
     // UPDATE BATH
     public function updateBath(BathRequest $request)
     {
+        if (!$request->user()->hasRole('superadmin')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized Access.',
+                'data' => null
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         $validated = $request->validated();
         $bath = Bath::find($validated['id']);
 
@@ -171,6 +187,14 @@ class BathController extends Controller
     // DELETE BATH
     public function deleteBath(Request $request, $ids)
     {
+        if (!$request->user()->hasRole('superadmin')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized Access.',
+                'data' => null
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         // PARSE COMMA SEPARATED IDS
         $idsArray = explode(',', $ids);
         
@@ -219,6 +243,14 @@ class BathController extends Controller
     // TOGGLE BATH ACTIVE STATUS
     public function toggleBathActive($id)
     {
+        if (!request()->user()->hasRole('superadmin')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized Access.',
+                'data' => null
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         $bath = Bath::find($id);
 
         if (!$bath) {
@@ -268,6 +300,14 @@ class BathController extends Controller
     // UPDATE BATH SORT ORDER
     public function updateBathSortOrder(Request $request)
     {
+        if (!$request->user()->hasRole('superadmin')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized Access.',
+                'data' => null
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         $validated = $request->validate([
             'ids' => 'required|array',
             'ids.*' => ['integer', new ValidateBath()]
