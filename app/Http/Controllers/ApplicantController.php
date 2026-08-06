@@ -112,16 +112,63 @@ class ApplicantController extends Controller
                 $request_data["is_active"] = 1;
                 $request_data["created_by"] = auth()->user()->id;
 
-                $applicant =  Applicant::create($request_data);
+            $applicant =  Applicant::create($request_data);
 
+                $this->syncApplicantPreferences($applicant, $request_data);
 
-
-
-                return response($applicant, 201);
+                return response($applicant, 200);
             });
         } catch (Exception $e) {
 
             return $this->sendError($e, 500, $request);
+        }
+    }
+
+    private function syncApplicantPreferences($applicant, $request_data)
+    {
+        $dirty = false;
+        
+        if (array_key_exists('property_type_ids', $request_data)) {
+            $ids = $request_data['property_type_ids'] ?? [];
+            $applicant->property_types()->sync($ids);
+            if (count($ids) > 0) {
+                $titles = \App\Models\PropertyType::whereIn('id', $ids)->pluck('title')->toArray();
+                $transformed = array_map(fn($t) => str_replace(' ', '_', strtolower($t)), $titles);
+                $applicant->property_type = implode(', ', $transformed);
+            } else {
+                $applicant->property_type = null;
+            }
+            $dirty = true;
+        }
+
+        if (array_key_exists('bed_ids', $request_data)) {
+            $ids = $request_data['bed_ids'] ?? [];
+            $applicant->beds()->sync($ids);
+            if (count($ids) > 0) {
+                $titles = \App\Models\Bed::whereIn('id', $ids)->pluck('title')->toArray();
+                $transformed = array_map(fn($t) => str_replace('-', '_', strtolower($t)), $titles);
+                $applicant->no_of_beds = implode(', ', $transformed);
+            } else {
+                $applicant->no_of_beds = null;
+            }
+            $dirty = true;
+        }
+
+        if (array_key_exists('bath_ids', $request_data)) {
+            $ids = $request_data['bath_ids'] ?? [];
+            $applicant->baths()->sync($ids);
+            if (count($ids) > 0) {
+                $titles = \App\Models\Bath::whereIn('id', $ids)->pluck('title')->toArray();
+                $transformed = array_map(fn($t) => strtolower($t), $titles);
+                $applicant->no_of_baths = implode(', ', $transformed);
+            } else {
+                $applicant->no_of_baths = null;
+            }
+            $dirty = true;
+        }
+
+        if ($dirty) {
+            $applicant->save();
         }
     }
 
@@ -240,6 +287,8 @@ class ApplicantController extends Controller
                         // "created_by"
                     ])->toArray());
                     $applicant->save();
+                    
+                    $this->syncApplicantPreferences($applicant, $request_data);
                 } else {
                     return response()->json([
                         "message" => "something went wrong."
@@ -482,6 +531,24 @@ class ApplicantController extends Controller
 
             ->when(!empty(request()->address_line_1), function ($query) {
                 return $query->where('applicants.address_line_1', request()->address_line_1);
+            })
+            ->when(!empty(request()->property_type_ids), function ($query) {
+                $ids = is_array(request()->property_type_ids) ? request()->property_type_ids : explode(',', request()->property_type_ids);
+                return $query->whereHas('property_types', function($q) use ($ids) {
+                    $q->whereIn('property_types.id', $ids);
+                });
+            })
+            ->when(!empty(request()->bed_ids), function ($query) {
+                $ids = is_array(request()->bed_ids) ? request()->bed_ids : explode(',', request()->bed_ids);
+                return $query->whereHas('beds', function($q) use ($ids) {
+                    $q->whereIn('beds.id', $ids);
+                });
+            })
+            ->when(!empty(request()->bath_ids), function ($query) {
+                $ids = is_array(request()->bath_ids) ? request()->bath_ids : explode(',', request()->bath_ids);
+                return $query->whereHas('baths', function($q) use ($ids) {
+                    $q->whereIn('baths.id', $ids);
+                });
             })
             ->when(!empty(request()->property_type), function ($query) {
                 return $query->where('applicants.property_type', request()->property_type);

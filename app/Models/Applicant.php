@@ -43,7 +43,20 @@ class Applicant extends Model
 
 
 
+    public function property_types()
+    {
+        return $this->belongsToMany(PropertyType::class, 'applicant_property_type');
+    }
 
+    public function beds()
+    {
+        return $this->belongsToMany(Bed::class, 'applicant_bed');
+    }
+
+    public function baths()
+    {
+        return $this->belongsToMany(Bath::class, 'applicant_bath');
+    }
 
 }
 

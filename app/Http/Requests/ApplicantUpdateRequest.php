@@ -111,19 +111,31 @@ class ApplicantUpdateRequest extends FormRequest
                 'numeric'
             ],
 
-            'property_type' => [
+            'property_type_ids' => [
                 'required',
-                'string'
+                'array'
+            ],
+            'property_type_ids.*' => [
+                'integer',
+                new \App\Rules\ValidatePropertyType()
             ],
 
-            'no_of_beds' => [
+            'bed_ids' => [
                 'required',
-                'string'
+                'array'
+            ],
+            'bed_ids.*' => [
+                'integer',
+                new \App\Rules\ValidateBed()
             ],
 
-            'no_of_baths' => [
+            'bath_ids' => [
                 'required',
-                'string'
+                'array'
+            ],
+            'bath_ids.*' => [
+                'integer',
+                new \App\Rules\ValidateBath()
             ],
 
             'deadline_to_move' => [

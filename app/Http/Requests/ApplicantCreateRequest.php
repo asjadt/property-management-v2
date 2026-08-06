@@ -88,20 +88,32 @@ $rules = [
         'numeric'
     ],
 
-        'property_type' => [
-        'required',
-        'string'
-    ],
+        'property_type_ids' => [
+            'required',
+            'array'
+        ],
+        'property_type_ids.*' => [
+            'integer',
+            new \App\Rules\ValidatePropertyType()
+        ],
 
-        'no_of_beds' => [
-        'required',
-        'string'
-    ],
+        'bed_ids' => [
+            'required',
+            'array'
+        ],
+        'bed_ids.*' => [
+            'integer',
+            new \App\Rules\ValidateBed()
+        ],
 
-        'no_of_baths' => [
-        'required',
-        'string'
-    ],
+        'bath_ids' => [
+            'required',
+            'array'
+        ],
+        'bath_ids.*' => [
+            'integer',
+            new \App\Rules\ValidateBath()
+        ],
 
         'deadline_to_move' => [
         'nullable',

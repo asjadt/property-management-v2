@@ -40,12 +40,10 @@ class PropertyUpdateRequestV2 extends FormRequest
             'long' => 'nullable|numeric',
 
             // NEW ID FIELDS
-            'property_type_id' => ['nullable', 'integer', new \App\Rules\ValidatePropertyType()],
-            'bed_id' => ['nullable', 'integer', new \App\Rules\ValidateBed()],
-            'bath_id' => ['nullable', 'integer', new \App\Rules\ValidateBath()],
+            'property_type_id' => ['required', 'integer', new \App\Rules\ValidatePropertyType()],
+            'bed_id' => ['required', 'integer', new \App\Rules\ValidateBed()],
+            'bath_id' => ['required', 'integer', new \App\Rules\ValidateBath()],
 
-            // LEGACY STRING FIELDS (Made optional)
-            'type' => "nullable|string",
             'reference_no' => 'required|string|max:255',
             'current_status' => 'nullable|string|in:' . implode(',', PropertyStatus::values()),
             'is_active' => 'nullable|boolean',
@@ -61,8 +59,6 @@ class PropertyUpdateRequestV2 extends FormRequest
             // Added fields from Software 2
             'date_of_instruction' => 'nullable|date',
             'howDetached' => 'nullable|string',
-            'no_of_beds' => 'nullable|string',
-            'no_of_baths' => 'nullable|string',
             'is_garden' => 'required|boolean',
             'propertyFloor' => 'nullable|string',
             'category' => 'required|in:let_property,manage_property,sale_property',
