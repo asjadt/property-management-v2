@@ -2,9 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\ValidateRepairCategory;
 use Illuminate\Foundation\Http\FormRequest;
 
-class RepairCategoryCreateRequest extends FormRequest
+class RepairCategoryRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,9 +24,15 @@ class RepairCategoryCreateRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        $rules = [
             'name'=>"required|string",
             'icon'=>"required|string",
         ];
+
+        if ($this->isMethod('put') || $this->isMethod('patch')) {
+            $rules['id'] = ['required', 'numeric', new ValidateRepairCategory()];
+        }
+
+        return $rules;
     }
 }

@@ -567,6 +567,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('/v1.0/repair-category-icon', [RepairCategoryController::class, "createRepairCategoryImage"]);
     Route::post('/v1.0/repair-categories', [RepairCategoryController::class, "createRepairCategory"]);
     Route::put('/v1.0/repair-categories', [RepairCategoryController::class, "updateRepairCategory"]);
+    Route::get('/v1.0/repair-categories', [RepairCategoryController::class, "getRepairCategoriesList"]);
     Route::get('/v1.0/repair-categories/{perPage}', [RepairCategoryController::class, "getRepairCategories"]);
     Route::get('/v1.0/repair-categories/get/all/optimized', [RepairCategoryController::class, "getAllRepairCategoriesOptimized"]);
     Route::get('/v1.0/repair-categories/get/single/{id}', [RepairCategoryController::class, "getRepairCategoryById"]);

@@ -3,8 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ImageUploadRequest;
-use App\Http\Requests\RepairCategoryCreateRequest;
-use App\Http\Requests\RepairCategoryUpdateRequest;
+use App\Http\Requests\RepairCategoryRequest;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\Business;
@@ -158,24 +157,34 @@ class RepairCategoryController extends Controller
      *     )
      */
 
-    public function createRepairCategory(RepairCategoryCreateRequest $request)
+    public function createRepairCategory(RepairCategoryRequest $request)
     {
         try {
             $this->storeActivity($request, "");
             return DB::transaction(function () use ($request) {
-                if (!$request->user()->hasPermissionTo('repair_category_create')) {
+                /** @var \App\Models\User $authUser */
+                $authUser = $request->user();
+
+                if (!$authUser->hasPermissionTo('repair_category_create')) {
                     return response()->json([
                         "message" => "You can not perform this action"
                     ], 401);
                 }
 
-
                 $request_data = $request->validated();
-                $request_data["created_by"] = $request->user()->id;
-                $repair_category =  RepairCategory::create($request_data);
+                $request_data["created_by"] = $authUser->id;
+
+                if ($authUser->hasRole('superadmin')) {
+                    $request_data['is_default'] = 1;
+                    $request_data['business_id'] = null;
+                } else {
+                    $request_data['is_default'] = 0;
+                    $request_data['business_id'] = $authUser->business_id;
+                }
+
+                $repair_category = RepairCategory::create($request_data);
                 $repair_category->generated_id = Str::random(4) . $repair_category->id . Str::random(4);
                 $repair_category->save();
-
 
                 return response($repair_category, 201);
             });
@@ -243,47 +252,39 @@ class RepairCategoryController extends Controller
      *     )
      */
 
-    public function updateRepairCategory(RepairCategoryUpdateRequest $request)
+    public function updateRepairCategory(RepairCategoryRequest $request)
     {
         try {
             $this->storeActivity($request, "");
-            return  DB::transaction(function () use ($request) {
-                if (!$request->user()->hasPermissionTo('repair_category_update')) {
+            return DB::transaction(function () use ($request) {
+                /** @var \App\Models\User $authUser */
+                $authUser = $request->user();
+
+                if (!$authUser->hasPermissionTo('repair_category_update')) {
                     return response()->json([
                         "message" => "You can not perform this action"
                     ], 401);
                 }
+
                 $request_data = $request->validated();
 
-                // $affiliationPrev = RepairCategory::where([
-                //     "id" => $request_data["id"]
-                //    ]);
+                $repair_category = RepairCategory::where('id', $request_data['id'])->first();
 
-                //    if(!$request->user()->hasRole('superadmin')) {
-                //     $affiliationPrev =    $affiliationPrev->where([
-                //         "created_by" =>$request->user()->id
-                //     ]);
-                // }
-                // $affiliationPrev = $affiliationPrev->first();
-                //  if(!$affiliationPrev) {
-                //         return response()->json([
-                //            "message" => "you did not create this affiliation."
-                //         ],404);
-                //  }
+                if ($repair_category->is_default == 1 && !$authUser->hasRole('superadmin')) {
+                    return response()->json([
+                        'success' => false,
+                        "message" => "you can not update default repair category"
+                    ], 403);
+                }
 
+                if ($repair_category->business_id !== $authUser->business_id) {
+                    return response()->json([
+                        'success' => false,
+                        "message" => "you can not update repair category of another business"
+                    ], 403);
+                }
 
-
-
-                $repair_category  =  tap(RepairCategory::where(["id" => $request_data["id"], "created_by" => $request->user()->id]))->update(
-                    collect($request_data)->only([
-                        'name',
-                        'icon',
-
-                    ])->toArray()
-                )
-                    // ->with("somthing")
-
-                    ->first();
+                $repair_category->update($request_data);
 
                 return response($repair_category, 200);
             });
@@ -375,6 +376,183 @@ class RepairCategoryController extends Controller
      *     )
      */
 
+    /**
+     *
+     * @OA\Get(
+     *      path="/v1.0/repair-categories",
+     *      operationId="getRepairCategoriesList",
+     *      tags={"property_management.repair_category_management"},
+     *       security={
+     *           {"bearerAuth": {}}
+     *       },
+     *      * *  @OA\Parameter(
+     * name="start_date",
+     * in="query",
+     * description="start_date",
+     * required=false,
+     * example="2019-06-29"
+     * ),
+     * *  @OA\Parameter(
+     * name="end_date",
+     * in="query",
+     * description="end_date",
+     * required=false,
+     * example="2019-06-29"
+     * ),
+     * *  @OA\Parameter(
+     * name="order_by",
+     * in="query",
+     * description="order_by",
+     * required=false,
+     * example="ASC"
+     * ),
+     * *  @OA\Parameter(
+     * name="search_key",
+     * in="query",
+     * description="search_key",
+     * required=false,
+     * example="search_key"
+     * ),
+     * *  @OA\Parameter(
+     * name="per_page",
+     * in="query",
+     * description="per_page",
+     * required=false,
+     * example="10"
+     * ),
+     *      summary="This method is to get repair categories list with query params",
+     *      description="This method is to get repair categories list with query params",
+     *
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       @OA\JsonContent(),
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     * @OA\JsonContent(),
+     *      ),
+     *        @OA\Response(
+     *          response=422,
+     *          description="Unprocesseble Content",
+     *    @OA\JsonContent(),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *   @OA\JsonContent()
+     * ),
+     *  * @OA\Response(
+     *      response=400,
+     *      description="Bad Request",
+     *   *@OA\JsonContent()
+     *   ),
+     * @OA\Response(
+     *      response=404,
+     *      description="not found",
+     *   *@OA\JsonContent()
+     *   )
+     *      )
+     *     )
+     */
+    public function getRepairCategoriesList(Request $request)
+    {
+        try {
+
+            $repair_categoryQuery = RepairCategory::repairCategoryQuery();
+
+            $repair_categories = retrieve_data($repair_categoryQuery, "id", "repair_categories");
+
+            return response()->json($repair_categories, 200);
+        } catch (Exception $e) {
+
+            return $this->sendError($e, 500, $request);
+        }
+    }
+
+
+    /**
+     *
+     * @OA\Get(
+     *      path="/v1.0/repair-categories/{perPage}",
+     *      operationId="getRepairCategories",
+     *      tags={"property_management.repair_category_management"},
+     *       security={
+     *           {"bearerAuth": {}}
+     *       },
+     *              @OA\Parameter(
+     *         name="perPage",
+     *         in="path",
+     *         description="perPage",
+     *         required=true,
+     *  example="6"
+     *      ),
+     *      * *  @OA\Parameter(
+     * name="start_date",
+     * in="query",
+     * description="start_date",
+     * required=true,
+     * example="2019-06-29"
+     * ),
+     * *  @OA\Parameter(
+     * name="end_date",
+     * in="query",
+     * description="end_date",
+     * required=true,
+     * example="2019-06-29"
+     * ),
+     * *  @OA\Parameter(
+     * name="order_by",
+     * in="query",
+     * description="order_by",
+     * required=true,
+     * example="ASC"
+     * ),
+     * *  @OA\Parameter(
+     * name="search_key",
+     * in="query",
+     * description="search_key",
+     * required=true,
+     * example="search_key"
+     * ),
+     *      summary="This method is to get repair categories ",
+     *      description="This method is to get repair categories",
+     *
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       @OA\JsonContent(),
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     * @OA\JsonContent(),
+     *      ),
+     *        @OA\Response(
+     *          response=422,
+     *          description="Unprocesseble Content",
+     *    @OA\JsonContent(),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *   @OA\JsonContent()
+     * ),
+     *  * @OA\Response(
+     *      response=400,
+     *      description="Bad Request",
+     *   *@OA\JsonContent()
+     *   ),
+     * @OA\Response(
+     *      response=404,
+     *      description="not found",
+     *   *@OA\JsonContent()
+     *   )
+     *      )
+     *     )
+     */
+
     public function getRepairCategories($perPage, Request $request)
     {
         try {
@@ -387,21 +565,7 @@ class RepairCategoryController extends Controller
 
             // $automobilesQuery = AutomobileMake::with("makes");
 
-            $repair_categoryQuery =  new RepairCategory();
-
-            if (!empty($request->search_key)) {
-                $repair_categoryQuery = $repair_categoryQuery->where(function ($query) use ($request) {
-                    $term = $request->search_key;
-                    $query->where("name", "like", "%" . $term . "%");
-                });
-            }
-
-            if (!empty($request->start_date)) {
-                $repair_categoryQuery = $repair_categoryQuery->where('created_at', ">=", $request->start_date);
-            }
-            if (!empty($request->end_date)) {
-                $repair_categoryQuery = $repair_categoryQuery->where('created_at', "<=", $request->end_date);
-            }
+            $repair_categoryQuery = RepairCategory::repairCategoryQuery();
 
             $repair_categories = $repair_categoryQuery->orderBy("id", $request->order_by)->paginate($perPage);
 
@@ -502,21 +666,7 @@ class RepairCategoryController extends Controller
 
             // $automobilesQuery = AutomobileMake::with("makes");
 
-            $repair_categoryQuery =  new RepairCategory();
-
-            if (!empty($request->search_key)) {
-                $repair_categoryQuery = $repair_categoryQuery->where(function ($query) use ($request) {
-                    $term = $request->search_key;
-                    $query->where("name", "like", "%" . $term . "%");
-                });
-            }
-
-            if (!empty($request->start_date)) {
-                $repair_categoryQuery = $repair_categoryQuery->where('created_at', ">=", $request->start_date);
-            }
-            if (!empty($request->end_date)) {
-                $repair_categoryQuery = $repair_categoryQuery->where('created_at', "<=", $request->end_date);
-            }
+            $repair_categoryQuery = RepairCategory::repairCategoryQuery();
 
             $repair_categories = $repair_categoryQuery
                 ->select(
@@ -603,14 +753,13 @@ class RepairCategoryController extends Controller
             }
 
 
-            $repair_category = RepairCategory::where([
-                "generated_id" => $id,
-                // "created_by" => $request->user()->id
-            ])
+            $repair_category = RepairCategory::repairCategoryQuery()
+                ->where("id", $id)
                 ->first();
 
             if (!$repair_category) {
                 return response()->json([
+                    "success"=>false,
                     "message" => "no repair category found"
                 ], 404);
             }
@@ -692,11 +841,6 @@ class RepairCategoryController extends Controller
 
         try {
             $this->storeActivity($request, "");
-            if (!$request->user()->hasPermissionTo('repair_category_delete')) {
-                return response()->json([
-                    "message" => "You can not perform this action"
-                ], 401);
-            }
 
             if (!Hash::check($request->header("password"), $request->user()->password)) {
                 return response()->json([
@@ -719,17 +863,32 @@ class RepairCategoryController extends Controller
             //         ],401);
             //  }
 
-            $repair_category = RepairCategory::where([
-                "id" => $id,
-                "created_by" => $request->user()->id
-            ])
-                ->first();
+            /** @var \App\Models\User $authUser */
+            $authUser = $request->user();
+
+            $repair_category = RepairCategory::where('id', $id)->first();
 
             if (!$repair_category) {
                 return response()->json([
-                    "message" => "no repair category found"
+                    'success' => false,
+                    "message" => "repair category not found"
                 ], 404);
             }
+
+            if ($repair_category->is_default == 1 && !$authUser->hasRole('superadmin')) {
+                return response()->json([
+                    'success' => false,
+                    "message" => "you can not delete default repair category"
+                ], 403);
+            }
+
+            if ($repair_category->business_id !== $authUser->business_id) {
+                return response()->json([
+                    'success' => false,
+                    "message" => "you can not delete repair category of another business"
+                ], 403);
+            }
+
             $repair_category->delete();
 
             return response()->json(["ok" => true], 200);
