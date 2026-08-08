@@ -10,13 +10,19 @@ class MaintenanceItemType extends Model
 {
     use HasFactory, DefaultQueryScopesTrait;
     protected $fillable = [
-                  'name',
-                  "is_active",
-                  "created_by"
+        'name',
+        'is_default',
+        'business_id',
+        "is_active",
+        "created_by"
+    ];
+
+    protected $hidden = [
+        'deleted_at'
     ];
 
     protected $casts = [
-           ];
+    ];
 
 
 

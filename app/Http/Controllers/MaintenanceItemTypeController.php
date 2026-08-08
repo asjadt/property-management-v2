@@ -6,8 +6,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\MaintenanceItemTypeCreateRequest;
-use App\Http\Requests\MaintenanceItemTypeUpdateRequest;
+use App\Http\Requests\MaintenanceItemTypeRequest;
 use App\Http\Requests\GetIdRequest;
 use App\Http\Utils\BasicUtil;
 use App\Http\Utils\BusinessUtil;
@@ -18,6 +17,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class MaintenanceItemTypeController extends Controller
@@ -81,18 +81,31 @@ class MaintenanceItemTypeController extends Controller
      * )
      */
 
-    public function createMaintenanceItemType(MaintenanceItemTypeCreateRequest $request)
+    public function createMaintenanceItemType(MaintenanceItemTypeRequest $request)
     {
 
         DB::beginTransaction();
         try {
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
 
+            // GET AUTHENTICATED USER
+            /** @var \App\Models\User $authUser */
+            $authUser = Auth::user();
 
             $request_data = $request->validated();
             $request_data["is_active"] = 1;
-            $request_data["created_by"] = auth()->user()->id;
+            $request_data["created_by"] = $authUser->id;
 
+            // SET DEFAULT STATUS AND BUSINESS ID BASED ON ROLE
+            if ($authUser->hasRole("superadmin")) {
+                $request_data["is_default"] = 1;
+                $request_data["business_id"] = null;
+            } else {
+                $request_data["is_default"] = 0;
+                $request_data["business_id"] = $authUser->business_id;
+            }
+
+            // CREATE MAINTENANCE ITEM TYPE
             $maintenance_item_type = MaintenanceItemType::create($request_data);
 
             DB::commit();
@@ -156,20 +169,26 @@ class MaintenanceItemTypeController extends Controller
      * )
      */
 
-    public function updateMaintenanceItemType(MaintenanceItemTypeUpdateRequest $request)
+    public function updateMaintenanceItemType(MaintenanceItemTypeRequest $request)
     {
         DB::beginTransaction();
         try {
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
 
+            // GET AUTHENTICATED USER
+            /** @var \App\Models\User $authUser */
+            $authUser = Auth::user();
 
             $request_data = $request->validated();
-            $maintenance_item_type_query_params = [
-                "id" => $request_data["id"],
-            ];
 
-            $maintenance_item_type =
-                MaintenanceItemType::where($maintenance_item_type_query_params)->first();
+            // FETCH RECORD WITH ROLE PERMISSION CHECK
+            $query = MaintenanceItemType::where("id", $request_data["id"]);
+            if (!$authUser->hasRole("superadmin")) {
+                $query->where("is_default", 0)
+                      ->where("business_id", $authUser->business_id);
+            }
+
+            $maintenance_item_type = $query->first();
 
             if ($maintenance_item_type) {
                 $maintenance_item_type->fill(collect($request_data)->only([
@@ -186,8 +205,6 @@ class MaintenanceItemTypeController extends Controller
                     "message" => "something went wrong."
                 ], 500);
             }
-
-
 
             DB::commit();
             return response($maintenance_item_type, 201);
@@ -258,14 +275,20 @@ class MaintenanceItemTypeController extends Controller
 
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
 
+            // GET AUTHENTICATED USER
+            /** @var \App\Models\User $authUser */
+            $authUser = Auth::user();
 
             $request_data = $request->validated();
 
-            $maintenance_item_type = MaintenanceItemType::where([
-                "id" => $request_data["id"],
-                "created_by" => auth()->user()->id
-            ])
-                ->first();
+            // FETCH RECORD WITH ROLE PERMISSION CHECK
+            $query = MaintenanceItemType::where("id", $request_data["id"]);
+            if (!$authUser->hasRole("superadmin")) {
+                $query->where("is_default", 0)
+                      ->where("business_id", $authUser->business_id);
+            }
+
+            $maintenance_item_type = $query->first();
             if (!$maintenance_item_type) {
 
                 return response()->json([
@@ -276,9 +299,6 @@ class MaintenanceItemTypeController extends Controller
             $maintenance_item_type->update([
                 'is_active' => !$maintenance_item_type->is_active
             ]);
-
-
-
 
             return response()->json(['message' => 'maintenance item type status updated successfully'], 200);
         } catch (Exception $e) {
@@ -291,8 +311,18 @@ class MaintenanceItemTypeController extends Controller
 
     public function query_filters($query)
     {
+        // GET AUTHENTICATED USER
+        /** @var \App\Models\User $authUser */
+        $authUser = Auth::user();
 
-        return   $query
+        return $query
+            // FILTER BY DEFAULT DATA OR BUSINESS ID
+            ->when(!$authUser->hasRole("superadmin"), function ($query) use ($authUser) {
+                return $query->where(function ($q) use ($authUser) {
+                    $q->where('maintenance_item_types.is_default', 1)
+                      ->orWhere('maintenance_item_types.business_id', $authUser->business_id);
+                });
+            })
             ->when(request()->filled("name"), function ($query) {
                 return $query->where(
                     'maintenance_item_types.name',
@@ -499,12 +529,20 @@ class MaintenanceItemTypeController extends Controller
         try {
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
 
+            // GET AUTHENTICATED USER
+            /** @var \App\Models\User $authUser */
+            $authUser = Auth::user();
 
             $idsArray = explode(',', $ids);
-            $existingIds = MaintenanceItemType::whereIn('id', $idsArray)
-                ->where('maintenance_item_types.created_by', auth()->user()->id)
 
-                ->select('id')
+            // FETCH AUTHORIZED RECORDS TO DELETE
+            $query = MaintenanceItemType::whereIn('id', $idsArray);
+            if (!$authUser->hasRole("superadmin")) {
+                $query->where('maintenance_item_types.is_default', 0)
+                      ->where('maintenance_item_types.business_id', $authUser->business_id);
+            }
+
+            $existingIds = $query->select('id')
                 ->get()
                 ->pluck('id')
                 ->toArray();
@@ -517,12 +555,8 @@ class MaintenanceItemTypeController extends Controller
                 ], 404);
             }
 
-
-
-
-
+            // DELETE RECORDS
             MaintenanceItemType::destroy($existingIds);
-
 
             return response()->json(["message" => "data deleted sussfully", "deleted_ids" => $existingIds], 200);
         } catch (Exception $e) {
