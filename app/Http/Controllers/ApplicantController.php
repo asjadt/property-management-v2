@@ -127,7 +127,7 @@ class ApplicantController extends Controller
     private function syncApplicantPreferences($applicant, $request_data)
     {
         $dirty = false;
-        
+
         if (array_key_exists('property_type_ids', $request_data)) {
             $ids = $request_data['property_type_ids'] ?? [];
             $applicant->property_types()->sync($ids);
@@ -287,7 +287,7 @@ class ApplicantController extends Controller
                         // "created_by"
                     ])->toArray());
                     $applicant->save();
-                    
+
                     $this->syncApplicantPreferences($applicant, $request_data);
                 } else {
                     return response()->json([
@@ -798,7 +798,7 @@ class ApplicantController extends Controller
 
 
 
-            $query = Applicant::query();
+            $query = Applicant::query()->with('property_types', 'beds','baths');
             $query = $this->query_filters($query);
             $applicants = $this->retrieveData($query, "id", "applicants");
 

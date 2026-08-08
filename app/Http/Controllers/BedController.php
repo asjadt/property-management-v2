@@ -32,7 +32,8 @@ class BedController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Beds retrieved successfully',
-            'data' => $beds
+            'meta' => $beds['meta'],
+            'data' => $beds['data']
         ], Response::HTTP_OK);
     }
 
@@ -197,12 +198,12 @@ class BedController extends Controller
 
         // PARSE COMMA SEPARATED IDS
         $idsArray = explode(',', $ids);
-        
+
         // FETCH EXISTING IDS FROM DB
         $existingIds = Bed::whereIn('id', $idsArray)
             ->pluck('id')
             ->toArray();
-            
+
         // FIND INVALID IDS
         $nonExistingIds = array_diff($idsArray, $existingIds);
 
@@ -314,7 +315,7 @@ class BedController extends Controller
         ]);
 
         $ids = $validated['ids'];
-        
+
         \Illuminate\Support\Facades\DB::transaction(function () use ($ids) {
             foreach ($ids as $index => $id) {
                 Bed::where('id', $id)->update(['sort_order' => $index + 1]);

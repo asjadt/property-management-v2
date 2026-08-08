@@ -21,8 +21,8 @@ class PropertyTypeController extends Controller
      *      summary="Get all property types",
      *      description="Returns list of property types",
      *      @OA\Response(
-     *          response=200, 
-     *          description="Successful operation", 
+     *          response=200,
+     *          description="Successful operation",
      *          @OA\JsonContent(
      *              @OA\Property(property="success", type="boolean", example=true),
      *              @OA\Property(property="message", type="string", example="Property types retrieved successfully"),
@@ -70,7 +70,9 @@ class PropertyTypeController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Property types retrieved successfully',
-            'data' => $propertyTypes
+            'meta' => $propertyTypes['meta'],
+            'data' => $propertyTypes['data']
+
         ], Response::HTTP_OK);
     }
 
@@ -192,6 +194,7 @@ class PropertyTypeController extends Controller
             'success' => true,
             'message' => 'Property type retrieved successfully',
             'data' => $propertyType
+
         ], Response::HTTP_OK);
     }
 

@@ -32,7 +32,8 @@ class BathController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Baths retrieved successfully',
-            'data' => $baths
+            'meta' => $baths['meta'],
+            'data' => $baths['data']
         ], Response::HTTP_OK);
     }
 
@@ -197,12 +198,12 @@ class BathController extends Controller
 
         // PARSE COMMA SEPARATED IDS
         $idsArray = explode(',', $ids);
-        
+
         // FETCH EXISTING IDS FROM DB
         $existingIds = Bath::whereIn('id', $idsArray)
             ->pluck('id')
             ->toArray();
-            
+
         // FIND INVALID IDS
         $nonExistingIds = array_diff($idsArray, $existingIds);
 
@@ -314,7 +315,7 @@ class BathController extends Controller
         ]);
 
         $ids = $validated['ids'];
-        
+
         \Illuminate\Support\Facades\DB::transaction(function () use ($ids) {
             foreach ($ids as $index => $id) {
                 Bath::where('id', $id)->update(['sort_order' => $index + 1]);
