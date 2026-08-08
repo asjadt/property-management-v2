@@ -65,6 +65,7 @@ use App\Http\Controllers\PropertyNoteController;
 use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\RentController;
+use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\RepairCategoryController;
 use App\Http\Controllers\RepairController;
 use App\Http\Controllers\ReviewController;
@@ -916,9 +917,18 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/v1.0/roles/get-by-id/{id}', [RolesController::class, "getRoleById"]);
     Route::delete('/v1.0/roles/{id}', [RolesController::class, "deleteRoleById"]);
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    // end user management section
-    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // business management section
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    Route::controller(BusinessController::class)->group(function () {
+        Route::get('/v1.0/businesses', 'getAllBusinesses');
+        Route::get('/v1.0/businesses/{id}', 'getBusinessById');
+        Route::delete('/v1.0/businesses/{id}', 'businessDelete');
+    });
+    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    // end business management section
+    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
