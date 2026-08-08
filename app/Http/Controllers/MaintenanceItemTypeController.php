@@ -9,11 +9,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\MaintenanceItemTypeRequest;
 use App\Http\Requests\GetIdRequest;
 use App\Http\Utils\BasicUtil;
-use App\Http\Utils\BusinessUtil;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Models\MaintenanceItemType;
-use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -181,30 +179,30 @@ class MaintenanceItemTypeController extends Controller
 
             $request_data = $request->validated();
 
-            // FETCH RECORD WITH ROLE PERMISSION CHECK
-            $query = MaintenanceItemType::where("id", $request_data["id"]);
-            if (!$authUser->hasRole("superadmin")) {
-                $query->where("is_default", 0)
-                      ->where("business_id", $authUser->business_id);
-            }
+            // CHECK RECORD OWNERSHIP
+            $maintenance_item_type = MaintenanceItemType::find($request_data["id"]);
 
-            $maintenance_item_type = $query->first();
-
-            if ($maintenance_item_type) {
-                $maintenance_item_type->fill(collect($request_data)->only([
-
-                    "name",
-                    // "is_default",
-                    // "is_active",
-                    // "business_id",
-                    // "created_by"
-                ])->toArray());
-                $maintenance_item_type->save();
-            } else {
+            if (!$maintenance_item_type) {
                 return response()->json([
-                    "message" => "something went wrong."
-                ], 500);
+                    "message" => "no maintenance item type found"
+                ], 404);
             }
+
+            if ($maintenance_item_type->is_default && !$authUser->hasRole("superadmin")) {
+                return response()->json([
+                    'success' => false,
+                    "message" => "you can not update default maintenance item type"
+                ], 403);
+            }
+
+            if ($maintenance_item_type->business_id !== $authUser->business_id) {
+                return response()->json([
+                    'success' => false,
+                    "message" => "you can not update maintenance item type of another business"
+                ], 403);
+            }
+
+            $maintenance_item_type->update($request_data);
 
             DB::commit();
             return response($maintenance_item_type, 201);
@@ -281,19 +279,27 @@ class MaintenanceItemTypeController extends Controller
 
             $request_data = $request->validated();
 
-            // FETCH RECORD WITH ROLE PERMISSION CHECK
-            $query = MaintenanceItemType::where("id", $request_data["id"]);
-            if (!$authUser->hasRole("superadmin")) {
-                $query->where("is_default", 0)
-                      ->where("business_id", $authUser->business_id);
-            }
+            // CHECK RECORD OWNERSHIP
+            $maintenance_item_type = MaintenanceItemType::find($request_data["id"]);
 
-            $maintenance_item_type = $query->first();
             if (!$maintenance_item_type) {
-
                 return response()->json([
                     "message" => "no data found"
                 ], 404);
+            }
+
+            if ($maintenance_item_type->is_default && !$authUser->hasRole("superadmin")) {
+                return response()->json([
+                    'success' => false,
+                    "message" => "you can not update default maintenance item type"
+                ], 403);
+            }
+
+            if ($maintenance_item_type->business_id !== $authUser->business_id) {
+                return response()->json([
+                    'success' => false,
+                    "message" => "you can not update maintenance item type of another business"
+                ], 403);
             }
 
             $maintenance_item_type->update([
@@ -309,43 +315,7 @@ class MaintenanceItemTypeController extends Controller
 
 
 
-    public function query_filters($query)
-    {
-        // GET AUTHENTICATED USER
-        /** @var \App\Models\User $authUser */
-        $authUser = Auth::user();
 
-        return $query
-            // FILTER BY DEFAULT DATA OR BUSINESS ID
-            ->when(!$authUser->hasRole("superadmin"), function ($query) use ($authUser) {
-                return $query->where(function ($q) use ($authUser) {
-                    $q->where('maintenance_item_types.is_default', 1)
-                      ->orWhere('maintenance_item_types.business_id', $authUser->business_id);
-                });
-            })
-            ->when(request()->filled("name"), function ($query) {
-                return $query->where(
-                    'maintenance_item_types.name',
-                    request()->input("name")
-                );
-            })
-            ->when(request()->filled("search_key"), function ($query) {
-                return $query->where(function ($query) {
-                    $term = request()->input("search_key");
-                    $query
-
-                        ->orWhere("maintenance_item_types.name", "like", "%" . $term . "%");
-                });
-            })
-
-            ->when(request()->filled("start_date"), function ($query) {
-                return $query->whereDate('maintenance_item_types.created_at', ">=", request()->input("start_date"));
-            })
-            ->when(request()->filled("end_date"), function ($query) {
-                return $query->whereDate('maintenance_item_types.created_at', "<=", request()->input("end_date"));
-            });
-
-    }
 
 
 
@@ -454,13 +424,175 @@ class MaintenanceItemTypeController extends Controller
      * )
      */
 
+    /**
+     *
+     * @OA\Get(
+     *      path="/v1.0/maintenance-item-types/{id}",
+     *      operationId="getMaintenanceItemTypeById",
+     *      tags={"maintenance_item_types"},
+     *       security={
+     *           {"bearerAuth": {}}
+     *       },
+     *              @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="id",
+     *         required=true,
+     *  example="1"
+     *      ),
+     *      summary="This method is to get a maintenance item type by id",
+     *      description="This method is to get a maintenance item type by id",
+     *
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *       @OA\JsonContent(),
+     *       ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthenticated",
+     * @OA\JsonContent(),
+     *      ),
+     *        @OA\Response(
+     *          response=422,
+     *          description="Unprocesseble Content",
+     *    @OA\JsonContent(),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *   @OA\JsonContent()
+     * ),
+     *  * @OA\Response(
+     *      response=400,
+     *      description="Bad Request",
+     *   *@OA\JsonContent()
+     *   ),
+     * @OA\Response(
+     *      response=404,
+     *      description="not found",
+     *   *@OA\JsonContent()
+     *   )
+     *      )
+     *     )
+     */
+    public function getMaintenanceItemTypeById($id, Request $request)
+    {
+        try {
+            $this->storeActivity($request,"");
+
+            $maintenance_item_type = MaintenanceItemType::maintenanceItemQuery()
+                ->where("id", $id)
+                ->first();
+
+            if(!$maintenance_item_type) {
+                return response()->json([
+                    'success'=>false,
+                    "message" => "no maintenance item type found"
+                ],404);
+            }
+
+            return response()->json($maintenance_item_type, 200);
+        } catch (Exception $e) {
+            return $this->sendError($e, 500,$request);
+        }
+    }
+
+    /**
+     *
+     * @OA\Get(
+     *      path="/v1.0/maintenance-item-types",
+     *      operationId="getMaintenanceItemTypes",
+     *      tags={"maintenance_item_types"},
+     *       security={
+     *           {"bearerAuth": {}}
+     *       },
+     *              @OA\Parameter(
+     *         name="perPage",
+     *         in="query",
+     *         description="perPage",
+     *         required=true,
+     *  example="6"
+     *      ),
+     *      * * @OA\Parameter(
+     * name="start_date",
+     * in="query",
+     * description="start_date",
+     * required=true,
+     * example="2019-06-29"
+     * ),
+     * * @OA\Parameter(
+     * name="end_date",
+     * in="query",
+     * description="end_date",
+     * required=true,
+     * example="2019-06-29"
+     * ),
+     * * @OA\Parameter(
+     * name="search_key",
+     * in="query",
+     * description="search_key",
+     * required=true,
+     * example="search_key"
+     * ),
+     * * @OA\Parameter(
+     * name="order_by",
+     * in="query",
+     * description="order_by",
+     * required=true,
+     * example="ASC"
+     * ),
+     * * @OA\Parameter(
+     * name="id",
+     * in="query",
+     * description="id",
+     * required=true,
+     * example="ASC"
+     * ),
+     * summary="This method is to get maintenance item types ",
+     * description="This method is to get maintenance item types ",
+     *
+
+     * @OA\Response(
+     * response=200,
+     * description="Successful operation",
+     * @OA\JsonContent(),
+     * ),
+     * @OA\Response(
+     * response=401,
+     * description="Unauthenticated",
+     * @OA\JsonContent(),
+     * ),
+     * @OA\Response(
+     * response=422,
+     * description="Unprocesseble Content",
+     * @OA\JsonContent(),
+     * ),
+     * @OA\Response(
+     * response=403,
+     * description="Forbidden",
+     * @OA\JsonContent()
+     * ),
+     * * @OA\Response(
+     * response=400,
+     * description="Bad Request",
+     * *@OA\JsonContent()
+     * ),
+     * @OA\Response(
+     * response=404,
+     * description="not found",
+     * *@OA\JsonContent()
+     * )
+     * )
+     * )
+     */
+
     public function getMaintenanceItemTypes(Request $request)
     {
         try {
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
 
-            $query = MaintenanceItemType::query();
-            $query = $this->query_filters($query);
+            $query = MaintenanceItemType::maintenanceItemQuery();
             $maintenance_item_types = $this->retrieveData($query, "id", "maintenance_item_types");
 
             return response()->json($maintenance_item_types, 200);
@@ -535,30 +667,40 @@ class MaintenanceItemTypeController extends Controller
 
             $idsArray = explode(',', $ids);
 
-            // FETCH AUTHORIZED RECORDS TO DELETE
-            $query = MaintenanceItemType::whereIn('id', $idsArray);
-            if (!$authUser->hasRole("superadmin")) {
-                $query->where('maintenance_item_types.is_default', 0)
-                      ->where('maintenance_item_types.business_id', $authUser->business_id);
-            }
+            // FETCH ALL REQUESTED RECORDS
+            $items = MaintenanceItemType::whereIn('id', $idsArray)->get();
 
-            $existingIds = $query->select('id')
-                ->get()
-                ->pluck('id')
-                ->toArray();
-            $nonExistingIds = array_diff($idsArray, $existingIds);
-
-            if (!empty($nonExistingIds)) {
-
+            if ($items->count() !== count($idsArray)) {
                 return response()->json([
+                    'success' => false,
                     "message" => "Some or all of the specified data do not exist."
                 ], 404);
             }
 
-            // DELETE RECORDS
-            MaintenanceItemType::destroy($existingIds);
+            foreach ($items as $item) {
+                if ($item->is_default && !$authUser->hasRole("superadmin")) {
+                    return response()->json([
+                        'success' => false,
+                        "message" => "You can not perform this action on default items"
+                    ], 403);
+                }
 
-            return response()->json(["message" => "data deleted sussfully", "deleted_ids" => $existingIds], 200);
+                if (!$authUser->hasRole("superadmin") && $item->business_id !== $authUser->business_id) {
+                    return response()->json([
+                        'success' => false,
+                        "message" => "You can not perform this action on other business items"
+                    ], 403);
+                }
+            }
+
+            // DELETE RECORDS
+            MaintenanceItemType::destroy($idsArray);
+
+            return response()->json([
+                "success" => true,
+                "message" => "data deleted successfully",
+                "deleted_ids" => $idsArray
+            ], 200);
         } catch (Exception $e) {
 
             return $this->sendError($e, 500, $request);

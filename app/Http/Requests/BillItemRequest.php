@@ -3,8 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Rules\ValidateBillItem;
 
-class BillItemUpdateRequest extends FormRequest
+class BillItemRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,11 +24,20 @@ class BillItemUpdateRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'id' => "required|numeric|exists:bill_items,id",
+        $rules = [
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'price' =>'required|numeric',
+            'price' => 'required|numeric',
         ];
+
+        if ($this->isMethod('put') || $this->isMethod('patch')) {
+            $rules['id'] = [
+                'required',
+                'numeric',
+                new ValidateBillItem()
+            ];
+        }
+
+        return $rules;
     }
 }

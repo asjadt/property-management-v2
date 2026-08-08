@@ -9,8 +9,12 @@ return new class extends Migration
     public function up()
     {
         Schema::table('properties', function (Blueprint $table) {
-            $table->boolean('is_active')->default(true)->after('id');
-            $table->foreignId('status_id')->nullable()->constrained('statuses');
+            if (!Schema::hasColumn('properties', 'is_active')) {
+                $table->boolean('is_active')->default(true)->after('id');
+            }
+            if (!Schema::hasColumn('properties', 'status_id')) {
+                $table->foreignId('status_id')->nullable()->constrained('statuses');
+            }
         });
     }
 

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Rules\ValidateMaintenanceItemType;
 
 class MaintenanceItemTypeRequest extends FormRequest
 {
@@ -34,6 +35,7 @@ class MaintenanceItemTypeRequest extends FormRequest
             $rules['id'] = [
                 'required',
                 'numeric',
+                new ValidateMaintenanceItemType()
             ];
         }
 

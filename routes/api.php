@@ -264,6 +264,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::post('/v1.0/bill-items', [BillItemController::class, "createBillItem"]);
     Route::put('/v1.0/bill-items', [BillItemController::class, "updateBillItem"]);
     Route::get('/v1.0/bill-items/{perPage}', [BillItemController::class, "getBillItems"]);
+    Route::get('/v1.0/bill-items', [BillItemController::class, "getBillItemsList"]);
     Route::get('/v1.0/bill-items/get/single/{id}', [BillItemController::class, "getBillItemById"]);
     Route::delete('/v1.0/bill-items/{id}', [BillItemController::class, "deleteBillItemById"]);
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -476,6 +477,7 @@ Route::middleware(['auth:api'])->group(function () {
 
     Route::put('/v1.0/maintenance-item-types/toggle-active', [MaintenanceItemTypeController::class, "toggleActiveMaintenanceItemType"]);
 
+    Route::get('/v1.0/maintenance-item-types/{id}', [MaintenanceItemTypeController::class, "getMaintenanceItemTypeById"]);
     Route::get('/v1.0/maintenance-item-types', [MaintenanceItemTypeController::class, "getMaintenanceItemTypes"]);
 
     Route::delete('/v1.0/maintenance-item-types/{ids}', [MaintenanceItemTypeController::class, "deleteMaintenanceItemTypesByIds"]);
