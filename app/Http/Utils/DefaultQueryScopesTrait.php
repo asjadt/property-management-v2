@@ -18,23 +18,27 @@ trait DefaultQueryScopesTrait
             if (empty($user->business_id)) {
                 if (empty($this->business_id) && $this->is_default == 1) {
                     if (!$user->hasRole("superadmin")) {
-                        $disabled = $this->disabled()->where([
-                            "created_by" => $user->id
-                        ])
-                            ->first();
-                        if ($disabled) {
-                            $is_active = 0;
+                        if (method_exists($this, 'disabled')) {
+                            $disabled = $this->disabled()->where([
+                                "created_by" => $user->id
+                            ])
+                                ->first();
+                            if ($disabled) {
+                                $is_active = 0;
+                            }
                         }
                     }
                 }
             } else {
                 if (empty($this->business_id)) {
-                    $disabled = $this->disabled()->where([
-                        "business_id" => $user->business_id
-                    ])
-                        ->first();
-                    if ($disabled) {
-                        $is_active = 0;
+                    if (method_exists($this, 'disabled')) {
+                        $disabled = $this->disabled()->where([
+                            "business_id" => $user->business_id
+                        ])
+                            ->first();
+                        if ($disabled) {
+                            $is_active = 0;
+                        }
                     }
                 }
             }
