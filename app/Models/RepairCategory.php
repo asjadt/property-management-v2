@@ -31,7 +31,9 @@ class RepairCategory extends Model
 
         return $query
             // FILTER BY BUSINESS ID OR DEFAULT ITEMS
-            ->when(!$authUser->hasRole("superadmin"), function ($query) use ($authUser) {
+            ->when($authUser->hasRole("superadmin"), function ($query) {
+                return $query->where('repair_categories.is_default', 1);
+            }, function ($query) use ($authUser) {
                 return $query->where(function ($q) use ($authUser) {
                     $q->where('repair_categories.is_default', 1)
                       ->orWhere('repair_categories.business_id', $authUser->business_id);

@@ -50,7 +50,9 @@ class MaintenanceItemType extends Model
 
         return $query
             // FILTER BY BUSINESS ID OR DEFAULT ITEMS
-            ->when(!$authUser->hasRole("superadmin"), function ($query) use ($authUser) {
+            ->when($authUser->hasRole("superadmin"), function ($query) {
+                return $query->where('maintenance_item_types.is_default', 1);
+            }, function ($query) use ($authUser) {
                 return $query->where(function ($q) use ($authUser) {
                     $q->where('maintenance_item_types.is_default', 1)
                       ->orWhere('maintenance_item_types.business_id', $authUser->business_id);

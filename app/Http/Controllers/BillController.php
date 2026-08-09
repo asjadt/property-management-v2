@@ -747,285 +747,7 @@ $invoice_prev = Invoice::where([
       }
   }
 
-  public function billQueryTest(Request $request) {
-    // $automobilesQuery = AutomobileMake::with("makes");
 
-    $billQuery = Bill::with("bill_bill_items","bill_sale_items","bill_repair_items","landlords","property")
-    ->leftJoin('invoices', 'invoices.bill_id', '=', 'bills.id');
-
-    if (!empty($request->landlord_ids) || !empty($request->landlord_id)) {
-        $billQuery =  $billQuery->whereHas("landlords", function ($query) {
-            $landlord_ids = request()->filled("landlord_ids")?explode(',', request()->input("landlord_ids")):explode(',', request()->input("landlord_id"));
-            $query
-                ->whereIn("landlords.id", $landlord_ids);
-        });
-    }
-
-    if (!empty($request->tenant_ids) || !empty($request->tenant_id)) {
-        $billQuery =  $billQuery->whereHas("tenants", function ($query) {
-            $tenant_ids = request()->filled("tenant_ids")?explode(',', request()->input("tenant_ids")):explode(',', request()->input("tenant_id"));
-            $query
-                ->whereIn("tenants.id", $tenant_ids);
-        });
-    }
-
-
-if (!empty($request->start_date)) {
-   $billQuery = $billQuery->whereDate('bills.create_date', ">=", $request->start_date);
-}
-
-if (!empty($request->end_date)) {
-   $billQuery = $billQuery->whereDate('bills.create_date', "<=", $request->end_date);
-}
-
-
-if (!empty($request->min_amount)) {
-   $billQuery = $billQuery->where('bills.payabble_amount', ">=", $request->min_amount);
-}
-
-if (!empty($request->max_amount)) {
-   $billQuery = $billQuery->where('bills.payabble_amount', "<=", $request->max_amount);
-}
-
-if(!empty($request->search_key)) {
-   $billQuery = $billQuery->where(function($query) use ($request){
-       $term = $request->search_key;
-       $query->whereHas('bill_bill_items', function ($query) use ($request) {
-           $query->where('item', 'like', '%' . $request->search_key . '%');
-       });
-       $query->orWhereHas('bill_sale_items', function ($query) use ($request) {
-           $query->where('item', 'like', '%' . $request->search_key . '%');
-       });
-       $query->orWhereHas('bill_repair_items', function ($query) use ($request) {
-           $query->where('item', 'like', '%' . $request->search_key . '%');
-       });
-   });
-
-}
-
-
-
-    if(!empty($request->status)) {
-        if($request->status == "unpaid") {
-            $billQuery =      $billQuery->whereNotIn("invoices.status", ['draft','paid']);
-        }
-       else if($request->status == "next_15_days_invoice_due") {
-            $currentDate = Carbon::now();
-            $endDate = $currentDate->copy()->addDays(15);
-            $billQuery =      $billQuery->whereNotIn("invoices.status", ['draft','paid']);
-            $billQuery =      $billQuery->whereDate('invoices.due_date', '>=', $currentDate);
-            $billQuery =      $billQuery->whereDate('invoices.due_date', '<=', $endDate);
-        }
-        else {
-            $billQuery =      $billQuery->where("status", $request->status);
-        }
-
-     }
-
-
-
-    if (!empty($request->invoice_reference)) {
-        $billQuery =   $billQuery->where("invoices.invoice_reference", "like", "%" . $request->invoice_reference . "%");
-    }
-
-
-
-
-
-    if (!empty($request->client_id)) {
-     $billQuery =   $billQuery->where("invoices.client_id", $request->client_id);
- }
-
-
-    if (!empty($request->property_id)) {
-        $billQuery =   $billQuery->where("bills.property_id", $request->property_id);
-    }
-
-
-    if(!empty($request->property_ids)) {
-        $null_filter = collect(array_filter($request->property_ids))->values();
-    $property_ids =  $null_filter->all();
-        if(count($property_ids)) {
-            $billQuery =   $billQuery->whereIn("bills.property_id",$property_ids);
-        }
-
-    }
-
-
-
-
-    $billQuery = $billQuery
-    ->groupBy("bills.id")
-    ->select(
-       "bills.*",
-       "invoices.id as invoice_id",
-       "invoices.generated_id as invoice_generated_id",
-       "invoices.invoice_reference"
-       // "invoices.*",
-   //  DB::raw('
-   //      COALESCE(
-   //          (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
-   //          0
-   //      ) AS total_paid
-   //  '),
-   //  DB::raw('
-   //      COALESCE(
-   //          invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
-   //          invoices.total_amount
-   //      ) AS total_due
-   //  ')
- );
-//   if(!empty($request->min_total_due)) {
-//       $billQuery = $billQuery->havingRaw("total_due >= " . $request->min_total_due . "");
-//   }
-//   if(!empty($request->max_total_due)) {
-//       $billQuery = $billQuery->havingRaw("total_due <= " . $request->max_total_due . "");
-//   }
- $billQuery = $billQuery->orderBy("bills.id",$request->order_by);
-    return $billQuery;
-
-  }
-   public function billQuery(Request $request) {
-     // $automobilesQuery = AutomobileMake::with("makes");
-
-     $billQuery = Bill::with("bill_bill_items","bill_sale_items","bill_repair_items","landlords","property")
-     ->leftJoin('invoices', 'invoices.bill_id', '=', 'bills.id')
-     ->where([
-          "bills.created_by" => $request->user()->id
-     ]);
-
-     if (!empty($request->landlord_ids) || !empty($request->landlord_id)) {
-        $billQuery =  $billQuery->whereHas("landlords", function ($query) {
-            $landlord_ids = request()->filled("landlord_ids")?explode(',', request()->input("landlord_ids")):explode(',', request()->input("landlord_id"));
-            $query
-                ->whereIn("landlords.id", $landlord_ids);
-        });
-    }
-
-    if (!empty($request->tenant_ids) || !empty($request->tenant_id) ) {
-        $billQuery =  $billQuery->whereHas("tenants", function ($query) {
-            $tenant_ids = request()->filled("tenant_ids")?explode(',', request()->input("tenant_ids")):explode(',', request()->input("tenant_id"));
-            $query
-                ->whereIn("tenants.id", $tenant_ids);
-        });
-    }
-
-
-
-if (!empty($request->start_date)) {
-    $billQuery = $billQuery->whereDate('bills.create_date', ">=", $request->start_date);
-}
-
-if (!empty($request->end_date)) {
-    $billQuery = $billQuery->whereDate('bills.create_date', "<=", $request->end_date);
-}
-
-
-if (!empty($request->min_amount)) {
-    $billQuery = $billQuery->where('bills.payabble_amount', ">=", $request->min_amount);
-}
-
-if (!empty($request->max_amount)) {
-    $billQuery = $billQuery->where('bills.payabble_amount', "<=", $request->max_amount);
-}
-
-if(!empty($request->search_key)) {
-    $billQuery = $billQuery->where(function($query) use ($request){
-        $term = $request->search_key;
-        $query->whereHas('bill_bill_items', function ($query) use ($request) {
-            $query->where('item', 'like', '%' . $request->search_key . '%');
-        });
-        $query->orWhereHas('bill_sale_items', function ($query) use ($request) {
-            $query->where('item', 'like', '%' . $request->search_key . '%');
-        });
-        $query->orWhereHas('bill_repair_items', function ($query) use ($request) {
-            $query->where('item', 'like', '%' . $request->search_key . '%');
-        });
-    });
-
-}
-
-
-
-
-
-     if(!empty($request->status)) {
-         if($request->status == "unpaid") {
-             $billQuery =      $billQuery->whereNotIn("invoices.status", ['draft','paid']);
-         }
-        else if($request->status == "next_15_days_invoice_due") {
-             $currentDate = Carbon::now();
-             $endDate = $currentDate->copy()->addDays(15);
-             $billQuery =      $billQuery->whereNotIn("invoices.status", ['draft','paid']);
-             $billQuery =      $billQuery->whereDate('invoices.due_date', '>=', $currentDate);
-             $billQuery =      $billQuery->whereDate('invoices.due_date', '<=', $endDate);
-         }
-         else {
-             $billQuery =      $billQuery->where("status", $request->status);
-         }
-
-      }
-
-
-     if (!empty($request->invoice_reference)) {
-         $billQuery =   $billQuery->where("invoices.invoice_reference", "like", "%" . $request->invoice_reference . "%");
-     }
-
-
-
-     if (!empty($request->client_id)) {
-      $billQuery =   $billQuery->where("invoices.client_id", $request->client_id);
-  }
-
-
-     if (!empty($request->property_id)) {
-         $billQuery =   $billQuery->where("bills.property_id", $request->property_id);
-     }
-
-
-     if(!empty($request->property_ids)) {
-         $null_filter = collect(array_filter($request->property_ids))->values();
-     $property_ids =  $null_filter->all();
-         if(count($property_ids)) {
-             $billQuery =   $billQuery->whereIn("bills.property_id",$property_ids);
-         }
-
-     }
-
-
-
-
-     $billQuery = $billQuery
-     ->groupBy("bills.id")
-     ->select(
-        "bills.*",
-        "invoices.id as invoice_id",
-        "invoices.generated_id as invoice_generated_id",
-        "invoices.invoice_reference"
-        // "invoices.*",
-    //  DB::raw('
-    //      COALESCE(
-    //          (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
-    //          0
-    //      ) AS total_paid
-    //  '),
-    //  DB::raw('
-    //      COALESCE(
-    //          invoices.total_amount - (SELECT SUM(invoice_payments.amount) FROM invoice_payments WHERE invoice_payments.invoice_id = invoices.id),
-    //          invoices.total_amount
-    //      ) AS total_due
-    //  ')
-  );
-//   if(!empty($request->min_total_due)) {
-//       $billQuery = $billQuery->havingRaw("total_due >= " . $request->min_total_due . "");
-//   }
-//   if(!empty($request->max_total_due)) {
-//       $billQuery = $billQuery->havingRaw("total_due <= " . $request->max_total_due . "");
-//   }
-  $billQuery = $billQuery->orderBy("bills.id",$request->order_by);
-     return $billQuery;
-
-   }
   /**
    *
    * @OA\Get(
@@ -1181,7 +903,7 @@ if(!empty($request->search_key)) {
       try {
           $this->storeActivity($request,"");
 
-          $bills = $this->billQuery($request)->paginate($perPage);
+          $bills = Bill::billFilters($request->all())->paginate($perPage);
           return response()->json($bills, 200);
 
 
@@ -1355,7 +1077,7 @@ if(!empty($request->search_key)) {
    {
        try {
            $this->storeActivity($request,"");
-            $bills = $this->billQuery($request)->get();
+            $bills = Bill::billFilters($request->all())->get();
             return response()->json($bills, 200);
 
 
@@ -1370,7 +1092,7 @@ if(!empty($request->search_key)) {
    {
        try {
            $this->storeActivity($request,"");
-            $bills = $this->billQueryTest($request)->get();
+            $bills = Bill::billFilters($request->all())->get();
             $pdf = PDF::loadView('pdf.bills', ["bills"=>$bills]);
 
             return $pdf->stream(); // Stream the PDF content
