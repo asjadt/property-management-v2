@@ -391,134 +391,61 @@ class SetUpController extends Controller
     }
 
 
-    public function roleRefreshFunc()
+    public function productionSync()
     {
+        $log = [];
 
+        /*
+        // STEP 2A: Business owners — link user to the business they own
+        $affected_a = \Illuminate\Support\Facades\DB::statement("
+            UPDATE users
+            INNER JOIN businesses ON businesses.owner_id = users.id
+            SET users.business_id = businesses.id
+            WHERE users.business_id IS NULL
+              AND businesses.deleted_at IS NULL
+        ");
+        $log[] = 'Step 2A (owner backfill): done';
 
-        // ###############################
-        // permissions
-        // ###############################
-        $permissions =  config("setup-config.permissions");
+        // STEP 2B: Sub-users — inherit business from the user who created them
+        $affected_b = \Illuminate\Support\Facades\DB::statement("
+            UPDATE users
+            INNER JOIN businesses ON businesses.owner_id = users.created_by
+            SET users.business_id = businesses.id
+            WHERE users.business_id IS NULL
+              AND businesses.deleted_at IS NULL
+        ");
+        $log[] = 'Step 2B (sub-user backfill): done';
+        */
 
-        // setup permissions
-        foreach ($permissions as $permission) {
-            if (!Permission::where([
-                'name' => $permission,
-                'guard_name' => 'api'
-            ])
-                ->exists()) {
-                Permission::create(['guard_name' => 'api', 'name' => $permission]);
-            }
+        // STEP 3: Assign business_owner role to all users who own a business
+        $ownerIds = \Illuminate\Support\Facades\DB::table('businesses')->pluck('owner_id')->toArray();
+        $users = \App\Models\User::whereIn('id', $ownerIds)->get();
+        $assignedCount = 0;
+        foreach ($users as $user) {
+            $user->syncRoles(['business_owner']);
+            $assignedCount++;
         }
-        // setup roles
-        $roles = config("setup-config.roles");
-        foreach ($roles as $role) {
-            if (!Role::where([
-                'name' => $role,
-                'guard_name' => 'api',
-                "is_system_default" => 1,
-                "business_id" => NULL,
-                "is_default" => 1,
-            ])
-                ->exists()) {
-                Role::create([
-                    'guard_name' => 'api',
-                    'name' => $role,
-                    "is_system_default" => 1,
-                    "business_id" => NULL,
-                    "is_default" => 1,
-                    "is_default_for_business" => (in_array($role, [
-                        "business_experts",
-                        "business_receptionist"
-                    ]) ? 1 : 0)
+        $log[] = "Step 3 (role backfill): Assigned business_owner role to {$assignedCount} users.";
 
-                ]);
-            }
-        }
+        // REPORT
+        $total    = \Illuminate\Support\Facades\DB::table('users')->count();
+        $with_biz = \Illuminate\Support\Facades\DB::table('users')->whereNotNull('business_id')->count();
+        $without  = \Illuminate\Support\Facades\DB::table('users')->whereNull('business_id')->count();
 
+        $log[] = "Total users: {$total}";
+        $log[] = "With business_id: {$with_biz}";
+        $log[] = "Without business_id (superadmin/orphan): {$without}";
 
-        // setup roles and permissions
-        $role_permissions = config("setup-config.roles_permission");
-        foreach ($role_permissions as $role_permission) {
-            $role = Role::where(["name" => $role_permission["role"]])->first();
-
-            $permissions = $role_permission["permissions"];
-
-
-            // Get current permissions associated with the role
-            $currentPermissions = $role->permissions()->pluck('name')->toArray();
-
-            // Determine permissions to remove
-            $permissionsToRemove = array_diff($currentPermissions, $permissions);
-
-            // Deassign permissions not included in the configuration
-            if (!empty($permissionsToRemove)) {
-                foreach ($permissionsToRemove as $permission) {
-                    $role->revokePermissionTo($permission);
-                }
-            }
-
-            // Assign permissions from the configuration
-            $role->syncPermissions($permissions);
-        }
-
-
-        // $business_ids = Business::get()->pluck("id");
-
-        // foreach ($role_permissions as $role_permission) {
-
-        //     if($role_permission["role"] == "business_employee"){
-        //         foreach($business_ids as $business_id){
-
-        //             $role = Role::where(["name" => $role_permission["role"] . "#" . $business_id])->first();
-
-        //            if(empty($role)){
-
-        //             continue;
-        //            }
-
-        //                 $permissions = $role_permission["permissions"];
-
-        //                 // Assign permissions from the configuration
-        //     $role->syncPermissions($permissions);
-
-
-
-        //         }
-
-        //     }
-
-        //     if($role_permission["role"] == "business_manager"){
-        //         foreach($business_ids as $business_id){
-
-        //             $role = Role::where(["name" => $role_permission["role"] . "#" . $business_id])->first();
-
-        //            if(empty($role)){
-
-        //             continue;
-        //            }
-
-        //                 $permissions = $role_permission["permissions"];
-
-        //                 // Assign permissions from the configuration
-        //     $role->syncPermissions($permissions);
-
-
-
-        //         }
-
-        //     }
-
-
-
-        // }
+        return response()->json([
+            'success' => true,
+            'message' => 'Production sync completed.',
+            'log'     => $log,
+        ]);
     }
-
 
     public function roleRefresh(Request $request)
     {
-
-        $this->roleRefreshFunc();
+        \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'RoleSeeder']);
         return "You are done with setup";
     }
 

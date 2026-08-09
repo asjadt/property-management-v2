@@ -478,7 +478,9 @@ class UserManagementController extends Controller
                 $user =  User::create($request_data['user']);
                 $user->email_verified_at = now();
                 $user->save();
-                $user->assignRole('user');
+                
+                // Assign the new business_owner role instead of generic user
+                $user->assignRole('business_owner');
                 // end user info ##############
 
                 $this->store_default_expense_categories($user);

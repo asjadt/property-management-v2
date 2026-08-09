@@ -65,10 +65,50 @@ return [
 
             ],
         ],
+        [
+            "role" => "business_owner",
+            "permissions" => [
+                "user_create",
+                "user_update",
+                "user_view",
+                "user_delete",
+
+                "payment_type_create",
+                "payment_type_update",
+                "payment_type_view",
+                "payment_type_delete",
+
+                "document_type_create",
+                "document_type_update",
+                "document_type_view",
+                "document_type_delete",
+
+                "repair_category_create",
+                "repair_category_update",
+                "repair_category_view",
+                "repair_category_delete",
+
+                "expense_category_create",
+                "expense_category_update",
+                "expense_category_view",
+                "expense_category_delete",
+
+                "bill_item_create",
+                "bill_item_update",
+                "bill_item_view",
+                "bill_item_delete",
+
+                "reminder_create",
+                "reminder_update",
+                "reminder_view",
+                "reminder_delete",
+            ],
+        ],
 
     ],
     "roles" => [
         "superadmin",
+        "business_owner",
         "user"
     ],
     "permissions" => [
