@@ -56,4 +56,26 @@ class ApplicantService
 
         return $query->get();
     }
+    public function getApplicantReport($userId)
+    {
+        $now = \Carbon\Carbon::now();
+        
+        return [
+            'total' => Applicant::where('created_by', $userId)->count(),
+            'converted_to_tenant' => Applicant::where('created_by', $userId)->whereNotNull('tenant_id')->count(),
+            'expired' => Applicant::where('created_by', $userId)->whereDate('expiry_date', '<', $now)->count(),
+            'expire_within_15_days' => Applicant::where('created_by', $userId)
+                ->whereDate('expiry_date', '>=', $now)
+                ->whereDate('expiry_date', '<=', $now->copy()->addDays(15))
+                ->count(),
+            'expire_within_3_days' => Applicant::where('created_by', $userId)
+                ->whereDate('expiry_date', '>=', $now)
+                ->whereDate('expiry_date', '<=', $now->copy()->addDays(3))
+                ->count(),
+            'expire_within_1_day' => Applicant::where('created_by', $userId)
+                ->whereDate('expiry_date', '>=', $now)
+                ->whereDate('expiry_date', '<=', $now->copy()->addDays(1))
+                ->count(),
+        ];
+    }
 }

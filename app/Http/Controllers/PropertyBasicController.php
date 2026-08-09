@@ -33,6 +33,17 @@ use Illuminate\Support\Facades\Log;
 class PropertyBasicController extends Controller
 {
     use ErrorUtil, UserActivityUtil, BasicUtil;
+
+    /**
+     * @var \App\Services\ApplicantService
+     */
+    protected $applicantService;
+
+    public function __construct(\App\Services\ApplicantService $applicantService)
+    {
+        $this->applicantService = $applicantService;
+    }
+
     /**
      *
      * @OA\Get(
@@ -1966,6 +1977,8 @@ COALESCE(
 
             $data["property_status_report"] = $this->getPropertyStatusReport();
 
+            $data["application_breakdown"] = $this->applicantService->getApplicantReport(auth()->user()->id);
+
             return response()->json($data, 200);
         } catch (Exception $e) {
             return $this->sendError($e, 500, $request);
@@ -2743,4 +2756,5 @@ public function getAccreditationReport()
         $items = Accreditation::where("created_by", $user_id)->get();
         return $this->filterItems($items, 'accreditation_expiry_date', 'eq', [], 'accreditation');
     }
+
 }
