@@ -62,7 +62,7 @@ if (!function_exists('transform_mixed')) {
 
             // Pagination setup
             $perPage = request()->input('per_page');
-            $currentPage = request()->input('page', 1);
+            $currentPage = request()->input('page', request()->input('pageNo', 1));
             $skip = 0;
             $total = 0;
             $totalPages = 1;

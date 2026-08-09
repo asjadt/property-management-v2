@@ -455,13 +455,7 @@ $datediff = $now - $user_created_date;
 
               $result = Mail::to($request_data["email"])->send(new ForgetPasswordMail($user, $request_data["client_site"]));
 
-            if (count(Mail::failures()) > 0) {
-                // Handle failed recipients and log the error messages
-                foreach (Mail::failures() as $emailFailure) {
 
-                }
-                throw new Exception("Failed to send email to:" . $emailFailure);
-            }
 
 
 
