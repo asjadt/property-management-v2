@@ -262,7 +262,7 @@ class ApplicantController extends Controller
     {
         try {
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
-            
+
             return DB::transaction(function () use ($request) {
                 $request_data = $request->validated();
 
@@ -274,7 +274,7 @@ class ApplicantController extends Controller
                 $applicant->save();
 
                 $this->syncApplicantPreferences($applicant, $request_data);
-                
+
                 // Send matching properties email
                 $matchedProperties = $this->applicantService->findMatchingProperties($applicant);
                 if ($matchedProperties->isNotEmpty() && $applicant->email) {
@@ -291,6 +291,44 @@ class ApplicantController extends Controller
 
 
 
+
+    /**
+     * @OA\Get(
+     *      path="/v1.0/applicants/{id}/matching-properties",
+     *      operationId="getApplicantMatchingProperties",
+     *      tags={"applicants"},
+     *      summary="Get matching properties for an applicant",
+     *      description="Returns a list of properties matching the applicant's preferences",
+     *      security={{"bearerAuth": {}}},
+     *      @OA\Parameter(
+     *          name="id",
+     *          description="Applicant ID",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Response(response=200, description="Successful operation"),
+     *      @OA\Response(response=404, description="Not found")
+     * )
+     */
+    public function getApplicantMatchingProperties($id, Request $request)
+    {
+        try {
+
+            $applicant = Applicant::findOrFail($id);
+
+            $matchedProperties = $this->applicantService->findMatchingProperties($applicant);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Matching properties retrieved successfully',
+                'data' => $matchedProperties
+            ], \Symfony\Component\HttpFoundation\Response::HTTP_OK);
+
+        } catch (Exception $e) {
+            return $this->sendError($e, 500, $request);
+        }
+    }
 
     /**
      *
