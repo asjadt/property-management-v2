@@ -71,6 +71,58 @@ Route::middleware([\App\Http\Middleware\DevAccessMiddleware::class])->group(func
 
     Route::get('/seed', [SetUpController::class, "seed"]);
 
+    // =======================================================================
+    // PRODUCTION SYNC
+    // Convention: any production data changes must be documented here
+    // with a date comment so we can track what ran and when.
+    // =======================================================================
+
+    // -----------------------------------------------------------------------
+    // [2026-08-09] backfill users.business_id
+    // Added business_id column to users table. This query links every
+    // existing user to their business (owners via owner_id, sub-users via
+    // created_by). Safe to re-run — uses WHERE business_id IS NULL.
+    // -----------------------------------------------------------------------
+    Route::get('/production-sync', function () {
+        $log = [];
+
+        // STEP 2A: Business owners — link user to the business they own
+        $affected_a = \Illuminate\Support\Facades\DB::statement("
+            UPDATE users
+            INNER JOIN businesses ON businesses.owner_id = users.id
+            SET users.business_id = businesses.id
+            WHERE users.business_id IS NULL
+              AND businesses.deleted_at IS NULL
+        ");
+        $log[] = 'Step 2A (owner backfill): done';
+
+        // STEP 2B: Sub-users — inherit business from the user who created them
+        $affected_b = \Illuminate\Support\Facades\DB::statement("
+            UPDATE users
+            INNER JOIN businesses ON businesses.owner_id = users.created_by
+            SET users.business_id = businesses.id
+            WHERE users.business_id IS NULL
+              AND businesses.deleted_at IS NULL
+        ");
+        $log[] = 'Step 2B (sub-user backfill): done';
+
+        // REPORT
+        $total    = \Illuminate\Support\Facades\DB::table('users')->count();
+        $with_biz = \Illuminate\Support\Facades\DB::table('users')->whereNotNull('business_id')->count();
+        $without  = \Illuminate\Support\Facades\DB::table('users')->whereNull('business_id')->count();
+
+        $log[] = "Total users: {$total}";
+        $log[] = "With business_id: {$with_biz}";
+        $log[] = "Without business_id (superadmin/orphan): {$without}";
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Production sync completed.',
+            'log'     => $log,
+        ]);
+    })->name('production-sync');
+
+
     Route::get("/custom-command",function(Request $request) {
         Artisan::call('reminder:send');
         return "done";

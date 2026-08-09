@@ -301,7 +301,14 @@ class UserManagementController extends Controller
             $request_data['password'] = Hash::make($request['password']);
             $request_data['is_active'] = true;
             $request_data['remember_token'] = Str::random(10);
-            $user =  User::create($request_data);
+
+            // INHERIT BUSINESS_ID FROM THE CREATING USER
+            /** @var \App\Models\User $authUser */
+            $authUser = $request->user();
+            $request_data['created_by'] = $authUser->id;
+            $request_data['business_id'] = $authUser->business_id;
+
+            $user = User::create($request_data);
 
             $user->assignRole($request_data['role']);
 
@@ -484,6 +491,10 @@ class UserManagementController extends Controller
                 $request_data['business']['owner_id'] = $user->id;
                 $request_data['business']['created_by'] = $request->user()->id;
                 $business =  Business::create($request_data['business']);
+
+                // SET BUSINESS_ID ON THE OWNER USER
+                $user->business_id = $business->id;
+                $user->save();
 
 
                 foreach ($request_data['bill_items'] as $request_bill_item) {

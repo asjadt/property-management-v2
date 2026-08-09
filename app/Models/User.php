@@ -35,7 +35,8 @@ class User extends Authenticatable
         'email',
         'password',
         "created_by",
-        'is_active'
+        'is_active',
+        'business_id',
     ];
 
     /**
@@ -62,6 +63,15 @@ class User extends Authenticatable
     public function my_business()
     {
         return $this->hasOne(Business::class, 'owner_id', 'id');
+    }
+
+    /**
+     * The business this user belongs to (via business_id FK).
+     * Returns NULL for platform superadmin.
+     */
+    public function current_business()
+    {
+        return $this->belongsTo(Business::class, 'business_id', 'id');
     }
 
     /**
