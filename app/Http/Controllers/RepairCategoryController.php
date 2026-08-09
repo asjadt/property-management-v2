@@ -842,10 +842,16 @@ class RepairCategoryController extends Controller
         try {
             $this->storeActivity($request, "");
 
-            if (!Hash::check($request->header("password"), $request->user()->password)) {
-                return response()->json([
-                    "message" => "Invalid password"
-                ], 401);
+            $authUser = $request->user();
+
+            if (!$authUser->hasRole('superadmin')) {
+                $businessPin = $authUser->current_business->pin ?? ($authUser->my_business->pin ?? null);
+
+                if ($businessPin !== $request->header("password")) {
+                    return response()->json([
+                        "message" => "Invalid pin"
+                    ], 403);
+                }
             }
 
             // $business = Business::where([

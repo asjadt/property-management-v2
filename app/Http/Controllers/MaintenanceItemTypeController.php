@@ -665,6 +665,16 @@ class MaintenanceItemTypeController extends Controller
             /** @var \App\Models\User $authUser */
             $authUser = Auth::user();
 
+            if (!$authUser->hasRole('superadmin')) {
+                $businessPin = $authUser->current_business->pin ?? ($authUser->my_business->pin ?? null);
+
+                if ($businessPin !== $request->header("password")) {
+                    return response()->json([
+                        "message" => "Invalid pin"
+                    ], 403);
+                }
+            }
+
             $idsArray = explode(',', $ids);
 
             // FETCH ALL REQUESTED RECORDS

@@ -603,10 +603,15 @@ class BillItemController extends Controller
             /** @var \App\Models\User $authUser */
             $authUser = Auth::user();
 
-            if (!Hash::check($request->header("password"), $authUser->password)) {
-                return response()->json([
-                    "message" => "Invalid password"
-                ], 401);
+            if (!$authUser->hasRole('superadmin')) {
+                $businessPin = $authUser->current_business->pin ?? ($authUser->my_business->pin ?? null);
+
+                if ($businessPin !== $request->header("password")) {
+                    return response()->json([
+                        'success'=>false,
+                        "message" => "Invalid pin"
+                    ], 403);
+                }
             }
 
             $bill_item = BillItem::where("id", $id)
