@@ -207,6 +207,7 @@ Route::middleware(['auth:api'])->group(function () {
 
     Route::get('/v1.0/user-with-business', [AuthController::class, "getUserWithBusiness"]);
 
+    Route::post('/v1.0/auth/update-password', [AuthController::class, "updatePassword"]);
     Route::patch('/auth/changepassword', [AuthController::class, "changePassword"]);
 
     Route::put('/v1.0/update-user-info', [AuthController::class, "updateUserInfo"]);

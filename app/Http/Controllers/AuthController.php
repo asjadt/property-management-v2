@@ -15,27 +15,16 @@ use App\Http\Utils\GarageUtil;
 use App\Http\Utils\UserActivityUtil;
 use App\Mail\ForgetPasswordMail;
 use App\Mail\VerifyMail;
-use App\Models\AutomobileCategory;
-use App\Models\AutomobileMake;
-use App\Models\AutomobileModel;
 use App\Models\Garage;
-use App\Models\GarageAutomobileMake;
-use App\Models\GarageAutomobileModel;
 use App\Models\GarageGallery;
-use App\Models\GarageService;
-use App\Models\GarageSubService;
-use App\Models\Service;
-use App\Models\SubService;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-use Spatie\Permission\Models\Role;
 
 class AuthController extends Controller
 {
@@ -1156,6 +1145,62 @@ public function getUser (Request $request) {
 
 
 
+
+    /**
+     * @OA\Post(
+     *      path="/v1.0/auth/update-password",
+     *      operationId="updatePassword",
+     *      tags={"auth"},
+     *      summary="Update user password",
+     *      description="Update a specific user's password using their user_id",
+     *      security={{"bearerAuth": {}}},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              required={"user_id","password"},
+     *              @OA\Property(property="user_id", type="number", example=1),
+     *              @OA\Property(property="password", type="string", format="password", example="newpassword123")
+     *          )
+     *      ),
+     *      @OA\Response(response=200, description="Successful operation"),
+     *      @OA\Response(response=400, description="Bad Request"),
+     *      @OA\Response(response=404, description="Not found")
+     * )
+     */
+    public function updatePassword(Request $request)
+    {
+        try {
+            /** @var \App\Models\User $authUser */
+            $authUser = $request->user();
+
+            if (!$authUser || !$authUser->hasRole('superadmin')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized. Only superadmin can perform this action.'
+                ], 403);
+            }
+
+            $validatedData = $request->validate([
+                'user_id' => ['required', new \App\Rules\ValidateUser()],
+                'password' => 'required|string|min:6',
+            ]);
+
+            $user = User::find($validatedData['user_id']);
+            $user->password = Hash::make($validatedData['password']);
+            $user->login_attempts = 0;
+            $user->last_failed_login_attempt_at = null;
+            $user->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Password updated successfully',
+                'data' => $user
+            ], 200);
+
+        } catch (Exception $e) {
+            return $this->sendError($e, 500, $request);
+        }
+    }
 
     public function changePassword(PasswordChangeRequest $request)
     {
