@@ -2487,6 +2487,46 @@ class PropertyController extends Controller
      *     )
      */
 
+    public function getPropertiesList(Request $request)
+    {
+        try {
+
+            $propertyQuery = Property::with([
+                "property_landlords",
+                "property_tenants",
+                "latest_inspection"
+            ])->propertyFilters($request->all());
+
+            $result = retrieve_data($propertyQuery, "properties.id", (new Property)->getTable());
+
+            foreach ($result['data'] as $property) {
+                $updatedFiles = []; // Create a new array for modified files
+                if (!is_array($property->images)) {
+                    $images = json_decode($property->images) ?: [];
+                } else {
+                    $images = $property->images;
+                }
+
+                foreach ($images as $image) {
+                    // Modify the file name
+                    $updatedFiles[] = "/" . str_replace(' ', '_', auth()->user()->my_business->name) . "/" . base64_encode($property->id) . "/images/" . $image;
+                }
+
+                // Replace the files property with the updated array if needed
+                $property->images = $updatedFiles; // Use a new attribute to avoid issues
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Properties fetched successfully',
+                'data' => $result['data'],
+                'meta' => $result['meta']
+            ], 200);
+        } catch (Exception $e) {
+            return $this->sendError($e, 500, $request);
+        }
+    }
+
     public function getProperties($perPage, Request $request)
     {
         try {

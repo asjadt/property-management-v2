@@ -540,6 +540,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/v1.0/properties/{id}/status-history', [PropertyController::class, "getPropertyStatusHistory"]);
     Route::put('/v1.0/properties/{id}/toggle-active', [PropertyController::class, "togglePropertyActive"]);
 
+    Route::get('/v1.0/properties', [PropertyController::class, "getPropertiesList"]);
     Route::get('/v1.0/properties/{perPage}', [PropertyController::class, "getProperties"]);
 
     Route::post('/v1.0/properties/{id}/add-more-images', [PropertyController::class, 'addMoreImages']);
