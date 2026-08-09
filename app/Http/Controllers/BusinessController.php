@@ -30,7 +30,7 @@ class BusinessController extends Controller
     {
         try {
             // GET BUSINESSES QUERY
-            $query = Business::with('owner')->query();
+            $query = Business::with('owner');
 
             // FETCH DATA WITH PAGINATION
             $result = retrieve_data($query, "id", (new Business)->getTable());
