@@ -6,25 +6,33 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ApplicantCreateRequest;
-use App\Http\Requests\ApplicantUpdateRequest;
+use App\Http\Requests\ApplicantRequest;
 use App\Http\Requests\GetIdRequest;
 use App\Http\Utils\BasicUtil;
 use App\Http\Utils\ErrorUtil;
 use App\Http\Utils\UserActivityUtil;
+use App\Mail\ApplicantMatchingPropertiesMail;
 use App\Models\Applicant;
 use App\Models\Business;
 use App\Models\Property;
 use App\Models\Tenant;
+use App\Services\ApplicantService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class ApplicantController extends Controller
 {
 
     use ErrorUtil, UserActivityUtil, BasicUtil;
 
+    protected $applicantService;
+
+    public function __construct(ApplicantService $applicantService)
+    {
+        $this->applicantService = $applicantService;
+    }
 
     /**
      *
@@ -99,7 +107,7 @@ class ApplicantController extends Controller
      *     )
      */
 
-    public function createApplicant(ApplicantCreateRequest $request)
+    public function createApplicant(ApplicantRequest $request)
     {
 
         try {
@@ -112,9 +120,15 @@ class ApplicantController extends Controller
                 $request_data["is_active"] = 1;
                 $request_data["created_by"] = auth()->user()->id;
 
-            $applicant =  Applicant::create($request_data);
+                $applicant = Applicant::create($request_data);
 
                 $this->syncApplicantPreferences($applicant, $request_data);
+
+                // Send matching properties email
+                $matchedProperties = $this->applicantService->findMatchingProperties($applicant);
+                if ($matchedProperties->isNotEmpty() && $applicant->email) {
+                    Mail::to($applicant->email)->queue(new ApplicantMatchingPropertiesMail($applicant, $matchedProperties));
+                }
 
                 return response($applicant, 200);
             });
@@ -244,61 +258,30 @@ class ApplicantController extends Controller
      *     )
      */
 
-    public function updateApplicant(ApplicantUpdateRequest $request)
+    public function updateApplicant(ApplicantRequest $request)
     {
-
         try {
             $this->storeActivity($request, "DUMMY activity", "DUMMY description");
+            
             return DB::transaction(function () use ($request) {
-
                 $request_data = $request->validated();
 
-                $applicant_query_params = [
-                    "id" => $request_data["id"],
-                    "created_by" => auth()->user()->id
-                ];
+                // Form Request has already validated existence and ownership
+                $applicant = Applicant::findOrFail($request_data["id"]);
 
-                $applicant = Applicant::where($applicant_query_params)->first();
+                $applicant->fill($request_data);
 
-                if ($applicant) {
-                    $applicant->fill(collect($request_data)->only([
-                        "customer_name",
-                        "customer_phone",
-                        "email",
-                        "country",
-                        "city",
-                        "postcode",
-                        "min_price",
-                        "max_price",
-                        "address_line_1",
-                        "latitude",
-                        "longitude",
-                        "radius",
-                        "property_type",
-                        "no_of_beds",
-                        "no_of_baths",
-                        "deadline_to_move",
-                        "working",
-                        "job_title",
-                        "is_dss",
-                        // "is_default",
-                        // "is_active",
-                        // "business_id",
-                        // "created_by"
-                    ])->toArray());
-                    $applicant->save();
+                $applicant->save();
 
-                    $this->syncApplicantPreferences($applicant, $request_data);
-                } else {
-                    return response()->json([
-                        "message" => "something went wrong."
-                    ], 500);
+                $this->syncApplicantPreferences($applicant, $request_data);
+                
+                // Send matching properties email
+                $matchedProperties = $this->applicantService->findMatchingProperties($applicant);
+                if ($matchedProperties->isNotEmpty() && $applicant->email) {
+                    Mail::to($applicant->email)->queue(new ApplicantMatchingPropertiesMail($applicant, $matchedProperties));
                 }
 
-
-
-
-                return response($applicant, 201);
+                return response()->json($applicant, 200);
             });
         } catch (Exception $e) {
             error_log($e->getMessage());
@@ -514,85 +497,7 @@ class ApplicantController extends Controller
         }
     }
 
-    public function query_filters($query)
-    {
-        $created_by  = auth()->user()->id;
-        return   $query->where('applicants.created_by', $created_by)
-            ->whereNull("applicants.tenant_id")
-            ->when(!empty(request()->customer_name), function ($query) {
-                return $query->where('applicants.customer_name', request()->customer_name);
-            })
-            ->when(!empty(request()->customer_phone), function ($query) {
-                return $query->where('applicants.customer_phone', request()->customer_phone);
-            })
-            ->when(!empty(request()->email), function ($query) {
-                return $query->where('applicants.email', request()->email);
-            })
 
-            ->when(!empty(request()->address_line_1), function ($query) {
-                return $query->where('applicants.address_line_1', request()->address_line_1);
-            })
-            ->when(!empty(request()->property_type_ids), function ($query) {
-                $ids = is_array(request()->property_type_ids) ? request()->property_type_ids : explode(',', request()->property_type_ids);
-                return $query->whereHas('property_types', function($q) use ($ids) {
-                    $q->whereIn('property_types.id', $ids);
-                });
-            })
-            ->when(!empty(request()->bed_ids), function ($query) {
-                $ids = is_array(request()->bed_ids) ? request()->bed_ids : explode(',', request()->bed_ids);
-                return $query->whereHas('beds', function($q) use ($ids) {
-                    $q->whereIn('beds.id', $ids);
-                });
-            })
-            ->when(!empty(request()->bath_ids), function ($query) {
-                $ids = is_array(request()->bath_ids) ? request()->bath_ids : explode(',', request()->bath_ids);
-                return $query->whereHas('baths', function($q) use ($ids) {
-                    $q->whereIn('baths.id', $ids);
-                });
-            })
-            ->when(!empty(request()->property_type), function ($query) {
-                return $query->where('applicants.property_type', request()->property_type);
-            })
-            ->when(!empty(request()->no_of_beds), function ($query) {
-                return $query->where('applicants.no_of_beds', request()->no_of_beds);
-            })
-            ->when(!empty(request()->no_of_baths), function ($query) {
-                return $query->where('applicants.no_of_baths', request()->no_of_baths);
-            })
-            ->when(!empty(request()->start_deadline_to_move), function ($query) {
-                return $query->where('applicants.deadline_to_move', ">=", request()->start_deadline_to_move);
-            })
-            ->when(!empty(request()->end_deadline_to_move), function ($query) {
-                return $query->where('applicants.deadline_to_move', "<=", (request()->end_deadline_to_move . ' 23:59:59'));
-            })
-            ->when(!empty(request()->working), function ($query) {
-                return $query->where('applicants.working', request()->working);
-            })
-            ->when(!empty(request()->job_title), function ($query) {
-                return $query->where('applicants.job_title', request()->job_title);
-            })
-            ->when(!empty(request()->search_key), function ($query) {
-                return $query->where(function ($query) {
-                    $term = request()->search_key;
-                    $query
-                        ->orWhere("applicants.customer_name", "like", "%" . $term . "%")
-                        ->where("applicants.customer_phone", "like", "%" . $term . "%")
-                        ->orWhere("applicants.address_line_1", "like", "%" . $term . "%")
-                        ->orWhere("applicants.property_type", "like", "%" . $term . "%")
-                        ->orWhere("applicants.no_of_beds", "like", "%" . $term . "%")
-                        ->orWhere("applicants.no_of_baths", "like", "%" . $term . "%")
-                        ->orWhere("applicants.working", "like", "%" . $term . "%")
-                        ->orWhere("applicants.job_title", "like", "%" . $term . "%")
-                    ;
-                });
-            })
-            ->when(!empty(request()->start_date), function ($query) {
-                return $query->whereDate('applicants.created_at', ">=", request()->start_date);
-            })
-            ->when(!empty(request()->end_date), function ($query) {
-                return $query->whereDate('applicants.created_at', "<=", (request()->end_date));
-            });
-    }
     /**
      *
      * @OA\Get(
@@ -798,8 +703,8 @@ class ApplicantController extends Controller
 
 
 
-            $query = Applicant::query()->with('property_types', 'beds','baths');
-            $query = $this->query_filters($query);
+            $query = Applicant::query()->with('property_types', 'beds','baths')
+                ->applicantFilters($request->all());
             $applicants = $this->retrieveData($query, "id", "applicants");
 
 
@@ -1068,7 +973,7 @@ class ApplicantController extends Controller
                 $query->where('is_dss', $property->is_dss);
             });
 
-            $query = $this->query_filters($query);
+            $query->applicantFilters($request->all());
             $applicants = $this->retrieveData($query, "id", "applicants");
 
 

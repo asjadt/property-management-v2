@@ -1,18 +1,19 @@
 <?php
 
-
-
 namespace App\Http\Requests;
 
-use App\Models\Applicant;
 use Illuminate\Foundation\Http\FormRequest;
+use App\Rules\ValidateApplicant;
+use App\Rules\ValidatePropertyType;
+use App\Rules\ValidateBed;
+use App\Rules\ValidateBath;
 
-class ApplicantUpdateRequest extends FormRequest
+class ApplicantRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      *
-     * @return  bool
+     * @return bool
      */
     public function authorize()
     {
@@ -22,46 +23,19 @@ class ApplicantUpdateRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return  array
+     * @return array
      */
     public function rules()
     {
-
         $rules = [
-
-            'id' => [
-                'required',
-                'numeric',
-                function ($attribute, $value, $fail) {
-
-                    $applicant_query_params = [
-                        "id" => $this->id,
-                    ];
-                    $applicant = Applicant::where($applicant_query_params)
-                        ->first();
-                    if (!$applicant) {
-                        // $fail($attribute . " is invalid.");
-                        $fail("no applicant found");
-                        return 0;
-                    }
-                    if ($applicant->created_by != auth()->user()->id) {
-                        // $fail($attribute . " is invalid.");
-                        $fail("You do not have permission to update this applicant due to role restrictions.");
-                    }
-                },
-            ],
-
-
             'customer_name' => [
                 'required',
                 'string'
             ],
-
             'customer_phone' => [
                 'required',
                 'string'
             ],
-
             'email' => [
                 'required',
                 'string',
@@ -75,90 +49,87 @@ class ApplicantUpdateRequest extends FormRequest
                 'required',
                 'string'
             ],
-                'postcode' => [
+            'postcode' => [
                 'required',
                 'string'
             ],
-
-
             'min_price' => [
                 'required',
                 'numeric'
             ],
-
             'max_price' => [
                 'required',
                 'numeric'
             ],
-
             'address_line_1' => [
                 'required',
                 'string'
             ],
-
             'latitude' => [
                 'nullable',
                 'numeric'
             ],
-
             'longitude' => [
                 'nullable',
                 'numeric'
             ],
-
             'radius' => [
                 'nullable',
                 'numeric'
             ],
-
             'property_type_ids' => [
                 'required',
                 'array'
             ],
             'property_type_ids.*' => [
                 'integer',
-                new \App\Rules\ValidatePropertyType()
+                new ValidatePropertyType()
             ],
-
             'bed_ids' => [
                 'required',
                 'array'
             ],
             'bed_ids.*' => [
                 'integer',
-                new \App\Rules\ValidateBed()
+                new ValidateBed()
             ],
-
             'bath_ids' => [
                 'required',
                 'array'
             ],
             'bath_ids.*' => [
                 'integer',
-                new \App\Rules\ValidateBath()
+                new ValidateBath()
             ],
-
             'deadline_to_move' => [
                 'nullable',
                 'string'
             ],
-
+            'expiry_date' => [
+                'nullable',
+                'date'
+            ],
             'working' => [
                 'nullable',
                 'string'
             ],
-
             'job_title' => [
                 'nullable',
                 'string'
             ],
-
             'is_dss' => [
                 'required',
                 'boolean'
             ],
-
         ];
+
+        if ($this->isMethod('put') || $this->isMethod('patch')) {
+            $rules['id'] = [
+                'required',
+                'numeric',
+                new ValidateApplicant()
+            ];
+        }
 
         return $rules;
     }

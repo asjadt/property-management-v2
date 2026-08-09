@@ -20,6 +20,13 @@ class TenancyAgreementController extends Controller
 {
     use ErrorUtil, UserActivityUtil, BasicUtil;
 
+    protected $rentService;
+
+    public function __construct(\App\Services\RentService $rentService)
+    {
+        $this->rentService = $rentService;
+    }
+
 
     /**
      * @OA\Post(
@@ -124,7 +131,7 @@ class TenancyAgreementController extends Controller
 
 
                 $start_date = Carbon::parse($request_data["date_of_moving"]);
-                
+
                 if (!empty($request_data["tenant_contact_expired_date"])) {
                     $end_date = Carbon::parse($request_data["tenant_contact_expired_date"]);
                     $months_difference = $start_date->diffInMonths($end_date);
@@ -150,7 +157,8 @@ class TenancyAgreementController extends Controller
                     }
                 }
 
-
+                // Generate retroactive rents if not already generated
+                $this->rentService->generateRetroactiveRents($agreement);
 
                 return response($agreement, 201);
             });
@@ -262,7 +270,7 @@ class TenancyAgreementController extends Controller
                 } else {
                     $request_data["total_agreed_rent"] = 0;
                 }
-                
+
                 // Fill the model with the mass-assignable attributes
                 $agreement->fill($request_data);
                 $agreement->save(); // Save the agreement
@@ -565,7 +573,7 @@ class TenancyAgreementController extends Controller
                 'highest_rent' => $highest_rent
             ];
 
-    
+
 
             return response()->json([
                 'data' => $agreements,

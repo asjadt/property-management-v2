@@ -24,3 +24,4 @@ Schedule::command('due_reminder:send')->everyMinute();
 Schedule::command('rent:generate-due')->daily();
 Schedule::command('reminder:send')->daily();
 Schedule::command('property_alerts:send')->daily();
+Schedule::command('applicants:send-expiry-matching-properties')->daily();

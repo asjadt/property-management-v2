@@ -1,0 +1,59 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\Applicant;
+use App\Models\Property;
+
+class ApplicantService
+{
+    public function findMatchingProperties(Applicant $applicant)
+    {
+        $query = Property::query()->where('is_active', 1);
+
+        // Distance matching
+        if ($applicant->latitude && $applicant->longitude && $applicant->radius) {
+            $query->whereRaw(
+                "ST_Distance_Sphere(point(properties.long, properties.lat), point(?, ?)) <= ? * 1609.34",
+                [
+                    $applicant->longitude,
+                    $applicant->latitude,
+                    $applicant->radius
+                ]
+            );
+        }
+
+        // Price range
+        if ($applicant->min_price) {
+            $query->where('price', '>=', $applicant->min_price);
+        }
+        if ($applicant->max_price) {
+            $query->where('price', '<=', $applicant->max_price);
+        }
+
+        // Property Type
+        $propertyTypeIds = $applicant->property_types()->pluck('property_types.id')->toArray();
+        if (!empty($propertyTypeIds)) {
+            $query->whereIn('property_type_id', $propertyTypeIds);
+        }
+
+        // Bed matching
+        $bedIds = $applicant->beds()->pluck('beds.id')->toArray();
+        if (!empty($bedIds)) {
+            $query->whereIn('bed_id', $bedIds);
+        }
+
+        // Bath matching
+        $bathIds = $applicant->baths()->pluck('baths.id')->toArray();
+        if (!empty($bathIds)) {
+            $query->whereIn('bath_id', $bathIds);
+        }
+
+        // DSS matching
+        if (!is_null($applicant->is_dss)) {
+            $query->where('is_dss', $applicant->is_dss);
+        }
+
+        return $query->get();
+    }
+}
