@@ -19,6 +19,10 @@ class BusinessController extends Controller
      *      @OA\Parameter(name="page", in="query", required=false, example="1"),
      *      @OA\Parameter(name="order_by", in="query", required=false, example="id"),
      *      @OA\Parameter(name="sort_order", in="query", required=false, example="DESC"),
+     *      @OA\Parameter(name="searchKey", in="query", required=false, example="John", description="Search by business name, owner name, owner email"),
+     *      @OA\Parameter(name="start_date", in="query", required=false, example="2023-01-01", description="Filter by creation start date"),
+     *      @OA\Parameter(name="end_date", in="query", required=false, example="2023-12-31", description="Filter by creation end date"),
+     *      @OA\Parameter(name="status", in="query", required=false, example="active", description="Filter by business status"),
      *      summary="Get all businesses with pagination",
      *      description="Get all businesses with pagination",
      *      @OA\Response(response=200, description="Successful operation", @OA\JsonContent()),
@@ -30,7 +34,7 @@ class BusinessController extends Controller
     {
         try {
             // GET BUSINESSES QUERY
-            $query = Business::with('owner');
+            $query = Business::with('owner')->businessFilters($request->all());
 
             // FETCH DATA WITH PAGINATION
             $result = retrieve_data($query, "id", (new Business)->getTable());
@@ -154,7 +158,7 @@ class BusinessController extends Controller
 
             $business = Business::find($validatedData['id']);
 
-            $business->status = ($business->status === 'active') ? 'inactive' : 'active';
+            $business->status = ($business->status === 'inactive') ? 'active' : 'inactive';
             $business->save();
 
             return response()->json([

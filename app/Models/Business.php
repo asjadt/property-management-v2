@@ -50,4 +50,35 @@ class Business extends Model
         return $this->hasMany(Reminder::class,'created_by', 'owner_id');
     }
 
+    public function scopeBusinessFilters($query, array $filters = [])
+    {
+        if (!empty($filters['searchKey'])) {
+            $searchKey = $filters['searchKey'];
+            $query->where(function ($q) use ($searchKey) {
+                $q->where('businesses.name', 'like', "%{$searchKey}%")
+                  ->orWhereHas('owner', function ($q2) use ($searchKey) {
+                      $q2->where('first_Name', 'like', "%{$searchKey}%")
+                         ->orWhere('last_Name', 'like', "%{$searchKey}%")
+                         ->orWhere('email', 'like', "%{$searchKey}%");
+                  });
+            });
+        }
+
+        if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
+            $query->whereBetween('businesses.created_at', [
+                \Carbon\Carbon::parse($filters['start_date'])->startOfDay(),
+                \Carbon\Carbon::parse($filters['end_date'])->endOfDay()
+            ]);
+        } elseif (!empty($filters['start_date'])) {
+            $query->where('businesses.created_at', '>=', \Carbon\Carbon::parse($filters['start_date'])->startOfDay());
+        } elseif (!empty($filters['end_date'])) {
+            $query->where('businesses.created_at', '<=', \Carbon\Carbon::parse($filters['end_date'])->endOfDay());
+        }
+
+        if (!empty($filters['status'])) {
+            $query->where('businesses.status', $filters['status']);
+        }
+
+        return $query;
+    }
 }
