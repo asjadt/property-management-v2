@@ -927,6 +927,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::controller(BusinessController::class)->group(function () {
         Route::get('/v1.0/businesses', 'getAllBusinesses');
         Route::get('/v1.0/businesses/{id}', 'getBusinessById');
+        Route::put('/v1.0/businesses/toggle-status', 'toggleStatus');
         Route::delete('/v1.0/businesses/{id}', 'businessDelete');
     });
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

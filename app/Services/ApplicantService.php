@@ -91,6 +91,7 @@ class ApplicantService
         foreach ($applicants as $applicant) {
             $leadsBreakdown[] = [
                 'id' => $applicant->id,
+                'name' => $applicant->customer_name,
                 'matching_property_count' => $this->findMatchingProperties($applicant)->count(),
             ];
         }

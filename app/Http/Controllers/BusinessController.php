@@ -64,7 +64,7 @@ class BusinessController extends Controller
     {
         try {
             // FETCH SINGLE BUSINESS
-            $business = Business::find($id);
+            $business = Business::with('owner')->findOrFail($id);
 
             if (!$business) {
                 return response()->json([
@@ -122,6 +122,51 @@ class BusinessController extends Controller
             ], Response::HTTP_OK);
         } catch (Exception $e) {
            throw $e;
+        }
+    }
+
+    /**
+     * @OA\Put(
+     *      path="/v1.0/businesses/toggle-status",
+     *      operationId="toggleBusinessStatus",
+     *      tags={"business_management"},
+     *      security={{"bearerAuth": {}}},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              required={"id"},
+     *              @OA\Property(property="id", type="number", example=1)
+     *          )
+     *      ),
+     *      summary="Toggle business status",
+     *      description="Toggle business status between active and inactive",
+     *      @OA\Response(response=200, description="Successful operation", @OA\JsonContent()),
+     *      @OA\Response(response=401, description="Unauthenticated", @OA\JsonContent()),
+     *      @OA\Response(response=500, description="Server Error", @OA\JsonContent())
+     * )
+     */
+    public function toggleStatus(Request $request)
+    {
+        try {
+            $validatedData = $request->validate([
+                'id' => ['required', new \App\Rules\ValidateBusiness()]
+            ]);
+
+            $business = Business::find($validatedData['id']);
+
+            $business->status = ($business->status === 'active') ? 'inactive' : 'active';
+            $business->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Business status toggled successfully.',
+                'data'    => $business
+            ], Response::HTTP_OK);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }
