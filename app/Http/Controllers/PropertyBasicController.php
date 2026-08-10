@@ -1978,6 +1978,7 @@ COALESCE(
             $data["property_status_report"] = $this->getPropertyStatusReport();
 
             $data["application_breakdown"] = $this->applicantService->getApplicantReport(auth()->user()->id);
+            $data["leads_breakdown"] = $this->applicantService->getLeadsBreakdown(auth()->user()->id);
 
             return response()->json($data, 200);
         } catch (Exception $e) {

@@ -78,4 +78,23 @@ class ApplicantService
                 ->count(),
         ];
     }
+    public function getLeadsBreakdown($userId)
+    {
+        // Fetch active leads (applicants not yet converted to tenants)
+        $applicants = Applicant::where('created_by', $userId)
+            ->where('is_active', 1)
+            ->whereNull('tenant_id')
+            ->get();
+
+        $leadsBreakdown = [];
+
+        foreach ($applicants as $applicant) {
+            $leadsBreakdown[] = [
+                'id' => $applicant->id,
+                'matching_property_count' => $this->findMatchingProperties($applicant)->count(),
+            ];
+        }
+
+        return $leadsBreakdown;
+    }
 }
