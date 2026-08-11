@@ -13,6 +13,9 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
+        // RESET CACHED ROLES AND PERMISSIONS
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
         $permissions = config("setup-config.permissions");
 
         // setup permissions

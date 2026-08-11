@@ -104,14 +104,33 @@ return [
                 "reminder_delete",
             ],
         ],
+        [
+            "role" => "landlord",
+            "permissions" => [
+                "landlord_view_own_profile",
+                "landlord_view_own_properties",
+                "landlord_view_own_invoices",
+                "landlord_view_own_rents",
+                "landlord_view_own_rent_payables",
+                "landlord_view_own_documents",
+            ],
+        ],
 
     ],
     "roles" => [
         "superadmin",
         "business_owner",
-        "user"
+        "user",
+        "landlord"
     ],
     "permissions" => [
+        "landlord_view_own_profile",
+        "landlord_view_own_properties",
+        "landlord_view_own_invoices",
+        "landlord_view_own_rents",
+        "landlord_view_own_rent_payables",
+        "landlord_view_own_documents",
+
         "user_create",
         "user_update",
         "user_view",

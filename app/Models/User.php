@@ -40,6 +40,18 @@ class User extends Authenticatable
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['role'];
+
+    public function getRoleAttribute()
+    {
+        return $this->getRoleNames()->first();
+    }
+
+    /**
      * The attributes that should be hidden for serialization.
      *
      * @var array<int, string>
@@ -63,6 +75,11 @@ class User extends Authenticatable
     public function my_business()
     {
         return $this->hasOne(Business::class, 'owner_id', 'id');
+    }
+
+    public function landlord()
+    {
+        return $this->hasOne(Landlord::class, 'user_id', 'id');
     }
 
     /**

@@ -744,6 +744,18 @@ class PropertyBasicController extends Controller
         try {
             $this->storeActivity($request, "");
 
+            /** @var \App\Models\User $authUser */
+            $authUser = $request->user();
+
+            // RESOLVE THE BUSINESS OWNER ID FOR CROSS-TABLE QUERIES
+            if ($authUser->hasRole('landlord')) {
+                // GET THE LANDLORD RECORD LINKED TO THIS USER
+                $landlord = \App\Models\Landlord::where('user_id', $authUser->id)->firstOrFail();
+                $ownerId  = $landlord->created_by;   // the admin who created this landlord
+            } else {
+                $ownerId = $authUser->id;
+            }
+
             if (empty($request->landlord_id)) {
                 throw new Exception(json_encode([
                     "message" => "The given data was invalid.",
@@ -759,7 +771,7 @@ class PropertyBasicController extends Controller
             // -------------------------
             // Opening Balance
             // -------------------------
-            $total_invoices_before = Invoice::where("created_by", $request->user()->id)
+            $total_invoices_before = Invoice::where("created_by", $ownerId)
                 ->whereNotIn("invoices.status", ['draft'])
                 ->when(request()->filled("property_id"), function ($query) {
                     $query->where("invoices.property_id", request()->input("property_id"));
@@ -774,7 +786,7 @@ class PropertyBasicController extends Controller
             $total_invoice_payments_before = InvoicePayment::whereHas(
                 "invoice",
                 function ($query) use ($landlord_id) {
-                    $query->where("created_by", auth()->user()->id)
+                    $query->where("created_by", $ownerId)
                         ->when(request()->filled("property_id"), function ($query) {
                             $query->where("invoices.property_id", request()->input("property_id"));
                         })
@@ -790,7 +802,7 @@ class PropertyBasicController extends Controller
 
             $total_landlord_rent_payables_before = LandlordRentPayable::where([
                 "landlord_id" => $landlord_id,
-                "created_by" => $request->user()->id
+                "created_by" => $ownerId
             ])
                 ->when(request()->filled("property_ids"), function ($query) {
                     $query->whereHas("rents", function ($query) {
@@ -811,7 +823,7 @@ class PropertyBasicController extends Controller
             // -------------------------
             // Current Period Transactions
             // -------------------------
-            $invoices = Invoice::where("created_by", $request->user()->id)
+            $invoices = Invoice::where("created_by", $ownerId)
                 ->whereNotIn("invoices.status", ['draft'])
                 ->when(request()->filled("property_id"), function ($query) {
                     $query->where("invoices.property_id", request()->input("property_id"));
@@ -838,7 +850,7 @@ class PropertyBasicController extends Controller
 
             $landlord_rent_payables = LandlordRentPayable::where([
                 "landlord_id" => $landlord_id,
-                "created_by" => $request->user()->id,
+                "created_by" => $ownerId,
             ])
                 ->when(request()->filled("property_ids"), function ($query) {
                     $query->whereHas("rents", function ($query) {

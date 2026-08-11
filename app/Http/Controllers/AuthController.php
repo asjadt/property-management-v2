@@ -273,6 +273,7 @@ $datediff = $now - $user_created_date;
             $user->roles = $user->roles->pluck('name');
 
             $user->business =  $user->business;
+            $user->landlord =  $user->landlord;
 
 
             return response()->json($user, 200);

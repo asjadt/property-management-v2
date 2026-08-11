@@ -46,6 +46,7 @@ use App\Http\Controllers\InvoiceReminderController;
 use App\Http\Controllers\JobBidController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\LandlordController;
+use App\Http\Controllers\LandlordPortalController;
 use App\Http\Controllers\LandlordRentPayableController;
 use App\Http\Controllers\MaintenanceItemTypeController;
 use App\Http\Controllers\NotificationController;
@@ -293,6 +294,17 @@ Route::middleware(['auth:api'])->group(function () {
 
     Route::get('/v1.0/landlords/get/single/{id}', [LandlordController::class, "getLandlordById"]);
     Route::delete('/v1.0/landlords/{id}', [LandlordController::class, "deleteLandlordById"]);
+    Route::post('/v1.0/landlords/{id}/invite', [LandlordController::class, 'inviteLandlord']);
+
+    // LANDLORD PORTAL ROUTES — self-service for authenticated landlord-Users
+    Route::controller(LandlordPortalController::class)->group(function () {
+        Route::get('/v1.0/landlord-portal/profile',       'getMyProfile');
+        Route::put('/v1.0/landlord-portal/profile',       'updateMyProfile');
+        Route::get('/v1.0/landlord-portal/properties',    'getMyProperties');
+        Route::get('/v1.0/landlord-portal/invoices',      'getMyInvoices');
+        Route::get('/v1.0/landlord-portal/rent-payables', 'getMyRentPayables');
+        Route::get('/v1.0/landlord-portal/report',        'getLandlordReport');
+    });
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     // Landlord management section
