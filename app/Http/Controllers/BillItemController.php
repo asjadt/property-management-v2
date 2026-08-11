@@ -96,8 +96,8 @@ class BillItemController extends Controller
 
                 // SET IS_DEFAULT AND BUSINESS_ID BASED ON ROLE
                 if ($authUser->hasRole('superadmin')) {
-                    $request_data['is_default'] = 1;
-                    $request_data['business_id'] = null;
+                    $request_data['is_default'] = $request->filled('business_id') ? 0 : 1;
+                    $request_data['business_id'] = $request->filled('business_id') ? $request->input('business_id') : null;
                 } else {
                     $request_data['is_default'] = 0;
                     $request_data['business_id'] = $authUser->business_id;
@@ -238,8 +238,22 @@ class BillItemController extends Controller
      *         required=true,
      *  example="6"
      *      ),
+     *      @OA\Parameter(
+     *         name="is_default",
+     *         in="query",
+     *         description="Filter by is_default (Superadmin only)",
+     *         required=false,
+     *         example="1"
+     *      ),
+     *      @OA\Parameter(
+     *         name="business_id",
+     *         in="query",
+     *         description="Filter by business_id (Superadmin only)",
+     *         required=false,
+     *         example="1"
+     *      ),
      *      * *  @OA\Parameter(
-    * name="start_date",
+     * name="start_date",
     * in="query",
     * description="start_date",
     * required=true,
@@ -311,38 +325,12 @@ class BillItemController extends Controller
             /** @var \App\Models\User $authUser */
             $authUser = Auth::user();
 
-            if (!$authUser->hasPermissionTo('bill_item_view')) {
-                return response()->json([
-                    "message" => "You can not perform this action"
-                ], 401);
-            }
 
-            $bill_itemQuery = BillItem::query();
+            // Merge perPage into request so retrieve_data helper can use it
+            $request->merge(['per_page' => $perPage]);
 
-            if (!$authUser->hasRole("superadmin")) {
-                $bill_itemQuery->where(function ($q) use ($authUser) {
-                    $q->where("is_default", 1)
-                      ->orWhere("business_id", $authUser->business_id);
-                });
-            }
-
-            if (!empty($request->search_key)) {
-                $bill_itemQuery = $bill_itemQuery->where(function ($query) use ($request) {
-                    $term = $request->search_key;
-                    $query->where("bill_items.name", "like", "%" . $term . "%");
-                    $query->orWhere("bill_items.description", "like", "%" . $term . "%");
-                    $query->orWhere("bill_items.price", "like", "%" . $term . "%");
-                });
-            }
-
-            if (!empty($request->start_date)) {
-                $bill_itemQuery = $bill_itemQuery->where('bill_items.created_at', ">=", $request->start_date);
-            }
-            if (!empty($request->end_date)) {
-                $bill_itemQuery = $bill_itemQuery->where('bill_items.created_at', "<=", $request->end_date);
-            }
-
-            $bill_items = $bill_itemQuery->orderBy("bill_items.id",$request->order_by)->paginate($perPage);
+            $query = BillItem::billItemQuery();
+            $bill_items = retrieve_data($query, "id", "bill_items");
 
             return response()->json($bill_items, 200);
         } catch (Exception $e) {
@@ -360,42 +348,72 @@ class BillItemController extends Controller
      *       security={
      *           {"bearerAuth": {}}
      *       },
-     *      * *  @OA\Parameter(
-     * name="start_date",
-     * in="query",
-     * description="start_date",
-     * required=true,
-     * example="2019-06-29"
-     * ),
-     * *  @OA\Parameter(
-     * name="end_date",
-     * in="query",
-     * description="end_date",
-     * required=true,
-     * example="2019-06-29"
-     * ),
-     * *  @OA\Parameter(
-     * name="order_by",
-     * in="query",
-     * description="order_by",
-     * required=true,
-     * example="ASC"
-     * ),
-     * *  @OA\Parameter(
-     * name="search_key",
-     * in="query",
-     * description="search_key",
-     * required=true,
-     * example="search_key"
-     * ),
+     *      @OA\Parameter(
+     *         name="is_default",
+     *         in="query",
+     *         description="Filter by is_default (Superadmin only)",
+     *         required=false,
+     *         example="1"
+     *      ),
+     *      @OA\Parameter(
+     *         name="business_id",
+     *         in="query",
+     *         description="Filter by business_id (Superadmin only)",
+     *         required=false,
+     *         example="1"
+     *      ),
+     *      @OA\Parameter(
+     *         name="start_date",
+     *         in="query",
+     *         description="start_date",
+     *         required=false,
+     *         example="2019-06-29"
+     *      ),
+     *      @OA\Parameter(
+     *         name="end_date",
+     *         in="query",
+     *         description="end_date",
+     *         required=false,
+     *         example="2019-06-29"
+     *      ),
+     *      @OA\Parameter(
+     *         name="order_by",
+     *         in="query",
+     *         description="order_by",
+     *         required=false,
+     *         example="ASC"
+     *      ),
+     *      @OA\Parameter(
+     *         name="search_key",
+     *         in="query",
+     *         description="search_key",
+     *         required=false,
+     *         example="search_key"
+     *      ),
      *      summary="This method is to get bill items ",
      *      description="This method is to get bill items",
      *
-
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
-     *       @OA\JsonContent(),
+     *          @OA\JsonContent(
+     *              @OA\Property(property="success", type="boolean", example=true),
+     *              @OA\Property(property="message", type="string", example="Successfully fetched all bill items"),
+     *              @OA\Property(property="meta", type="object",
+     *                  @OA\Property(property="current_page", type="integer", example=1),
+     *                  @OA\Property(property="last_page", type="integer", example=1),
+     *                  @OA\Property(property="per_page", type="integer", example=10),
+     *                  @OA\Property(property="total", type="integer", example=1)
+     *              ),
+     *              @OA\Property(property="data", type="array",
+     *                  @OA\Items(
+     *                      @OA\Property(property="id", type="integer", example=1),
+     *                      @OA\Property(property="name", type="string", example="Bill Item Name"),
+     *                      @OA\Property(property="description", type="string", example="Description"),
+     *                      @OA\Property(property="price", type="number", example=10.10)
+     *                  )
+     *              )
+     *          )
      *       ),
      *      @OA\Response(
      *          response=401,
@@ -404,7 +422,7 @@ class BillItemController extends Controller
      *      ),
      *        @OA\Response(
      *          response=422,
-     *          description="Unprocesseble Content",
+     *          description="Unprocessable Content",
      *    @OA\JsonContent(),
      *      ),
      *      @OA\Response(
@@ -438,7 +456,12 @@ class BillItemController extends Controller
 
             $bill_items = retrieve_data($bill_itemQuery, "id", "bill_items");
 
-            return response()->json($bill_items, 200);
+            return response()->json([
+                "success" => true,
+                "message" => "Successfully fetched all bill items",
+                "meta" => $bill_items['meta'],
+                "data" => $bill_items['data']
+            ], 200);
         } catch (Exception $e) {
 
             return $this->sendError($e, 500,$request);
@@ -542,22 +565,22 @@ class BillItemController extends Controller
     /**
      *
      *     @OA\Delete(
-     *      path="/v1.0/bill-items/{id}",
-     *      operationId="deleteBillItemById",
+     *      path="/v1.0/bill-items/{ids}",
+     *      operationId="deleteBillItemsByIds",
      *      tags={"property_management.bill_item_management"},
      *       security={
      *           {"bearerAuth": {}},
      *           {"pin": {}}
      *       },
      *              @OA\Parameter(
-     *         name="id",
+     *         name="ids",
      *         in="path",
-     *         description="id",
+     *         description="Comma separated IDs",
      *         required=true,
-     *  example="1"
+     *  example="1,2,3"
      *      ),
-     *      summary="This method is to delete bill item  by id",
-     *      description="This method is to delete bill item  by id",
+     *      summary="This method is to delete bill items by ids",
+     *      description="This method is to delete bill items by ids",
      *
 
      *      @OA\Response(
@@ -594,7 +617,7 @@ class BillItemController extends Controller
      *     )
      */
 
-    public function deleteBillItemById($id, Request $request)
+    public function deleteBillItemsByIds(Request $request, $ids)
     {
 
         try {
@@ -614,30 +637,41 @@ class BillItemController extends Controller
                 }
             }
 
-            $bill_item = BillItem::where("id", $id)
-            ->where("business_id", $authUser->business_id)->first();
+            $idsArray = explode(',', $ids);
 
+            // FETCH ALL REQUESTED RECORDS
+            $items = BillItem::whereIn('id', $idsArray)->get();
 
-            if(!$bill_item) {
+            if ($items->count() !== count($idsArray)) {
                 return response()->json([
-                    'success'=>false,
-                    "message" => "no bill item  found"
-                ],404);
+                    'success' => false,
+                    "message" => "Some or all of the specified data do not exist."
+                ], 404);
             }
 
-            if($bill_item->is_default && !$authUser->hasRole("superadmin")) {
-                return response()->json([
-                    'success'=>false,
-                    "message" => "You can not perform this action"
-                ],403);
+            foreach ($items as $item) {
+                if ($item->is_default && !$authUser->hasRole("superadmin")) {
+                    return response()->json([
+                        'success' => false,
+                        "message" => "You can not perform this action on default items"
+                    ], 403);
+                }
+
+                if (!$authUser->hasRole("superadmin") && $item->business_id !== $authUser->business_id) {
+                    return response()->json([
+                        'success' => false,
+                        "message" => "You can not perform this action on other business items"
+                    ], 403);
+                }
             }
 
-            $bill_item->delete();
+            // DELETE RECORDS
+            BillItem::destroy($idsArray);
 
             return response()->json([
                 "success" => true,
-                "message"=>"Delete bill item successfully",
-                "data" => $bill_item
+                "message"=>"Delete bill items successfully",
+                "deleted_ids" => $idsArray
             ], 200);
         } catch (Exception $e) {
 

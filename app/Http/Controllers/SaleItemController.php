@@ -12,6 +12,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Response;
 
 class SaleItemController extends Controller
 {
@@ -79,28 +80,32 @@ class SaleItemController extends Controller
 public function createSaleItem(SaleItemCreateRequest $request)
 {
     try {
-        $this->storeActivity($request,"");
         return DB::transaction(function () use ($request) {
 
 
 
             $request_data = $request->validated();
             $request_data["created_by"] = $request->user()->id;
+
+            if ($request->user()->hasRole('superadmin')) {
+                $request_data['is_default'] = $request->filled('business_id') ? 0 : 1;
+                $request_data['business_id'] = $request->filled('business_id') ? $request->input('business_id') : null;
+            } else {
+                $request_data['is_default'] = 0;
+                $request_data['business_id'] = $request->user()->business_id;
+            }
+
             $sale_item =  SaleItem::create($request_data);
             $sale_item->generated_id = Str::random(4) . $sale_item->id . Str::random(4);
             $sale_item->save();
 
 
-            return response($sale_item, 201);
-
-
-
-
-
+            return response()->json([
+                "success" => true,
+                "message" => "Sale item created successfully",
+                "data" => $sale_item
+            ], Response::HTTP_CREATED);
         });
-
-
-
 
     } catch (Exception $e) {
 
@@ -175,42 +180,45 @@ public function updateSaleItem(SaleItemUpdateRequest $request)
 
             $request_data = $request->validated();
 
-            // $affiliationPrev = SaleItem::where([
-            //     "id" => $request_data["id"]
-            //    ]);
+            $sale_item = SaleItem::where('id', $request_data['id'])->first();
 
-            //    if(!$request->user()->hasRole('superadmin')) {
-            //     $affiliationPrev =    $affiliationPrev->where([
-            //         "created_by" =>$request->user()->id
-            //     ]);
-            // }
-            // $affiliationPrev = $affiliationPrev->first();
-            //  if(!$affiliationPrev) {
-            //         return response()->json([
-            //            "message" => "you did not create this affiliation."
-            //         ],404);
-            //  }
+            if (!$sale_item) {
+                return response()->json([
+                    "success" => false,
+                    "message" => "No sale item found",
+                    "data" => null
+                ], Response::HTTP_NOT_FOUND);
+            }
 
+            if ($sale_item->is_default == 1 && !$request->user()->hasRole('superadmin')) {
+                return response()->json([
+                    'success' => false,
+                    "message" => "You cannot update a default sale item",
+                    "data" => null
+                ], Response::HTTP_FORBIDDEN);
+            }
 
+            if (!$request->user()->hasRole('superadmin') && $sale_item->business_id !== $request->user()->business_id) {
+                return response()->json([
+                    'success' => false,
+                    "message" => "You cannot update a sale item of another business",
+                    "data" => null
+                ], Response::HTTP_FORBIDDEN);
+            }
 
-
-            $sale_item  =  tap(SaleItem::where([
-                "id" => $request_data["id"],
-                "created_by" => $request->user()->id
-                ]))->update(
+            $sale_item->update(
                 collect($request_data)->only([
                     'name',
-    'description',
-    'price',
-
-
+                    'description',
+                    'price',
                 ])->toArray()
-            )
-                // ->with("somthing")
+            );
 
-                ->first();
-
-            return response($sale_item, 200);
+            return response()->json([
+                "success" => true,
+                "message" => "Sale item updated successfully",
+                "data" => $sale_item
+            ], Response::HTTP_OK);
         });
     } catch (Exception $e) {
         error_log($e->getMessage());
@@ -305,36 +313,89 @@ public function getSaleItems($perPage, Request $request)
     try {
         $this->storeActivity($request,"");
 
-        // $automobilesQuery = AutomobileMake::with("makes");
+        $request->merge(['per_page' => $perPage]);
+        $sale_itemQuery = SaleItem::saleItemQuery();
+        $sale_items = retrieve_data($sale_itemQuery, "id", "sale_items");
 
-        $sale_itemQuery =  SaleItem::where(["sale_items.created_by" => $request->user()->id])
-        ->leftJoin('business_defaults', function($join) use($request) {
-            $join->on('sale_items.id', '=', 'business_defaults.entity_id')
-                 ->where('business_defaults.entity_type', '=', 'sale_item')
-                 ->where('business_defaults.business_owner_id', '=', $request->user()->id);
-        });
+        return response()->json([
+            "success" => true,
+            "message" => "Successfully fetched sale items",
+            "meta" => $sale_items['meta'],
+            "data" => $sale_items['data']
+        ], 200);
+    } catch (Exception $e) {
 
-        if (!empty($request->search_key)) {
-            $sale_itemQuery = $sale_itemQuery->where(function ($query) use ($request) {
-                $term = $request->search_key;
-                $query->where("sale_items.name", "like", "%" . $term . "%");
-                $query->orWhere("sale_items.description", "like", "%" . $term . "%");
-                $query->orWhere("sale_items.price", "like", "%" . $term . "%");
-            });
-        }
+        return $this->sendError($e, 500,$request);
+    }
+}
 
-        if (!empty($request->start_date)) {
-            $sale_itemQuery = $sale_itemQuery->where('sale_items.created_at', ">=", $request->start_date);
-        }
-        if (!empty($request->end_date)) {
-            $sale_itemQuery = $sale_itemQuery->where('sale_items.created_at', "<=", $request->end_date);
-        }
+/**
+ *
+ * @OA\Get(
+ *      path="/v1.0/sale-items",
+ *      operationId="getSaleItemsList",
+ *      tags={"property_management.sale_item_management"},
+ *       security={
+ *           {"bearerAuth": {}}
+ *       },
+ *      @OA\Parameter(
+ *         name="start_date",
+ *         in="query",
+ *         description="start_date",
+ *         required=false,
+ *         example="2019-06-29"
+ *      ),
+ *      @OA\Parameter(
+ *         name="end_date",
+ *         in="query",
+ *         description="end_date",
+ *         required=false,
+ *         example="2019-06-29"
+ *      ),
+ *      @OA\Parameter(
+ *         name="order_by",
+ *         in="query",
+ *         description="order_by",
+ *         required=false,
+ *         example="ASC"
+ *      ),
+ *      @OA\Parameter(
+ *         name="search_key",
+ *         in="query",
+ *         description="search_key",
+ *         required=false,
+ *         example="search_key"
+ *      ),
+ *      @OA\Parameter(
+ *         name="per_page",
+ *         in="query",
+ *         description="per_page",
+ *         required=false,
+ *         example="10"
+ *      ),
+ *      summary="This method is to get sale items list without path param",
+ *      description="This method is to get sale items list without path param",
+ *
+ *      @OA\Response(
+ *          response=200,
+ *          description="Successful operation",
+ *          @OA\JsonContent()
+ *       )
+ *     )
+ */
+public function getSaleItemsList(Request $request)
+{
+    try {
+        $this->storeActivity($request,"");
+        $sale_itemQuery = SaleItem::saleItemQuery();
+        $sale_items = retrieve_data($sale_itemQuery, "id", "sale_items");
 
-        $sale_items = $sale_itemQuery->orderBy("sale_items.id",$request->order_by)
-        ->select("sale_items.*",    DB::raw('CASE WHEN business_defaults.id IS NOT NULL THEN 1 ELSE 0 END AS is_default'))
-        ->paginate($perPage);
-
-        return response()->json($sale_items, 200);
+        return response()->json([
+            "success" => true,
+            "message" => "Successfully fetched sale items",
+            "meta" => $sale_items['meta'],
+            "data" => $sale_items['data']
+        ], 200);
     } catch (Exception $e) {
 
         return $this->sendError($e, 500,$request);
@@ -405,20 +466,23 @@ public function getSaleItemById($id, Request $request)
         $this->storeActivity($request,"");
 
 
-        $sale_item = SaleItem::where([
-            "generated_id" => $id,
-            "created_by" => $request->user()->id
-        ])
+        $sale_item = SaleItem::saleItemQuery()
+        ->where("generated_id", $id)
         ->first();
 
         if(!$sale_item) {
-     return response()->json([
-"message" => "no sale item found"
-],404);
+            return response()->json([
+                "success" => false,
+                "message" => "No sale item found",
+                "data" => null
+            ], Response::HTTP_NOT_FOUND);
         }
 
-
-        return response()->json($sale_item, 200);
+        return response()->json([
+            "success" => true,
+            "message" => "Successfully fetched sale item",
+            "data" => $sale_item
+        ], Response::HTTP_OK);
     } catch (Exception $e) {
 
         return $this->sendError($e, 500,$request);
@@ -501,29 +565,53 @@ public function deleteSaleItemById($id, Request $request)
 
         if(!$business) {
             return response()->json([
-             "message" => "you don't have a valid business"
-            ],401);
+                "success" => false,
+                "message" => "You don't have a valid business",
+                "data" => null
+            ], Response::HTTP_UNAUTHORIZED);
          }
+
          if(!($business->pin == $request->header("pin"))) {
              return response()->json([
-                 "message" => "invalid pin"
-                ],401);
+                 "success" => false,
+                 "message" => "Invalid pin",
+                 "data" => null
+             ], Response::HTTP_UNAUTHORIZED);
          }
 
-        $sale_item = SaleItem::where([
-            "id" => $id,
-            "created_by" => $request->user()->id
-        ])
-        ->first();
+        $sale_item = SaleItem::where('id', $id)->first();
 
         if(!$sale_item) {
-     return response()->json([
-"message" => "no sale item  found"
-],404);
+             return response()->json([
+                 "success" => false,
+                 "message" => "No sale item found",
+                 "data" => null
+             ], Response::HTTP_NOT_FOUND);
         }
+
+        if ($sale_item->is_default == 1 && !$request->user()->hasRole('superadmin')) {
+            return response()->json([
+                'success' => false,
+                "message" => "You cannot delete a default sale item",
+                "data" => null
+            ], Response::HTTP_FORBIDDEN);
+        }
+
+        if (!$request->user()->hasRole('superadmin') && $sale_item->business_id !== $request->user()->business_id) {
+            return response()->json([
+                'success' => false,
+                "message" => "You cannot delete a sale item of another business",
+                "data" => null
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         $sale_item->delete();
 
-        return response()->json(["ok" => true], 200);
+        return response()->json([
+            "success" => true,
+            "message" => "Sale item deleted successfully",
+            "data" => null
+        ], Response::HTTP_OK);
     } catch (Exception $e) {
 
         return $this->sendError($e, 500,$request);

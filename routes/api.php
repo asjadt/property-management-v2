@@ -252,6 +252,7 @@ Route::middleware(['auth:api'])->group(function () {
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     Route::post('/v1.0/sale-items', [SaleItemController::class, "createSaleItem"]);
     Route::put('/v1.0/sale-items', [SaleItemController::class, "updateSaleItem"]);
+    Route::get('/v1.0/sale-items', [SaleItemController::class, "getSaleItemsList"]);
     Route::get('/v1.0/sale-items/{perPage}', [SaleItemController::class, "getSaleItems"]);
     Route::get('/v1.0/sale-items/get/single/{id}', [SaleItemController::class, "getSaleItemById"]);
     Route::delete('/v1.0/sale-items/{id}', [SaleItemController::class, "deleteSaleItemById"]);
@@ -268,7 +269,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/v1.0/bill-items/{perPage}', [BillItemController::class, "getBillItems"]);
     Route::get('/v1.0/bill-items', [BillItemController::class, "getBillItemsList"]);
     Route::get('/v1.0/bill-items/get/single/{id}', [BillItemController::class, "getBillItemById"]);
-    Route::delete('/v1.0/bill-items/{id}', [BillItemController::class, "deleteBillItemById"]);
+    Route::delete('/v1.0/bill-items/{ids}', [BillItemController::class, "deleteBillItemsByIds"]);
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     // bill item management section
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

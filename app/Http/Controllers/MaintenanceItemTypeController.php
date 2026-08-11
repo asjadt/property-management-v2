@@ -95,12 +95,12 @@ class MaintenanceItemTypeController extends Controller
             $request_data["created_by"] = $authUser->id;
 
             // SET DEFAULT STATUS AND BUSINESS ID BASED ON ROLE
-            if ($authUser->hasRole("superadmin")) {
-                $request_data["is_default"] = 1;
-                $request_data["business_id"] = null;
+            if ($authUser->hasRole('superadmin')) {
+                $request_data['is_default'] = $request->filled('business_id') ? 0 : 1;
+                $request_data['business_id'] = $request->filled('business_id') ? $request->input('business_id') : null;
             } else {
-                $request_data["is_default"] = 0;
-                $request_data["business_id"] = $authUser->business_id;
+                $request_data['is_default'] = 0;
+                $request_data['business_id'] = $authUser->business_id;
             }
 
             // CREATE MAINTENANCE ITEM TYPE
@@ -342,6 +342,20 @@ class MaintenanceItemTypeController extends Controller
      * description="per_page",
      * required=true,
      * example="6"
+     * ),
+     * @OA\Parameter(
+     * name="is_default",
+     * in="query",
+     * description="Filter by is_default (Superadmin only)",
+     * required=false,
+     * example="1"
+     * ),
+     * @OA\Parameter(
+     * name="business_id",
+     * in="query",
+     * description="Filter by business_id (Superadmin only)",
+     * required=false,
+     * example="1"
      * ),
 
      * @OA\Parameter(

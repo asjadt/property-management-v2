@@ -32,7 +32,15 @@ class RepairCategory extends Model
         return $query
             // FILTER BY BUSINESS ID OR DEFAULT ITEMS
             ->when($authUser->hasRole("superadmin"), function ($query) {
-                return $query->where('repair_categories.is_default', 1);
+                // If superadmin, allow them to filter by is_default (defaulting to 1)
+                $isDefault = request()->has('is_default') ? filter_var(request()->input('is_default'), FILTER_VALIDATE_BOOLEAN) : 1;
+                $query->where('repair_categories.is_default', $isDefault);
+                
+                if (request()->filled('business_id')) {
+                    $query->where('repair_categories.business_id', request()->input('business_id'));
+                }
+
+                return $query;
             }, function ($query) use ($authUser) {
                 return $query->where(function ($q) use ($authUser) {
                     $q->where('repair_categories.is_default', 1)

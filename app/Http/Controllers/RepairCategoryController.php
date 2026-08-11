@@ -175,8 +175,8 @@ class RepairCategoryController extends Controller
                 $request_data["created_by"] = $authUser->id;
 
                 if ($authUser->hasRole('superadmin')) {
-                    $request_data['is_default'] = 1;
-                    $request_data['business_id'] = null;
+                    $request_data['is_default'] = $request->filled('business_id') ? 0 : 1;
+                    $request_data['business_id'] = $request->filled('business_id') ? $request->input('business_id') : null;
                 } else {
                     $request_data['is_default'] = 0;
                     $request_data['business_id'] = $authUser->business_id;
