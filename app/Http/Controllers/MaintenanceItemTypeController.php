@@ -195,7 +195,7 @@ class MaintenanceItemTypeController extends Controller
                 ], 403);
             }
 
-            if ($maintenance_item_type->business_id !== $authUser->business_id) {
+            if (!$authUser->hasRole('superadmin') && $maintenance_item_type->business_id !== $authUser->business_id) {
                 return response()->json([
                     'success' => false,
                     "message" => "you can not update maintenance item type of another business"
@@ -295,7 +295,7 @@ class MaintenanceItemTypeController extends Controller
                 ], 403);
             }
 
-            if ($maintenance_item_type->business_id !== $authUser->business_id) {
+            if (!$authUser->hasRole('superadmin') && $maintenance_item_type->business_id !== $authUser->business_id) {
                 return response()->json([
                     'success' => false,
                     "message" => "you can not update maintenance item type of another business"

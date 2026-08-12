@@ -204,9 +204,9 @@ class BillItemController extends Controller
                 }
 
                 //
-                if($bill_item->business_id !== $authUser->business_id){
+                if(!$authUser->hasRole('superadmin') && $bill_item->business_id !== $authUser->business_id){
                     return response()->json([
-                        'success'=>false,
+                        'success' => false,
                         "message" => "you can not update bill item of another business"
                     ], 403);
                 }

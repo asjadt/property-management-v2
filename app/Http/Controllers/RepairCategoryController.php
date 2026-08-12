@@ -277,7 +277,7 @@ class RepairCategoryController extends Controller
                     ], 403);
                 }
 
-                if ($repair_category->business_id !== $authUser->business_id) {
+                if (!$authUser->hasRole('superadmin') && $repair_category->business_id !== $authUser->business_id) {
                     return response()->json([
                         'success' => false,
                         "message" => "you can not update repair category of another business"
@@ -888,7 +888,7 @@ class RepairCategoryController extends Controller
                 ], 403);
             }
 
-            if ($repair_category->business_id !== $authUser->business_id) {
+            if (!$authUser->hasRole('superadmin') && $repair_category->business_id !== $authUser->business_id) {
                 return response()->json([
                     'success' => false,
                     "message" => "you can not delete repair category of another business"
