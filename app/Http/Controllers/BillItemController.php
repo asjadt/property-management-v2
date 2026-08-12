@@ -534,8 +534,14 @@ class BillItemController extends Controller
             $authUser = Auth::user();
 
 
-            $query = BillItem::where("generated_id", $id)
-            ->where("business_id", $authUser->business_id);
+            $query = BillItem::where("generated_id", $id);
+
+            if (!$authUser->hasRole('superadmin')) {
+                $query->where(function($q) use ($authUser) {
+                    $q->where("business_id", $authUser->business_id)
+                      ->orWhere("is_default", 1);
+                });
+            }
 
             $bill_item = $query->first();
 

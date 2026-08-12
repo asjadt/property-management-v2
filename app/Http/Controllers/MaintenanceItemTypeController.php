@@ -495,9 +495,18 @@ class MaintenanceItemTypeController extends Controller
         try {
             $this->storeActivity($request,"");
 
-            $maintenance_item_type = MaintenanceItemType::maintenanceItemQuery()
-                ->where("id", $id)
-                ->first();
+            $authUser = $request->user();
+
+            $query = MaintenanceItemType::where("id", $id);
+
+            if (!$authUser->hasRole('superadmin')) {
+                $query->where(function($q) use ($authUser) {
+                    $q->where("business_id", $authUser->business_id)
+                      ->orWhere("is_default", 1);
+                });
+            }
+
+            $maintenance_item_type = $query->first();
 
             if(!$maintenance_item_type) {
                 return response()->json([

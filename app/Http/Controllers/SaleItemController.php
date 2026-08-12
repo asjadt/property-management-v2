@@ -466,9 +466,18 @@ public function getSaleItemById($id, Request $request)
         $this->storeActivity($request,"");
 
 
-        $sale_item = SaleItem::saleItemQuery()
-        ->where("generated_id", $id)
-        ->first();
+        $authUser = $request->user();
+
+        $query = SaleItem::where("generated_id", $id);
+
+        if (!$authUser->hasRole('superadmin')) {
+            $query->where(function($q) use ($authUser) {
+                $q->where("business_id", $authUser->business_id)
+                  ->orWhere("is_default", 1);
+            });
+        }
+
+        $sale_item = $query->first();
 
         if(!$sale_item) {
             return response()->json([

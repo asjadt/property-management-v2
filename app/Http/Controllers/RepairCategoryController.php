@@ -753,9 +753,18 @@ class RepairCategoryController extends Controller
             }
 
 
-            $repair_category = RepairCategory::repairCategoryQuery()
-                ->where("id", $id)
-                ->first();
+            $authUser = $request->user();
+
+            $query = RepairCategory::where("id", $id);
+
+            if (!$authUser->hasRole('superadmin')) {
+                $query->where(function($q) use ($authUser) {
+                    $q->where("business_id", $authUser->business_id)
+                      ->orWhere("is_default", 1);
+                });
+            }
+
+            $repair_category = $query->first();
 
             if (!$repair_category) {
                 return response()->json([
