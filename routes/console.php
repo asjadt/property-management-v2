@@ -25,3 +25,9 @@ Schedule::command('rent:generate-due')->daily();
 Schedule::command('reminder:send')->daily();
 Schedule::command('property_alerts:send')->daily();
 Schedule::command('applicants:send-expiry-matching-properties')->daily();
+
+Schedule::command('maintenance_items_alerts:send')->daily();
+Schedule::command('property_documents_alerts:send')->daily();
+Schedule::command('tenancy_agreements_alerts:send')->daily();
+Schedule::command('property_agreements_alerts:send')->daily();
+Schedule::command('applicants_alerts:send')->daily();
