@@ -93,7 +93,7 @@ class LandlordController extends Controller
 
             $request_data = $request->validated();
 
-            $location =  config("setup-config.landlord_image");
+            $location = config("setup-config.landlord_image");
 
             $new_file_name = time() . '_' . str_replace(' ', '_', $request_data["image"]->getClientOriginalName());
 
@@ -186,23 +186,23 @@ class LandlordController extends Controller
 
                 // 1. CREATE USER ACCOUNT FOR THE LANDLORD
                 $user = User::create([
-                    'first_Name'     => $request_data['first_Name'],
-                    'last_Name'      => $request_data['last_Name'],
-                    'email'          => $request_data['email'],
-                    'phone'          => $request_data['phone'] ?? null,
-                    'image'          => $request_data['image'] ?? null,
+                    'first_Name' => $request_data['first_Name'],
+                    'last_Name' => $request_data['last_Name'],
+                    'email' => $request_data['email'],
+                    'phone' => $request_data['phone'] ?? null,
+                    'image' => $request_data['image'] ?? null,
                     'address_line_1' => $request_data['address_line_1'] ?? null,
                     'address_line_2' => $request_data['address_line_2'] ?? null,
-                    'country'        => $request_data['country'] ?? null,
-                    'city'           => $request_data['city'] ?? null,
-                    'postcode'       => $request_data['postcode'] ?? null,
-                    'lat'            => $request_data['lat'] ?? null,
-                    'long'           => $request_data['long'] ?? null,
-                    'password'       => Hash::make('12345678@We'),
-                    'is_active'      => true,
+                    'country' => $request_data['country'] ?? null,
+                    'city' => $request_data['city'] ?? null,
+                    'postcode' => $request_data['postcode'] ?? null,
+                    'lat' => $request_data['lat'] ?? null,
+                    'long' => $request_data['long'] ?? null,
+                    'password' => Hash::make('12345678@We'),
+                    'is_active' => true,
                     'remember_token' => Str::random(10),
-                    'created_by'     => $authUser->id,
-                    'business_id'    =>  $authUser->business_id,
+                    'created_by' => $authUser->id,
+                    'business_id' => $authUser->business_id,
                 ]);
 
                 $user->assignRole('landlord');
@@ -210,7 +210,7 @@ class LandlordController extends Controller
                 // 2. CREATE LANDLORD RECORD
                 $request_data["created_by"] = $authUser->id;
                 $request_data["user_id"] = $user->id; // Link the newly created User
-                $landlord =  Landlord::create($request_data);
+                $landlord = Landlord::create($request_data);
                 $landlord->generated_id = Str::random(4) . $landlord->id . Str::random(4);
                 $landlord->save();
 
@@ -305,25 +305,25 @@ class LandlordController extends Controller
                 $request_data = $request->validated();
 
                 $landlord = tap(Landlord::where([
-                    "id"         => $request_data["id"],
+                    "id" => $request_data["id"],
                     "created_by" => $authUser->id,
                 ]))->update(
-                    collect($request_data)->only([
-                        'first_Name',
-                        'last_Name',
-                        'phone',
-                        'image',
-                        'address_line_1',
-                        'address_line_2',
-                        'country',
-                        'city',
-                        'postcode',
-                        'lat',
-                        'long',
-                        'email',
-                        'files',
-                    ])->toArray()
-                )->first();
+                        collect($request_data)->only([
+                            'first_Name',
+                            'last_Name',
+                            'phone',
+                            'image',
+                            'address_line_1',
+                            'address_line_2',
+                            'country',
+                            'city',
+                            'postcode',
+                            'lat',
+                            'long',
+                            'email',
+                            'files',
+                        ])->toArray()
+                    )->first();
 
                 // 2. SYNC WITH LINKED USER ACCOUNT IF IT EXISTS
                 if ($landlord && $landlord->user_id) {
@@ -527,7 +527,7 @@ class LandlordController extends Controller
 
             if (!empty($request->property_ids)) {
                 $null_filter = collect(array_filter($request->property_ids))->values();
-                $property_ids =  $null_filter->all();
+                $property_ids = $null_filter->all();
                 if (count($property_ids)) {
                     $landlordQuery = $landlordQuery->whereHas('properties', function ($query) use ($property_ids) {
                         $query->whereIn("properties.id", $property_ids);
@@ -710,7 +710,7 @@ class LandlordController extends Controller
                 $landlordQuery = $landlordQuery->havingRaw('total_over_due <= ?', [(float) $request->max_total_over_due]);
             }
 
-            $landlords =  $landlordQuery
+            $landlords = $landlordQuery
                 ->groupBy("landlords.id")
                 ->orderBy("landlords.first_Name", $request->order_by)->paginate($perPage);
 
@@ -862,7 +862,7 @@ class LandlordController extends Controller
             $endDate = $currentDate->copy()->addDays(15);
 
             // SCOPE: admin sees all their landlords; landlord-User sees only their own record
-            $landlordQuery = Landlord::with(['properties', 'properties.property_tenants'])
+            $landlordQuery = Landlord::with(['properties', 'properties.property_tenants', 'user'])
                 ->forAuthUser();
 
             /** -------------------------
@@ -1028,13 +1028,13 @@ class LandlordController extends Controller
                 ) AS total_over_due
             "),
             ])->addBinding([
-                $currentDate,
-                $endDate,
-                $currentDate,
-                $endDate,
-                today(),
-                today()
-            ], 'select');
+                        $currentDate,
+                        $endDate,
+                        $currentDate,
+                        $endDate,
+                        today(),
+                        today()
+                    ], 'select');
 
             /** -------------------------
              * Having Filters
@@ -1058,7 +1058,7 @@ class LandlordController extends Controller
             $landlords = $landlordQuery
                 ->groupBy('landlords.id');
 
-            $result =  $this->retrieveData($landlords, "first_name", "landlords");
+            $result = $this->retrieveData($landlords, "first_name", "landlords");
             //     ->orderBy('landlords.first_name', $request->order_by ?? 'asc')
             //     ->paginate($request->per_page);
 
@@ -1212,7 +1212,7 @@ class LandlordController extends Controller
             $todayDate = today();
 
             // SCOPE: admin sees all their landlords; landlord-User sees only their own record
-            $landlordQuery = Landlord::forAuthUser();
+            $landlordQuery = Landlord::with(['properties', 'properties.property_tenants', 'user'])->forAuthUser();
 
             // Search filter
             if ($request->filled('search_key')) {
@@ -1271,6 +1271,7 @@ class LandlordController extends Controller
                 'landlords.first_Name',
                 'landlords.last_Name',
                 'landlords.phone',
+                'landlords.user_id',
                 DB::raw("
                     COALESCE(
                         (SELECT COUNT(invoices.id)
@@ -1500,7 +1501,7 @@ class LandlordController extends Controller
 
             if (!empty($request->property_ids)) {
                 $null_filter = collect(array_filter($request->property_ids))->values();
-                $property_ids =  $null_filter->all();
+                $property_ids = $null_filter->all();
                 if (count($property_ids)) {
                     $landlordQuery = $landlordQuery->whereHas('properties', function ($query) use ($property_ids) {
                         $query->whereIn("properties.id", $property_ids);
@@ -1510,7 +1511,7 @@ class LandlordController extends Controller
 
             if (!empty($request->ids)) {
                 $ids = explode(',', request()->input("ids"));
-                $landlordQuery =  $landlordQuery->whereIn("landlords.id", $ids);
+                $landlordQuery = $landlordQuery->whereIn("landlords.id", $ids);
             }
 
 
@@ -1685,7 +1686,7 @@ class LandlordController extends Controller
                 $landlordQuery = $landlordQuery->havingRaw('total_over_due <= ?', [(float) $request->max_total_over_due]);
             }
 
-            $landlords =  $landlordQuery
+            $landlords = $landlordQuery
                 ->groupBy("landlords.id")
                 ->orderBy("landlords.first_Name", $request->order_by)->get();
 
@@ -1853,7 +1854,7 @@ class LandlordController extends Controller
 
             if (!empty($request->property_ids)) {
                 $null_filter = collect(array_filter($request->property_ids))->values();
-                $property_ids =  $null_filter->all();
+                $property_ids = $null_filter->all();
                 if (count($property_ids)) {
                     $landlordQuery = $landlordQuery->whereHas('properties', function ($query) use ($property_ids) {
                         $query->whereIn("properties.id", $property_ids);
@@ -1863,7 +1864,7 @@ class LandlordController extends Controller
 
             if (!empty($request->ids)) {
                 $ids = explode(',', request()->input("ids"));
-                $landlordQuery =  $landlordQuery->whereIn("landlords.id", $ids);
+                $landlordQuery = $landlordQuery->whereIn("landlords.id", $ids);
             }
 
             $currentDate = Carbon::now();
@@ -1873,7 +1874,7 @@ class LandlordController extends Controller
 
 
 
-            $landlords =  $landlordQuery
+            $landlords = $landlordQuery
                 ->select(
                     "landlords.id",
                     "landlords.generated_id",
@@ -2070,7 +2071,7 @@ class LandlordController extends Controller
             }
 
             $landlord = Landlord::where([
-                "id"         => $id,
+                "id" => $id,
                 "created_by" => $authUser->id
             ])
                 ->first();
@@ -2113,7 +2114,7 @@ class LandlordController extends Controller
 
             // GET THE LANDLORD RECORD
             $landlord = Landlord::where([
-                'id'         => $id,
+                'id' => $id,
                 'created_by' => $authUser->id,
             ])->firstOrFail();
 
@@ -2137,23 +2138,23 @@ class LandlordController extends Controller
                     } else {
                         // CREATE NEW USER
                         $user = User::create([
-                            'first_Name'     => $landlord->first_Name,
-                            'last_Name'      => $landlord->last_Name,
-                            'email'          => $landlord->email,
-                            'phone'          => $landlord->phone,
-                            'image'          => $landlord->image,
+                            'first_Name' => $landlord->first_Name,
+                            'last_Name' => $landlord->last_Name,
+                            'email' => $landlord->email,
+                            'phone' => $landlord->phone,
+                            'image' => $landlord->image,
                             'address_line_1' => $landlord->address_line_1,
                             'address_line_2' => $landlord->address_line_2,
-                            'country'        => $landlord->country,
-                            'city'           => $landlord->city,
-                            'postcode'       => $landlord->postcode,
-                            'lat'            => $landlord->lat,
-                            'long'           => $landlord->long,
-                            'password'       => Hash::make('12345678@We'),
-                            'is_active'      => false,
+                            'country' => $landlord->country,
+                            'city' => $landlord->city,
+                            'postcode' => $landlord->postcode,
+                            'lat' => $landlord->lat,
+                            'long' => $landlord->long,
+                            'password' => Hash::make('12345678@We'),
+                            'is_active' => false,
                             'remember_token' => Str::random(10),
-                            'created_by'     => $authUser->id,
-                            'business_id'    => $authUser->business_id,
+                            'created_by' => $authUser->id,
+                            'business_id' => $authUser->business_id,
                         ]);
                         $user->assignRole('landlord');
                         $landlord->user_id = $user->id;
@@ -2163,7 +2164,7 @@ class LandlordController extends Controller
 
                 // GENERATE PASSWORD-RESET TOKEN AND SEND INVITE EMAIL
                 $token = Str::random(30);
-                $user->resetPasswordToken   = $token;
+                $user->resetPasswordToken = $token;
                 $user->resetPasswordExpires = Carbon::now()->addDay();
                 $user->save();
 
