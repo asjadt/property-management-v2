@@ -138,7 +138,7 @@ class SetUpController extends Controller
         return response()->json([
             "status" => 200,
             "message" => "Migration success",
-        ],200);
+        ], 200);
     }
 
     //  migrate activity
@@ -175,7 +175,7 @@ class SetUpController extends Controller
         return redirect()->route("l5-swagger.default.api");
     }
 
-     public function setupPassport()
+    public function setupPassport()
     {
         try {
             // Clear caches
@@ -242,7 +242,9 @@ class SetUpController extends Controller
         Artisan::call('optimize:clear');
         Artisan::call('migrate:fresh');
         Artisan::call('migrate', ['--path' => 'vendor/laravel/passport/database/migrations', '--force' => true]);
-        if (!defined('STDIN')) { define('STDIN', fopen('php://stdin', 'r')); }
+        if (!defined('STDIN')) {
+            define('STDIN', fopen('php://stdin', 'r'));
+        }
         Artisan::call('passport:keys', ['--force' => true, '--no-interaction' => true]);
         Artisan::call('passport:client', ['--personal' => true, '--name' => config('app.name', 'Laravel') . ' Personal Access Client', '--no-interaction' => true]);
         Artisan::call('passport:client', ['--password' => true, '--name' => config('app.name', 'Laravel') . ' Password Grant Client', '--provider' => 'users', '--no-interaction' => true]);
@@ -253,7 +255,7 @@ class SetUpController extends Controller
         // ##########################################
         // user
         // #########################################
-        $admin =  User::create([
+        $admin = User::create([
             'first_Name' => "super",
             'last_Name' => "admin",
             'phone' => "01771034383",
@@ -272,23 +274,27 @@ class SetUpController extends Controller
         // ###############################
         // permissions
         // ###############################
-        $permissions =  config("setup-config.permissions");
+        $permissions = config("setup-config.permissions");
         // setup permissions
         foreach ($permissions as $permission) {
-            if (!Permission::where([
-                'name' => $permission
-            ])
-                ->exists()) {
+            if (
+                !Permission::where([
+                    'name' => $permission
+                ])
+                    ->exists()
+            ) {
                 Permission::create(['guard_name' => 'api', 'name' => $permission]);
             }
         }
         // setup roles
         $roles = config("setup-config.roles");
         foreach ($roles as $role) {
-            if (!Role::where([
-                'name' => $role
-            ])
-                ->exists()) {
+            if (
+                !Role::where([
+                    'name' => $role
+                ])
+                    ->exists()
+            ) {
                 Role::create(['guard_name' => 'api', 'name' => $role]);
             }
         }
@@ -326,7 +332,7 @@ class SetUpController extends Controller
         // ##########################################
         // user
         // #########################################
-        $admin =  User::create([
+        $admin = User::create([
             'first_Name' => "super",
             'last_Name' => "admin",
             'phone' => "01771034383",
@@ -343,23 +349,27 @@ class SetUpController extends Controller
         // ###############################
         // permissions
         // ###############################
-        $permissions =  config("setup-config.permissions");
+        $permissions = config("setup-config.permissions");
         // setup permissions
         foreach ($permissions as $permission) {
-            if (!Permission::where([
-                'name' => $permission
-            ])
-                ->exists()) {
+            if (
+                !Permission::where([
+                    'name' => $permission
+                ])
+                    ->exists()
+            ) {
                 Permission::create(['guard_name' => 'api', 'name' => $permission]);
             }
         }
         // setup roles
         $roles = config("setup-config.roles");
         foreach ($roles as $role) {
-            if (!Role::where([
-                'name' => $role
-            ])
-                ->exists()) {
+            if (
+                !Role::where([
+                    'name' => $role
+                ])
+                    ->exists()
+            ) {
                 Role::create(['guard_name' => 'api', 'name' => $role]);
             }
         }
@@ -395,7 +405,7 @@ class SetUpController extends Controller
     {
         $log = [];
 
-        /*
+
         // STEP 2A: Business owners — link user to the business they own
         $affected_a = \Illuminate\Support\Facades\DB::statement("
             UPDATE users
@@ -415,7 +425,7 @@ class SetUpController extends Controller
               AND businesses.deleted_at IS NULL
         ");
         $log[] = 'Step 2B (sub-user backfill): done';
-        */
+
 
         // STEP 3: Assign business_owner role to all users who own a business
         $ownerIds = \Illuminate\Support\Facades\DB::table('businesses')->pluck('owner_id')->toArray();
@@ -428,9 +438,9 @@ class SetUpController extends Controller
         $log[] = "Step 3 (role backfill): Assigned business_owner role to {$assignedCount} users.";
 
         // REPORT
-        $total    = \Illuminate\Support\Facades\DB::table('users')->count();
+        $total = \Illuminate\Support\Facades\DB::table('users')->count();
         $with_biz = \Illuminate\Support\Facades\DB::table('users')->whereNotNull('business_id')->count();
-        $without  = \Illuminate\Support\Facades\DB::table('users')->whereNull('business_id')->count();
+        $without = \Illuminate\Support\Facades\DB::table('users')->whereNull('business_id')->count();
 
         $log[] = "Total users: {$total}";
         $log[] = "With business_id: {$with_biz}";
@@ -439,7 +449,7 @@ class SetUpController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Production sync completed.',
-            'log'     => $log,
+            'log' => $log,
         ]);
     }
 

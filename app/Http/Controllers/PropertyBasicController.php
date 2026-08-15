@@ -785,7 +785,7 @@ class PropertyBasicController extends Controller
 
             $total_invoice_payments_before = InvoicePayment::whereHas(
                 "invoice",
-                function ($query) use ($landlord_id) {
+                function ($query) use ($landlord_id, $ownerId) {
                     $query->where("created_by", $ownerId)
                         ->when(request()->filled("property_id"), function ($query) {
                             $query->where("invoices.property_id", request()->input("property_id"));

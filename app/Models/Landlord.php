@@ -31,7 +31,7 @@ class Landlord extends Model
     ];
 
     protected $casts = [
-        'files'     => 'array',
+        'files' => 'array',
         'is_active' => 'boolean',
     ];
 
@@ -94,11 +94,11 @@ class Landlord extends Model
             $searchKey = $filters['search_key'];
             $query->where(function ($q) use ($searchKey) {
                 $q->where('landlords.first_Name', 'like', "%{$searchKey}%")
-                  ->orWhere('landlords.last_Name',  'like', "%{$searchKey}%")
-                  ->orWhere('landlords.email',       'like', "%{$searchKey}%")
-                  ->orWhere('landlords.phone',       'like', "%{$searchKey}%")
-                  ->orWhere('landlords.city',        'like', "%{$searchKey}%")
-                  ->orWhere('landlords.postcode',    'like', "%{$searchKey}%");
+                    ->orWhere('landlords.last_Name', 'like', "%{$searchKey}%")
+                    ->orWhere('landlords.email', 'like', "%{$searchKey}%")
+                    ->orWhere('landlords.phone', 'like', "%{$searchKey}%")
+                    ->orWhere('landlords.city', 'like', "%{$searchKey}%")
+                    ->orWhere('landlords.postcode', 'like', "%{$searchKey}%");
             });
         }
 

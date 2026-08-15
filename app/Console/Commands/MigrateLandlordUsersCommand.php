@@ -39,10 +39,10 @@ class MigrateLandlordUsersCommand extends Command
 
     /** @var array */
     private array $summary = [
-        'linked'  => 0,
+        'linked' => 0,
         'created' => 0,
         'skipped' => 0,
-        'errors'  => 0,
+        'errors' => 0,
     ];
 
     /**
@@ -57,8 +57,7 @@ class MigrateLandlordUsersCommand extends Command
         }
 
         // BUILD QUERY
-        $query = Landlord::withTrashed()
-            ->whereNull('user_id')
+        $query = Landlord::whereNull('user_id')
             ->orderBy('id');
 
         if ($this->option('landlord-id')) {
@@ -86,9 +85,9 @@ class MigrateLandlordUsersCommand extends Command
             ['Result', 'Count'],
             [
                 ['Linked to existing user', $this->summary['linked']],
-                ['New user created',        $this->summary['created']],
-                ['Skipped (already done)',  $this->summary['skipped']],
-                ['Errors',                  $this->summary['errors']],
+                ['New user created', $this->summary['created']],
+                ['Skipped (already done)', $this->summary['skipped']],
+                ['Errors', $this->summary['errors']],
             ]
         );
 
@@ -98,9 +97,9 @@ class MigrateLandlordUsersCommand extends Command
             // WRITE ROLLBACK LOG
             $logPath = storage_path('logs/landlord_migration_' . now()->format('Ymd_His') . '.json');
             file_put_contents($logPath, json_encode([
-                'run_at'           => now()->toIso8601String(),
+                'run_at' => now()->toIso8601String(),
                 'created_user_ids' => $this->createdUserIds,
-                'summary'          => $this->summary,
+                'summary' => $this->summary,
             ], JSON_PRETTY_PRINT));
             $this->info("Rollback log written to: {$logPath}");
         }
@@ -135,8 +134,8 @@ class MigrateLandlordUsersCommand extends Command
             $this->error("  ERROR on landlord #{$landlord->id}: " . $e->getMessage());
             Log::error('[landlord:migrate-users] Error', [
                 'landlord_id' => $landlord->id,
-                'email'       => $landlord->email,
-                'error'       => $e->getMessage(),
+                'email' => $landlord->email,
+                'error' => $e->getMessage(),
             ]);
             $this->summary['errors']++;
         }
@@ -188,30 +187,30 @@ class MigrateLandlordUsersCommand extends Command
                 // is_active = false — must be activated by admin
                 // Temporary password = 12345678@We
                 $user = User::create([
-                    'first_Name'     => $landlord->first_Name,
-                    'last_Name'      => $landlord->last_Name,
-                    'email'          => $landlord->email,
-                    'phone'          => $landlord->phone,
-                    'image'          => $landlord->image,
+                    'first_Name' => $landlord->first_Name,
+                    'last_Name' => $landlord->last_Name,
+                    'email' => $landlord->email,
+                    'phone' => $landlord->phone,
+                    'image' => $landlord->image,
                     'address_line_1' => $landlord->address_line_1,
                     'address_line_2' => $landlord->address_line_2,
-                    'country'        => $landlord->country,
-                    'city'           => $landlord->city,
-                    'postcode'       => $landlord->postcode,
-                    'lat'            => $landlord->lat,
-                    'long'           => $landlord->long,
+                    'country' => $landlord->country,
+                    'city' => $landlord->city,
+                    'postcode' => $landlord->postcode,
+                    'lat' => $landlord->lat,
+                    'long' => $landlord->long,
                     // TEMPORARY PASSWORD — admin must prompt landlord to reset
-                    'password'       => Hash::make('12345678@We'),
-                    'is_active'      => true,
+                    'password' => Hash::make('12345678@We'),
+                    'is_active' => true,
                     'remember_token' => Str::random(10),
                     // INHERIT BUSINESS SCOPE FROM THE ADMIN WHO CREATED THE LANDLORD
-                    'created_by'     => $businessOwner?->id,
-                    'business_id'    => $businessOwner?->business_id,
+                    'created_by' => $businessOwner?->id,
+                    'business_id' => $businessOwner?->business_id,
                 ]);
 
                 // SET EMAIL VERIFICATION TOKEN SO STANDARD RESET EMAIL WORKS
-                $user->email_verify_token         = Str::random(30);
-                $user->email_verify_token_expires  = Carbon::now()->addDay();
+                $user->email_verify_token = Str::random(30);
+                $user->email_verify_token_expires = Carbon::now()->addDay();
                 $user->save();
 
                 // ASSIGN LANDLORD ROLE
