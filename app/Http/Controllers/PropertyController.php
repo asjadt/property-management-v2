@@ -385,7 +385,7 @@ class PropertyController extends Controller
 
             $request_data = $request->validated();
 
-            $location =  config("setup-config.property_image");
+            $location = config("setup-config.property_image");
 
             $new_file_name = time() . '_' . str_replace(' ', '_', $request_data["image"]->getClientOriginalName());
 
@@ -472,7 +472,7 @@ class PropertyController extends Controller
 
             $request_data = $request->validated();
 
-            $location =  config("setup-config.property_image");
+            $location = config("setup-config.property_image");
 
             $images = [];
             if (!empty($request_data["images"])) {
@@ -579,14 +579,14 @@ class PropertyController extends Controller
                 $request_data["created_by"] = $request->user()->id;
                 $request_data["current_status"] = $this->normalisePropertyStatus($request_data["current_status"] ?? null);
 
-                $reference_no_exists =  DB::table('properties')->where(
+                $reference_no_exists = DB::table('properties')->where(
                     [
                         'reference_no' => $request_data['reference_no'],
                         "created_by" => $request->user()->id
                     ]
                 )->exists();
                 if ($reference_no_exists) {
-                    $error =  [
+                    $error = [
                         "message" => "The given data was invalid.",
                         "errors" => ["reference_no" => ["The reference no has already been taken."]]
                     ];
@@ -596,7 +596,7 @@ class PropertyController extends Controller
 
 
 
-                $property =  Property::create($request_data);
+                $property = Property::create($request_data);
                 $property->generated_id = Str::random(4) . $property->id . Str::random(4);
                 $property->save();
                 $this->ensureInitialPropertyStatusHistory($property, $request);
@@ -838,7 +838,7 @@ class PropertyController extends Controller
      *      )
      * )
      */
-    public function addDocumentToProperty(Request $request,)
+    public function addDocumentToProperty(Request $request, )
     {
         try {
             try {
@@ -848,7 +848,7 @@ class PropertyController extends Controller
                     'documents.*.gas_start_date' => 'required|date',
                     'documents.*.gas_end_date' => 'required|date',
                     'documents.*.description' => 'nullable|string',
-
+                    'documents.*.is_send_alert' => 'nullable|boolean',
                     'documents.*.document_type_id' => 'required|numeric|exists:document_types,id',
                     // 'documents.*.files' => 'required|array',
                     // 'documents.*.files.*' => 'string', // File paths or URLs
@@ -876,6 +876,7 @@ class PropertyController extends Controller
                 $property->documents()->create([
                     'gas_start_date' => $documentData['gas_start_date'],
                     'gas_end_date' => $documentData['gas_end_date'],
+                    'is_send_alert' => $documentData['is_send_alert'],
                     'description' => $documentData['description'],
                     'document_type_id' => $documentData['document_type_id'],
                     'files' => json_encode($documentData['files']),  // Assuming files are stored as a JSON array
@@ -948,7 +949,7 @@ class PropertyController extends Controller
                     'gas_start_date' => 'required|date',
                     'gas_end_date' => 'required|date',
                     'description' => 'nullable|string',
-
+                    'documents.*.is_send_alert' => 'nullable|boolean',
                     'document_type_id' => 'required|numeric|exists:document_types,id',
                     // 'files' => 'required|array',
                     // 'files.*' => 'string',  // Assuming file paths or URLs are provided as strings
@@ -968,13 +969,13 @@ class PropertyController extends Controller
                 return response()->json(['message' => "invalid document id"], 400);
             }
 
-            $requestDocumentData = $request->only(['gas_start_date', 'gas_end_date', 'description', 'document_type_id', 'files']);
+            $requestDocumentData = $request->only(['gas_start_date', 'gas_end_date', 'is_send_alert', 'description', 'document_type_id', 'files']);
 
 
 
 
             if (isset($requestDocumentData["files"])) {
-                $requestDocumentData["files"] =  $this->storeUploadedFiles(
+                $requestDocumentData["files"] = $this->storeUploadedFiles(
                     $requestDocumentData["files"],
                     "",
                     "documents",
@@ -1204,12 +1205,12 @@ class PropertyController extends Controller
         try {
             $this->storeActivity($request, "");
 
-            return  DB::transaction(function () use ($request) {
+            return DB::transaction(function () use ($request) {
 
                 $request_data = $request->validated();
 
 
-                $reference_no_exists =  DB::table('properties')->where(
+                $reference_no_exists = DB::table('properties')->where(
                     [
                         'reference_no' => $request_data['reference_no'],
                         "created_by" => $request->user()->id
@@ -1217,7 +1218,7 @@ class PropertyController extends Controller
                 )
                     ->whereNotIn('id', [$request_data["id"]])->exists();
                 if ($reference_no_exists) {
-                    $error =  [
+                    $error = [
                         "message" => "The given data was invalid.",
                         "errors" => ["reference_no" => ["The reference no has already been taken."]]
                     ];
@@ -1225,7 +1226,7 @@ class PropertyController extends Controller
                 }
 
 
-                $property  =  tap(Property::where([
+                $property = tap(Property::where([
                     "id" => $request_data["id"],
                     "created_by" => $request->user()->id
                 ]))->first();
@@ -1343,7 +1344,7 @@ class PropertyController extends Controller
             $request_data["current_status"] = $property->current_status;
 
             if (isset($request_data["images"])) {
-                $request_data["images"] =  $this->storeUploadedFiles(
+                $request_data["images"] = $this->storeUploadedFiles(
                     $request_data["images"],
                     "",
                     "images",
@@ -1558,7 +1559,7 @@ class PropertyController extends Controller
     public function propertyQuery($query)
     {
 
-        return  $query->when(request()->filled("search_key"), function ($query) {
+        return $query->when(request()->filled("search_key"), function ($query) {
             $term = request()->search_key;
             $query->where(function ($query) use ($term) {
                 $query->where("properties.reference_no", "like", "%" . $term . "%")
@@ -1607,10 +1608,12 @@ class PropertyController extends Controller
             })
 
             ->when(request()->filled("no_of_beds"), function ($query) {
-                $query->where("properties.no_of_beds", ">=", request()->no_of_beds);;
+                $query->where("properties.no_of_beds", ">=", request()->no_of_beds);
+                ;
             })
             ->when(request()->filled("start_no_of_beds"), function ($query) {
-                $query->where("properties.no_of_beds", ">=", request()->start_no_of_beds);;
+                $query->where("properties.no_of_beds", ">=", request()->start_no_of_beds);
+                ;
             })
             ->when(request()->filled("end_no_of_beds"), function ($query) {
                 $query->where("properties.no_of_beds", "<=", request()->end_no_of_beds);
@@ -1683,7 +1686,7 @@ class PropertyController extends Controller
 
             ->when(request()->filled("next_follow_up_date_in"), function ($query) {
                 $expiryDays = request()->input('next_follow_up_date_in'); // Get the number of days passed from the front end
-
+    
                 // Check if a valid number of days is provided
                 if (is_numeric($expiryDays) && $expiryDays > 0) {
                     $query->whereHas('latest_inspection.maintenance_item', function ($subQuery) use ($expiryDays) {
@@ -1705,7 +1708,7 @@ class PropertyController extends Controller
 
             ->when(request()->filled("next_inspection_date_in"), function ($query) {
                 $expiryDays = request()->input('next_inspection_date_in'); // Get the number of days passed from the front end
-
+    
                 // Check if a valid number of days is provided
                 if (is_numeric($expiryDays) && $expiryDays > 0) {
                     $query->whereHas('latest_inspection', function ($subQuery) use ($expiryDays) {
@@ -2105,7 +2108,7 @@ class PropertyController extends Controller
 
             // $automobilesQuery = AutomobileMake::with("makes");
 
-            $propertyQuery =  Property::with(
+            $propertyQuery = Property::with(
                 "property_landlords",
                 "property_tenants",
                 "latest_inspection",
@@ -2534,7 +2537,7 @@ class PropertyController extends Controller
 
             // $automobilesQuery = AutomobileMake::with("makes");
 
-            $propertyQuery =  Property::with(
+            $propertyQuery = Property::with(
                 "property_landlords",
                 "property_tenants",
                 "latest_inspection"
@@ -2572,7 +2575,7 @@ class PropertyController extends Controller
                 // ---------------- Agency Agreement ----------------
                 ->when(
                     request()->filled("is_agency_agreement_expired") ||
-                        request()->filled("agency_agreement_expired_in"),
+                    request()->filled("agency_agreement_expired_in"),
                     function ($query) {
                         $query->whereHas("latest_property_agreement", function ($subQuery) {
                             if (request()->filled('is_agency_agreement_expired')) {
@@ -2592,7 +2595,7 @@ class PropertyController extends Controller
                 // ---------------- Tenancy Agreement ----------------
                 ->when(
                     request()->filled("is_tenancy_agreement_expired") ||
-                        request()->filled("tenancy_agreement_expired_in"),
+                    request()->filled("tenancy_agreement_expired_in"),
                     function ($query) {
 
                         $query->whereHas("latest_tenancy_agreement", function ($subQuery) {
@@ -2652,10 +2655,12 @@ class PropertyController extends Controller
                     $query->whereDate("properties.date_of_instruction", "<=", request()->end_date_of_instruction);
                 })
                 ->when(request()->filled("no_of_beds"), function ($query) {
-                    $query->where("properties.no_of_beds", ">=", request()->no_of_beds);;
+                    $query->where("properties.no_of_beds", ">=", request()->no_of_beds);
+                    ;
                 })
                 ->when(request()->filled("start_no_of_beds"), function ($query) {
-                    $query->where("properties.no_of_beds", ">=", request()->start_no_of_beds);;
+                    $query->where("properties.no_of_beds", ">=", request()->start_no_of_beds);
+                    ;
                 })
                 ->when(request()->filled("end_no_of_beds"), function ($query) {
                     $query->where("properties.no_of_beds", "<=", request()->end_no_of_beds);
@@ -2691,7 +2696,7 @@ class PropertyController extends Controller
 
 
                         // Check if "document_type_ids" is provided and filter by multiple document types
-
+    
 
                         if (request()->filled('document_type_ids')) {
                             $document_type_ids = explode(',', request()->input('document_type_ids'));
@@ -2719,7 +2724,7 @@ class PropertyController extends Controller
                 ->when(request()->boolean("is_next_follow_up_date_passed"), function ($query) {
                     $query->whereHas("latest_inspection.maintenance_item", function ($subQuery) {
                         $subQuery->where("maintenance_items.status", "work_required")
-                         ->whereDate('maintenance_items.next_follow_up_date', '<', Carbon::today());
+                            ->whereDate('maintenance_items.next_follow_up_date', '<', Carbon::today());
 
                         // Apply this filter only if `maintenance_item_type_id` is provided in the request
                         if (request()->filled('maintenance_item_type_id')) {
@@ -2731,7 +2736,7 @@ class PropertyController extends Controller
 
                 ->when(request()->filled("next_follow_up_date_in"), function ($query) {
                     $expiryDays = request()->input('next_follow_up_date_in'); // Get the number of days passed from the front end
-
+    
                     // Check if a valid number of days is provided
                     if (is_numeric($expiryDays) && $expiryDays > 0) {
                         $query->whereHas('latest_inspection.maintenance_item', function ($subQuery) use ($expiryDays) {
@@ -2753,7 +2758,7 @@ class PropertyController extends Controller
 
                 ->when(request()->filled("next_inspection_date_in"), function ($query) {
                     $expiryDays = request()->input('next_inspection_date_in'); // Get the number of days passed from the front end
-
+    
                     // Check if a valid number of days is provided
                     if (is_numeric($expiryDays) && $expiryDays > 0) {
                         $query->whereHas('latest_inspection', function ($subQuery) use ($expiryDays) {
@@ -3083,7 +3088,7 @@ class PropertyController extends Controller
 
             // $automobilesQuery = AutomobileMake::with("makes");
 
-            $propertyQuery =  Property::with("property_landlords", "property_tenants")
+            $propertyQuery = Property::with("property_landlords", "property_tenants")
 
                 ->where(["properties.created_by" => $request->user()->id]);
 
@@ -3108,7 +3113,7 @@ class PropertyController extends Controller
 
 
             if (!empty($request->landlord_ids) || !empty($request->landlord_id)) {
-                $propertyQuery =  $propertyQuery->whereHas("property_landlords", function ($query) {
+                $propertyQuery = $propertyQuery->whereHas("property_landlords", function ($query) {
                     $landlord_ids = request()->filled("landlord_ids") ? explode(',', request()->input("landlord_ids")) : explode(',', request()->input("landlord_id"));
                     $query
                         ->whereIn("property_landlords.landlord_id", $landlord_ids);
@@ -3116,7 +3121,7 @@ class PropertyController extends Controller
             }
 
             if (!empty($request->tenant_ids) || !empty($request->tenant_id)) {
-                $propertyQuery =  $propertyQuery->whereHas("property_tenants", function ($query) {
+                $propertyQuery = $propertyQuery->whereHas("property_tenants", function ($query) {
                     $tenant_ids = request()->filled("tenant_ids") ? explode(',', request()->input("tenant_ids")) : explode(',', request()->input("tenant_id"));
                     $query
                         ->whereIn("property_tenants.tenant_id", $tenant_ids);
@@ -3125,7 +3130,7 @@ class PropertyController extends Controller
 
 
             if (!empty($request->address)) {
-                $propertyQuery =  $propertyQuery->where("properties.address", "like", "%" . $request->address . "%");
+                $propertyQuery = $propertyQuery->where("properties.address", "like", "%" . $request->address . "%");
             }
 
 
@@ -3257,7 +3262,7 @@ class PropertyController extends Controller
 
             // $automobilesQuery = AutomobileMake::with("makes");
 
-            $propertyQuery =  Property::where(["properties.created_by" => $request->user()->id]);
+            $propertyQuery = Property::where(["properties.created_by" => $request->user()->id]);
 
             if (!empty($request->search_key)) {
                 $propertyQuery = $propertyQuery->where(function ($query) use ($request) {
@@ -3280,7 +3285,7 @@ class PropertyController extends Controller
             }
 
             if (!empty($request->landlord_ids) || !empty($request->landlord_id)) {
-                $propertyQuery =  $propertyQuery->whereHas("property_landlords", function ($query) {
+                $propertyQuery = $propertyQuery->whereHas("property_landlords", function ($query) {
                     $landlord_ids = request()->filled("landlord_ids") ? explode(',', request()->input("landlord_ids")) : explode(',', request()->input("landlord_id"));
                     $query
                         ->whereIn("property_landlords.landlord_id", $landlord_ids);
@@ -3288,7 +3293,7 @@ class PropertyController extends Controller
             }
 
             if (!empty($request->tenant_ids) || !empty($request->tenant_id)) {
-                $propertyQuery =  $propertyQuery->whereHas("property_tenants", function ($query) {
+                $propertyQuery = $propertyQuery->whereHas("property_tenants", function ($query) {
                     $tenant_ids = request()->filled("tenant_ids") ? explode(',', request()->input("tenant_ids")) : explode(',', request()->input("tenant_id"));
                     $query
                         ->whereIn("property_tenants.tenant_id", $tenant_ids);
@@ -3301,7 +3306,7 @@ class PropertyController extends Controller
 
 
             if (!empty($request->address)) {
-                $propertyQuery =  $propertyQuery->where("properties.address", "like", "%" . $request->address . "%");
+                $propertyQuery = $propertyQuery->where("properties.address", "like", "%" . $request->address . "%");
             }
 
             if (!empty($request->start_date)) {
@@ -3746,7 +3751,7 @@ class PropertyController extends Controller
         try {
             $this->storeActivity($request, "");
 
-            $reference_no_exists =  DB::table('properties')->where(
+            $reference_no_exists = DB::table('properties')->where(
                 [
                     'reference_no' => $reference_no,
                     "created_by" => $request->user()->id
