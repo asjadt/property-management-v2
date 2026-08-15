@@ -39,6 +39,7 @@ class PropertyAgreementUpdateRequest extends FormRequest
             'max_price' => 'nullable|numeric|min:0|gt:min_price', // Ensures max_price is greater than min_price if provided
             'agency_type' => 'nullable|string|max:255',
             'type' => 'nullable|in:let_property,manage_property,sale_property',
+            'is_send_alert' => 'nullable|boolean',
 
             'files' => 'present|array',
             'files.*.file' => 'required|string',

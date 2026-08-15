@@ -121,6 +121,10 @@ class ApplicantRequest extends FormRequest
                 'required',
                 'boolean'
             ],
+            'is_send_alert' => [
+                'nullable',
+                'boolean'
+            ],
         ];
 
         if ($this->isMethod('put') || $this->isMethod('patch')) {

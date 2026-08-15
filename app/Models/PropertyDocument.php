@@ -15,6 +15,7 @@ class PropertyDocument extends Model
         'description',
         'document_type_id',
         'property_id',
+        'is_send_alert',
         'files' // Added files field
     ];
 

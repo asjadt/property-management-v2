@@ -34,6 +34,7 @@ class Applicant extends Model
                     'job_title',
                     'is_dss',
                     "is_active",
+                    "is_send_alert",
                     "created_by",
                     "tenant_id"
 

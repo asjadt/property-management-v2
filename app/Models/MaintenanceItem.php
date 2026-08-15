@@ -15,6 +15,7 @@ class MaintenanceItem extends Model
         'status',
         'comment',
         'next_follow_up_date',
+        'is_send_alert',
     ];
 
     public function inspection()

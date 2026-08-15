@@ -120,6 +120,7 @@ class TenantInspectionController extends Controller
                     'status' => $item['status'],
                     'comment' => $item['comment'] ?? null,
                     'next_follow_up_date' => $item['next_follow_up_date'] ?? null,
+                    'is_send_alert' => $item['is_send_alert'] ?? 0,
                 ]);
             }
 
@@ -235,6 +236,7 @@ class TenantInspectionController extends Controller
                     'status' => $item['status'],
                     'comment' => $item['comment'] ?? null,
                     'next_follow_up_date' => $item['next_follow_up_date'] ?? null,
+                    'is_send_alert' => $item['is_send_alert'] ?? 0,
                 ]);
             }
 

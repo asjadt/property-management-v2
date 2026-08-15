@@ -37,6 +37,7 @@ class TenantInspectionUpdateRequest extends FormRequest
             'maintenance_items.*.status' => 'required|in:good,average,dirty,na,work_required,resolved',
             'maintenance_items.*.comment' => 'nullable|string|max:1000',
             'maintenance_items.*.next_follow_up_date' => 'nullable|date',
+            'maintenance_items.*.is_send_alert' => 'nullable|boolean',
             'comments' => 'nullable|string|max:1000',
 
             'files' => 'present|array',

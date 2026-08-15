@@ -24,7 +24,7 @@ class TenantInspectionCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            "property_id"=>"required|numeric|exists:properties,id",
+            "property_id" => "required|numeric|exists:properties,id",
             'tenant_id' => 'required|numeric|exists:tenants,id',  // Assuming 'tenants' table has the id column
             'address_line_1' => 'required|string|max:255',
             'inspected_by' => 'required|string|max:255',
@@ -34,16 +34,17 @@ class TenantInspectionCreateRequest extends FormRequest
             'inspection_duration' => 'required|string',
 
 
-        'maintenance_items' => 'present|array',
-        'maintenance_items.*.maintenance_item_type_id' => 'required|numeric|exists:maintenance_item_types,id',
-        'maintenance_items.*.status' => 'required|in:good,average,dirty,na,work_required,resolved',
-        'maintenance_items.*.comment' => 'nullable|string|max:1000',
-        'maintenance_items.*.next_follow_up_date' => 'nullable|date',
-        'comments' => 'nullable|string|max:1000',
+            'maintenance_items' => 'present|array',
+            'maintenance_items.*.maintenance_item_type_id' => 'required|numeric|exists:maintenance_item_types,id',
+            'maintenance_items.*.status' => 'required|in:good,average,dirty,na,work_required,resolved',
+            'maintenance_items.*.comment' => 'nullable|string|max:1000',
+            'maintenance_items.*.next_follow_up_date' => 'nullable|date',
+            'maintenance_items.*.is_send_alert' => 'nullable|boolean',
+            'comments' => 'nullable|string|max:1000',
 
-        'files' => 'present|array',
-        'files.*.file' => 'required|string',
-        'files.*.description' => 'nullable|string',
+            'files' => 'present|array',
+            'files.*.file' => 'required|string',
+            'files.*.description' => 'nullable|string',
 
 
 

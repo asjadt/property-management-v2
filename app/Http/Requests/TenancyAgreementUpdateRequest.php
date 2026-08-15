@@ -52,6 +52,7 @@ class TenancyAgreementUpdateRequest extends FormRequest
             'renewal_fee' => 'required|string|max:255',
             'housing_act' => 'required|string|max:255',
             'let_type' => 'required|string|max:255',
+            'is_send_alert' => 'nullable|boolean',
             'terms_and_conditions' => 'nullable|string',
             'agency_name' => 'required|string|max:255',
             'landlord_name' => 'required|string|max:255',

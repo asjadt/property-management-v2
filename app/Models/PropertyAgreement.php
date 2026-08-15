@@ -31,6 +31,7 @@ class PropertyAgreement extends Model
         'max_price',
         'agency_type',
         'type',
+        'is_send_alert',
         "files",
         "landlord_sign_images",
         "agency_sign_images"

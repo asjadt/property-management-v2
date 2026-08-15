@@ -27,6 +27,7 @@ class TenancyAgreement extends Model
         'renewal_fee',
         'housing_act',
         'let_type',
+        'is_send_alert',
         'terms_and_conditions',
         'agency_name',
         'landlord_name',
