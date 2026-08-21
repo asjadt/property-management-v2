@@ -1803,3 +1803,16 @@ Route::middleware(['auth:api'])->group(function () {
 
 
 });
+
+Route::middleware('auth:api')->group(function () {
+    Route::post('/v1.0/businesses/{id}/extend-trial', [\App\Http\Controllers\UserManagementController::class, 'extendTrial']);
+    Route::get('/v1.0/businesses/{id}/trial-history', [\App\Http\Controllers\UserManagementController::class, 'getTrialHistory']);
+    Route::post('/v1.0/businesses/{id}/stripe-link', [\App\Http\Controllers\StripeController::class, 'generatePaymentLink']);
+    Route::post('/v1.0/businesses/{id}/stripe-intent', [\App\Http\Controllers\StripeController::class, 'createIntent']);
+});
+Route::post('/v1.0/stripe/webhook', [\App\Http\Controllers\StripeController::class, 'webhook']);
+
+Route::middleware('auth:api')->group(function () {
+    Route::get('/v1.0/settings/general', [\App\Http\Controllers\GeneralSettingController::class, 'index']);
+    Route::post('/v1.0/settings/general', [\App\Http\Controllers\GeneralSettingController::class, 'store']);
+});

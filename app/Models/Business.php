@@ -9,6 +9,10 @@ class Business extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'stripe_customer_id',
+        'stripe_subscription_id',
+        'subscription_status',
+        'trial_ends_at',
         "name",
         "about",
         "web_page",
@@ -90,4 +94,10 @@ class Business extends Model
 
         return $query;
     }
+
+    public function trialHistories()
+    {
+        return $this->hasMany(BusinessTrialHistory::class, 'business_id', 'id');
+    }
 }
+

@@ -497,7 +497,19 @@ class UserManagementController extends Controller
                     $request_data['business']['reseller_id'] = $request->user()->id;
                 }
 
+                $maxLimit = (int) (\App\Models\GeneralSetting::where('key', 'max_trial_days')->value('value') ?? 14);
+                $request_data['business']['trial_ends_at'] = now()->addDays($maxLimit);
+
                 $business =  Business::create($request_data['business']);
+
+                \App\Models\BusinessTrialHistory::create([
+                    'business_id' => $business->id,
+                    'granted_by' => $request->user()->id,
+                    'days_granted' => $maxLimit,
+                    'reason' => 'Initial signup trial',
+                    'total_used_before' => 0,
+                    'remaining_free_days' => 0
+                ]);
 
                 // SET BUSINESS_ID ON THE OWNER USER
                 $user->business_id = $business->id;
@@ -1624,6 +1636,74 @@ class UserManagementController extends Controller
             return response()->json(["ok" => true], 200);
         } catch (Exception $e) {
 
+            return $this->sendError($e, 500, $request);
+        }
+    }
+
+    public function extendTrial($id, Request $request)
+    {
+        try {
+            $this->storeActivity($request, "");
+            if (!$request->user()->hasRole('superadmin')) {
+                return response()->json(["message" => "Unauthorized"], 401);
+            }
+
+            $request->validate([
+                'days_granted' => 'required|integer|min:1',
+                'reason' => 'required|string|max:255',
+            ]);
+
+            $business = \App\Models\Business::findOrFail($id);
+            $daysGranted = (int) $request->days_granted;
+            $reason = $request->reason;
+            $maxLimit = (int) (\App\Models\GeneralSetting::where('key', 'max_trial_days')->value('value') ?? 90);
+
+            $totalUsedBefore = \App\Models\BusinessTrialHistory::where('business_id', $business->id)->sum('days_granted');
+            
+            if ($totalUsedBefore + $daysGranted > $maxLimit) {
+                return response()->json([
+                    "message" => "Free trial limit reached. This business has already used {$totalUsedBefore} of its maximum {$maxLimit} free days.",
+                ], 422);
+            }
+
+            $remaining = $maxLimit - ($totalUsedBefore + $daysGranted);
+
+            \App\Models\BusinessTrialHistory::create([
+                'business_id' => $business->id,
+                'granted_by' => $request->user()->id,
+                'days_granted' => $daysGranted,
+                'reason' => $reason,
+                'total_used_before' => $totalUsedBefore,
+                'remaining_free_days' => $remaining
+            ]);
+
+            $currentTrialEnd = $business->trial_ends_at ? \Carbon\Carbon::parse($business->trial_ends_at) : \Carbon\Carbon::now();
+            if ($currentTrialEnd->isPast()) {
+                $currentTrialEnd = \Carbon\Carbon::now();
+            }
+            $business->trial_ends_at = $currentTrialEnd->addDays($daysGranted);
+            $business->save();
+
+            return response()->json([
+                "message" => "Trial extended successfully.",
+                "remaining_free_days" => $remaining,
+                "trial_ends_at" => $business->trial_ends_at
+            ], 200);
+
+        } catch (\Exception $e) {
+            return $this->sendError($e, 500, $request);
+        }
+    }
+
+    public function getTrialHistory($id, Request $request)
+    {
+        try {
+            if (!$request->user()->hasRole('superadmin')) {
+                return response()->json(["message" => "Unauthorized"], 401);
+            }
+            $history = \App\Models\BusinessTrialHistory::with('granter:id,first_Name,last_Name')->where('business_id', $id)->orderBy('created_at', 'desc')->get();
+            return response()->json($history, 200);
+        } catch (\Exception $e) {
             return $this->sendError($e, 500, $request);
         }
     }

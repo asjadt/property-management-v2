@@ -17,7 +17,8 @@
         "laravel/tinker": "^3.0",
         "lcobucci/jwt": "^5.6",
         "propaganistas/laravel-disposable-email": "^2.4",
-        "spatie/laravel-permission": "^8.0"
+        "spatie/laravel-permission": "^8.0",
+        "stripe/stripe-php": "^21.2"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -81,7 +82,7 @@
             "dont-discover": []
         }
     },
-    "config": {
+    "config": { "audit": { "block-insecure": false },
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
