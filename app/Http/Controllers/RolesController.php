@@ -164,7 +164,7 @@ class RolesController extends Controller
       }
         $request_data = $request->validated();
         $role = Role::where(["id" => $request_data["id"]])->first();
-        if($role->name == "superadmin" )
+        if($role->name == "superadmin" || $role->name == "reseller" )
         {
 
            return response()->json([

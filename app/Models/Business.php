@@ -40,6 +40,7 @@ class Business extends Model
        "type" ,
        "sidebar_auto_collapse",
        "tax",
+       "reseller_id",
     ];
 
     public function owner(){
@@ -50,8 +51,16 @@ class Business extends Model
         return $this->hasMany(Reminder::class,'created_by', 'owner_id');
     }
 
+    public function reseller(){
+        return $this->belongsTo(User::class,'reseller_id', 'id');
+    }
+
     public function scopeBusinessFilters($query, array $filters = [])
     {
+        if (auth()->check() && auth()->user()->hasRole('reseller') && !auth()->user()->hasRole('superadmin')) {
+            $query->where('businesses.reseller_id', auth()->id());
+        }
+
         if (!empty($filters['searchKey'])) {
             $searchKey = $filters['searchKey'];
             $query->where(function ($q) use ($searchKey) {

@@ -121,7 +121,8 @@ return [
         "superadmin",
         "business_owner",
         "user",
-        "landlord"
+        "landlord",
+        "reseller"
     ],
     "permissions" => [
         "landlord_view_own_profile",

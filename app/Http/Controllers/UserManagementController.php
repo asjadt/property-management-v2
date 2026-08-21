@@ -492,6 +492,11 @@ class UserManagementController extends Controller
                 $request_data['business']['status'] = "pending";
                 $request_data['business']['owner_id'] = $user->id;
                 $request_data['business']['created_by'] = $request->user()->id;
+
+                if ($request->user()->hasRole('reseller')) {
+                    $request_data['business']['reseller_id'] = $request->user()->id;
+                }
+
                 $business =  Business::create($request_data['business']);
 
                 // SET BUSINESS_ID ON THE OWNER USER
@@ -1355,9 +1360,18 @@ class UserManagementController extends Controller
             }
 
             $usersQuery = User::with("roles", "business");
-            // ->whereHas('roles', function ($query) {
-            //     // return $query->where('name','!=', 'customer');
-            // });
+            
+            if ($request->user()->hasRole('reseller')) {
+                $usersQuery = $usersQuery->whereHas('business', function ($query) use ($request) {
+                    $query->where('reseller_id', $request->user()->id);
+                });
+            }
+
+            if (!empty($request->role)) {
+                $usersQuery = $usersQuery->whereHas('roles', function ($query) use ($request) {
+                    $query->where('name', $request->role);
+                });
+            }
 
             if (!empty($request->search_key)) {
                 $usersQuery = $usersQuery->where(function ($query) use ($request) {
