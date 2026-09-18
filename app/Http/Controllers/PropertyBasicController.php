@@ -1979,10 +1979,7 @@ COALESCE(
             $data["maintainance_report"] = $this->getMaintainanceReport();
             $data["overall_maintainance_report"] = $this->getOverallMaintainanceReport();
 
-
-
-
-
+            $data["compliance_report"] = $this->getComplianceReport();
 
             // GET RENT REPORT
             $data["rent_report"] = $this->rent_report();
@@ -2186,6 +2183,56 @@ COALESCE(
 
 
         return $repair_report;
+    }
+
+    public function getComplianceReport()
+    {
+        $user_id = auth()->user()->id;
+
+        $properties = Property::with('latest_documents')
+            ->where('created_by', $user_id)
+            ->where('is_active', 1)
+            ->get();
+
+        $totalProperties = $properties->count();
+        $compliantCount = 0;
+        $requireAttentionCount = 0;
+        $highRiskCount = 0;
+
+        foreach ($properties as $property) {
+            $docs = $property->latest_documents;
+            
+            if ($docs->isEmpty()) {
+                $highRiskCount++;
+                continue;
+            }
+
+            $expiredCount = 0;
+            $validCount = 0;
+
+            foreach ($docs as $doc) {
+                if ($doc->gas_end_date && \Carbon\Carbon::parse($doc->gas_end_date)->startOfDay()->lt(\Carbon\Carbon::today())) {
+                    $expiredCount++;
+                } else {
+                    $validCount++;
+                }
+            }
+
+            if ($expiredCount === 0 && $validCount > 0) {
+                $compliantCount++;
+            } elseif ($expiredCount > 0 && $validCount > 0) {
+                $requireAttentionCount++;
+            } else {
+                $highRiskCount++;
+            }
+        }
+
+        return [
+            'properties' => $totalProperties,
+            'compliant' => $compliantCount,
+            'requireAttention' => $requireAttentionCount,
+            'highRisk' => $highRiskCount,
+        ];
     }
 
     public function getDocumentReport()
