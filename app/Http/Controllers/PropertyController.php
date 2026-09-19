@@ -42,18 +42,22 @@ class PropertyController extends Controller
         $property->current_status = $status;
         $property->save();
 
-        PropertyStatusHistory::firstOrCreate(
-            [
-                'property_id' => $property->id,
-                'status' => $status,
-                'to_date' => null,
-            ],
-            [
-                'from_date' => Carbon::today()->toDateString(),
-                'changed_by' => optional($request->user())->id,
-                'note' => 'Initial property status',
-            ]
-        );
+        try {
+            PropertyStatusHistory::firstOrCreate(
+                [
+                    'property_id' => $property->id,
+                    'status' => $status,
+                    'to_date' => null,
+                ],
+                [
+                    'from_date' => Carbon::today()->toDateString(),
+                    'changed_by' => optional($request->user())->id,
+                    'note' => 'Initial property status',
+                ]
+            );
+        } catch (\Throwable $e) {
+            Log::warning("Failed to record initial property status history: " . $e->getMessage());
+        }
     }
 
     private function syncPropertyStatusHistory(Property $property, ?string $newStatus, Request $request, ?string $note = null, ?string $fromDate = null): void
@@ -64,18 +68,22 @@ class PropertyController extends Controller
 
         $effectiveFromDate = $fromDate ?: Carbon::today()->toDateString();
 
-        PropertyStatusHistory::where('property_id', $property->id)
-            ->whereNull('to_date')
-            ->update(['to_date' => Carbon::parse($effectiveFromDate)->copy()->subDay()->toDateString()]);
+        try {
+            PropertyStatusHistory::where('property_id', $property->id)
+                ->whereNull('to_date')
+                ->update(['to_date' => Carbon::parse($effectiveFromDate)->copy()->subDay()->toDateString()]);
 
-        PropertyStatusHistory::create([
-            'property_id' => $property->id,
-            'status' => $newStatus,
-            'from_date' => $effectiveFromDate,
-            'to_date' => null,
-            'changed_by' => optional($request->user())->id,
-            'note' => $note,
-        ]);
+            PropertyStatusHistory::create([
+                'property_id' => $property->id,
+                'status' => $newStatus,
+                'from_date' => $effectiveFromDate,
+                'to_date' => null,
+                'changed_by' => optional($request->user())->id,
+                'note' => $note,
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning("Failed to sync property status history: " . $e->getMessage());
+        }
 
         $property->current_status = $newStatus;
         $property->save();
