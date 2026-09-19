@@ -2751,7 +2751,8 @@ class PropertyController extends Controller
                     });
                 })
                 ->when(request()->filled("compliance_status"), function ($query) {
-                    $query->where("properties.is_active", 1);
+                    $query->where("properties.is_active", 1)
+                          ->where("properties.category", "manage_property");
 
                     $status = strtolower(str_replace([' ', '-'], '_', request()->input("compliance_status")));
                     if ($status === 'requireattention') {

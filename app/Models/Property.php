@@ -386,7 +386,8 @@ class Property extends Model
         }
 
         if (!empty($filters['compliance_status'])) {
-            $query->where($tableName . ".is_active", 1);
+            $query->where($tableName . ".is_active", 1)
+                  ->where($tableName . ".category", "manage_property");
 
             $status = strtolower(str_replace([' ', '-'], '_', $filters['compliance_status']));
             if ($status === 'requireattention') {

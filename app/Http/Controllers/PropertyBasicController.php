@@ -2191,6 +2191,7 @@ COALESCE(
 
         $properties = Property::with('latest_documents')
             ->where('created_by', $user_id)
+            ->where('category', 'manage_property')
             ->where('is_active', 1)
             ->get();
 
