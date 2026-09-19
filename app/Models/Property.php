@@ -302,7 +302,8 @@ class Property extends Model
         }
 
         if (!empty($filters['property_category'])) {
-            $query->where($tableName . ".category", $filters['property_category']);
+            $query->where($tableName . ".category", $filters['property_category'])
+                  ->where($tableName . ".is_active", 1);
         }
 
         if (!empty($filters['property_type_id'])) {
@@ -382,6 +383,47 @@ class Property extends Model
                     $subQuery->where('property_documents.document_type_id', $filters['document_type_id']);
                 }
             });
+        }
+
+        if (!empty($filters['compliance_status'])) {
+            $query->where($tableName . ".is_active", 1);
+
+            $status = strtolower(str_replace([' ', '-'], '_', $filters['compliance_status']));
+            if ($status === 'requireattention') {
+                $status = 'require_attention';
+            } elseif ($status === 'highrisk') {
+                $status = 'high_risk';
+            }
+
+            if ($status === 'compliant') {
+                $query->whereHas('latest_documents')
+                      ->whereDoesntHave('latest_documents', function ($subQuery) {
+                          $subQuery->whereNotNull('property_documents.gas_end_date')
+                                   ->where('property_documents.gas_end_date', '!=', '')
+                                   ->whereDate('property_documents.gas_end_date', '<', \Carbon\Carbon::today());
+                      });
+            } elseif ($status === 'require_attention') {
+                $query->whereHas('latest_documents', function ($subQuery) {
+                          $subQuery->whereNotNull('property_documents.gas_end_date')
+                                   ->where('property_documents.gas_end_date', '!=', '')
+                                   ->whereDate('property_documents.gas_end_date', '<', \Carbon\Carbon::today());
+                      })
+                      ->whereHas('latest_documents', function ($subQuery) {
+                          $subQuery->where(function ($q) {
+                              $q->whereNull('property_documents.gas_end_date')
+                                ->orWhere('property_documents.gas_end_date', '')
+                                ->orWhereDate('property_documents.gas_end_date', '>=', \Carbon\Carbon::today());
+                          });
+                      });
+            } elseif ($status === 'high_risk') {
+                $query->whereDoesntHave('latest_documents', function ($subQuery) {
+                    $subQuery->where(function ($q) {
+                        $q->whereNull('property_documents.gas_end_date')
+                          ->orWhere('property_documents.gas_end_date', '')
+                          ->orWhereDate('property_documents.gas_end_date', '>=', \Carbon\Carbon::today());
+                    });
+                });
+            }
         }
 
         if (!empty($filters['start_tenancy_agreement_date']) || !empty($filters['end_tenancy_agreement_date'])) {

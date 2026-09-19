@@ -2494,10 +2494,27 @@ class PropertyController extends Controller
     {
         try {
 
+            if ($request->filled('compliance_status')) {
+                $status = strtolower(str_replace([' ', '-'], '_', $request->input('compliance_status')));
+                if ($status === 'requireattention') {
+                    $status = 'require_attention';
+                } elseif ($status === 'highrisk') {
+                    $status = 'high_risk';
+                }
+
+                if (!in_array($status, ['compliant', 'require_attention', 'high_risk'])) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid compliance_status. Allowed values: compliant, require_attention, high_risk'
+                    ], 422);
+                }
+            }
+
             $propertyQuery = Property::with([
                 "property_landlords",
                 "property_tenants",
-                "latest_inspection"
+                "latest_inspection",
+                "latest_documents"
             ])->propertyFilters($request->all());
 
             $result = retrieve_data($propertyQuery, "properties.id", (new Property)->getTable());
@@ -2517,6 +2534,29 @@ class PropertyController extends Controller
 
                 // Replace the files property with the updated array if needed
                 $property->images = $updatedFiles; // Use a new attribute to avoid issues
+
+                // Calculate compliance_status
+                $docs = $property->latest_documents;
+                if (!$docs || $docs->isEmpty()) {
+                    $property->compliance_status = 'high_risk';
+                } else {
+                    $expiredCount = 0;
+                    $validCount = 0;
+                    foreach ($docs as $doc) {
+                        if ($doc->gas_end_date && Carbon::parse($doc->gas_end_date)->startOfDay()->lt(Carbon::today())) {
+                            $expiredCount++;
+                        } else {
+                            $validCount++;
+                        }
+                    }
+                    if ($expiredCount === 0 && $validCount > 0) {
+                        $property->compliance_status = 'compliant';
+                    } elseif ($expiredCount > 0 && $validCount > 0) {
+                        $property->compliance_status = 'require_attention';
+                    } else {
+                        $property->compliance_status = 'high_risk';
+                    }
+                }
             }
 
             return response()->json([
@@ -2622,7 +2662,8 @@ class PropertyController extends Controller
                     $query->where("properties.category", request()->category);
                 })
                 ->when($request->filled("property_category"), function ($query) {
-                    $query->where("properties.category", request()->property_category);
+                    $query->where("properties.category", request()->property_category)
+                          ->where("properties.is_active", 1);
                 })
                 ->when($request->filled("property_type_id"), function ($query) {
                     $query->where("properties.property_type_id", request()->property_type_id);
@@ -2708,6 +2749,46 @@ class PropertyController extends Controller
                             $subQuery->where('property_documents.document_type_id', request()->input('document_type_id'));
                         }
                     });
+                })
+                ->when(request()->filled("compliance_status"), function ($query) {
+                    $query->where("properties.is_active", 1);
+
+                    $status = strtolower(str_replace([' ', '-'], '_', request()->input("compliance_status")));
+                    if ($status === 'requireattention') {
+                        $status = 'require_attention';
+                    } elseif ($status === 'highrisk') {
+                        $status = 'high_risk';
+                    }
+
+                    if ($status === 'compliant') {
+                        $query->whereHas('latest_documents')
+                              ->whereDoesntHave('latest_documents', function ($subQuery) {
+                                  $subQuery->whereNotNull('property_documents.gas_end_date')
+                                           ->where('property_documents.gas_end_date', '!=', '')
+                                           ->whereDate('property_documents.gas_end_date', '<', Carbon::today());
+                              });
+                    } elseif ($status === 'require_attention') {
+                        $query->whereHas('latest_documents', function ($subQuery) {
+                                  $subQuery->whereNotNull('property_documents.gas_end_date')
+                                           ->where('property_documents.gas_end_date', '!=', '')
+                                           ->whereDate('property_documents.gas_end_date', '<', Carbon::today());
+                              })
+                              ->whereHas('latest_documents', function ($subQuery) {
+                                  $subQuery->where(function ($q) {
+                                      $q->whereNull('property_documents.gas_end_date')
+                                        ->orWhere('property_documents.gas_end_date', '')
+                                        ->orWhereDate('property_documents.gas_end_date', '>=', Carbon::today());
+                                  });
+                              });
+                    } elseif ($status === 'high_risk') {
+                        $query->whereDoesntHave('latest_documents', function ($subQuery) {
+                            $subQuery->where(function ($q) {
+                                $q->whereNull('property_documents.gas_end_date')
+                                  ->orWhere('property_documents.gas_end_date', '')
+                                  ->orWhereDate('property_documents.gas_end_date', '>=', Carbon::today());
+                            });
+                        });
+                    }
                 })
                 ->when(request()->filled('start_tenancy_agreement_date') || request()->filled('end_tenancy_agreement_date'), function ($query) {
                     $query->whereHas("tenancy_agreements", function ($subQuery) {
