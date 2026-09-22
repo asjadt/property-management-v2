@@ -19,7 +19,9 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => app()->isProduction()
+        ? [env('FRONT_END_URL')]
+        : ['*'],
 
     'allowed_origins_patterns' => [],
 
