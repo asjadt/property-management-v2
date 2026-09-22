@@ -56,23 +56,33 @@ Route::middleware([\App\Http\Middleware\DevAccessMiddleware::class])->group(func
     Route::get('/swagger-refresh', [SetUpController::class, "swaggerRefresh"]);
     Route::get('/automobile-refresh', [SetUpController::class, "automobileRefresh"]);
     Route::get('/property-type-option-refresh', [SetUpController::class, "propertyTypeOptionRefresh"]);
-    
-    Route::get('/landlord-migrate', function() {
-        \Illuminate\Support\Facades\Artisan::call('landlord:migrate-users');
-        return "<pre>" . \Illuminate\Support\Facades\Artisan::output() . "</pre>";
+
+    Route::get('/landlord-migrate', function () {
+        Artisan::call('landlord:migrate-users');
+        return "<pre>" . Artisan::output() . "</pre>";
     });
 
-    Route::get("/swagger-login",[SwaggerLoginController::class,"login"])->name("login.view");
-    Route::post("/swagger-login",[SwaggerLoginController::class,"passUser"]);
+    Route::get("/swagger-login", [SwaggerLoginController::class, "login"])->name("login.view");
+    Route::post("/swagger-login", [SwaggerLoginController::class, "passUser"]);
 
     Route::get('/migrate', [SetUpController::class, "migrate"]);
     Route::get('/migrate-activity', [SetUpController::class, "migrateActivity"]);
-    Route::get('/optimize', function() {
-        \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+    Route::get('/clear-config-cache', function () {
+        // Directly delete the cached config file so the new .env values (e.g. CACHE_DRIVER=file)
+        // are picked up without going through optimize:clear (which reads the stale cached config).
+        $file = base_path('bootstrap/cache/config.php');
+        if (file_exists($file)) {
+            unlink($file);
+            return "Config cache cleared! Now hit /optimize to finish.";
+        }
+        return "No config cache found — .env values are already live.";
+    });
+    Route::get('/optimize', function () {
+        Artisan::call('optimize:clear');
         return "Cache cleared successfully!";
     });
 
-    Route::get('/passport-install',[SetUpController::class,"setupPassport"]);
+    Route::get('/passport-install', [SetUpController::class, "setupPassport"]);
 
     Route::get('/seed', [SetUpController::class, "seed"]);
 
@@ -95,43 +105,44 @@ Route::middleware([\App\Http\Middleware\DevAccessMiddleware::class])->group(func
     Route::get('/production-sync', [SetUpController::class, 'productionSync'])->name('production-sync');
 
 
-    Route::get("/custom-command",function(Request $request) {
+    Route::get("/custom-command", function (Request $request) {
         Artisan::call('reminder:send');
         return "done";
     });
 
-    Route::get("/test",function() {
+    Route::get("/test", function () {
         Log::info('Task started.');
         $invoice_reminders = InvoiceReminder::whereDate(
-           "reminder_date", today()
-       )
-       ->where([
-           "send_reminder" => TRUE
-       ])
-       ->get()
-       ;
+            "reminder_date",
+            today()
+        )
+            ->where([
+                "send_reminder" => TRUE
+            ])
+            ->get()
+        ;
 
-       foreach($invoice_reminders as $invoice_reminder) {
-           $recipients = ["drrifatalashwad0@gmail.com"];
-           return response()->json($invoice_reminder->invoice);
-           if($invoice_reminder->invoice->tenant) {
-               array_push($recipients, $invoice_reminder->invoice->tenant->email);
-           }
-           if($invoice_reminder->invoice->landlord) {
-               array_push($recipients, $invoice_reminder->invoice->landlord->email);
-           }
+        foreach ($invoice_reminders as $invoice_reminder) {
+            $recipients = ["drrifatalashwad0@gmail.com"];
+            return response()->json($invoice_reminder->invoice);
+            if ($invoice_reminder->invoice->tenant) {
+                array_push($recipients, $invoice_reminder->invoice->tenant->email);
+            }
+            if ($invoice_reminder->invoice->landlord) {
+                array_push($recipients, $invoice_reminder->invoice->landlord->email);
+            }
 
-           Mail::to($recipients)
-           ->send(new SendInvoiceReminderEmail($invoice_reminder->invoice));
-       }
+            Mail::to($recipients)
+                ->send(new SendInvoiceReminderEmail($invoice_reminder->invoice));
+        }
 
-              Log::info('Task executed.');
+        Log::info('Task executed.');
 
     });
 });
 
 // Public User Activation Route
-Route::get("/activate/{token}",function(Request $request,$token) {
+Route::get("/activate/{token}", function (Request $request, $token) {
     $user = User::where([
         "email_verify_token" => $token,
     ])
@@ -155,23 +166,23 @@ Route::get("/activate/{token}",function(Request $request,$token) {
 
 
     $html_content = json_decode($email_content->template);
-    $html_content =  str_replace("[FirstName]", $user->first_Name, $html_content );
-    $html_content =  str_replace("[LastName]", $user->last_Name, $html_content );
-    $html_content =  str_replace("[FullName]", ($user->first_Name. " " .$user->last_Name), $html_content );
-    $html_content =  str_replace("[AccountVerificationLink]", (env('APP_URL').'/activate/'.$user->email_verify_token), $html_content);
-    $html_content =  str_replace("[ForgotPasswordLink]", (env('FRONT_END_URL').'/fotget-password/'.$user->resetPasswordToken), $html_content );
+    $html_content = str_replace("[FirstName]", $user->first_Name, $html_content);
+    $html_content = str_replace("[LastName]", $user->last_Name, $html_content);
+    $html_content = str_replace("[FullName]", ($user->first_Name . " " . $user->last_Name), $html_content);
+    $html_content = str_replace("[AccountVerificationLink]", (env('APP_URL') . '/activate/' . $user->email_verify_token), $html_content);
+    $html_content = str_replace("[ForgotPasswordLink]", (env('FRONT_END_URL') . '/fotget-password/' . $user->resetPasswordToken), $html_content);
 
 
 
     $email_template_wrapper = EmailTemplateWrapper::where([
         "id" => $email_content->wrapper_id
     ])
-    ->first();
+        ->first();
 
 
     $html_final = json_decode($email_template_wrapper->template);
-    $html_final =  str_replace("[content]", $html_content, $html_final);
+    $html_final = str_replace("[content]", $html_content, $html_final);
 
 
-    return view("dynamic-welcome-message",["html_content" => $html_final]);
+    return view("dynamic-welcome-message", ["html_content" => $html_final]);
 });
